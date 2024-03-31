@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
-  var loggedin = false;
+  var loggedin = true;
   void getNext() {
     current = WordPair.random();
     notifyListeners();
