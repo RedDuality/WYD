@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/login.dart';
 import 'package:wyd_front/main.dart';
 
+import 'favorites_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -94,9 +96,9 @@ class GeneratorPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           BigCard(pair: pair),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
+          const SizedBox(height: 10,),
+          Wrap(
+            //mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton.icon(
                 onPressed: () {
@@ -105,7 +107,7 @@ class GeneratorPage extends StatelessWidget {
                 icon: Icon(icon),
                 label: const Text('Like'),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 10, height: 10,),
               ElevatedButton(
                 onPressed: () {
                   appState.getNext();
@@ -145,35 +147,5 @@ class BigCard extends StatelessWidget {
             style: style, semanticsLabel: "${pair.first}${pair.second}"),
       ),
     );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  const FavoritesPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return const Center(
-        child: Text("No favorites yet"),
-      );
-    }
-    return Center(
-        child: ListView(
-            //mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text('You have '
-                '${appState.favorites.length} favorites:'),
-          ),
-          for (var fav in appState.favorites)
-            ListTile(
-              leading: const Icon(Icons.favorite),
-              title: Text(fav.asSnakeCase),
-            )
-        ]));
   }
 }
