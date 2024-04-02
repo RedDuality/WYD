@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/agenda_page.dart';
 import 'package:wyd_front/login.dart';
 import 'package:wyd_front/main.dart';
 
@@ -32,10 +33,10 @@ class _HomePageState extends State<HomePage> {
         page = const FavoritesPage();
         break;
       case 2:
-        page = const EventsPage();
+        page = const AgendaPage();
         break;
       case 3:
-        page = const Placeholder();
+        page = const EventsPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -59,8 +60,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.event_available),
-                    label: Text('Events'),
+                    label: Text('My Agenda'),
                   ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.event),
+                    label: Text('Shared Events'),
+                  ),
+
+                  
                 ],
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (value) {

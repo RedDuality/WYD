@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:wyd_front/model.dart';
 
 class EventsPage extends StatelessWidget{
   const EventsPage({super.key});
@@ -10,7 +11,7 @@ class EventsPage extends StatelessWidget{
       body: SfCalendar(
         view: CalendarView.week,
         firstDayOfWeek: 1,
-        
+        //dataSource: ,
         //monthViewSettings: const MonthViewSettings(showAgenda: true),
       ));
   }
