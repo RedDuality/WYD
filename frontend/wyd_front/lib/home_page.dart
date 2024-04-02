@@ -21,9 +21,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     if (!context.watch<MyAppState>().loggedin) {
       return const LoginPage();
     }
+    
     Widget page;
     switch (selectedIndex) {
       case 0:
