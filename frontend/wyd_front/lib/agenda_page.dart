@@ -91,7 +91,7 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
 DataSource _getDataSource() {
   List<Appointment> appointments = <Appointment>[];
   List<CalendarResource> resources = <CalendarResource>[];
-  appointments.add(Appointment(
+  appointments.add(MyEvent(
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
       isAllDay: false,

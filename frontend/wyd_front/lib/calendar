@@ -58,3 +58,22 @@ SfCalendar({
   void Function(AppointmentDragUpdateDetails)? onDragUpdate, 
   void Function(AppointmentDragEndDetails)? onDragEnd
   })
+
+
+
+  Appointment Appointment({
+  String? startTimeZone,
+  String? endTimeZone,
+  String? recurrenceRule,
+  bool isAllDay = false,
+  String? notes,
+  String? location,
+  List<Object>? resourceIds,
+  Object? recurrenceId,
+  Object? id,
+  required DateTime startTime,
+  required DateTime endTime,
+  String subject = '',
+  Color color = Colors.lightBlue,
+  List<DateTime>? recurrenceExceptionDates,
+})
