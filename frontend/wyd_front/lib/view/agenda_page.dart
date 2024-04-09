@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
 
-import 'model.dart';
+import '../model/model.dart';
 
 class AgendaPage extends StatelessWidget {
   const AgendaPage({super.key});

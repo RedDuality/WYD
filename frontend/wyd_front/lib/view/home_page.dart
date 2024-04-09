@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/agenda_page.dart';
-import 'package:wyd_front/login.dart';
+import 'package:wyd_front/view/agenda_page.dart';
+import 'package:wyd_front/view/login.dart';
 import 'package:wyd_front/main.dart';
 
 import 'events_page.dart';

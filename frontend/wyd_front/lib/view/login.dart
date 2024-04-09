@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/home_page.dart';
+import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/main.dart';
 
 
