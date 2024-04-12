@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:wyd_front/model/model.dart';
+//import 'package:wyd_front/model/model.dart';
 
 class EventsPage extends StatelessWidget{
   const EventsPage({super.key});

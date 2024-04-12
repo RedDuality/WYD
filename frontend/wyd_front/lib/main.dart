@@ -1,6 +1,9 @@
-import 'package:english_words/english_words.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/state/login_state.dart';
+import 'package:wyd_front/state/my_app_state.dart';
+import 'package:wyd_front/state/private_events.dart';
 import 'package:wyd_front/view/home_page.dart';
 
 
@@ -13,39 +16,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+    return MultiProvider(
+      providers:[
+        Provider(create: (context) => PrivateEvents(),),
+        ChangeNotifierProvider(create: (context) => MyAppState(),),
+        Provider(create: (context) => LoginState(),),
+      ],
       child: MaterialApp(
         title: 'WYD',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         ),
+        locale: const Locale('it','IT'),
         home: const HomePage(),
       ),
     );
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  var loggedin = true;
-
-
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  var favorites = <WordPair>[];
-
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
-}
 

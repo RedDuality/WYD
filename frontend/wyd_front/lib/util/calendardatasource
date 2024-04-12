@@ -1,0 +1,193 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart'
+    show IterableDiagnostics;
+
+import '../../../calendar.dart';
+import '../common/calendar_view_helper.dart';
+import 'appointment_helper.dart';
+
+@optionalTypeArgs
+abstract class CalendarDataSource<T extends Object?>
+    extends CalendarDataSourceChangeNotifier {
+  List<dynamic>? appointments;
+  List<CalendarResource>? resources;
+  
+  List<Appointment> getVisibleAppointments(
+      DateTime startDate, String calendarTimeZone,
+      [DateTime? endDate]) {
+    endDate ??= startDate;
+    List<CalendarAppointment> calendarAppointments =
+        AppointmentHelper.generateCalendarAppointments(this, calendarTimeZone);
+    calendarAppointments = AppointmentHelper.getVisibleAppointments(
+        startDate, endDate, calendarAppointments, calendarTimeZone, false,
+        canCreateNewAppointment: false);
+    final List<Appointment> visibleAppointments = <Appointment>[];
+
+    for (int i = 0; i < calendarAppointments.length; i++) {
+      visibleAppointments
+          .add(calendarAppointments[i].convertToCalendarAppointment());
+    }
+    return visibleAppointments;
+  }
+
+  Appointment? getOccurrenceAppointment(
+      Object? patternAppointment, DateTime date, String calendarTimeZone) {
+    if (patternAppointment == null) {
+      return null;
+    }
+
+    final List<dynamic> patternAppointmentColl = <dynamic>[patternAppointment];
+    final List<CalendarAppointment> patternAppointments =
+        AppointmentHelper.generateCalendarAppointments(
+            this, calendarTimeZone, patternAppointmentColl);
+    final CalendarAppointment patternCalendarAppointment =
+        patternAppointments[0];
+
+    if (patternCalendarAppointment.recurrenceRule == null ||
+        patternCalendarAppointment.recurrenceRule!.isEmpty) {
+      return null;
+    } else if (CalendarViewHelper.isDateInDateCollection(
+        patternCalendarAppointment.recurrenceExceptionDates, date)) {
+      final List<CalendarAppointment> dataSourceAppointments =
+          AppointmentHelper.generateCalendarAppointments(
+              this, calendarTimeZone);
+      for (int i = 0; i < dataSourceAppointments.length; i++) {
+        final CalendarAppointment dataSourceAppointment =
+            dataSourceAppointments[i];
+        if (patternCalendarAppointment.id ==
+                dataSourceAppointment.recurrenceId &&
+            (isSameDate(dataSourceAppointment.startTime, date))) {
+          return dataSourceAppointment.convertToCalendarAppointment();
+        }
+      }
+    } else {
+      final List<CalendarAppointment> occurrenceAppointments =
+          AppointmentHelper.getVisibleAppointments(
+              date, date, patternAppointments, calendarTimeZone, false,
+              canCreateNewAppointment: false);
+
+      if (occurrenceAppointments.isEmpty) {
+        return null;
+      }
+
+      return occurrenceAppointments[0].convertToCalendarAppointment();
+    }
+    return null;
+  }
+
+  Object? getPatternAppointment(
+      Object? occurrenceAppointment, String calendarTimeZone) {
+    if (occurrenceAppointment == null) {
+      return null;
+    }
+    final List<dynamic> occurrenceAppointmentColl = <dynamic>[
+      occurrenceAppointment
+    ];
+    final List<CalendarAppointment> occurrenceAppointments =
+        AppointmentHelper.generateCalendarAppointments(
+            this, calendarTimeZone, occurrenceAppointmentColl);
+    final CalendarAppointment occurrenceCalendarAppointment =
+        occurrenceAppointments[0];
+    if ((occurrenceCalendarAppointment.recurrenceRule == null ||
+            occurrenceCalendarAppointment.recurrenceRule!.isEmpty) &&
+        occurrenceCalendarAppointment.recurrenceId == null) {
+      return null;
+    }
+    final List<CalendarAppointment> dataSourceAppointments =
+        AppointmentHelper.generateCalendarAppointments(
+            this, calendarTimeZone, appointments);
+
+    for (int i = 0; i < dataSourceAppointments.length; i++) {
+      final CalendarAppointment dataSourceAppointment =
+          dataSourceAppointments[i];
+      if ((dataSourceAppointment.id ==
+              occurrenceCalendarAppointment.recurrenceId) ||
+          (occurrenceCalendarAppointment.recurrenceId == null &&
+              dataSourceAppointment.id == occurrenceCalendarAppointment.id)) {
+        return dataSourceAppointment.data;
+      }
+    }
+    return null;
+  }
+
+
+
+  DateTime getStartTime(int index) => DateTime.now();
+
+  DateTime getEndTime(int index) => DateTime.now();
+
+  String getSubject(int index) => '';
+
+  bool isAllDay(int index) => false;
+
+  Color getColor(int index) => Colors.lightBlue;
+
+  String? getNotes(int index) => null;
+
+  String? getLocation(int index) => null;
+
+  String? getStartTimeZone(int index) => null;
+
+  String? getEndTimeZone(int index) => null;
+
+  String? getRecurrenceRule(int index) => null;
+
+  List<DateTime>? getRecurrenceExceptionDates(int index) => null;
+
+  List<Object>? getResourceIds(int index) => null;
+
+  Object? getRecurrenceId(int index) => null;
+
+  Object? getId(int index) => null;
+
+  T? convertAppointmentToObject(T customData, Appointment appointment) => null;
+
+  @protected
+  Future<void> handleLoadMore(DateTime startDate, DateTime endDate) async {}
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IterableDiagnostics<dynamic>(appointments)
+        .toDiagnosticsNode(name: 'appointments'));
+    properties.add(IterableDiagnostics<CalendarResource>(resources)
+        .toDiagnosticsNode(name: 'resources'));
+  }
+}
+
+typedef CalendarDataSourceCallback = void Function(
+    CalendarDataSourceAction, List<dynamic>);
+
+class CalendarDataSourceChangeNotifier with Diagnosticable {
+  List<CalendarDataSourceCallback>? _listeners;
+
+  void addListener(CalendarDataSourceCallback listener) {
+    _listeners ??= <CalendarDataSourceCallback>[];
+    _listeners!.add(listener);
+  }
+
+  void removeListener(CalendarDataSourceCallback listener) {
+    if (_listeners == null) {
+      return;
+    }
+
+    _listeners!.remove(listener);
+  }
+
+  void notifyListeners(CalendarDataSourceAction type, List<dynamic> data) {
+    if (_listeners == null) {
+      return;
+    }
+
+    for (final CalendarDataSourceCallback listener in _listeners!) {
+      listener(type, data);
+    }
+  }
+
+  @mustCallSuper
+  void dispose() {
+    _listeners = null;
+  }
+}

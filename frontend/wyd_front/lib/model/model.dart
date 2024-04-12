@@ -1,18 +1,9 @@
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class DataSource extends CalendarDataSource {
-  DataSource(List<Appointment> events, List<CalendarResource> resources) {
-    appointments = events;
-    resources = resources;
-  }
-}
-
 class MyEvent extends Appointment {
-
-  String link;
+  String? link;
 
   MyEvent({
-    super.notes,
     required super.startTime,
     required super.endTime,
     super.isAllDay,
@@ -22,13 +13,34 @@ class MyEvent extends Appointment {
     super.endTimeZone,
     super.recurrenceRule,
     super.recurrenceExceptionDates,
+    super.notes,
     super.location,
     super.resourceIds,
     super.recurrenceId,
     super.id,
-    this.link = '',
-  }) ;
+    this.link = 'linkciao',
+  });
 
 
-  
+  Map<String, dynamic> toJson() {
+    return {
+      'startTime': startTime.toIso8601String(),
+      'endTime': endTime.toIso8601String(),
+      'isAllDay': isAllDay,
+      'subject': subject,
+      'color': color.value.toRadixString(16),
+      'startTimeZone': startTimeZone,
+      'endTimeZone': endTimeZone,
+      'recurrenceRule': recurrenceRule,
+      //'recurrenceExceptionDates': recurrenceExceptionDates,
+      'notes': notes,
+      'location': location,
+      'resourceIds': resourceIds,
+      'recurrenceId': recurrenceId,
+      'id': id,
+      'link': link,
+    };
+  }
+
+
 }
