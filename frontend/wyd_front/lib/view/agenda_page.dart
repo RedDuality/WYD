@@ -1,26 +1,52 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:wyd_front/controller/api.dart';
+import 'package:wyd_front/state/private_events.dart';
 
-import 'model.dart';
 
 class AgendaPage extends StatelessWidget {
   const AgendaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    var privateEvents=context.read<PrivateEvents>();
+
     return Scaffold(
-        body: SfCalendar(
-      view: CalendarView.week,
-      firstDayOfWeek: 1,
-      dataSource: _getDataSource(),
-      allowedViews: const [CalendarView.week, CalendarView.month],
-      allowDragAndDrop: true,
-      onTap: (details) => calendarTapped(details, context),
-      //monthViewSettings: const MonthViewSettings(showAgenda: true),
-    ));
+        body: Column(
+          children: [
+            Expanded(
+              child: SfCalendar(
+                    view: CalendarView.week,
+                    firstDayOfWeek: 1,
+                    dataSource: privateEvents,
+                    allowedViews: const [CalendarView.week, CalendarView.month],
+                    allowDragAndDrop: true,
+                    onTap: (details) => calendarTapped(details, context),
+                    //monthViewSettings: const MonthViewSettings(showAgenda: true),
+                  ),
+            ),
+            TextButton(
+              onPressed: () {
+                String json = jsonEncode(privateEvents.appointments![0]);
+                Api().sendJson(json);
+                },
+              child: const Align(
+                alignment: Alignment.bottomCenter,
+                child: Text('API TEST'))
+                ),
+          ],
+        ));
   }
 }
+
+
+
+
 
 void calendarTapped(CalendarTapDetails details, BuildContext context) {
   if (details.targetElement == CalendarElement.appointment ||
@@ -88,21 +114,5 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
   }
 }
 
-DataSource _getDataSource() {
-  List<Appointment> appointments = <Appointment>[];
-  List<CalendarResource> resources = <CalendarResource>[];
-  appointments.add(Appointment(
-      startTime: DateTime.now(),
-      endTime: DateTime.now().add(const Duration(hours: 2)),
-      isAllDay: false,
-      subject: 'Meeting',
-      color: Colors.blue,
-      resourceIds: <Object>['0001'],
-      startTimeZone: '',
-      endTimeZone: ''));
 
-  resources.add(
-      CalendarResource(displayName: 'John', id: '0001', color: Colors.red));
 
-  return DataSource(appointments, resources);
-}

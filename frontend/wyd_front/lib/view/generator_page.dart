@@ -1,7 +1,7 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/main.dart';
+import 'package:wyd_front/state/my_app_state.dart';
 
 class GeneratorPage extends StatelessWidget {
   const GeneratorPage({super.key});

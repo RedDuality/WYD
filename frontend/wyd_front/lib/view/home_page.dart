@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/agenda_page.dart';
-import 'package:wyd_front/login.dart';
-import 'package:wyd_front/main.dart';
+import 'package:wyd_front/state/login_state.dart';
+import 'package:wyd_front/view/agenda_page.dart';
+import 'package:wyd_front/view/login.dart';
 
 import 'events_page.dart';
 import 'favorites_page.dart';
@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
 
-    if (!context.watch<MyAppState>().loggedin) {
+    if (!context.read<LoginState>().loggedin) {
       return const LoginPage();
     }
     

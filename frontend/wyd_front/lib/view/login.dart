@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/home_page.dart';
-import 'package:wyd_front/main.dart';
+import 'package:wyd_front/state/login_state.dart';
+import 'package:wyd_front/view/home_page.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    var loginState = context.read<LoginState>();
     return Scaffold(
       backgroundColor: Colors.white,
       
@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
               //decoration: BoxDecoration( color: Colors.blue),
               child: ElevatedButton(
                 onPressed: () {
-                  appState.loggedin = true;
+                  loginState.loginSuccessful();
                   Navigator.push(
 
                       context, MaterialPageRoute(builder: (_) => const HomePage()));
