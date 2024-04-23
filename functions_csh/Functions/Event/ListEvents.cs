@@ -15,12 +15,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace My.Functions
+namespace Functions
 {
     public class ListEvents
     {
         private readonly ILogger<ListEvents> _logger;
-        private static EventController? _eventController;
+        private readonly EventController _eventController;
 
         public ListEvents(ILogger<ListEvents> logger)
         {
@@ -29,15 +29,16 @@ namespace My.Functions
         }
 
         [Function("ListEvents")]
-        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ListEvents/{userid}")] HttpRequestData req, int userId, FunctionContext executionContext)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ListEvents/{userId}")] HttpRequestData req, string userId, FunctionContext executionContext)
         {
-
-            if (_eventController == null)
-            {
-                _eventController = new EventController();
+            int id;
+            try {
+                id = Int32.Parse(userId);
+            }catch(FormatException){
+                return new BadRequestObjectResult("Id Format wrong");
             }
 
-            var eventi = _eventController.GetEvents(1);
+            var eventi = _eventController.GetEvents(id);
             string result = JsonSerializer.Serialize(eventi);
 
             Console.WriteLine(result);

@@ -15,7 +15,8 @@ public class User
     public string? mail { get; set; }
     public string? username { get ; set; }
     
-    //[JsonIgnore]
+    [JsonIgnore]
     public List<Event> Events {get; set;} = [];
+    [JsonIgnore]
     public List<UserEvent> UserEvents {get; set;} = [];
 }

@@ -6,13 +6,13 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Newtonsoft.Json;
 
-namespace My.Functions
+namespace Functions
 {
     public class GetUser
     {
         private readonly ILogger<GetUser> _logger;
 
-        private static UserController? _userController;
+        private readonly UserController _userController;
 
         public GetUser(ILogger<GetUser> logger)
         {
@@ -21,16 +21,25 @@ namespace My.Functions
         }
 
         [Function("GetUser")]
-        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req, FunctionContext executionContext)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "GetUser/{id}")] HttpRequest req, string id)
         {
-            if (_userController == null)
-                _userController = new UserController();
-            
-            User u = _userController.Get(1);
-            Console.WriteLine(JsonConvert.SerializeObject(u));
-            
-            string result = JsonConvert.SerializeObject(u);
-            return new OkObjectResult(result);
+            int userId;
+            try {
+                userId = Int32.Parse(id);
+            }catch(FormatException){
+                return new BadRequestObjectResult("Id Format wrong");
+            }
+
+            try {
+                User u = _userController.Get(userId);
+                string result = JsonConvert.SerializeObject(u);
+                return new OkObjectResult(result);
+            }
+            catch (InvalidOperationException)
+            {
+                return new NotFoundObjectResult("User not found");
+            }
+
         }
     }
 }

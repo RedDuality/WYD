@@ -32,8 +32,8 @@ class AgendaPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                String json = jsonEncode(privateEvents.appointments![0]);
-                Api().sendJson(json);
+                //String json = jsonEncode(privateEvents.appointments![0]);
+                Api().createUser();
                 },
               child: const Align(
                 alignment: Alignment.bottomCenter,

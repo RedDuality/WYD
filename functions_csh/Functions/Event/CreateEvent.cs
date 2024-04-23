@@ -10,12 +10,12 @@ using Newtonsoft.Json;
 
 
 
-namespace My.Functions
+namespace Functions
 {
     public class CreateEvent
     {
         private readonly ILogger<CreateEvent> _logger;
-        private static EventController? _eventController;
+        private readonly EventController _eventController;
 
         public CreateEvent(ILogger<CreateEvent> logger)
         {
@@ -24,14 +24,8 @@ namespace My.Functions
         }
 
         [Function("CreateEvent")]
-        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req, FunctionContext executionContext)
         {
-
-            if (_eventController == null)
-            {
-                _eventController = new EventController();
-            }
-
 
             /*
             string requestBody;
@@ -43,14 +37,15 @@ namespace My.Functions
 
 
             string result = "null";
-            Event? myevent = JsonConvert.DeserializeObject<Event>(requestBody);
+            var myevent = JsonConvert.DeserializeObject<Event>(requestBody);
             if (myevent != null)
             {
                 User uc = new UserController().Get(1);
                 Event ciao = _eventController.Create(myevent, uc);
                 result = JsonConvert.SerializeObject(ciao);
+                return new OkObjectResult(result);
             }
-            return new OkObjectResult(result);
+            return new BadRequestObjectResult("Bad Json Formatting");
 
         }
     }

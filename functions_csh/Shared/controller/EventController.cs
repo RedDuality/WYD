@@ -39,6 +39,7 @@ public class EventController
 
         using (db)
         {
+            var transaction = db.Database.BeginTransaction();
             User uc = new UserController().Get(1);
             ev.Id = null;
             
@@ -47,15 +48,28 @@ public class EventController
             ev.Users.Add(uc);
             db.Events.Update(ev);
             db.SaveChanges();
+            transaction.Commit();
             return ev;
         }
     }
 
-    public List<Event> Add(List<User> users, List<Event> ev, int userId)
+    public List<Event> Add(List<User> users, List<Event> ev)
     {
-        db.Events.AddRange(ev);
-        db.SaveChanges();
+        using (db)
+        {
+            var transaction = db.Database.BeginTransaction();
 
-        return ev;
+            ev.ForEach(e=> e.Id = null);
+            
+            db.Events.AddRange(ev);
+            db.SaveChanges();
+            ev.ForEach(e => e.Users.AddRange(users));
+            db.Events.UpdateRange(ev);
+            db.SaveChanges();
+
+            transaction.Commit();
+            
+            return ev;
+        }
     }
 }

@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Model;
 
 namespace Database;
@@ -8,9 +7,10 @@ public class WydDbContext : DbContext
 {
 
 
-    private string _connectionString = "Server=tcp:wyddb.database.windows.net,1433;" +
-                                    "Initial Catalog=wyddb1;Persist Security Info=False;" + "User ID=wydadmin;Password=password_1;" +
-                                    "MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30";
+    private string _connectionString = "Server=tcp:wydreldbserver.database.windows.net,1433;"+
+        "Initial Catalog=Wydreldb;Persist Security Info=False;"+ 
+        "User ID=wydadmin;Password=password_1;"+
+        "MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
 
     public DbSet<Event> Events { get; set; }
     public DbSet<User> Users { get; set; }

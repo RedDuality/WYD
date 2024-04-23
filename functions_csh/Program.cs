@@ -9,7 +9,9 @@ var host = new HostBuilder()
     .ConfigureServices(services => {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
+        services.AddLogging();
     })
+    
     .Build();
     
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings {

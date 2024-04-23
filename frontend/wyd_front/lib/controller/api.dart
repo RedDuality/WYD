@@ -4,12 +4,14 @@ import 'package:http/http.dart' as http;
 
 class Api{
 
+  String functionUrl = 'https://wydcalendarapi.azurewebsites.net/api/';
+
   void sendJson(String jsonString){
     // Define the Azure Function URL
-    String functionUrl = 'https://wyd-function-prova1.azurewebsites.net/api/SaveExam';
+    String url = functionUrl + 'SaveEvent';
 
     // Make a POST request to the Azure Function
-    http.post(Uri.parse(functionUrl), body: jsonString).then((response) {
+    http.post(Uri.parse(url), body: jsonString).then((response) {
       // Print the response
       debugPrint('Response status: ${response.statusCode}');
       debugPrint('Response body: ${response.body}');
@@ -17,6 +19,21 @@ class Api{
       // Handle errors
       debugPrint('Error: $error');
     });
+  }
+
+  void createUser(){
+    String url = '${functionUrl}CreateUser';
+
+    // Make a POST request to the Azure Function
+    http.get(Uri.parse(url),).then((response) {
+      // Print the response
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+    }).catchError((error) {
+      // Handle errors
+      debugPrint('Error: $error');
+    });
+
   }
 
 }
