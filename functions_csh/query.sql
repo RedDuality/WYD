@@ -14,19 +14,19 @@ CREATE TABLE wyddb1.dbo.Event (
 );
 
 CREATE TABLE wyddb1.dbo.[User] (
-	Id int NOT NULL  IDENTITY(1,1) PRIMARY KEY,
-	Utente varchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	mail varchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	id int NOT NULL  IDENTITY(1,1) PRIMARY KEY,
+	username varchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	mail varchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL UNIQUE,
 );
 
 CREATE TABLE wyddb1.dbo.User_Event (
 	Confirmed bit NULL,
-	Event int NULL,
-	[User] int NULL
+	[EventId] int NULL,
+	[UserId] int NULL
 );
 
 
 -- wyddb1.dbo.User_Event foreign keys
 
-ALTER TABLE wyddb1.dbo.User_Event ADD CONSTRAINT FK_User_Event_Event FOREIGN KEY (Event) REFERENCES wyddb1.dbo.Event(Id);
-ALTER TABLE wyddb1.dbo.User_Event ADD CONSTRAINT FK_User_Event_User FOREIGN KEY ([User]) REFERENCES wyddb1.dbo.[User](Id);
+ALTER TABLE wyddb1.dbo.User_Event ADD CONSTRAINT FK_User_Event_Event FOREIGN KEY ([EventId]) REFERENCES wyddb1.dbo.[Event](Id);
+ALTER TABLE wyddb1.dbo.User_Event ADD CONSTRAINT FK_User_Event_User FOREIGN KEY ([UserId]) REFERENCES wyddb1.dbo.[User](Id);
