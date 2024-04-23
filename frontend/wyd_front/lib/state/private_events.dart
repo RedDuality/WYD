@@ -1,11 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:wyd_front/model/model.dart';
 
 class PrivateEvents extends CalendarDataSource {
-
-  PrivateEvents(){
+  PrivateEvents() {
     appointments = <Appointment>[];
     resources = <CalendarResource>[];
     addAppointement((MyEvent(
@@ -18,18 +16,21 @@ class PrivateEvents extends CalendarDataSource {
       startTimeZone: 'Central Brazilian Standard Time',
       endTimeZone: 'W. Europe Standard Time',
       recurrenceRule: "FREQ=DAILY;INTERVAL=1;COUNT=10",
-      recurrenceExceptionDates: <DateTime>[DateTime.now().add(const Duration(days:2)), DateTime.now().add(const Duration(days:3))],
+      recurrenceExceptionDates: <DateTime>[
+        DateTime.now().add(const Duration(days: 2)),
+        DateTime.now().add(const Duration(days: 3))
+      ],
       notes: 'notes',
       location: '',
-      ))
-      );
+    )));
   }
 
   addAppointements(List<Appointment> events) {
     appointments!.addAll(events);
   }
 
-  void addAppointement(MyEvent event){
+  void addAppointement(MyEvent event) {
     appointments!.add(event);
+    notifyListeners(CalendarDataSourceAction.add, appointments!);
   }
 }
