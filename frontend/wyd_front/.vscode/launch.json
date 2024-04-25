@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/Giacomo/Desktop",
-      "program": "c:/Users/Giacomo/Desktop/build/Debug/outDebug",
+      "cwd": "E:/Impo/Università/Magistrale/Secondo anno/SRS/WYD/frontend/wyd_front",
+      "program": "E:/Impo/Università/Magistrale/Secondo anno/SRS/WYD/frontend/wyd_front/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

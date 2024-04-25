@@ -8,7 +8,7 @@ class Api{
 
   void sendJson(String jsonString){
     // Define the Azure Function URL
-    String url = functionUrl + 'SaveEvent';
+    String url = '${functionUrl}SaveEvent';
 
     // Make a POST request to the Azure Function
     http.post(Uri.parse(url), body: jsonString).then((response) {
@@ -23,6 +23,21 @@ class Api{
 
   void createUser(){
     String url = '${functionUrl}CreateUser';
+
+    // Make a POST request to the Azure Function
+    http.get(Uri.parse(url),).then((response) {
+      // Print the response
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+    }).catchError((error) {
+      // Handle errors
+      debugPrint('Error: $error');
+    });
+
+  }
+
+  void listEvents(){
+    String url = '${functionUrl}ListEvents/1';
 
     // Make a POST request to the Azure Function
     http.get(Uri.parse(url),).then((response) {
