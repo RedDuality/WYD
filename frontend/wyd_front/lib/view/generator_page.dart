@@ -27,7 +27,8 @@ class GeneratorPage extends StatelessWidget {
             height: 10,
           ),
           Wrap(
-            //mainAxisSize: MainAxisSize.min,
+            spacing: 10,
+            runSpacing: 10,
             children: [
               ElevatedButton.icon(
                 onPressed: () {
@@ -35,10 +36,6 @@ class GeneratorPage extends StatelessWidget {
                 },
                 icon: Icon(icon),
                 label: const Text('Like'),
-              ),
-              const SizedBox(
-                width: 10,
-                height: 10,
               ),
               ElevatedButton(
                 onPressed: () {

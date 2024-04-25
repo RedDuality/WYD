@@ -3,14 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/state/login_state.dart';
 import 'package:wyd_front/view/agenda_page.dart';
 import 'package:wyd_front/view/login.dart';
-import 'package:wyd_front/widget/AddEventButton.dart';
+import 'package:wyd_front/widget/add_event_button.dart';
 
 import 'events_page.dart';
 import 'favorites_page.dart';
 import 'generator_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -84,11 +84,9 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        floatingActionButton: AddEventButton(),
+        floatingActionButton: const AddEventButton(),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       );
     });
   }
 }
-
-class _eventName {}

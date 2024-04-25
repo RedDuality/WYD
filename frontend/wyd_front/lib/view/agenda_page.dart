@@ -6,7 +6,7 @@ import 'package:wyd_front/controller/api.dart';
 import 'package:wyd_front/state/private_events.dart';
 
 class AgendaPage extends StatelessWidget {
-  const AgendaPage({Key? key});
+  const AgendaPage({super.key, Key? agendakey});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class AgendaPage extends StatelessWidget {
           TextButton(
             onPressed: () {
               // Eseguire azioni quando viene premuto il pulsante
-              Api().createUser();
+              Api().listEvents();
             },
             child: const Align(
               alignment: Alignment.bottomCenter,
