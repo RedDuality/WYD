@@ -14,7 +14,7 @@ class PrivateEvents extends CalendarDataSource {
       color: Colors.blue,
       resourceIds: <Object>['0001', '0002'],
       startTimeZone: 'Central Brazilian Standard Time',
-      endTimeZone: 'W. Europe Standard Time',
+      endTimeZone: '',
       recurrenceRule: "FREQ=DAILY;INTERVAL=1;COUNT=10",
       recurrenceExceptionDates: <DateTime>[
         DateTime.now().add(const Duration(days: 2)),
