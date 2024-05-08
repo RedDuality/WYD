@@ -7,21 +7,6 @@ class Api{
   String functionUrl = 'https://wydcalendarapi.azurewebsites.net/api/';
   //String functionUrl = 'http://localhost:7071/api/';
 
-  void sendJson(String jsonString){
-    // Define the Azure Function URL
-    String url = '${functionUrl}SaveEvent';
-
-    // Make a POST request to the Azure Function
-    http.post(Uri.parse(url), body: jsonString).then((response) {
-      // Print the response
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-    }).catchError((error) {
-      // Handle errors
-      debugPrint('Error: $error');
-    });
-  }
-
   void createUser(){
     String url = '${functionUrl}CreateUser';
 
@@ -53,6 +38,22 @@ class Api{
     }
   }
 
+  Future<String> updateEvent(String jsonString) async {
+    // Define the Azure Function URL
+    String url = '${functionUrl}UpdateEvent';
+
+    // Make a POST request to the Azure Function
+    final response = await http.post(Uri.parse(url), body: jsonString);
+    if(response.statusCode == 200) {
+      // Print the response
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+      return response.body;
+    }else {
+      throw Exception();
+    }
+  }
+
 
   Future<String> listEvents()  async {
     String url = '${functionUrl}ListEvents/1';
@@ -67,35 +68,15 @@ class Api{
   }
 
 
-  void deleteEvent(){
+  Future<bool> deleteEvent(String jsonString) async {
+    String url = '${functionUrl}DeleteEvent';
 
+    final response = await http.post(Uri.parse(url), body: jsonString);
+    if(response.statusCode == 200) {
+
+      return true;
+    }else {
+      throw Exception();
+    }
   }
-
 }
-
-
-/*
-  void toggleFavorite() {
-    // Define the JSON object to pass to the Azure Function
-    Map<String, dynamic> jsonObject = {
-      'name': 'John',
-      'age': 30,
-    };
-
-    // Convert the JSON object to a string
-    String jsonString = jsonEncode(jsonObject);
-
-    // Define the Azure Function URL
-    String functionUrl = 'https://wyd-function-prova1.azurewebsites.net/api/SaveExam';
-
-    // Make a POST request to the Azure Function
-    http.post(Uri.parse(functionUrl), body: jsonString).then((response) {
-      // Print the response
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-    }).catchError((error) {
-      // Handle errors
-      debugPrint('Error: $error');
-    });
-  }
-*/
