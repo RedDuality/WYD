@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:wyd_front/model/model.dart';
+import 'package:wyd_front/model/my_event.dart';
 
 class PrivateEvents extends CalendarDataSource {
   PrivateEvents() {
     appointments = <Appointment>[];
     resources = <CalendarResource>[];
+
     addAppointement((MyEvent(
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
@@ -23,6 +24,7 @@ class PrivateEvents extends CalendarDataSource {
       notes: 'notes',
       location: '',
     )));
+
   }
 
   addAppointements(List<Appointment> events) {
