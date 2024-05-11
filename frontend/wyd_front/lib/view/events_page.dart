@@ -31,7 +31,7 @@ class EventsPage extends StatelessWidget {
         TextButton(
             onPressed: () {
               String json = jsonEncode(privateEvents.appointments![0]);
-              Api().sendJson(json);
+              Api().listEvents();
             },
             child: const Align(
                 alignment: Alignment.bottomCenter, child: Text('API TEST'))),
