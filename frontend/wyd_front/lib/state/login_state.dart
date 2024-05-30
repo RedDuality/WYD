@@ -2,7 +2,7 @@
 
 
 class LoginState {
-    var loggedin = true;
+    var loggedin = false;
 
 
     void loginSuccessful(){

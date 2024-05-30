@@ -5,6 +5,8 @@ import 'package:english_words/english_words.dart';
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+
+  var authToken = "random_token";
   
   void getNext() {
     current = WordPair.random();

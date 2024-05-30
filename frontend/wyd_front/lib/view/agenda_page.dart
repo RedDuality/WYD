@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/controller/api.dart';
 import 'package:wyd_front/state/private_events.dart';
 
 class AgendaPage extends StatelessWidget {
@@ -23,16 +22,6 @@ class AgendaPage extends StatelessWidget {
               allowedViews: const [CalendarView.week, CalendarView.month],
               allowDragAndDrop: true,
               onTap: (details) => calendarTapped(details, context),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              // Eseguire azioni quando viene premuto il pulsante
-              Api().listEvents();
-            },
-            child: const Align(
-              alignment: Alignment.bottomCenter,
-              child: Text('API TEST'),
             ),
           ),
         ],

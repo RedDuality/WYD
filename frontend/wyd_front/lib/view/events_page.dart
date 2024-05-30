@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/controller/api.dart';
-import 'package:wyd_front/state/private_events.dart';
+import 'package:wyd_front/service/api.dart';
+import 'package:wyd_front/state/shared_events.dart';
 
 class EventsPage extends StatelessWidget {
   const EventsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var privateEvents = context.read<PrivateEvents>(); //Da Modificare
+    var sharedEvents = context.read<SharedEvents>(); //Da Modificare
 
     return Scaffold(
         body: Column(
@@ -21,7 +21,7 @@ class EventsPage extends StatelessWidget {
           child: SfCalendar(
             view: CalendarView.week,
             firstDayOfWeek: 1,
-            dataSource: privateEvents,
+            dataSource: sharedEvents,
             allowedViews: const [CalendarView.week, CalendarView.month],
             allowDragAndDrop: true,
             onTap: (details) => calendarTapped(details, context),
@@ -30,8 +30,10 @@ class EventsPage extends StatelessWidget {
         ),
         TextButton(
             onPressed: () {
-              String json = jsonEncode(privateEvents.appointments![0]);
-              Api().listEvents();
+              String json = jsonEncode(sharedEvents.appointments![0]);
+              debugPrint(json);
+              debugPrint(Api().Ping().toString());
+      
             },
             child: const Align(
                 alignment: Alignment.bottomCenter, child: Text('API TEST'))),
