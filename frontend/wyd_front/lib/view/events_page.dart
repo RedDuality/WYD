@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/service/api.dart';
+import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/state/shared_events.dart';
 
 class EventsPage extends StatelessWidget {
@@ -31,9 +31,7 @@ class EventsPage extends StatelessWidget {
         TextButton(
             onPressed: () {
               String json = jsonEncode(sharedEvents.appointments![0]);
-              debugPrint(json);
-              debugPrint(Api().Ping().toString());
-      
+              EventService().ping().then((e) { debugPrint(e.toString()); });
             },
             child: const Align(
                 alignment: Alignment.bottomCenter, child: Text('API TEST'))),

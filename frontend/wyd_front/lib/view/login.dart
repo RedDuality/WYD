@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wyd_front/state/login_state.dart';
+import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/view/home_page.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,12 +10,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  String _mail = "";
+  String _password = "";
+
   @override
- Widget build(BuildContext context) {
-    var loginState = context.read<LoginState>();
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -35,10 +34,11 @@ class _LoginPageState extends State<LoginPage> {
             ),
             Container(
               constraints: const BoxConstraints(maxWidth: 500),
-              child: const Padding(
+              child:  Padding(
                 //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-                padding: EdgeInsets.symmetric(horizontal: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
+                  onChanged: (text){ _mail = text;},
                   decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Email',
@@ -48,14 +48,13 @@ class _LoginPageState extends State<LoginPage> {
             ),
             Container(
               constraints: const BoxConstraints(maxWidth: 500),
-              child: const Padding(
-                
-                padding: EdgeInsets.all(15.0),
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
                 //padding: EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
-                  
+                  onChanged: (text){ _password = text;},
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Password',
                       hintText: 'Enter secure password'),
@@ -63,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             ElevatedButton(
-              onPressed: (){
+              onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
               },
               child: const Text(
@@ -78,14 +77,15 @@ class _LoginPageState extends State<LoginPage> {
               //decoration: BoxDecoration( color: Colors.blue),
               child: ElevatedButton(
                 onPressed: () {
-                  loginState.loginSuccessful();
-                  Navigator.push(
-
-                      context, MaterialPageRoute(builder: (_) => const HomePage()));
+                  AuthController(context).login(_mail, _password);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const HomePage()));
                 },
                 child: Text(
                   'Login',
-                  style: TextStyle(color: Theme.of(context).colorScheme.primaryContainer, fontSize: 25),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      fontSize: 25),
                 ),
               ),
             ),
@@ -99,5 +99,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-

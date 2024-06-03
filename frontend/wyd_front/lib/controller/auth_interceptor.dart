@@ -8,7 +8,6 @@ class AuthInterceptor extends InterceptorContract {
    @override
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     try {
-
       request.headers[HttpHeaders.authorizationHeader] = "";
     } catch (e) {
       debugPrint(e.toString());

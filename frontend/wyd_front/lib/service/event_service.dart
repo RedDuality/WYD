@@ -1,17 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/service/auth_interceptor.dart';
+import 'package:wyd_front/controller/auth_interceptor.dart';
+import 'package:wyd_front/model/my_event.dart';
 
 
-class Api{
+class EventService{
 
-  //String functionUrl = 'https://wydcalendarapi.azurewebsites.net/api/';
-  String functionUrl = 'http://localhost:7071/';
+  String? functionUrl = '${dotenv.env['BACK_URL']}/Event';
 
 
   Client client = InterceptedClient.build(interceptors: [
       AuthInterceptor(),
   ]);
+
+  void confirmEvent(MyEvent event){
+    String url = '$functionUrl/Confirm';
+    int? eventId = event.id as int?;
+
+    // Make a POST request to the Azure Function
+    client.get(Uri.parse('$url/$eventId'),).then((response) {
+      // Print the response
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+    }).catchError((error) {
+      // Handle errors
+      throw Exception();
+    });
+  }
+
+
+
+
+
+
+
 
   void createUser(){
     String url = '${functionUrl}CreateUser';
@@ -88,7 +111,7 @@ class Api{
     }
   }
 
-  Future<bool> Ping() async {
+  Future<bool> ping() async {
     String url = '${functionUrl}Ping';
 
     final response = await client.get(Uri.parse(url),);
@@ -99,4 +122,6 @@ class Api{
       throw Exception();
     }
   }
+
+
 }
