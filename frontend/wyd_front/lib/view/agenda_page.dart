@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:wyd_front/state/private_events.dart';
-import 'package:wyd_front/widget/groupsCheckBox.dart'; //DA VERIFICARE
+import 'package:wyd_front/widget/groups_dialog.dart';
 
 class AgendaPage extends StatelessWidget {
-  const AgendaPage({super.key, Key? agendakey});
+  const AgendaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,118 +44,53 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
         DateFormat('hh:mm a').format(appointmentDetails.startTime).toString();
     var endTimeText =
         DateFormat('hh:mm a').format(appointmentDetails.endTime).toString();
-    var timeDetails = "";
-    if (appointmentDetails.isAllDay) {
-      timeDetails = 'All day';
-    } else {
-      timeDetails = '$startTimeText-$endTimeText';
-    }
+    var timeDetails = appointmentDetails.isAllDay
+        ? 'All day'
+        : '$startTimeText - $endTimeText';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(subjectText),
           content: SizedBox(
-            height: 80,
+            height: 100, // Altezza modificata per prevenire errori di rendering
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Text(
-                      dateText,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
+                Text(
+                  dateText,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 20,
+                  ),
                 ),
-                const Row(
-                  children: <Widget>[
-                    Text(''),
-                  ],
+                const SizedBox(height: 10),
+                Text(
+                  timeDetails,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 15,
+                  ),
                 ),
-                Row(
-                  children: <Widget>[
-                    Text(timeDetails,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 15)),
-                  ],
-                )
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  showGroupsDialog(context);
+                  showGroupsDialog(context, subjectText);
                 },
                 child: const Text('Condividi')),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('close'),
+              child: const Text('Chiudi'),
             )
           ],
         );
       },
     );
   }
-}
-
-//SISTEMAZIONE PROVVISORIA
-void showGroupsDialog(BuildContext context) {
-  List<String> groups = ['Gruppo 1', 'Gruppo 2', 'Gruppo 3', 'Gruppo 4'];
-  Map<String, bool> selectedGroups = {for (var group in groups) group: false};
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Seleziona gruppi'),
-            content: SizedBox(
-              height: 200,
-              child: ListView(
-                children: groups.map((group) {
-                  return CheckboxListTile(
-                    title: Text(group),
-                    value: selectedGroups[group],
-                    onChanged: (bool? value) {
-                      setState(() {
-                        selectedGroups[group] = value!;
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  List<String> selected = selectedGroups.entries
-                      .where((entry) => entry.value)
-                      .map((entry) => entry.key)
-                      .toList();
-                  // Esegui l'azione desiderata con i gruppi selezionati
-                  print('Gruppi selezionati: $selected');
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Condividi'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Chiudi'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
 }
