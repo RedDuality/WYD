@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
-import 'package:wyd_front/model/loginDto.dart';
+import 'package:wyd_front/model/login_dto.dart';
 
 
 class AuthService{
@@ -16,11 +16,10 @@ class AuthService{
   ]);
 
 
-  Future<void> login(LoginDto loginDto) async {
+  Future<Response> login(LoginDto loginDto) async {
     String url = '${functionUrl}Login';
 
-    await client.post(Uri.parse(url), body: jsonEncode(loginDto));
-    //return response;
+    return client.post(Uri.parse(url), body: jsonEncode(loginDto));
   }
 
   Future<String> register(LoginDto loginDto) async {

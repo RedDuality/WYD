@@ -10,8 +10,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _mail = "";
-  String _password = "";
+  String _mail = "second@mail.com";
+  String _password = "password";
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
                   onChanged: (text){ _mail = text;},
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Email',
                       hintText: 'Enter valid email id as abc@gmail.com'),
@@ -77,9 +77,8 @@ class _LoginPageState extends State<LoginPage> {
               //decoration: BoxDecoration( color: Colors.blue),
               child: ElevatedButton(
                 onPressed: () {
-                  AuthController(context).login(_mail, _password);
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const HomePage()));
+                  AuthController().login(context, _mail, _password);
+                 
                 },
                 child: Text(
                   'Login',

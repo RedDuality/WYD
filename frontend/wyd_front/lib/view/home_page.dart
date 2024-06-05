@@ -5,7 +5,6 @@ import 'package:wyd_front/view/agenda_page.dart';
 import 'package:wyd_front/view/login.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
-import '../controller/events_controller.dart';
 import 'events_page.dart';
 import 'favorites_page.dart';
 import 'generator_page.dart';

@@ -1,28 +1,31 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/loginDto.dart';
+import 'package:provider/provider.dart';
+import 'package:wyd_front/model/login_dto.dart';
 import 'package:wyd_front/service/auth_service.dart';
+import 'package:wyd_front/state/login_state.dart';
+import 'package:wyd_front/view/home_page.dart';
 
 class AuthController{
-  BuildContext? context;
 
-  AuthController(BuildContext context){
-    context = context;
-  }
+  Future<void> login(BuildContext context,  mail, String password) async {
 
-
-  Future<void> login(String mail, String password) async {
-
-    
+    var loginState = context.read<LoginState>();
     LoginDto loginDto = LoginDto(mail, password);
 
-    final response = await AuthService().login(loginDto);
+    AuthService().login(loginDto)
+    .then((response){
+      if(response.statusCode == 200){
+        loginState.loginSuccessful();
+        print("token: ${response.body}");
+        //TODO salvare token in memoria
+        Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const HomePage()));
+      }
+    }).catchError((error){
+      print("error$error");
+      });
 
-
-
-    //TODO aggiornare stato: aggiungere private a privateEvents e public a publicevents(da creare)
-    
-    //debugPrint('$eventi');
   }
 }
