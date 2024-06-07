@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/controller/auth_controller.dart';
-import 'package:wyd_front/view/home_page.dart';
+import 'package:wyd_front/service/test_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -64,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
             ElevatedButton(
               onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
+                TestService().ping();
               },
               child: const Text(
                 'Forgot Password',

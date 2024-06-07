@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wyd_front/state/login_state.dart';
+import 'package:wyd_front/controller/events_controller.dart';
 import 'package:wyd_front/view/agenda_page.dart';
-import 'package:wyd_front/view/login.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
 import 'events_page.dart';
@@ -22,8 +20,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    debugPrint("initstate");
-    //Events().initEvents();
+    EventController().initEvents(context);
   }
 
 
@@ -31,9 +28,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.read<LoginState>().loggedin) {
-      return const LoginPage();
-    }
 
     Widget page;
     switch (selectedIndex) {

@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/service/event_service.dart';
-import 'package:wyd_front/state/shared_events.dart';
+import 'package:wyd_front/service/test_service.dart';
+import 'package:wyd_front/state/my_app_state.dart';
 
 class EventsPage extends StatelessWidget {
   const EventsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var sharedEvents = context.read<SharedEvents>(); //Da Modificare
+    var sharedEvents = context.read<MyAppState>().sharedEvents; //Da Modificare
 
     return Scaffold(
         body: Column(
@@ -31,7 +31,7 @@ class EventsPage extends StatelessWidget {
         TextButton(
             onPressed: () {
               String json = jsonEncode(sharedEvents.appointments![0]);
-              EventService().ping().then((e) { debugPrint(e.toString()); });
+              TestService().ping().then((response) { debugPrint(response.body.toString()); });
             },
             child: const Align(
                 alignment: Alignment.bottomCenter, child: Text('API TEST'))),

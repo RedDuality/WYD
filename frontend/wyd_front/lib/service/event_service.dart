@@ -1,127 +1,72 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
 import 'package:wyd_front/model/my_event.dart';
 
-
-class EventService{
-
-  String? functionUrl = '${dotenv.env['BACK_URL']}/Event';
-
+class EventService {
+  String? functionUrl = '${dotenv.env['BACK_URL']}Event/';
 
   Client client = InterceptedClient.build(interceptors: [
-      AuthInterceptor(),
+    AuthInterceptor(),
   ]);
 
-  void confirmEvent(MyEvent event){
-    String url = '$functionUrl/Confirm';
+  Future<Response> create(MyEvent event) async {
+    String url = '${functionUrl}Create';
+
+    return client.post(Uri.parse(url), body: jsonEncode(event));
+  }
+
+  Future<Response> update(MyEvent event) async {
+    String url = '${functionUrl}Update';
+
+    return client.post(Uri.parse(url), body: jsonEncode(event));
+  }
+
+  Future<Response> delete(MyEvent event) async {
+    String url = '${functionUrl}Delete';
     int? eventId = event.id as int?;
 
-    // Make a POST request to the Azure Function
-    client.get(Uri.parse('$url/$eventId'),).then((response) {
-      // Print the response
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-    }).catchError((error) {
-      // Handle errors
-      throw Exception();
-    });
+    return client.delete(
+      Uri.parse('$url/$eventId'),
+    );
   }
 
+  Future<Response> deleteForAll(MyEvent event) async {
+    String url = '${functionUrl}DeleteForAll';
+    int? eventId = event.id as int?;
 
-
-
-
-
-
-
-  void createUser(){
-    String url = '${functionUrl}CreateUser';
-
-    // Make a POST request to the Azure Function
-    client.get(Uri.parse(url),).then((response) {
-      // Print the response
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-    }).catchError((error) {
-      // Handle errors
-      debugPrint('Error: $error');
-    });
-
+    return client.delete(
+      Uri.parse('$url/$eventId'),
+    );
   }
 
-  Future<String> createEvent(String jsonString) async {
-    // Define the Azure Function URL
-    String url = '${functionUrl}CreateEvent';
+  Future<Response> share(MyEvent event, List<int> userIds) async {
+    String url = '${functionUrl}Share';
+    int? eventId = event.id as int?;
 
-    // Make a POST request to the Azure Function
-    final response = await client.post(Uri.parse(url), body: jsonString);
-    if(response.statusCode == 200) {
-      // Print the response
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-      return response.body;
-    }else {
-      throw Exception();
-    }
+    return client.post(
+      Uri.parse('$url/$eventId'), 
+      body: jsonEncode(userIds)
+    );
   }
 
-  Future<String> updateEvent(String jsonString) async {
-    // Define the Azure Function URL
-    String url = '${functionUrl}UpdateEvent';
+  Future<Response> confirm(MyEvent event) async {
+    String url = '${functionUrl}Confirm';
+    int? eventId = event.id as int?;
 
-    // Make a POST request to the Azure Function
-    final response = await client.post(Uri.parse(url), body: jsonString);
-    if(response.statusCode == 200) {
-      // Print the response
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-      return response.body;
-    }else {
-      throw Exception();
-    }
+    return client.get(
+      Uri.parse('$url/$eventId'),
+    );
   }
 
+  Future<Response> decline(MyEvent event) async {
+    String url = '${functionUrl}Decline';
+    int? eventId = event.id as int?;
 
-
-
-  Future<String> listEvents()  async {
-    String url = '${functionUrl}ListEvents/1';
-
-    final response = await client.get(url.toUri());
-    if(response.statusCode == 200) {
-      return response.body;
-    }else {
-      throw Exception('Failed to load events'); 
-    }
-
+    return client.get(
+      Uri.parse('$url/$eventId'),
+    );
   }
-
-
-  Future<bool> deleteEvent(String jsonString) async {
-    String url = '${functionUrl}DeleteEvent';
-
-    final response = await client.post(Uri.parse(url), body: jsonString);
-    if(response.statusCode == 200) {
-
-      return true;
-    }else {
-      throw Exception();
-    }
-  }
-
-  Future<bool> ping() async {
-    String url = '${functionUrl}Ping';
-
-    final response = await client.get(Uri.parse(url),);
-    if(response.statusCode == 200) {
-
-      return true;
-    }else {
-      throw Exception();
-    }
-  }
-
-
 }

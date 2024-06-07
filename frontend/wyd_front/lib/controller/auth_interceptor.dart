@@ -2,13 +2,20 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthInterceptor extends InterceptorContract {
 
    @override
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token') ?? '';
+
+    //debugPrint("interceptor: $token");
+    
     try {
-      request.headers[HttpHeaders.authorizationHeader] = "";
+      request.headers[HttpHeaders.authorizationHeader] = "Bearer $token";
     } catch (e) {
       debugPrint(e.toString());
     }

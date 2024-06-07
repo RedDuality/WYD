@@ -22,15 +22,16 @@ class AuthService{
     return client.post(Uri.parse(url), body: jsonEncode(loginDto));
   }
 
-  Future<String> register(LoginDto loginDto) async {
+  Future<Response> register(LoginDto loginDto) async {
     String url = '${functionUrl}Register';
 
-    final response = await client.post(Uri.parse(url), body: loginDto);
-    if(response.statusCode == 200) {
-      return response.body;
-    }else {
-      throw Exception();
-    }
+    return client.post(Uri.parse(url), body: loginDto);
+  }
+
+  Future<Response> testToken() async {
+    String url = '${functionUrl}TestToken';
+
+    return client.get(Uri.parse(url));
   }
 
   

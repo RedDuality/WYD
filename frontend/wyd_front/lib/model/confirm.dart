@@ -4,9 +4,9 @@ class Confirm{
   int id = -1;
   bool confirmed = false;
 
-  Confirm(int id, bool confirmed){
-    id = id;
-    confirmed = confirmed;
+  Confirm(int userId, bool confirmd){
+    id = userId;
+    confirmed = confirmd;
   }
 
   Map<String, dynamic> toJson(){

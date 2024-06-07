@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/state/private_events.dart';
+import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/widget/groups_dialog.dart';
 
 class AgendaPage extends StatelessWidget {
@@ -10,7 +10,7 @@ class AgendaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var privateEvents = context.read<PrivateEvents>();
+    var privateEvents = context.read<MyAppState>().privateEvents;
 
     return Scaffold(
       body: Column(
