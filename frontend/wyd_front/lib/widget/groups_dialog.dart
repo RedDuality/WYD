@@ -59,12 +59,12 @@ void showGroupsDialog(BuildContext context, String subjectText) {
                       .toList();
 
                   // Stampa i gruppi selezionati per debug
-                  print('Gruppi selezionati: $selectedGroups');
+                  debugPrint('Gruppi selezionati: $selectedGroups');
 
                   // Mostra il messaggio di conferma
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Evento condiviso con successo!'),
                     ),
                   );

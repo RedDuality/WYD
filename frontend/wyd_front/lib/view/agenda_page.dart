@@ -11,7 +11,7 @@ class AgendaPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var privateEvents = context.read<MyAppState>().privateEvents;
-
+    
     return Scaffold(
       body: Column(
         children: [

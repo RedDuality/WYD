@@ -42,7 +42,7 @@ class MyEvent extends Appointment {
       if(recurrenceId != null)'recurrenceId': recurrenceId,
       if(id != null)'id': id,
       if(link != null)'link': link,
-      'UserEvents': confirms.map((confirm) => confirm.toJson()).toList(), 
+      'userEvents': confirms.map((confirm) => confirm.toJson()).toList(), 
     };
   }
 
@@ -60,8 +60,8 @@ class MyEvent extends Appointment {
         //'recurrenceExceptionDates': recurrenceExceptionDates,
         'notes': String? notes,
         'location': String? location,
-        'Id': int? id,
-        'UserEvents': List<dynamic>? confirms,
+        'id': int? id,
+        'userEvents': List<dynamic>? confirms,
       } =>
         MyEvent(
             startTime: DateTime.parse(startTime), 
@@ -74,7 +74,7 @@ class MyEvent extends Appointment {
             recurrenceRule: recurrenceRule ?? "",
             notes: notes ?? "",
             location: location ?? "",
-            id: id ?? 2,
+            id: id ?? -1,
             confirms: confirms != null ? confirms.map((confirm) => Confirm.fromJson( confirm as Map<String, dynamic>)).toList() : <Confirm>[],
         ),
       _ => throw const FormatException('Failed to decode Myevent')

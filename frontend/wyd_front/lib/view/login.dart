@@ -77,8 +77,10 @@ class _LoginPageState extends State<LoginPage> {
               width: 250,
               //decoration: BoxDecoration( color: Colors.blue),
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   AuthController().login(context, _mail, _password);
+                  
+
                  
                 },
                 child: Text(

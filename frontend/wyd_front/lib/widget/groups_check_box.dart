@@ -38,7 +38,7 @@ class ShowGroupsDialogButton extends StatelessWidget {
                         .map((entry) => entry.key)
                         .toList();
                     // Esegui l'azione desiderata con i gruppi selezionati
-                    print('Gruppi selezionati: $selected');
+                    debugPrint('Gruppi selezionati: $selected');
                     Navigator.of(context).pop();
                   },
                   child: const Text('Condividi'),

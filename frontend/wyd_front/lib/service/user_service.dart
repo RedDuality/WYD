@@ -13,7 +13,15 @@ class UserService {
   ]);
 
 
-  Future<Response> retrieve(int userId) async {
+  Future<Response> retrieve() async {
+    String url = '${functionUrl}Retrieve';
+
+    return client.get(
+      Uri.parse(url),
+    );
+  }
+
+    Future<Response> retrievebyId(int userId) async {
     String url = '${functionUrl}Retrieve';
 
     return client.get(

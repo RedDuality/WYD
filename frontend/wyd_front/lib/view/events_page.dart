@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -30,7 +28,7 @@ class EventsPage extends StatelessWidget {
         ),
         TextButton(
             onPressed: () {
-              String json = jsonEncode(sharedEvents.appointments![0]);
+              //String json = jsonEncode(sharedEvents.appointments![0]);
               TestService().ping().then((response) { debugPrint(response.body.toString()); });
             },
             child: const Align(

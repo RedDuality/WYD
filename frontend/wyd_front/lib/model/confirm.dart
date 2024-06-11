@@ -19,7 +19,7 @@ class Confirm{
   factory Confirm.fromJson(Map<String, dynamic> json){
     return switch (json) {
       {
-        'UserId': int userid,
+        'userId': int userid,
         'confirmed': bool confirmed,
       } => Confirm(
         userid,

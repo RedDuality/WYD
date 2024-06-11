@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/controller/events_controller.dart';
+import 'package:wyd_front/controller/user_controller.dart';
 import 'package:wyd_front/view/agenda_page.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
@@ -15,20 +15,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   void initState() {
     super.initState();
-
-    EventController().initEvents(context);
+    UserController().initUser(context);
   }
-
 
   var selectedIndex = 3;
 
   @override
   Widget build(BuildContext context) {
-
     Widget page;
     switch (selectedIndex) {
       case 0:
