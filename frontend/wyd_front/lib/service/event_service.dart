@@ -42,13 +42,12 @@ class EventService {
     );
   }
 
-  Future<Response> share(MyEvent event, List<int> userIds) async {
+  Future<Response> share(int eventId, Set<int> userIds) async {
     String url = '${functionUrl}Share';
-    int? eventId = event.id as int?;
-
+  
     return client.post(
       Uri.parse('$url/$eventId'), 
-      body: jsonEncode(userIds)
+      body: json.encode(userIds.toList())
     );
   }
 

@@ -4,11 +4,11 @@ import 'package:wyd_front/model/my_event.dart';
 
 class Events extends CalendarDataSource {
   Events() {
-    appointments = <Appointment>[];
+    appointments = <MyEvent>[];
     resources = <CalendarResource>[];
   }
 
-  void setAppointements(List<Appointment> events) {
+  void setAppointements(List<MyEvent> events) {
     appointments = events;
     notifyListeners(CalendarDataSourceAction.add, appointments!);
   }

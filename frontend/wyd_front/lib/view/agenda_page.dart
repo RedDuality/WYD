@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:wyd_front/state/my_app_state.dart';
-import 'package:wyd_front/widget/groups_dialog.dart';
+import 'package:wyd_front/widget/dialog/groups_dialog.dart';
 
 class AgendaPage extends StatelessWidget {
   const AgendaPage({super.key});
@@ -37,6 +37,7 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
     final Appointment appointmentDetails = details.appointments![0];
 
     var subjectText = appointmentDetails.subject;
+
     var dateText = DateFormat('MMMM dd, yyyy')
         .format(appointmentDetails.startTime)
         .toString();
@@ -79,7 +80,7 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
           actions: <Widget>[
             TextButton(
                 onPressed: () {
-                  showGroupsDialog(context, subjectText);
+                  showGroupsDialog(context, appointmentDetails);
                 },
                 child: const Text('Condividi')),
             TextButton(

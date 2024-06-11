@@ -14,7 +14,6 @@ class UserController {
 
     UserService().retrieve().then((response) {
       if (response.statusCode == 200) {
-        debugPrint(response.body);
         UserDto userDto = UserDto.fromJson(jsonDecode(response.body));
         context.read<MyAppState>().setUser(User.fromDto(userDto));
 

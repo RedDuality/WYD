@@ -21,12 +21,12 @@ class _HomePageState extends State<HomePage> {
     UserController().initUser(context);
   }
 
-  var selectedIndex = 3;
+  var selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     Widget page;
-    switch (selectedIndex) {
+    switch (selectedIndex+2) {
       case 0:
         page = const GeneratorPage();
         break;
@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
                 destinations: const [
+                  /*
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Generator'),
@@ -58,7 +59,7 @@ class _HomePageState extends State<HomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('Favorites'),
-                  ),
+                  ),*/
                   NavigationRailDestination(
                     icon: Icon(Icons.event_available),
                     label: Text('My Agenda'),

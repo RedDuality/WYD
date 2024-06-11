@@ -1,27 +1,27 @@
 // lib/widgets/groups_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:wyd_front/controller/events_controller.dart';
+import 'package:wyd_front/model/community.dart';
+import 'package:wyd_front/state/my_app_state.dart';
 
 class Group {
+  final int id;
   final String name;
   bool isSelected;
 
-  Group(this.name, this.isSelected);
+  Group(this.id, this.name, this.isSelected);
 }
 
-void showGroupsDialog(BuildContext context, String subjectText) {
+void showGroupsDialog(BuildContext context, Appointment event) {
+  List<Community> communities = context.read<MyAppState>().user.communities;
+
   // Lista di esempio di gruppi
-  List<Group> groups = [
-    Group('Gruppo 1', false),
-    Group('Gruppo 2', false),
-    Group('Gruppo 3', false),
-    Group('Gruppo 4', false),
-    Group('Gruppo 5', false),
-    Group('Gruppo 6', false),
-    Group('Gruppo 7', false),
-    Group('Gruppo 8', false),
-    Group('Gruppo 9', false),
-    Group('Gruppo 10', false),
-  ];
+  List<Group> groups =
+      communities.map((cat) => Group(cat.id, cat.name, false)).toList();
+
+  List<int> selectedIds = [];
 
   showDialog(
     context: context,
@@ -29,7 +29,7 @@ void showGroupsDialog(BuildContext context, String subjectText) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
-            title: Text('Condividi $subjectText con i gruppi'),
+            title: Text('Condividi ${event.subject} con i gruppi'),
             content: SizedBox(
               height: 300,
               width: 300,
@@ -39,9 +39,12 @@ void showGroupsDialog(BuildContext context, String subjectText) {
                     return CheckboxListTile(
                       title: Text(group.name),
                       value: group.isSelected,
-                      onChanged: (bool? value) {
+                      onChanged: (bool? selected) {
                         setState(() {
-                          group.isSelected = value!;
+                          group.isSelected = selected!;
+                          selected
+                              ? selectedIds.add(group.id)
+                              : selectedIds.remove(group.id);
                         });
                       },
                     );
@@ -53,14 +56,9 @@ void showGroupsDialog(BuildContext context, String subjectText) {
               TextButton(
                 onPressed: () {
                   // Implementa la logica per la condivisione qui
-                  List<String> selectedGroups = groups
-                      .where((group) => group.isSelected)
-                      .map((group) => group.name)
-                      .toList();
 
-                  // Stampa i gruppi selezionati per debug
-                  debugPrint('Gruppi selezionati: $selectedGroups');
-
+                  List<Community> selectedGroups = communities.where((c) => selectedIds.contains(c.id)).toList();
+                  EventController().share(event, selectedGroups);
                   // Mostra il messaggio di conferma
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
