@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wyd_front/state/login_state.dart';
+import 'package:wyd_front/controller/user_controller.dart';
 import 'package:wyd_front/view/agenda_page.dart';
-import 'package:wyd_front/view/login.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
 import 'events_page.dart';
@@ -17,16 +15,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var selectedIndex = 2;
+  @override
+  void initState() {
+    super.initState();
+    UserController().initUser(context);
+  }
+
+  var selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    if (!context.read<LoginState>().loggedin) {
-      return const LoginPage();
-    }
-
     Widget page;
-    switch (selectedIndex) {
+    switch (selectedIndex+2) {
       case 0:
         page = const GeneratorPage();
         break;
@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
                 destinations: const [
+                  /*
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Generator'),
@@ -58,7 +59,7 @@ class _HomePageState extends State<HomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('Favorites'),
-                  ),
+                  ),*/
                   NavigationRailDestination(
                     icon: Icon(Icons.event_available),
                     label: Text('My Agenda'),

@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/model/model.dart';
-import 'package:wyd_front/state/private_events.dart';
+import 'package:wyd_front/controller/events_controller.dart';
+import 'package:wyd_front/model/my_event.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:wyd_front/state/my_app_state.dart';
 
 class AddEventButton extends StatelessWidget {
   const AddEventButton({super.key});
@@ -61,16 +64,18 @@ class AddEventButton extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
+                    var generatedColor = Random().nextInt(Colors.primaries.length);
                     MyEvent newEvent = MyEvent(
                       startTime: startDate ?? DateTime.now(),
                       endTime: endDate ??
                           DateTime.now().add(const Duration(hours: 2)),
                       subject: eventName,
-                      color: Colors.blue,
+                      color: Colors.primaries[generatedColor],
                     );
 
-                    var privateEvents = context.read<PrivateEvents>();
+                    var privateEvents = context.read<MyAppState>().privateEvents;
                     privateEvents.addAppointement(newEvent);
+                    EventController().saveEvent(newEvent);
 
                     Navigator.of(context).pop();
                   },

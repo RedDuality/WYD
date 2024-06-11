@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/controller/api.dart';
-import 'package:wyd_front/state/private_events.dart';
+import 'package:wyd_front/state/my_app_state.dart';
+import 'package:wyd_front/widget/dialog/groups_dialog.dart';
 
 class AgendaPage extends StatelessWidget {
-  const AgendaPage({super.key, Key? agendakey});
+  const AgendaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var privateEvents = context.read<PrivateEvents>();
-
+    var privateEvents = context.read<MyAppState>().privateEvents;
+    
     return Scaffold(
       body: Column(
         children: [
@@ -23,16 +23,6 @@ class AgendaPage extends StatelessWidget {
               allowedViews: const [CalendarView.week, CalendarView.month],
               allowDragAndDrop: true,
               onTap: (details) => calendarTapped(details, context),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              // Eseguire azioni quando viene premuto il pulsante
-              Api().listEvents();
-            },
-            child: const Align(
-              alignment: Alignment.bottomCenter,
-              child: Text('API TEST'),
             ),
           ),
         ],
@@ -47,6 +37,7 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
     final Appointment appointmentDetails = details.appointments![0];
 
     var subjectText = appointmentDetails.subject;
+
     var dateText = DateFormat('MMMM dd, yyyy')
         .format(appointmentDetails.startTime)
         .toString();
@@ -54,53 +45,49 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
         DateFormat('hh:mm a').format(appointmentDetails.startTime).toString();
     var endTimeText =
         DateFormat('hh:mm a').format(appointmentDetails.endTime).toString();
-    var timeDetails = "";
-    if (appointmentDetails.isAllDay) {
-      timeDetails = 'All day';
-    } else {
-      timeDetails = '$startTimeText-$endTimeText';
-    }
+    var timeDetails = appointmentDetails.isAllDay
+        ? 'All day'
+        : '$startTimeText - $endTimeText';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(subjectText),
           content: SizedBox(
-            height: 80,
+            height: 100, // Altezza modificata per prevenire errori di rendering
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Text(
-                      dateText,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
+                Text(
+                  dateText,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 20,
+                  ),
                 ),
-                const Row(
-                  children: <Widget>[
-                    Text(''),
-                  ],
+                const SizedBox(height: 10),
+                Text(
+                  timeDetails,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 15,
+                  ),
                 ),
-                Row(
-                  children: <Widget>[
-                    Text(timeDetails,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 15)),
-                  ],
-                )
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
+                onPressed: () {
+                  showGroupsDialog(context, appointmentDetails);
+                },
+                child: const Text('Condividi')),
+            TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('close'),
+              child: const Text('Chiudi'),
             )
           ],
         );

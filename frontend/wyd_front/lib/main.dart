@@ -1,26 +1,34 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/state/login_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/state/my_app_state.dart';
-import 'package:wyd_front/state/private_events.dart';
 import 'package:wyd_front/view/home_page.dart';
+import 'package:wyd_front/view/login.dart';
 
+Future main() async {
+  await dotenv.load(fileName: ".env");
 
-void main() {
-  runApp(const MyApp());
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  var data = prefs.getString('token') ?? ''; //null check
+  runApp(MyApp(token: data));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  String token = '';
+
+  MyApp({required this.token, super.key});
 
   @override
   Widget build(BuildContext context) {
+
     return MultiProvider(
-      providers:[
-        Provider(create: (context) => PrivateEvents(),),
-        ChangeNotifierProvider(create: (context) => MyAppState(),),
-        Provider(create: (context) => LoginState(),),
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => MyAppState(),
+        ),
       ],
       child: MaterialApp(
         title: 'WYD',
@@ -28,11 +36,17 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         ),
-        locale: const Locale('it','IT'),
-        home: const HomePage(),
+        locale: const Locale('it', 'IT'),
+        home: token.isEmpty
+            ? const LoginPage()
+            : FutureBuilder(
+                future: AuthController().testToken(),
+                builder: (ctx, snapshot) =>
+                    snapshot.connectionState == ConnectionState.done &&
+                            snapshot.data == true
+                        ? const HomePage()
+                        : const LoginPage()),
       ),
     );
   }
 }
-
-
