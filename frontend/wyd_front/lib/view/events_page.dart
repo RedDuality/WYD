@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:wyd_front/controller/events_controller.dart';
+import 'package:wyd_front/model/events_data_source.dart';
+import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/service/test_service.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 
@@ -10,13 +13,14 @@ class EventsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var sharedEvents = context.read<MyAppState>().sharedEvents; //Da Modificare
+    EventsDataSource sharedEvents = context.watch<MyAppState>().sharedEvents; //Da Modificare
 
     return Scaffold(
         body: Column(
       children: [
         Expanded(
           child: SfCalendar(
+
             view: CalendarView.week,
             firstDayOfWeek: 1,
             dataSource: sharedEvents,
@@ -41,7 +45,7 @@ class EventsPage extends StatelessWidget {
 void calendarTapped(CalendarTapDetails details, BuildContext context) {
   if (details.targetElement == CalendarElement.appointment ||
       details.targetElement == CalendarElement.agenda) {
-    final Appointment appointmentDetails = details.appointments![0];
+    final MyEvent appointmentDetails = details.appointments![0];
 
     var subjectText = appointmentDetails.subject;
     var dateText = DateFormat('MMMM dd, yyyy')
@@ -95,7 +99,10 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
             actions: <Widget>[
               TextButton(
                   onPressed: () {
+                    
+                    EventController().confirm(context, appointmentDetails);
                     Navigator.of(context).pop();
+
                   },
                   child: const Text('Confirm')),
               TextButton(
