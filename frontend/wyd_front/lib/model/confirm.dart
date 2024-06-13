@@ -1,17 +1,14 @@
 
 
 class Confirm{
-  int id = -1;
+  int userId = -1;
   bool confirmed = false;
 
-  Confirm(int userId, bool confirmd){
-    id = userId;
-    confirmed = confirmd;
-  }
+  Confirm(this.userId, this.confirmed);
 
   Map<String, dynamic> toJson(){
     return{
-      'id': id,
+      'id': userId,
       'confirmed': confirmed, 
     };
   }

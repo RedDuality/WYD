@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
-import 'package:wyd_front/model/events.dart';
+import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/user.dart';
 
 
@@ -10,8 +10,8 @@ class MyAppState extends ChangeNotifier {
 
   late User user ;
 
-  var privateEvents = Events();
-  var sharedEvents = Events();
+  EventsDataSource privateEvents = EventsDataSource();
+  EventsDataSource sharedEvents = EventsDataSource();
 
   var authToken = "random_token";
   

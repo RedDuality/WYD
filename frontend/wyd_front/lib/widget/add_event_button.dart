@@ -64,7 +64,8 @@ class AddEventButton extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    var generatedColor = Random().nextInt(Colors.primaries.length);
+                    var generatedColor =
+                        Random().nextInt(Colors.primaries.length);
                     MyEvent newEvent = MyEvent(
                       startTime: startDate ?? DateTime.now(),
                       endTime: endDate ??
@@ -73,9 +74,9 @@ class AddEventButton extends StatelessWidget {
                       color: Colors.primaries[generatedColor],
                     );
 
-                    var privateEvents = context.read<MyAppState>().privateEvents;
-                    privateEvents.addAppointement(newEvent);
-                    EventController().saveEvent(newEvent);
+                    var privateEvents =
+                        context.read<MyAppState>().privateEvents;
+                    EventController().createEvent(privateEvents, newEvent);
 
                     Navigator.of(context).pop();
                   },

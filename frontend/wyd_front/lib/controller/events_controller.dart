@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:wyd_front/model/community.dart';
+import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/service/user_service.dart';
@@ -28,12 +29,12 @@ class EventController {
 
     List<MyEvent> private = eventi
         .where((event) => event.confirms
-            .where((c) => c.id == userId && c.confirmed == true)
+            .where((c) => c.userId == userId && c.confirmed == true)
             .isNotEmpty)
         .toList();
     List<MyEvent> public = eventi
         .where((event) => event.confirms
-            .where((c) => c.id == userId && c.confirmed == false)
+            .where((c) => c.userId == userId && c.confirmed == false)
             .isNotEmpty)
         .toList();
 
@@ -41,28 +42,50 @@ class EventController {
     context.read<MyAppState>().sharedEvents.setAppointements(public);
   }
 
-  Future<void> saveEvent(MyEvent event) async {
-    EventService().create(event).then((value) {}).catchError((error) {
+  Future<void> createEvent(EventsDataSource privateEvents, MyEvent event) async {
+    EventService().create(event).then((response) {
+      if (response.statusCode == 200) {
+        MyEvent event = MyEvent.fromJson(jsonDecode(response.body));
+        privateEvents.addAppointement(event);
+      }
+    }).catchError((error) {
       debugPrint(error.toString());
     });
   }
 
-  Future<void> share(Appointment event, List<Community> communities ) async {
-    
+  Future<void> share(Appointment event, List<Community> communities) async {
     Set<int> userIds = {};
-    for(var c in communities){
-      if(c.users != null && c.users!.isNotEmpty) { 
-        for(var u in c.users!){
+    for (var c in communities) {
+      if (c.users != null && c.users!.isNotEmpty) {
+        for (var u in c.users!) {
           userIds.add(u.id);
         }
       }
     }
 
-
-    EventService().share(event.id as int, userIds).catchError((error) {
+    EventService().share(event.id as int, userIds).then((response){}).catchError((error) {
       debugPrint(error.toString());
     });
-   
   }
+
+  Future<void> confirm(BuildContext context, MyEvent event) async {
+    var private = context.read<MyAppState>().privateEvents;
+    var public = context.read<MyAppState>().sharedEvents;
+    int userId = context.read<MyAppState>().user.id;
+
+    EventService().confirm(event).then((response) {
+      if (response.statusCode == 200) {
+        event.confirms.firstWhere((confirm) => confirm.userId == userId).confirmed == true;
+        private.addAppointement(event);
+        public.removeAppointment(event);
+      }
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+
+  }
+
+
+
 
 }
