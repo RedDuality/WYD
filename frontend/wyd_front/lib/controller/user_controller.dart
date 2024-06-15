@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/controller/events_controller.dart';
+import 'package:wyd_front/controller/event_controller.dart';
 import 'package:wyd_front/model/user.dart';
 import 'package:wyd_front/model/user_dto.dart';
 

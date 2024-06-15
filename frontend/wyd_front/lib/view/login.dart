@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/service/test_service.dart';
+import 'package:wyd_front/view/home_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final int desiredPage;
+  const LoginPage({super.key, this.desiredPage = 0});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -34,11 +37,13 @@ class _LoginPageState extends State<LoginPage> {
             ),
             Container(
               constraints: const BoxConstraints(maxWidth: 500),
-              child:  Padding(
+              child: Padding(
                 //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
-                  onChanged: (text){ _mail = text;},
+                  onChanged: (text) {
+                    _mail = text;
+                  },
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Email',
@@ -52,7 +57,9 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.all(15.0),
                 //padding: EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
-                  onChanged: (text){ _password = text;},
+                  onChanged: (text) {
+                    _password = text;
+                  },
                   obscureText: true,
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
@@ -64,6 +71,7 @@ class _LoginPageState extends State<LoginPage> {
             ElevatedButton(
               onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
+                context.go('/shared');
                 TestService().ping();
               },
               child: const Text(
@@ -78,10 +86,21 @@ class _LoginPageState extends State<LoginPage> {
               //decoration: BoxDecoration( color: Colors.blue),
               child: ElevatedButton(
                 onPressed: () async {
-                  AuthController().login(context, _mail, _password);
-                  
+                  await AuthController().login(_mail, _password).then(
+                    (loginSuccessful) {
 
-                 
+                      if (loginSuccessful) {
+                        if (context.mounted) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomePage(
+                                      initialIndex: widget.desiredPage)));
+                        }
+                      }
+                    },
+                  );
+
                 },
                 child: Text(
                   'Login',

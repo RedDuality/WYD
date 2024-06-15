@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:wyd_front/controller/event_controller.dart';
+import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/widget/dialog/groups_dialog.dart';
 
@@ -11,7 +13,7 @@ class AgendaPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var privateEvents = context.watch<MyAppState>().privateEvents;
-    
+
     return Scaffold(
       body: Column(
         children: [
@@ -34,7 +36,7 @@ class AgendaPage extends StatelessWidget {
 void calendarTapped(CalendarTapDetails details, BuildContext context) {
   if (details.targetElement == CalendarElement.appointment ||
       details.targetElement == CalendarElement.agenda) {
-    final Appointment appointmentDetails = details.appointments![0];
+    final MyEvent appointmentDetails = details.appointments![0];
 
     var subjectText = appointmentDetails.subject;
 
@@ -78,6 +80,12 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
             ),
           ),
           actions: <Widget>[
+            TextButton(
+                onPressed: () {
+                  EventController().decline(context, appointmentDetails);
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Disdici')),
             TextButton(
                 onPressed: () {
                   showGroupsDialog(context, appointmentDetails);
