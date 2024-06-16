@@ -9,7 +9,6 @@ import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
 
 Future main() async {
-  //setPathUrlStrategy();
   await dotenv.load(fileName: ".env");
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
