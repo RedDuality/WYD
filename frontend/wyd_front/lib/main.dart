@@ -42,44 +42,45 @@ class MyApp extends StatelessWidget {
     );
   }
 
-
-
-
   late final GoRouter _router = GoRouter(
     routes: <GoRoute>[
       GoRoute(
         path: '/',
         builder: (BuildContext context, GoRouterState state) =>
-             _getPage(pageIndex: 0),
+            _getPage(pageIndex: 0),
       ),
       GoRoute(
         path: '/login',
         builder: (BuildContext context, GoRouterState state) =>
-           const LoginPage(),
+            const LoginPage(),
       ),
       GoRoute(
         path: '/shared',
         builder: (BuildContext context, GoRouterState state) {
           String? uri = state.uri.toString();
+          debugPrint("main $uri");
           return _getPage(pageIndex: 1, uri: uri);
         },
-
       ),
     ],
-
   );
 
-
   Widget _getPage({int pageIndex = 0, String uri = ""}) {
-
+    debugPrint(token);
     return token.isEmpty
         ? LoginPage(desiredPage: pageIndex)
         : FutureBuilder(
             future: AuthController().testToken(),
-            builder: (ctx, snapshot) =>
-                snapshot.connectionState == ConnectionState.done &&
-                        snapshot.data == true
-                    ? HomePage(initialIndex: pageIndex, uri: uri)
-                    : LoginPage(desiredPage: pageIndex));
+            builder: (ctx, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.done:
+                  return snapshot.data == true
+                      ? HomePage(initialIndex: pageIndex, uri: uri)
+                      : LoginPage(desiredPage: pageIndex);
+                default:
+                 return const Text("");//Loading
+              }
+            },
+          );
   }
 }

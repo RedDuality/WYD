@@ -9,19 +9,16 @@ import 'package:wyd_front/service/test_service.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 
 class EventsPage extends StatelessWidget {
-  String uri;
+  final String uri;
 
-  EventsPage({super.key, this.uri = ""});
-
-  
+  const EventsPage({super.key, this.uri = ""});
 
   @override
   Widget build(BuildContext context) {
-    EventsDataSource sharedEvents = context.watch<MyAppState>().sharedEvents;
+    var privateEvents = context.watch<MyAppState>().privateEvents;
+    var sharedEvents = context.watch<MyAppState>().sharedEvents;
 
     var eventHash = Uri.dataFromString(uri).queryParameters['event'];
-    uri = "";
-    
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (eventHash != null) {
@@ -69,21 +66,21 @@ class EventsPage extends StatelessWidget {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
-                      _addEvent(context, event, true);
+                      _addEvent(privateEvents, sharedEvents, event, true);
                       Navigator.of(context).pop();
                     },
                     child: const Text('I\'ll be there!'),
                   ),
                   TextButton(
                     onPressed: () {
-                      _addEvent(context, event, false);
+                      _addEvent(privateEvents, sharedEvents, event, false);
                       Navigator.of(context).pop();
                     },
                     child: const Text('OK'),
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.popAndPushNamed(context, "/shared");
+                      Navigator.of(context).pop();
                     },
                     child: const Text('Dismiss'),
                   ),
@@ -124,10 +121,7 @@ class EventsPage extends StatelessWidget {
 }
 
 Future<void> _addEvent(
-    BuildContext context, MyEvent event, bool confirmed) async {
-  var privateEvents = context.watch<MyAppState>().privateEvents;
-  var sharedEvents = context.watch<MyAppState>().sharedEvents;
-
+    EventsDataSource privateEvents, EventsDataSource sharedEvents, MyEvent event, bool confirmed) async {
   if (confirmed) {
     if (sharedEvents.appointments!.contains(event)) {
       bool saved = await EventController().confirmFromHash(event, confirmed);

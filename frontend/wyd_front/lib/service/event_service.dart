@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
@@ -64,10 +63,10 @@ class EventService {
     );
   }
 
-  Future<Response> confirmFromHash(int eventHash, bool confirmed) async {
-    String url = '${functionUrl}Event/Confirm/Hash';
+  Future<Response> confirmFromHash(String eventHash, bool confirmed) async {
+    String url = '${functionUrl}Confirm/Hash';
 
-    return client.post(Uri.parse('$url/$eventHash'), body: confirmed);
+    return client.post(Uri.parse('$url/$eventHash'), body: confirmed.toString());
   }
 
   Future<Response> decline(MyEvent event) async {
