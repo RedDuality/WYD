@@ -9,13 +9,19 @@ import 'package:wyd_front/service/test_service.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 
 class EventsPage extends StatelessWidget {
-  const EventsPage({super.key});
+  String uri;
+
+  EventsPage({super.key, this.uri = ""});
+
+  
 
   @override
   Widget build(BuildContext context) {
-    EventsDataSource sharedEvents =
-        context.watch<MyAppState>().sharedEvents;
-    var eventHash = Uri.dataFromString(Uri.base.toString()).queryParameters['event'];
+    EventsDataSource sharedEvents = context.watch<MyAppState>().sharedEvents;
+
+    var eventHash = Uri.dataFromString(uri).queryParameters['event'];
+    uri = "";
+    
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (eventHash != null) {
@@ -77,7 +83,7 @@ class EventsPage extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.popAndPushNamed(context, "/shared");
                     },
                     child: const Text('Dismiss'),
                   ),
