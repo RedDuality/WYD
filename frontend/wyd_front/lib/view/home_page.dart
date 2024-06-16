@@ -30,7 +30,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(widget.initialIndex.toString());
     Widget page;
     switch (selectedIndex + 2) {
       case 0:

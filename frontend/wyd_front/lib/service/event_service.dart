@@ -49,7 +49,7 @@ class EventService {
   }
 
   Future<Response> share(int eventId, Set<int> userIds) async {
-    String url = '${functionUrl}Share';
+    String url = '${functionUrl}Share/Community';
 
     return client.post(Uri.parse('$url/$eventId'),
         body: json.encode(userIds.toList()));
@@ -62,6 +62,12 @@ class EventService {
     return client.get(
       Uri.parse('$url/$eventId'),
     );
+  }
+
+  Future<Response> confirmFromHash(int eventHash, bool confirmed) async {
+    String url = '${functionUrl}Event/Confirm/Hash';
+
+    return client.post(Uri.parse('$url/$eventHash'), body: confirmed);
   }
 
   Future<Response> decline(MyEvent event) async {
