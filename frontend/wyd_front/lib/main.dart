@@ -73,6 +73,7 @@ class MyApp extends StatelessWidget {
       ),
       GoRoute(
         path: '/login',
+        
         builder: (BuildContext context, GoRouterState state) =>
            const LoginPage(),
       ),
