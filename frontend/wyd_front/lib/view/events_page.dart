@@ -15,14 +15,10 @@ class EventsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     EventsDataSource sharedEvents =
         context.watch<MyAppState>().sharedEvents;
-        debugPrint(Uri.base.toString());
-        debugPrint(Uri.base.query);
-    var eventHash = Uri.base.queryParameters['event'];
-    debugPrint(eventHash);
+    var eventHash = Uri.dataFromString(Uri.base.toString()).queryParameters['event'];
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (eventHash != null) {
-        debugPrint(eventHash);
         final event = await EventController().retrieveFromHash(eventHash);
 
         if (event != null && context.mounted) {
