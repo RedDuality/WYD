@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/service/test_service.dart';
 import 'package:wyd_front/view/home_page.dart';
@@ -71,7 +70,6 @@ class _LoginPageState extends State<LoginPage> {
             ElevatedButton(
               onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
-                context.go('/shared');
                 TestService().ping();
               },
               child: const Text(

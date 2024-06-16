@@ -3,7 +3,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:wyd_front/model/confirm.dart';
 
 class MyEvent extends Appointment {
-  int? hash;
+  String? hash;
   List<Confirm> confirms = [];
 
   MyEvent({
@@ -61,7 +61,7 @@ class MyEvent extends Appointment {
         'notes': String? notes,
         'location': String? location,
         'id': int? id,
-        'hash': int? hash,
+        'hash': String? hash,
         'userEvents': List<dynamic>? confirms,
       } =>
         MyEvent(
@@ -76,7 +76,7 @@ class MyEvent extends Appointment {
             notes: notes ?? "",
             location: location ?? "",
             id: id ?? -1,
-            hash: hash ?? -1,
+            hash: hash ?? "",
             confirms: confirms != null ? confirms.map((confirm) => Confirm.fromJson( confirm as Map<String, dynamic>)).toList() : <Confirm>[],
         ),
       _ => throw const FormatException('Failed to decode Myevent')
