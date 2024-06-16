@@ -7,10 +7,9 @@ import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
-import 'package:url_strategy/url_strategy.dart';
 
 Future main() async {
-  setPathUrlStrategy();
+  //setPathUrlStrategy();
   await dotenv.load(fileName: ".env");
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -88,7 +87,7 @@ class MyApp extends StatelessWidget {
 
 
   Widget _getPage({int pageIndex = 0}) {
-    debugPrint("getpage $pageIndex");
+
     return token.isEmpty
         ? LoginPage(desiredPage: pageIndex)
         : FutureBuilder(

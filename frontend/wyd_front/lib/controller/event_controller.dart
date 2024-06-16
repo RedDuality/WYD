@@ -27,7 +27,7 @@ class EventController {
   Future<MyEvent?> retrieveFromHash(String eventHash) async {
     MyEvent? event;
     await EventService().retrieveFromHash(eventHash).then((response) {
-      if(response.statusCode == 200) {
+      if (response.statusCode == 200) {
         event = MyEvent.fromJson(jsonDecode(response.body));
       }
     }).catchError((error) {
@@ -55,7 +55,8 @@ class EventController {
     context.read<MyAppState>().sharedEvents.setAppointements(public);
   }
 
-  Future<void> createEvent(EventsDataSource privateEvents, MyEvent event) async {
+  Future<void> createEvent(
+      EventsDataSource privateEvents, MyEvent event) async {
     EventService().create(event).then((response) {
       if (response.statusCode == 200) {
         MyEvent event = MyEvent.fromJson(jsonDecode(response.body));
@@ -76,9 +77,28 @@ class EventController {
       }
     }
 
-    EventService().share(event.id as int, userIds).then((response){}).catchError((error) {
+    EventService()
+        .share(event.id as int, userIds)
+        .then((response) {})
+        .catchError((error) {
       debugPrint(error.toString());
     });
+  }
+
+  Future<bool> confirmFromHash(MyEvent event, bool confirm) async {
+    bool res = false;
+    await EventService()
+        .confirmFromHash(event.hash!, confirm)
+        .then((response) {
+          if(response.statusCode == 200){
+            res = true;
+          }
+        })
+        .catchError((error) {
+      debugPrint(error.toString());
+    });
+
+    return res;
   }
 
   Future<void> confirm(BuildContext context, MyEvent event) async {
@@ -88,14 +108,16 @@ class EventController {
 
     EventService().confirm(event).then((response) {
       if (response.statusCode == 200) {
-        event.confirms.firstWhere((confirm) => confirm.userId == userId).confirmed == true;
+        event.confirms
+                .firstWhere((confirm) => confirm.userId == userId)
+                .confirmed ==
+            true;
         private.addAppointement(event);
         public.removeAppointment(event);
       }
     }).catchError((error) {
       debugPrint(error.toString());
     });
-
   }
 
   Future<void> decline(BuildContext context, MyEvent event) async {
@@ -105,16 +127,15 @@ class EventController {
 
     EventService().decline(event).then((response) {
       if (response.statusCode == 200) {
-        event.confirms.firstWhere((confirm) => confirm.userId == userId).confirmed == false;
+        event.confirms
+                .firstWhere((confirm) => confirm.userId == userId)
+                .confirmed ==
+            false;
         public.addAppointement(event);
         private.removeAppointment(event);
       }
     }).catchError((error) {
       debugPrint(error.toString());
     });
-
   }
-
-
-
 }

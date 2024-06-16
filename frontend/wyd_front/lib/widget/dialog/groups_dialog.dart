@@ -75,8 +75,8 @@ void showGroupsDialog(BuildContext context, MyEvent event) {
               TextButton(
                 onPressed: () async {
                   String? siteUrl = '${dotenv.env['SITE_URL']}';
-                  await Clipboard.setData(
-                      ClipboardData(text: "${siteUrl}shared?event=${event.hash}"));
+                  await Clipboard.setData(ClipboardData(
+                      text: "$siteUrl#/shared?event=${event.hash}"));
 
                   if (context.mounted) {
                     Navigator.of(context).pop();

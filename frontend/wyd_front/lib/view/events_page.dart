@@ -14,12 +14,15 @@ class EventsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EventsDataSource sharedEvents =
-        context.watch<MyAppState>().sharedEvents; //Da Modificare
+        context.watch<MyAppState>().sharedEvents;
+        debugPrint(Uri.base.toString());
+        debugPrint(Uri.base.query);
     var eventHash = Uri.base.queryParameters['event'];
-    debugPrint("uri $eventHash");
+    debugPrint(eventHash);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (eventHash != null) {
+        debugPrint(eventHash);
         final event = await EventController().retrieveFromHash(eventHash);
 
         if (event != null && context.mounted) {
@@ -64,11 +67,23 @@ class EventsPage extends StatelessWidget {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
-                      //TODO check it's not already in private Events and then update db
-                      sharedEvents.addAppointement(event);
+                      _addEvent(context, event, true);
                       Navigator.of(context).pop();
                     },
-                    child: const Text('Aggiungi in memoria'),
+                    child: const Text('I\'ll be there!'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      _addEvent(context, event, false);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Dismiss'),
                   ),
                 ],
               );
@@ -103,6 +118,35 @@ class EventsPage extends StatelessWidget {
                 alignment: Alignment.bottomCenter, child: Text('API TEST'))),
       ],
     ));
+  }
+}
+
+Future<void> _addEvent(
+    BuildContext context, MyEvent event, bool confirmed) async {
+  var privateEvents = context.watch<MyAppState>().privateEvents;
+  var sharedEvents = context.watch<MyAppState>().sharedEvents;
+
+  if (confirmed) {
+    if (sharedEvents.appointments!.contains(event)) {
+      bool saved = await EventController().confirmFromHash(event, confirmed);
+      if (saved) {
+        sharedEvents.removeAppointment(event);
+        privateEvents.addAppointement(event);
+      }
+    } else if (!privateEvents.appointments!.contains(event)) {
+      bool saved = await EventController().confirmFromHash(event, confirmed);
+      if (saved) {
+        privateEvents.addAppointement(event);
+      }
+    }
+  } else {
+    if (!privateEvents.appointments!.contains(event) &&
+        !sharedEvents.appointments!.contains(event)) {
+      bool saved = await EventController().confirmFromHash(event, confirmed);
+      if (saved) {
+        sharedEvents.addAppointement(event);
+      }
+    }
   }
 }
 

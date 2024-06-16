@@ -21,7 +21,7 @@ class UserService {
     );
   }
 
-    Future<Response> retrievebyId(int userId) async {
+  Future<Response> retrievebyId(int userId) async {
     String url = '${functionUrl}Retrieve';
 
     return client.get(
