@@ -9,7 +9,6 @@ import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
 
 Future main() async {
-  //setPathUrlStrategy();
   await dotenv.load(fileName: ".env");
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -19,7 +18,7 @@ Future main() async {
 }
 
 class MyApp extends StatelessWidget {
-  String token = '';
+  final String token;
 
   MyApp({required this.token, super.key});
 
@@ -32,30 +31,13 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp.router(
-        title: 'WYD',
+        title: 'WYD?',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         ),
         locale: const Locale('it', 'IT'),
         routerConfig: _router,
-        /*
-        initialRoute: '/',
-        routes: {
-          '/shared': (context) => _getPage(pageIndex: 1),
-          '/login': (context) => const LoginPage(),
-          '/home': (context) => _getPage(pageIndex: 3),
-        },
-        onGenerateRoute:(settings) {
-          debugPrint(settings.toString());
-        
-        },
-        onUnknownRoute: (settings) {
-          debugPrint("name ${settings.name}");
-
-          return MaterialPageRoute(builder: (context) => _getPage());
-        },*/
-
       ),
     );
   }
@@ -78,15 +60,18 @@ class MyApp extends StatelessWidget {
       ),
       GoRoute(
         path: '/shared',
-        builder: (BuildContext context, GoRouterState state) =>
-           _getPage(pageIndex: 1),
+        builder: (BuildContext context, GoRouterState state) {
+          String? uri = state.uri.toString();
+          return _getPage(pageIndex: 1, uri: uri);
+        },
+
       ),
     ],
 
   );
 
 
-  Widget _getPage({int pageIndex = 0}) {
+  Widget _getPage({int pageIndex = 0, String uri = ""}) {
 
     return token.isEmpty
         ? LoginPage(desiredPage: pageIndex)
@@ -95,7 +80,7 @@ class MyApp extends StatelessWidget {
             builder: (ctx, snapshot) =>
                 snapshot.connectionState == ConnectionState.done &&
                         snapshot.data == true
-                    ? HomePage(initialIndex: pageIndex)
+                    ? HomePage(initialIndex: pageIndex, uri: uri)
                     : LoginPage(desiredPage: pageIndex));
   }
 }

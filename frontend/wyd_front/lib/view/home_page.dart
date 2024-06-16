@@ -9,8 +9,9 @@ import 'generator_page.dart';
 
 class HomePage extends StatefulWidget {
   final int initialIndex;
+  final String uri;
 
-  const HomePage({super.key, this.initialIndex = 0});
+  const HomePage({super.key, this.initialIndex = 0, this.uri = ""});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -19,11 +20,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   late int selectedIndex;
+  late String uri;
 
   @override
   void initState() {
     super.initState();
     selectedIndex = widget.initialIndex;
+    uri = widget.uri;
     UserController().initUser(context);
   }
 
@@ -42,7 +45,8 @@ class _HomePageState extends State<HomePage> {
         page = const AgendaPage();
         break;
       case 3:
-        page = const EventsPage();
+        page = EventsPage(uri: uri);
+        uri = "";
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
