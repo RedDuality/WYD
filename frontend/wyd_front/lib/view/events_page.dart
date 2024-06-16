@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/controller/events_controller.dart';
+import 'package:wyd_front/controller/event_controller.dart';
 import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/service/test_service.dart';
@@ -13,14 +13,76 @@ class EventsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    EventsDataSource sharedEvents = context.watch<MyAppState>().sharedEvents; //Da Modificare
+    EventsDataSource sharedEvents =
+        context.watch<MyAppState>().sharedEvents; //Da Modificare
+    var eventHash = Uri.base.queryParameters['event'];
+    debugPrint("uri $eventHash");
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (eventHash != null) {
+        final event = await EventController().retrieveFromHash(eventHash);
+
+        if (event != null && context.mounted) {
+          var dateText =
+              DateFormat('MMMM dd, yyyy').format(event.startTime).toString();
+          var startTimeText =
+              DateFormat('hh:mm a').format(event.startTime).toString();
+          var endTimeText =
+              DateFormat('hh:mm a').format(event.endTime).toString();
+          var timeDetails =
+              event.isAllDay ? 'All day' : '$startTimeText - $endTimeText';
+
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(event.subject),
+                content: SizedBox(
+                  height:
+                      100, // Altezza modificata per prevenire errori di rendering
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        dateText,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        timeDetails,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      //TODO check it's not already in private Events and then update db
+                      sharedEvents.addAppointement(event);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Aggiungi in memoria'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
+    });
 
     return Scaffold(
         body: Column(
       children: [
         Expanded(
           child: SfCalendar(
-
             view: CalendarView.week,
             firstDayOfWeek: 1,
             dataSource: sharedEvents,
@@ -33,7 +95,9 @@ class EventsPage extends StatelessWidget {
         TextButton(
             onPressed: () {
               //String json = jsonEncode(sharedEvents.appointments![0]);
-              TestService().ping().then((response) { debugPrint(response.body.toString()); });
+              TestService().ping().then((response) {
+                debugPrint(response.body.toString());
+              });
             },
             child: const Align(
                 alignment: Alignment.bottomCenter, child: Text('API TEST'))),
@@ -99,10 +163,8 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
             actions: <Widget>[
               TextButton(
                   onPressed: () {
-                    
                     EventController().confirm(context, appointmentDetails);
                     Navigator.of(context).pop();
-
                   },
                   child: const Text('Confirm')),
               TextButton(

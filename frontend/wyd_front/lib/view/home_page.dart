@@ -8,25 +8,31 @@ import 'favorites_page.dart';
 import 'generator_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int initialIndex;
+
+  const HomePage({super.key, this.initialIndex = 0});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+
+  late int selectedIndex;
+
   @override
   void initState() {
     super.initState();
+    selectedIndex = widget.initialIndex;
     UserController().initUser(context);
   }
 
-  var selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(widget.initialIndex.toString());
     Widget page;
-    switch (selectedIndex+2) {
+    switch (selectedIndex + 2) {
       case 0:
         page = const GeneratorPage();
         break;
@@ -50,6 +56,7 @@ class _HomePageState extends State<HomePage> {
             SafeArea(
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
+                selectedIndex: selectedIndex,
                 destinations: const [
                   /*
                   NavigationRailDestination(
@@ -69,7 +76,6 @@ class _HomePageState extends State<HomePage> {
                     label: Text('Shared Events'),
                   ),
                 ],
-                selectedIndex: selectedIndex,
                 onDestinationSelected: (value) {
                   setState(() {
                     selectedIndex = value;

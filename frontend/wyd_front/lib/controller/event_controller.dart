@@ -24,6 +24,19 @@ class EventController {
     });
   }
 
+  Future<MyEvent?> retrieveFromHash(String eventHash) async {
+    MyEvent? event;
+    await EventService().retrieveFromHash(eventHash).then((response) {
+      if(response.statusCode == 200) {
+        event = MyEvent.fromJson(jsonDecode(response.body));
+      }
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+
+    return event;
+  }
+
   void setEvents(BuildContext context, List<MyEvent> eventi) {
     int userId = context.read<MyAppState>().user.id;
 
@@ -85,6 +98,22 @@ class EventController {
 
   }
 
+  Future<void> decline(BuildContext context, MyEvent event) async {
+    var private = context.read<MyAppState>().privateEvents;
+    var public = context.read<MyAppState>().sharedEvents;
+    int userId = context.read<MyAppState>().user.id;
+
+    EventService().decline(event).then((response) {
+      if (response.statusCode == 200) {
+        event.confirms.firstWhere((confirm) => confirm.userId == userId).confirmed == false;
+        public.addAppointement(event);
+        private.removeAppointment(event);
+      }
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+
+  }
 
 
 

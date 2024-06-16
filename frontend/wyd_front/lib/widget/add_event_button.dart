@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/controller/events_controller.dart';
+import 'package:wyd_front/controller/event_controller.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';

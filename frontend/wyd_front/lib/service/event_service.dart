@@ -18,6 +18,12 @@ class EventService {
     return client.post(Uri.parse(url), body: jsonEncode(event));
   }
 
+  Future<Response> retrieveFromHash(String eventHash) async {
+    String url = '${functionUrl}Retrieve';
+
+    return client.get(Uri.parse('$url/$eventHash'));
+  }
+
   Future<Response> update(MyEvent event) async {
     String url = '${functionUrl}Update';
 
@@ -44,11 +50,9 @@ class EventService {
 
   Future<Response> share(int eventId, Set<int> userIds) async {
     String url = '${functionUrl}Share';
-  
-    return client.post(
-      Uri.parse('$url/$eventId'), 
-      body: json.encode(userIds.toList())
-    );
+
+    return client.post(Uri.parse('$url/$eventId'),
+        body: json.encode(userIds.toList()));
   }
 
   Future<Response> confirm(MyEvent event) async {

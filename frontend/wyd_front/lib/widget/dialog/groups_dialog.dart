@@ -1,9 +1,11 @@
 // lib/widgets/groups_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:wyd_front/controller/events_controller.dart';
+import 'package:wyd_front/controller/event_controller.dart';
 import 'package:wyd_front/model/community.dart';
+import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 
 class Group {
@@ -14,10 +16,9 @@ class Group {
   Group(this.id, this.name, this.isSelected);
 }
 
-void showGroupsDialog(BuildContext context, Appointment event) {
+void showGroupsDialog(BuildContext context, MyEvent event) {
   List<Community> communities = context.read<MyAppState>().user.communities;
 
-  // Lista di esempio di gruppi
   List<Group> groups =
       communities.map((cat) => Group(cat.id, cat.name, false)).toList();
 
@@ -57,7 +58,9 @@ void showGroupsDialog(BuildContext context, Appointment event) {
                 onPressed: () {
                   // Implementa la logica per la condivisione qui
 
-                  List<Community> selectedGroups = communities.where((c) => selectedIds.contains(c.id)).toList();
+                  List<Community> selectedGroups = communities
+                      .where((c) => selectedIds.contains(c.id))
+                      .toList();
                   EventController().share(event, selectedGroups);
                   // Mostra il messaggio di conferma
                   Navigator.of(context).pop();
@@ -68,6 +71,23 @@ void showGroupsDialog(BuildContext context, Appointment event) {
                   );
                 },
                 child: const Text('Condividi'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  String? siteUrl = '${dotenv.env['SITE_URL']}';
+                  await Clipboard.setData(
+                      ClipboardData(text: "$siteUrl/shared?event=${event.hash}"));
+
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Link copiato con successo!'),
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Copia il link'),
               ),
               TextButton(
                 onPressed: () {
