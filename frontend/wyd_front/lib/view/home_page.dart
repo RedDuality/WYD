@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     Widget page;
-              debugPrint("home $uri");
+              //debugPrint("home $uri");
     switch (selectedIndex + 2) {
       case 0:
         page = const GeneratorPage();

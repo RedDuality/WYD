@@ -7,6 +7,7 @@ import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
+import 'package:wyd_front/widget/loading.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -68,7 +69,7 @@ class MyApp extends StatelessWidget {
   Widget _getPage({int pageIndex = 0, String uri = ""}) {
     debugPrint(token);
     return token.isEmpty
-        ? LoginPage(desiredPage: pageIndex)
+        ? LoginPage(desiredPage: pageIndex, uri:uri)
         : FutureBuilder(
             future: AuthController().testToken(),
             builder: (ctx, snapshot) {
@@ -76,9 +77,9 @@ class MyApp extends StatelessWidget {
                 case ConnectionState.done:
                   return snapshot.data == true
                       ? HomePage(initialIndex: pageIndex, uri: uri)
-                      : LoginPage(desiredPage: pageIndex);
+                      : LoginPage(desiredPage: pageIndex, uri: uri);
                 default:
-                 return const Text("");//Loading
+                 return const LoadingPage();//Loading
               }
             },
           );
