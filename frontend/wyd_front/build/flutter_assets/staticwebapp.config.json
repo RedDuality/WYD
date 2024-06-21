@@ -1,0 +1,9 @@
+{
+  "globalHeaders": {
+    "Content-Security-Policy": "content",
+    "X-Frame-Options": "DENY"
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  }
+}
