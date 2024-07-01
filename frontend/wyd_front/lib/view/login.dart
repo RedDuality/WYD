@@ -14,7 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
-  String _mail = "second@mail.com";
+  String _mail = "matteo@mail.com";
   String _password = "password";
 
   @override
@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
                     /*decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(50.0)),*/
-                    child: Image.asset('../assets/test.jpg')),
+                    child: Image.asset('assets/images/logo.jpg')),
               ),
             ),
             Container(
