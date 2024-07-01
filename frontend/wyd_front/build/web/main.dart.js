@@ -114008,14 +114008,16 @@ $1(a){A.hv().$1("error"+A.k(a))},
 $S:14}
 A.tR.prototype={
 DX(a){return this.aB_(a)},
-aB_(a){var s=0,r=A.K(t.AT),q,p,o,n,m,l
+aB_(a){var s=0,r=A.K(t.AT),q,p,o,n,m,l,k
 var $async$DX=A.L(function(b,c){if(b===1)return A.H(c,r)
-while(true)switch(s){case 0:l=A
+while(true)switch(s){case 0:k=A
 s=3
 return A.a_(A.Ez(),$async$DX)
-case 3:n=l.de(c.a.h(0,"token"))
-m=n==null?"":n
-try{a.r.n(0,"authorization","Bearer "+A.k(m))}catch(k){p=A.az(k)
+case 3:m=k.de(c.a.h(0,"token"))
+l=m==null?"":m
+try{o=a.r
+o.n(0,"access-control-allow-origin","*")
+o.n(0,"authorization","Bearer "+A.k(l))}catch(j){p=A.az(j)
 A.hv().$1(J.dE(p))}q=a
 s=1
 break

@@ -15,6 +15,7 @@ class AuthInterceptor extends InterceptorContract {
     //debugPrint("interceptor: $token");
     
     try {
+      request.headers[HttpHeaders.accessControlAllowOriginHeader] = '*';
       request.headers[HttpHeaders.authorizationHeader] = "Bearer $token";
     } catch (e) {
       debugPrint(e.toString());
