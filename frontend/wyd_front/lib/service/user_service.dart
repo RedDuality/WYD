@@ -3,6 +3,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
+import 'package:wyd_front/controller/request_interceptor.dart';
 
 
 class UserService {
@@ -10,6 +11,7 @@ class UserService {
 
   Client client = InterceptedClient.build(interceptors: [
     AuthInterceptor(),
+    RequestInterceptor(),
   ]);
 
 
