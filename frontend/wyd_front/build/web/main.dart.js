@@ -34249,7 +34249,7 @@ mh:function mh(a,b,c){this.c=a
 this.d=b
 this.a=c},
 Ya:function Ya(a){var _=this
-_.d="second@mail.com"
+_.d="matteo@mail.com"
 _.e="password"
 _.a=null
 _.b=a
@@ -114539,7 +114539,7 @@ $S:0}
 A.mh.prototype={
 ak(){return new A.Ya(B.i)}}
 A.Ya.prototype={
-J(a){var s=null,r=A.ev(A.c0(new A.BM(A.b_A(s,s,new A.zC("../assets/test.jpg",s,s)),s),150,200),s,s),q=A.bI(s,new A.bp(B.Sk,A.Tp(!0,B.dd,!1,s,!0,B.A,s,A.aER(),s,s,s,s,s,s,2,B.TI,B.a_,!0,s,!0,s,!1,s,s,s,s,s,s,s,s,1,s,s,!1,"\u2022",s,new A.awZ(this),s,s,s,!1,s,!1,s,!0,s,B.dx,s,s,B.cE,B.c6,s,s,s,s,s,s,s,B.a5,s,B.fG,s,s,s,s),s),B.o,s,B.qq,s,s,s,s,s,s,s,s),p=A.bI(s,new A.bp(B.Sl,A.Tp(!0,B.dd,!1,s,!0,B.A,s,A.aER(),s,s,s,s,s,s,2,B.TF,B.a_,!0,s,!0,s,!1,s,s,s,s,s,s,s,s,1,s,s,!0,"\u2022",s,new A.ax_(this),s,s,s,!1,s,!1,s,!0,s,B.dx,s,s,B.cE,B.c6,s,s,s,s,s,s,s,B.a5,s,B.fG,s,s,s,s),s),B.o,s,B.qq,s,s,s,s,s,s,s,s),o=A.aGa(!1,B.agw,s,s,B.ho,s,s,s,s,new A.ax0(),s,s),n=A.S(a).ax,m=n.d
+J(a){var s=null,r=A.ev(A.c0(new A.BM(A.b_A(s,s,new A.zC("assets/images/logo.jpg",s,s)),s),400,300),s,s),q=A.bI(s,new A.bp(B.Sk,A.Tp(!0,B.dd,!1,s,!0,B.A,s,A.aER(),s,s,s,s,s,s,2,B.TI,B.a_,!0,s,!0,s,!1,s,s,s,s,s,s,s,s,1,s,s,!1,"\u2022",s,new A.awZ(this),s,s,s,!1,s,!1,s,!0,s,B.dx,s,s,B.cE,B.c6,s,s,s,s,s,s,s,B.a5,s,B.fG,s,s,s,s),s),B.o,s,B.qq,s,s,s,s,s,s,s,s),p=A.bI(s,new A.bp(B.Sl,A.Tp(!0,B.dd,!1,s,!0,B.A,s,A.aER(),s,s,s,s,s,s,2,B.TF,B.a_,!0,s,!0,s,!1,s,s,s,s,s,s,s,s,1,s,s,!0,"\u2022",s,new A.ax_(this),s,s,s,!1,s,!1,s,!0,s,B.dx,s,s,B.cE,B.c6,s,s,s,s,s,s,s,B.a5,s,B.fG,s,s,s,s),s),B.o,s,B.qq,s,s,s,s,s,s,s,s),o=A.aGa(!1,B.agw,s,s,B.ho,s,s,s,s,new A.ax0(),s,s),n=A.S(a).ax,m=n.d
 return A.RP(s,B.n,A.SA(A.cm(A.a([new A.bp(B.Sd,r,s),q,p,o,B.l9,A.c0(A.aGa(!1,A.bP("Login",s,s,s,s,A.ee(s,s,m==null?n.b:m,s,s,s,s,s,s,s,s,25,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),s,s,B.ho,s,s,s,s,new A.ax1(this,a),s,s),50,250),B.aaS,B.agN],t.p),B.P,B.E,B.G),s,B.ao),s,s)}}
 A.awZ.prototype={
 $1(a){this.a.d=a},
