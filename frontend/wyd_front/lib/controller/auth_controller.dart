@@ -4,6 +4,13 @@ import 'package:wyd_front/model/login_dto.dart';
 import 'package:wyd_front/service/auth_service.dart';
 
 class AuthController {
+
+  Future<bool> register(mail, String password) async {
+    bool res = false;
+    return res;
+  }
+
+
   Future<bool> login(mail, String password) async {
     bool res = false;
     LoginDto loginDto = LoginDto(mail, password);
