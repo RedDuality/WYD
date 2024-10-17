@@ -8,9 +8,16 @@ import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
 import 'package:wyd_front/widget/loading.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -52,7 +59,6 @@ class MyApp extends StatelessWidget {
       ),
       GoRoute(
         path: '/login',
-        
         builder: (BuildContext context, GoRouterState state) =>
             const LoginPage(),
       ),
@@ -70,7 +76,7 @@ class MyApp extends StatelessWidget {
   Widget _getPage({int pageIndex = 0, String uri = ""}) {
     debugPrint(token);
     return token.isEmpty
-        ? LoginPage(desiredPage: pageIndex, uri:uri)
+        ? LoginPage(desiredPage: pageIndex, uri: uri)
         : FutureBuilder(
             future: AuthController().testToken(),
             builder: (ctx, snapshot) {
@@ -80,7 +86,7 @@ class MyApp extends StatelessWidget {
                       ? HomePage(initialIndex: pageIndex, uri: uri)
                       : LoginPage(desiredPage: pageIndex, uri: uri);
                 default:
-                 return const LoadingPage();//Loading
+                  return const LoadingPage(); //Loading
               }
             },
           );

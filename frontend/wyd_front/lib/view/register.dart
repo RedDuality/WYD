@@ -61,11 +61,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   onChanged: (text) {
                     _password = text;
                     if (_password.isNotEmpty && _password == _password2) {
-                      _credentialok = true;
-                       debugPrint("true");
+                      setState(() => _credentialok = true);
                     } else {
-                      _credentialok = false;
-                       debugPrint("false");
+                      setState(() => _credentialok = false);
                     }
                   },
                   obscureText: true,
@@ -86,11 +84,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   onChanged: (text) {
                     _password2 = text;
                     if (_password2.isNotEmpty && _password == _password2) {
-                      _credentialok = true;
-                      debugPrint(_credentialok.toString());
+                      setState(() => _credentialok = true);
                     } else {
-                      _credentialok = false;
-                       debugPrint(_credentialok.toString());
+                      setState(() => _credentialok = false);
                     }
                   },
                   obscureText: true,

@@ -2,16 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/model/login_dto.dart';
 import 'package:wyd_front/service/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthController {
-
-  Future<bool> register(mail, String password) async {
+  Future<bool> register(String mail, String password) async {
     bool res = false;
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: mail,
+              password: password);
+      debugPrint(userCredential.toString());
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        debugPrint('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        debugPrint('The account already exists for that email.');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
     return res;
   }
 
-
-  Future<bool> login(mail, String password) async {
+  Future<bool> login(String mail, String password) async {
     bool res = false;
     LoginDto loginDto = LoginDto(mail, password);
 
