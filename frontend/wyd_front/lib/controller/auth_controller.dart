@@ -15,9 +15,9 @@ class AuthController {
       debugPrint(userCredential.toString());
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        debugPrint('The password provided is too weak.');
+        throw e.message.toString();
       } else if (e.code == 'email-already-in-use') {
-        debugPrint('The account already exists for that email.');
+        throw e.message.toString();
       }
     } catch (e) {
       debugPrint(e.toString());
