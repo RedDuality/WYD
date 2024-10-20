@@ -17,4 +17,13 @@ class ErrorController{
       }
     );
   }
+
+
+  showErrorSnackBar(BuildContext context, String title){
+    return ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red.withOpacity(0.5),
+        content: Text(title)),
+    );
+  }
 }

@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/service/test_service.dart';
 import 'package:wyd_front/view/home_page.dart';
+import 'package:wyd_front/view/register.dart';
 
 class LoginPage extends StatefulWidget {
-  final int desiredPage;
-  final String uri;
-  const LoginPage({super.key, this.desiredPage = 0, this.uri = ""});
+  
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-
-  String _mail = "matteo@mail.com";
-  String _password = "password";
+  String _mail = "";
+  String _password = "";
 
   @override
   Widget build(BuildContext context) {
@@ -88,19 +87,16 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () async {
                   await AuthController().login(_mail, _password).then(
                     (loginSuccessful) {
-
                       if (loginSuccessful) {
                         if (context.mounted) {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => HomePage(
-                                      initialIndex: widget.desiredPage, uri: widget.uri)));
+                                  builder: (context) => const HomePage()));
                         }
                       }
                     },
                   );
-
                 },
                 child: Text(
                   'Login',
@@ -113,7 +109,16 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 130,
             ),
-            const Text('New User? Create Account')
+            GestureDetector(
+              onTap: () {
+                debugPrint("dafdsaf");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterPage(mail: _mail)),
+                );
+              },
+              child: const Text('New User? Create Account'),
+            )
           ],
         ),
       ),

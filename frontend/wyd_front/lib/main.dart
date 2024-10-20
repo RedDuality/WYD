@@ -5,12 +5,20 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/state/my_app_state.dart';
+import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
 import 'package:wyd_front/widget/loading.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -25,11 +33,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => MyAppState(),
+          create: (context) => MyAppState()
         ),
+        ChangeNotifierProvider(create: (context) => UriProvider())
       ],
       child: MaterialApp.router(
         title: 'WYD?',
@@ -48,11 +59,10 @@ class MyApp extends StatelessWidget {
       GoRoute(
         path: '/',
         builder: (BuildContext context, GoRouterState state) =>
-            _getPage(pageIndex: 0),
+            _getPage(),
       ),
       GoRoute(
         path: '/login',
-        
         builder: (BuildContext context, GoRouterState state) =>
             const LoginPage(),
       ),
@@ -60,27 +70,28 @@ class MyApp extends StatelessWidget {
         path: '/shared',
         builder: (BuildContext context, GoRouterState state) {
           String? uri = state.uri.toString();
-          debugPrint("main $uri");
-          return _getPage(pageIndex: 1, uri: uri);
+          final uriProvider = Provider.of<UriProvider>(context);
+          uriProvider.setUri(uri);
+          return _getPage();
         },
       ),
     ],
   );
 
-  Widget _getPage({int pageIndex = 0, String uri = ""}) {
+  Widget _getPage() {
     debugPrint(token);
     return token.isEmpty
-        ? LoginPage(desiredPage: pageIndex, uri:uri)
+        ? const LoginPage()
         : FutureBuilder(
             future: AuthController().testToken(),
             builder: (ctx, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
                   return snapshot.data == true
-                      ? HomePage(initialIndex: pageIndex, uri: uri)
-                      : LoginPage(desiredPage: pageIndex, uri: uri);
+                      ? const HomePage()
+                      : const LoginPage();
                 default:
-                 return const LoadingPage();//Loading
+                  return const LoadingPage(); //Loading
               }
             },
           );
