@@ -1,4 +1,0 @@
-#Tue Oct 15 14:19:38 CEST 2024
-base.0=E\:\\Impo\\University\\Magistrale\\Secondo anno\\SRS\\WYD\\frontend\\wyd_front\\build\\app\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
-path.0=classes.dex
-renamed.0=classes.dex
