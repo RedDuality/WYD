@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wyd_front/controller/user_controller.dart';
+import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/agenda_page.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
@@ -8,10 +10,8 @@ import 'favorites_page.dart';
 import 'generator_page.dart';
 
 class HomePage extends StatefulWidget {
-  final int initialIndex;
-  final String uri;
 
-  const HomePage({super.key, this.initialIndex = 0, this.uri = ""});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -19,22 +19,28 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  late int selectedIndex;
-  late String uri;
-
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.initialIndex;
-    uri = widget.uri;
+
     UserController().initUser(context);
   }
 
 
   @override
   Widget build(BuildContext context) {
-    Widget page;
-              //debugPrint("home $uri");
+
+    final uriProvider = Provider.of<UriProvider>(context);
+    String uri = uriProvider.uri;
+    //debugPrint("home $uri");
+
+    int selectedIndex = 0;
+    if (uri.isNotEmpty) {
+      selectedIndex = 0;  // Handle the shared link scenario
+    }
+
+    Widget page;  
+
     switch (selectedIndex + 2) {
       case 0:
         page = const GeneratorPage();

@@ -5,17 +5,16 @@ import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/register.dart';
 
 class LoginPage extends StatefulWidget {
-  final int desiredPage;
-  final String uri;
-  const LoginPage({super.key, this.desiredPage = 0, this.uri = ""});
+  
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _mail = "first@mail.com";
-  String _password = "password";
+  String _mail = "";
+  String _password = "";
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => HomePage(
-                                      initialIndex: widget.desiredPage,
-                                      uri: widget.uri)));
+                                  builder: (context) => const HomePage()));
                         }
                       }
                     },
