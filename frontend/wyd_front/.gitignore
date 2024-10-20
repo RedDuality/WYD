@@ -31,7 +31,6 @@ release.bat
 .pub-cache/
 .pub/
 
-
 # Symbolication related
 app.*.symbols
 
