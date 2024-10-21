@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/controller/auth_controller.dart';
+import 'package:wyd_front/state/events_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
@@ -33,14 +34,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (context) => MyAppState()
-        ),
-        ChangeNotifierProvider(create: (context) => UriProvider())
+        ChangeNotifierProvider(create: (context) => MyAppState()),
+        ChangeNotifierProvider(create: (context) => UriProvider()),
+        ChangeNotifierProvider(create: (context) => EventsProvider())
       ],
       child: MaterialApp.router(
         title: 'WYD?',
@@ -58,8 +56,7 @@ class MyApp extends StatelessWidget {
     routes: <GoRoute>[
       GoRoute(
         path: '/',
-        builder: (BuildContext context, GoRouterState state) =>
-            _getPage(),
+        builder: (BuildContext context, GoRouterState state) => _getPage(),
       ),
       GoRoute(
         path: '/login',

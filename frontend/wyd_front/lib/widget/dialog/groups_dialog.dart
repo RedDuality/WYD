@@ -56,13 +56,12 @@ void showGroupsDialog(BuildContext context, MyEvent event) {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  // Implementa la logica per la condivisione qui
 
                   List<Community> selectedGroups = communities
                       .where((c) => selectedIds.contains(c.id))
                       .toList();
                   EventController().share(event, selectedGroups);
-                  // Mostra il messaggio di conferma
+
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

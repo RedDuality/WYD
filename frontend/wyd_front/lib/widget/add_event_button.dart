@@ -6,7 +6,7 @@ import 'package:wyd_front/controller/event_controller.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:wyd_front/state/my_app_state.dart';
+import 'package:wyd_front/state/events_provider.dart';
 
 class AddEventButton extends StatelessWidget {
   const AddEventButton({super.key});
@@ -75,7 +75,7 @@ class AddEventButton extends StatelessWidget {
                     );
 
                     var privateEvents =
-                        context.read<MyAppState>().privateEvents;
+                        context.read<EventsProvider>().privateEvents;
                     EventController().createEvent(privateEvents, newEvent);
 
                     Navigator.of(context).pop();

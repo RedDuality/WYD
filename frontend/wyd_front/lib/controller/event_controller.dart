@@ -8,6 +8,7 @@ import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/service/user_service.dart';
+import 'package:wyd_front/state/events_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 
 class EventController {
@@ -51,8 +52,8 @@ class EventController {
             .isNotEmpty)
         .toList();
 
-    context.read<MyAppState>().privateEvents.setAppointements(private);
-    context.read<MyAppState>().sharedEvents.setAppointements(public);
+    context.read<EventsProvider>().privateEvents.setAppointements(private);
+    context.read<EventsProvider>().sharedEvents.setAppointements(public);
   }
 
   Future<void> createEvent(
@@ -102,8 +103,8 @@ class EventController {
   }
 
   Future<void> confirm(BuildContext context, MyEvent event) async {
-    var private = context.read<MyAppState>().privateEvents;
-    var public = context.read<MyAppState>().sharedEvents;
+    var private = context.read<EventsProvider>().privateEvents;
+    var public = context.read<EventsProvider>().sharedEvents;
     int userId = context.read<MyAppState>().user.id;
 
     EventService().confirm(event).then((response) {
@@ -121,8 +122,8 @@ class EventController {
   }
 
   Future<void> decline(BuildContext context, MyEvent event) async {
-    var private = context.read<MyAppState>().privateEvents;
-    var public = context.read<MyAppState>().sharedEvents;
+    var private = context.read<EventsProvider>().privateEvents;
+    var public = context.read<EventsProvider>().sharedEvents;
     int userId = context.read<MyAppState>().user.id;
 
     EventService().decline(event).then((response) {

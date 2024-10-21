@@ -6,8 +6,7 @@ import 'package:wyd_front/controller/event_controller.dart';
 import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/service/test_service.dart';
-import 'package:wyd_front/state/my_app_state.dart';
-
+import 'package:wyd_front/state/events_provider.dart';
 class EventsPage extends StatelessWidget {
   final String uri;
 
@@ -15,8 +14,8 @@ class EventsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var privateEvents = context.watch<MyAppState>().privateEvents;
-    var sharedEvents = context.watch<MyAppState>().sharedEvents;
+    var privateEvents = context.watch<EventsProvider>().privateEvents;
+    var sharedEvents = context.watch<EventsProvider>().sharedEvents;
 
     var eventHash = Uri.dataFromString(uri).queryParameters['event'];
 

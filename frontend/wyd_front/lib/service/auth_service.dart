@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
@@ -36,5 +37,12 @@ class AuthService{
     return client.get(Uri.parse(url));
   }
 
-  
+  Future<Response> verifyLoginToken(credential) async {
+    String url = '${functionUrl}verifyLoginToken';
+
+    debugPrint("credential $credential");
+    return Response("ciao", 200);//client.get(Uri.parse(url));
+  }
+
+
 }

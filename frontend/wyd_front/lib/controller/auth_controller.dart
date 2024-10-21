@@ -5,13 +5,12 @@ import 'package:wyd_front/service/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthController {
+
   Future<bool> register(String mail, String password) async {
     bool res = false;
     try {
       UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-              email: mail,
-              password: password);
+          .createUserWithEmailAndPassword(email: mail, password: password);
       debugPrint(userCredential.toString());
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -22,6 +21,28 @@ class AuthController {
     } catch (e) {
       debugPrint(e.toString());
     }
+    return res;
+  }
+
+  Future<bool> fireLogin(String mail, String password) async {
+    bool res = false;
+
+    try {
+      final credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: mail, password: password);
+      final response =  await AuthService().verifyLoginToken(credential);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        throw Exception('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        throw Exception('Wrong password provided for that user.');
+      }
+    } on Error catch(error) {
+       debugPrint("error $error");
+    }
+
+
+  
     return res;
   }
 

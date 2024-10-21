@@ -19,10 +19,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  late int selectedIndex;
+
   @override
   void initState() {
     super.initState();
-
+    selectedIndex = 0;
     UserController().initUser(context);
   }
 
@@ -32,11 +34,14 @@ class _HomePageState extends State<HomePage> {
 
     final uriProvider = Provider.of<UriProvider>(context);
     String uri = uriProvider.uri;
+    uriProvider.setUri('');
+
     //debugPrint("home $uri");
 
-    int selectedIndex = 0;
+   
+
     if (uri.isNotEmpty) {
-      selectedIndex = 0;  // Handle the shared link scenario
+      selectedIndex = 1;  // Handle the shared link scenario
     }
 
     Widget page;  
@@ -53,7 +58,6 @@ class _HomePageState extends State<HomePage> {
         break;
       case 3:
         page = EventsPage(uri: uri);
-        uri = "";
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
