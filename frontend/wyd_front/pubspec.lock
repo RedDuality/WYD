@@ -166,8 +166,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.2.1"
-<<<<<<< HEAD
-=======
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -176,7 +174,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
->>>>>>> main
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -251,6 +248,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  lints:
+    dependency: transitive
+    description:
+      name: lints
+      sha256: "976c774dd944a42e83e2467f4cc670daef7eed6295b10b36ae8c85bcbf828235"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   logging:
     dependency: transitive
     description:
