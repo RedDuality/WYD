@@ -3,6 +3,7 @@ import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/service/test_service.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/register.dart';
+import 'package:wyd_front/widget/hover_text.dart';
 
 class LoginPage extends StatefulWidget {
   
@@ -111,17 +112,23 @@ class _LoginPageState extends State<LoginPage> {
             ),
             GestureDetector(
               onTap: () {
-                debugPrint("dafdsaf");
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => RegisterPage(mail: _mail)),
                 );
               },
-              child: const Text('New User? Create Account'),
-            )
+              child:const HoverText(
+                text: 'New user? Create account',
+                hoverColor: Colors.red,
+                defaultColor: Colors.yellow,
+                fontSize: 18.0,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
+
+
