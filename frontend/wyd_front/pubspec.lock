@@ -166,6 +166,17 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.2.1"
+<<<<<<< HEAD
+=======
+  flutter_lints:
+    dependency: "direct dev"
+    description:
+      name: flutter_lints
+      sha256: "3f41d009ba7172d5ff9be5f6e6e6abb4300e263aab8866d2a0842ed2a70f8f0c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
+>>>>>>> main
   flutter_test:
     dependency: "direct dev"
     description: flutter
