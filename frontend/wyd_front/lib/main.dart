@@ -76,7 +76,6 @@ class MyApp extends StatelessWidget {
   );
 
   Widget _getPage() {
-    debugPrint(token);
     return token.isEmpty
         ? const LoginPage()
         : FutureBuilder(

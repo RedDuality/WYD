@@ -5,7 +5,6 @@ import 'package:wyd_front/service/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthController {
-
   Future<bool> register(String mail, String password) async {
     bool res = false;
     try {
@@ -30,19 +29,35 @@ class AuthController {
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: mail, password: password);
-      final response =  await AuthService().verifyLoginToken(credential);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw Exception('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        throw Exception('Wrong password provided for that user.');
+      debugPrint(credential.toString());
+      // Get the ID Token from the Firebase user
+      final idToken = await credential.user?.getIdToken();
+
+      // Send the ID Token to the backend for verification
+      if (idToken != null) {
+        final response = await AuthService().verifyLoginToken(idToken);
+
+        // Handle the response (e.g., if the backend returns user data or tokens)
+        if (response.statusCode == 200) {
+          debugPrint(response.body);
+          res = true;
+        } else {
+          throw Exception("Failed to verify login on the backend");
+        }
       }
-    } on Error catch(error) {
-       debugPrint("error $error");
+
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        throw Exception("Please insert a valid email");
+      } if (e.code == 'invalid-credential') {
+        throw Exception("The mail or the password provided are wrong");
+      } else {
+        debugPrint(e.code);
+        throw "Unexpected error, please try later";
+      }
+    } on Error catch (error) {
+      debugPrint("error $error");
     }
-
-
-  
     return res;
   }
 

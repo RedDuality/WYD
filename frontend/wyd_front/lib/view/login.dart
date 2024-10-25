@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/controller/auth_controller.dart';
+import 'package:wyd_front/controller/error_controller.dart';
 import 'package:wyd_front/service/test_service.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/register.dart';
 import 'package:wyd_front/widget/hover_text.dart';
 
 class LoginPage extends StatefulWidget {
-  
   const LoginPage({super.key});
 
   @override
@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
               //decoration: BoxDecoration( color: Colors.blue),
               child: ElevatedButton(
                 onPressed: () async {
-                  await AuthController().login(_mail, _password).then(
+                  await AuthController().fireLogin(_mail, _password).then(
                     (loginSuccessful) {
                       if (loginSuccessful) {
                         if (context.mounted) {
@@ -97,7 +97,9 @@ class _LoginPageState extends State<LoginPage> {
                         }
                       }
                     },
-                  );
+                  ).catchError((error) {
+                    ErrorController().showErrorSnackBar(context, error.toString());
+                  });
                 },
                 child: Text(
                   'Login',
@@ -114,10 +116,11 @@ class _LoginPageState extends State<LoginPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RegisterPage(mail: _mail)),
+                  MaterialPageRoute(
+                      builder: (context) => RegisterPage(mail: _mail)),
                 );
               },
-              child:const HoverText(
+              child: const HoverText(
                 text: 'New user? Create account',
                 hoverColor: Colors.red,
                 defaultColor: Colors.yellow,
@@ -130,5 +133,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-
