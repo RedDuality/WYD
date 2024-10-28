@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/controller/user_controller.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/agenda_page.dart';
+import 'package:wyd_front/view/test_page.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
 import 'events_page.dart';
@@ -36,8 +37,6 @@ class _HomePageState extends State<HomePage> {
     String uri = uriProvider.uri;
     uriProvider.setUri('');
 
-    //debugPrint("home $uri");
-
    
 
     if (uri.isNotEmpty) {
@@ -58,6 +57,9 @@ class _HomePageState extends State<HomePage> {
         break;
       case 3:
         page = EventsPage(uri: uri);
+        break;
+        case 4:
+        page = const TestPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -88,6 +90,10 @@ class _HomePageState extends State<HomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.event),
                     label: Text('Shared Events'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.event),
+                    label: Text('New Calendar'),
                   ),
                 ],
                 onDestinationSelected: (value) {

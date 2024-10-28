@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/controller/event_controller.dart';
+import 'package:wyd_front/controller/my_event_controller.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -76,7 +76,7 @@ class AddEventButton extends StatelessWidget {
 
                     var privateEvents =
                         context.read<EventsProvider>().privateEvents;
-                    EventController().createEvent(privateEvents, newEvent);
+                    MyEventController().createEvent(privateEvents, newEvent);
 
                     Navigator.of(context).pop();
                   },

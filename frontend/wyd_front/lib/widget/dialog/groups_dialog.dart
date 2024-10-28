@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/controller/event_controller.dart';
+import 'package:wyd_front/controller/my_event_controller.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/state/my_app_state.dart';
@@ -60,7 +60,7 @@ void showGroupsDialog(BuildContext context, MyEvent event) {
                   List<Community> selectedGroups = communities
                       .where((c) => selectedIds.contains(c.id))
                       .toList();
-                  EventController().share(event, selectedGroups);
+                  MyEventController().share(event, selectedGroups);
 
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(

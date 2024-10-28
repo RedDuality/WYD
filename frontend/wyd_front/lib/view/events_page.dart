@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/controller/event_controller.dart';
+import 'package:wyd_front/controller/my_event_controller.dart';
 import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/service/test_service.dart';
@@ -21,7 +21,7 @@ class EventsPage extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (eventHash != null) {
-        final event = await EventController().retrieveFromHash(eventHash);
+        final event = await MyEventController().retrieveFromHash(eventHash);
 
         if (event != null && context.mounted) {
           var dateText =
@@ -123,13 +123,13 @@ Future<void> _addEvent(
     EventsDataSource privateEvents, EventsDataSource sharedEvents, MyEvent event, bool confirmed) async {
   if (confirmed) {
     if (sharedEvents.appointments!.contains(event)) {
-      bool saved = await EventController().confirmFromHash(event, confirmed);
+      bool saved = await MyEventController().confirmFromHash(event, confirmed);
       if (saved) {
         sharedEvents.removeAppointment(event);
         privateEvents.addAppointement(event);
       }
     } else if (!privateEvents.appointments!.contains(event)) {
-      bool saved = await EventController().confirmFromHash(event, confirmed);
+      bool saved = await MyEventController().confirmFromHash(event, confirmed);
       if (saved) {
         privateEvents.addAppointement(event);
       }
@@ -137,7 +137,7 @@ Future<void> _addEvent(
   } else {
     if (!privateEvents.appointments!.contains(event) &&
         !sharedEvents.appointments!.contains(event)) {
-      bool saved = await EventController().confirmFromHash(event, confirmed);
+      bool saved = await MyEventController().confirmFromHash(event, confirmed);
       if (saved) {
         sharedEvents.addAppointement(event);
       }
@@ -202,7 +202,7 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
             actions: <Widget>[
               TextButton(
                   onPressed: () {
-                    EventController().confirm(context, appointmentDetails);
+                    MyEventController().confirm(context, appointmentDetails);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Confirm')),

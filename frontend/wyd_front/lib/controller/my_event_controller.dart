@@ -11,7 +11,7 @@ import 'package:wyd_front/service/user_service.dart';
 import 'package:wyd_front/state/events_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 
-class EventController {
+class MyEventController {
   Future<void> retrieveEvents(BuildContext context) async {
     UserService().listEvents().then((response) {
       if (response.statusCode == 200) {
