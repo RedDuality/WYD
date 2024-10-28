@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
       case 3:
         page = EventsPage(uri: uri);
         break;
-        case 4:
+      case 4:
         page = const TestPage();
         break;
       default:
