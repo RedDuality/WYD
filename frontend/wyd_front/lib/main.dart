@@ -6,7 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/controller/auth_controller.dart';
 import 'package:wyd_front/state/events_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
-import 'package:wyd_front/state/private_controller.dart';
+import 'package:wyd_front/state/private_provider.dart';
+import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
@@ -40,7 +41,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => MyAppState()),
         ChangeNotifierProvider(create: (context) => UriProvider()),
         ChangeNotifierProvider(create: (context) => EventsProvider()),
-        ChangeNotifierProvider(create: (_) => PrivateController()),
+        ChangeNotifierProvider(create: (_) => PrivateProvider()),
+        ChangeNotifierProvider(create: (_) => SharedProvider()),
       ],
       child: MaterialApp.router(
         title: 'WYD?',

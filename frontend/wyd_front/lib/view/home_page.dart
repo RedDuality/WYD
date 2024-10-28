@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/controller/user_controller.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/agenda_page.dart';
-import 'package:wyd_front/view/test_page.dart';
+import 'package:wyd_front/view/test_private_page.dart';
+import 'package:wyd_front/view/test_shared_page.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
 import 'events_page.dart';
@@ -59,7 +60,10 @@ class _HomePageState extends State<HomePage> {
         page = EventsPage(uri: uri);
         break;
       case 4:
-        page = const TestPage();
+        page = const TestPrivatePage();
+        break;
+      case 5:
+        page = const TestSharedPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -92,8 +96,12 @@ class _HomePageState extends State<HomePage> {
                     label: Text('Shared Events'),
                   ),
                   NavigationRailDestination(
+                    icon: Icon(Icons.event_available),
+                    label: Text('My New Agenda'),
+                  ),
+                  NavigationRailDestination(
                     icon: Icon(Icons.event),
-                    label: Text('New Calendar'),
+                    label: Text('New Shared'),
                   ),
                 ],
                 onDestinationSelected: (value) {
