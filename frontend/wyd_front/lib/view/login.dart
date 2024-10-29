@@ -122,8 +122,8 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: const HoverText(
                 text: 'New user? Create account',
-                hoverColor: Colors.red,
-                defaultColor: Colors.yellow,
+                hoverColor: Colors.blue,
+                defaultColor: Colors.black,
                 fontSize: 18.0,
               ),
             ),
