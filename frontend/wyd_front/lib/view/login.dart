@@ -80,15 +80,12 @@ class _LoginPageState extends State<LoginPage> {
               width: 250,
               child: ElevatedButton(
                 onPressed: () async {
-                  await AuthController().fireLogin(_mail, _password).then(
-                    (loginSuccessful) {
-                      if (loginSuccessful) {
-                        if (context.mounted) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomePage()));
-                        }
+                  await AuthController().login(context, _mail, _password).then( (_) {
+                      if (context.mounted) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomePage()));
                       }
                     },
                   ).catchError((error) {

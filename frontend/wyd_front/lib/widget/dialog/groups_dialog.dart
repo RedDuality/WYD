@@ -60,7 +60,7 @@ void showGroupsDialog(BuildContext context, MyEvent event) {
                   List<Community> selectedGroups = communities
                       .where((c) => selectedIds.contains(c.id))
                       .toList();
-                  MyEventController().share(event, selectedGroups);
+                  MyEventController().share(context, event, selectedGroups);
 
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(

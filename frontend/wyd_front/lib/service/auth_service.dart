@@ -4,37 +4,24 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
 import 'package:wyd_front/controller/request_interceptor.dart';
-import 'package:wyd_front/model/login_dto.dart';
-
 class AuthService {
   String? functionUrl = '${dotenv.env['BACK_URL']}Auth/';
 
-  Client client = InterceptedClient.build(interceptors: [
-    AuthInterceptor(),
-    RequestInterceptor(),
-  ]);
+  final InterceptedClient client;
 
-  Future<Response> login(LoginDto loginDto) async {
-    String url = '${functionUrl}Login';
+  AuthService(BuildContext context)
+      : client = InterceptedClient.build(interceptors: [
+          AuthInterceptor(context),
+          RequestInterceptor(),
+        ]);
 
-    return client.post(Uri.parse(url), body: jsonEncode(loginDto));
-  }
-
-  Future<Response> register(LoginDto loginDto) async {
-    String url = '${functionUrl}Register';
-
-    return client.post(Uri.parse(url), body: loginDto);
-  }
-
-  Future<Response> testToken() async {
-    String url = '${functionUrl}TestToken';
-
-    return client.get(Uri.parse(url));
-  }
-
-  Future<Response> verifyLoginToken(String token) async {
+  Future<Response> verifyToken(String token) async {
     final url = '${functionUrl}VerifyToken';
-    debugPrint("credential $token");
+    return client.post(Uri.parse(url), body: jsonEncode({"token": token}));
+  }
+
+  Future<Response> verifyTokenAndCreate(String token) async {
+    final url = '${functionUrl}VerifyTokenAndCreate';
     return client.post(Uri.parse(url), body: jsonEncode({"token": token}));
   }
 }

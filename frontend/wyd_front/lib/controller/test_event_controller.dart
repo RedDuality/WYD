@@ -27,7 +27,7 @@ class TestEventController {
     var public = context.read<EventsProvider>().sharedEvents;
     int userId = context.read<MyAppState>().user.id;
 
-    EventService().decline(event).then((response) {
+    EventService(context).decline(event).then((response) {
       if (response.statusCode == 200) {
         event.confirms
                 .firstWhere((confirm) => confirm.userId == userId)

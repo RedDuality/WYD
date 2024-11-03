@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     selectedIndex = 0;
     UserController().initUser(context);
+    
   }
 
 

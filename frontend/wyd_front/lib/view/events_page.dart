@@ -21,7 +21,7 @@ class EventsPage extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (eventHash != null) {
-        final event = await MyEventController().retrieveFromHash(eventHash);
+        final event = await MyEventController().retrieveFromHash(context, eventHash);
 
         if (event != null && context.mounted) {
           var dateText =
@@ -65,14 +65,14 @@ class EventsPage extends StatelessWidget {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
-                      _addEvent(privateEvents, sharedEvents, event, true);
+                      _addEvent(context, privateEvents, sharedEvents, event, true);
                       Navigator.of(context).pop();
                     },
                     child: const Text('I\'ll be there!'),
                   ),
                   TextButton(
                     onPressed: () {
-                      _addEvent(privateEvents, sharedEvents, event, false);
+                      _addEvent(context, privateEvents, sharedEvents, event, false);
                       Navigator.of(context).pop();
                     },
                     child: const Text('OK'),
@@ -120,16 +120,16 @@ class EventsPage extends StatelessWidget {
 }
 
 Future<void> _addEvent(
-    EventsDataSource privateEvents, EventsDataSource sharedEvents, MyEvent event, bool confirmed) async {
+    BuildContext context, EventsDataSource privateEvents, EventsDataSource sharedEvents, MyEvent event, bool confirmed) async {
   if (confirmed) {
     if (sharedEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController().confirmFromHash(event, confirmed);
+      bool saved = await MyEventController().confirmFromHash(context, event, confirmed);
       if (saved) {
         sharedEvents.removeAppointment(event);
         privateEvents.addAppointement(event);
       }
     } else if (!privateEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController().confirmFromHash(event, confirmed);
+      bool saved = await MyEventController().confirmFromHash(context, event, confirmed);
       if (saved) {
         privateEvents.addAppointement(event);
       }
@@ -137,7 +137,7 @@ Future<void> _addEvent(
   } else {
     if (!privateEvents.appointments!.contains(event) &&
         !sharedEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController().confirmFromHash(event, confirmed);
+      bool saved = await MyEventController().confirmFromHash(context, event, confirmed);
       if (saved) {
         sharedEvents.addAppointement(event);
       }

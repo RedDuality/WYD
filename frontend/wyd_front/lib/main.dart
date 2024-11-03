@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wyd_front/controller/auth_controller.dart';
+import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/events_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/state/private_provider.dart';
@@ -19,82 +18,88 @@ Future main() async {
   await dotenv.load(fileName: ".env");
 
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+  //SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  var data = prefs.getString('token') ?? ''; //null check
-  runApp(MyApp(token: data));
+ 
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final String token;
 
-  MyApp({required this.token, super.key});
+
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => MyAppState()),
-        ChangeNotifierProvider(create: (context) => UriProvider()),
-        ChangeNotifierProvider(create: (context) => EventsProvider()),
+        ChangeNotifierProvider(create: (_) => MyAppState()),
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_) => UriProvider()),
+        ChangeNotifierProvider(create: (_) => EventsProvider()),
         ChangeNotifierProvider(create: (_) => PrivateProvider()),
         ChangeNotifierProvider(create: (_) => SharedProvider()),
       ],
-      child: MaterialApp.router(
-        title: 'WYD?',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        ),
-        locale: const Locale('it', 'IT'),
-        routerConfig: _router,
+      child: Consumer<AuthenticationProvider>(
+        builder: (context, authProvider, _) {
+          return MaterialApp.router(
+            title: 'WYD?',
+            theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+            ),
+            locale: const Locale('it', 'IT'),
+            routerConfig: _router(authProvider),
+          );
+        },
       ),
     );
   }
 
-  late final GoRouter _router = GoRouter(
-    routes: <GoRoute>[
-      GoRoute(
-        path: '/',
-        builder: (BuildContext context, GoRouterState state) => _getPage(),
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (BuildContext context, GoRouterState state) =>
-            const LoginPage(),
-      ),
-      GoRoute(
-        path: '/shared',
-        builder: (BuildContext context, GoRouterState state) {
-          String? uri = state.uri.toString();
-          final uriProvider = Provider.of<UriProvider>(context);
-          uriProvider.setUri(uri);
-          return _getPage();
-        },
-      ),
-    ],
-  );
+  GoRouter _router(AuthenticationProvider authProvider) {
+    return GoRouter(
+      redirect: (context, state) {
+        // Redirect based on authentication state
+        if (authProvider.isLoading) return null; // Show loading page
+        final isLoggingIn = state.matchedLocation == '/login';
 
-  Widget _getPage() {
-    return token.isEmpty
-    ? const HomePage()
-        //? const LoginPage()
-        : FutureBuilder(
-            future: AuthController().testToken(),
-            builder: (ctx, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.done:
-                  return snapshot.data == true
-                      ? const HomePage()
-                      : const LoginPage();
-                default:
-                  return const LoadingPage(); //Loading
-              }
-            },
-          );
+        if (!authProvider.isAuthenticated && !isLoggingIn) return '/login';
+        if (authProvider.isAuthenticated && isLoggingIn) return '/';
+
+        return null; // no redirection
+      },
+      routes: <GoRoute>[
+        GoRoute(
+          path: '/',
+          builder: (BuildContext context, GoRouterState state) {
+            return authProvider.isLoading
+                ? const LoadingPage()
+                : const HomePage();
+          },
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (BuildContext context, GoRouterState state) =>
+              const LoginPage(),
+        ),
+        GoRoute(
+          path: '/shared',
+          builder: (BuildContext context, GoRouterState state) {
+            String? uri = state.uri.toString();
+            final uriProvider = Provider.of<UriProvider>(context);
+            uriProvider.setUri(uri);
+            return authProvider.isLoading
+                ? const LoadingPage()
+                : const HomePage();
+          },
+        ),
+      ],
+    );
   }
+
 }

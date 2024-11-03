@@ -12,7 +12,7 @@ import 'package:wyd_front/state/my_app_state.dart';
 class UserController {
   Future<void> initUser(BuildContext context) async {
 
-    UserService().retrieve().then((response) {
+    UserService(context).retrieve().then((response) {
       if (response.statusCode == 200) {
         UserDto userDto = UserDto.fromJson(jsonDecode(response.body));
         context.read<MyAppState>().setUser(User.fromDto(userDto));

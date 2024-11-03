@@ -126,23 +126,19 @@ class _RegisterPageState extends State<RegisterPage> {
                         SizedBox(
                           height: 50,
                           width: 250,
-
                           child: ElevatedButton(
                             onPressed: () {
-                              debugPrint(_mail);
                               if (_registerKey.currentState!.validate()) {
                                 AuthController()
-                                    .register(_mail, _password)
+                                    .register(context, _mail, _password)
                                     .then(
-                                  (loginSuccessful) {
-                                    if (loginSuccessful) {
-                                      if (context.mounted) {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const HomePage()));
-                                      }
+                                  (_) {
+                                    if (context.mounted) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const HomePage()));
                                     }
                                   },
                                 ).catchError((error) {
@@ -177,9 +173,8 @@ class _RegisterPageState extends State<RegisterPage> {
               },
               mini: true, // Makes the button smaller and round
               backgroundColor: Theme.of(context).colorScheme.onPrimary,
-              child: Icon(Icons.arrow_back, color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer),
+              child: Icon(Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.primaryContainer),
             ),
           ),
         ],

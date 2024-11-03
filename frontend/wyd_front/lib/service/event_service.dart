@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
@@ -8,10 +9,13 @@ import 'package:wyd_front/model/my_event.dart';
 class EventService {
   String? functionUrl = '${dotenv.env['BACK_URL']}Event/';
 
-  Client client = InterceptedClient.build(interceptors: [
-    AuthInterceptor(),
-    RequestInterceptor(),
-  ]);
+  final InterceptedClient client;
+  
+  EventService(BuildContext context)
+      : client = InterceptedClient.build(interceptors: [
+          AuthInterceptor(context),
+          RequestInterceptor(),
+        ]);
 
   Future<Response> create(MyEvent event) async {
     String url = '${functionUrl}Create';
