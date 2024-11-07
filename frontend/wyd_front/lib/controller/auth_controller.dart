@@ -5,7 +5,7 @@ import 'package:wyd_front/service/auth_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 
 class AuthController {
-  Future register(BuildContext context, String mail, String password) async {
+  Future<bool> register(BuildContext context, String mail, String password) async {
     final authProvider =
         Provider.of<AuthenticationProvider>(context, listen: false);
     try {
@@ -18,6 +18,9 @@ class AuthController {
 
         if (response.statusCode != 200) {
           throw Exception("Failed to verify registration on the backend");
+        } else {
+          debugPrint(response.body);
+          return true;
         }
       }
 
@@ -30,6 +33,7 @@ class AuthController {
         throw "Unexpected error, please try later";
       }
     }
+    return false;
   }
 
   Future login(BuildContext context, String mail, String password) async {
@@ -57,4 +61,12 @@ class AuthController {
       }
     }
   }
+
+
+
+
+
+
+
+  
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/controller/auth_controller.dart';
+import 'package:provider/provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:wyd_front/controller/error_controller.dart';
-import 'package:wyd_front/view/home_page.dart';
+import 'package:wyd_front/state/authentication_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   final String mail;
@@ -128,24 +128,12 @@ class _RegisterPageState extends State<RegisterPage> {
                           width: 250,
                           child: ElevatedButton(
                             onPressed: () {
-                              if (_registerKey.currentState!.validate()) {
-                                AuthController()
-                                    .register(context, _mail, _password)
-                                    .then(
-                                  (_) {
-                                    if (context.mounted) {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const HomePage()));
-                                    }
-                                  },
-                                ).catchError((error) {
+                              final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+                              authProvider.register(_mail, _password)
+                                    .catchError((error) {
                                   ErrorController()
                                       .showErrorSnackBar(context, error);
-                                });
-                              }
+                                  });
                             },
                             child: Text(
                               'Register',

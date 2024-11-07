@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
         final isLoggingIn = state.matchedLocation == '/login';
 
         if (!authProvider.isAuthenticated && !isLoggingIn) return '/login';
-        if (authProvider.isAuthenticated && isLoggingIn) return '/';
+        if (authProvider.isAuthenticated && isLoggingIn) {return '/';}
 
         return null; // no redirection
       },
