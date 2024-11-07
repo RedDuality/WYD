@@ -1,40 +1,19 @@
 import 'dart:convert';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/controller/auth_interceptor.dart';
 import 'package:wyd_front/controller/request_interceptor.dart';
-import 'package:wyd_front/model/login_dto.dart';
-
-
-class AuthService{
-
+class AuthService {
   String? functionUrl = '${dotenv.env['BACK_URL']}Auth/';
 
+  final InterceptedClient client;
 
-  Client client = InterceptedClient.build(interceptors: [
-      AuthInterceptor(),
-      RequestInterceptor(),
-  ]);
+  AuthService()
+      : client = InterceptedClient.build(interceptors: [
+          RequestInterceptor(),
+        ]);
 
-
-  Future<Response> login(LoginDto loginDto) async {
-    String url = '${functionUrl}Login';
-
-    return client.post(Uri.parse(url), body: jsonEncode(loginDto));
+  Future<Response> verifyToken(String token) async {
+    final url = '${functionUrl}VerifyToken';
+    return client.post(Uri.parse(url), body: jsonEncode({"token": token}));
   }
-
-  Future<Response> register(LoginDto loginDto) async {
-    String url = '${functionUrl}Register';
-
-    return client.post(Uri.parse(url), body: loginDto);
-  }
-
-  Future<Response> testToken() async {
-    String url = '${functionUrl}TestToken';
-
-    return client.get(Uri.parse(url));
-  }
-
-  
 }

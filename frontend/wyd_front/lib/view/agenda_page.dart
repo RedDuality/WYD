@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/controller/event_controller.dart';
+import 'package:wyd_front/controller/my_event_controller.dart';
 import 'package:wyd_front/model/my_event.dart';
-import 'package:wyd_front/state/my_app_state.dart';
+import 'package:wyd_front/state/events_provider.dart';
 import 'package:wyd_front/widget/dialog/groups_dialog.dart';
 
 class AgendaPage extends StatelessWidget {
@@ -12,7 +12,7 @@ class AgendaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var privateEvents = context.watch<MyAppState>().privateEvents;
+    var privateEvents = context.watch<EventsProvider>().privateEvents;
 
     return Scaffold(
       body: Column(
@@ -82,7 +82,7 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
           actions: <Widget>[
             TextButton(
                 onPressed: () {
-                  EventController().decline(context, appointmentDetails);
+                  MyEventController().decline(context, appointmentDetails);
                   Navigator.of(context).pop();
                 },
                 child: const Text('Disdici')),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/controller/auth_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:wyd_front/controller/error_controller.dart';
 import 'package:wyd_front/service/test_service.dart';
-import 'package:wyd_front/view/home_page.dart';
+import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/view/register.dart';
+import 'package:wyd_front/widget/hover_text.dart';
 
 class LoginPage extends StatefulWidget {
-  
   const LoginPage({super.key});
 
   @override
@@ -29,16 +30,12 @@ class _LoginPageState extends State<LoginPage> {
                 child: SizedBox(
                     width: 300,
                     height: 400,
-                    /*decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(50.0)),*/
                     child: Image.asset('assets/images/logo.jpg')),
               ),
             ),
             Container(
               constraints: const BoxConstraints(maxWidth: 500),
               child: Padding(
-                //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
                   onChanged: (text) {
@@ -55,7 +52,6 @@ class _LoginPageState extends State<LoginPage> {
               constraints: const BoxConstraints(maxWidth: 500),
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
-                //padding: EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
                   onChanged: (text) {
                     _password = text;
@@ -82,21 +78,17 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 50,
               width: 250,
-              //decoration: BoxDecoration( color: Colors.blue),
               child: ElevatedButton(
-                onPressed: () async {
-                  await AuthController().login(_mail, _password).then(
-                    (loginSuccessful) {
-                      if (loginSuccessful) {
-                        if (context.mounted) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomePage()));
-                        }
-                      }
-                    },
-                  );
+                onPressed: () {
+                  final authProvider = Provider.of<AuthenticationProvider>(
+                      context,
+                      listen: false);
+
+                  authProvider.register(_mail, _password).catchError((error) {
+                    if (context.mounted) {
+                      ErrorController().showErrorSnackBar(context, error);
+                    }
+                  });
                 },
                 child: Text(
                   'Login',
@@ -106,19 +98,22 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            const SizedBox(
-              height: 130,
-            ),
+            const SizedBox(height: 130),
             GestureDetector(
               onTap: () {
-                debugPrint("dafdsaf");
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RegisterPage(mail: _mail)),
+                  MaterialPageRoute(
+                      builder: (context) => RegisterPage(mail: _mail)),
                 );
               },
-              child: const Text('New User? Create Account'),
-            )
+              child: const HoverText(
+                text: 'New user? Create account',
+                hoverColor: Colors.blue,
+                defaultColor: Colors.black,
+                fontSize: 18.0,
+              ),
+            ),
           ],
         ),
       ),

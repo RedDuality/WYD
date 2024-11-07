@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/controller/user_controller.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/agenda_page.dart';
+import 'package:wyd_front/view/test_private_page.dart';
+import 'package:wyd_front/view/test_shared_page.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
 import 'events_page.dart';
@@ -19,11 +21,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  late int selectedIndex;
+
   @override
   void initState() {
     super.initState();
-
+    selectedIndex = 0;
     UserController().initUser(context);
+    
   }
 
 
@@ -32,11 +37,12 @@ class _HomePageState extends State<HomePage> {
 
     final uriProvider = Provider.of<UriProvider>(context);
     String uri = uriProvider.uri;
-    //debugPrint("home $uri");
+    uriProvider.setUri('');
 
-    int selectedIndex = 0;
+   
+
     if (uri.isNotEmpty) {
-      selectedIndex = 0;  // Handle the shared link scenario
+      selectedIndex = 1;  // Handle the shared link scenario
     }
 
     Widget page;  
@@ -53,7 +59,12 @@ class _HomePageState extends State<HomePage> {
         break;
       case 3:
         page = EventsPage(uri: uri);
-        uri = "";
+        break;
+      case 4:
+        page = const TestPrivatePage();
+        break;
+      case 5:
+        page = const TestSharedPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -84,6 +95,14 @@ class _HomePageState extends State<HomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.event),
                     label: Text('Shared Events'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.event_available),
+                    label: Text('My New Agenda'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.event),
+                    label: Text('New Shared'),
                   ),
                 ],
                 onDestinationSelected: (value) {
