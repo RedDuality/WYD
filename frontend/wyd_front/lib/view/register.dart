@@ -128,12 +128,17 @@ class _RegisterPageState extends State<RegisterPage> {
                           width: 250,
                           child: ElevatedButton(
                             onPressed: () {
-                              final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
-                              authProvider.register(_mail, _password)
-                                    .catchError((error) {
+                              final authProvider =
+                                  Provider.of<AuthenticationProvider>(context,
+                                      listen: false);
+                              authProvider
+                                  .register(_mail, _password)
+                                  .catchError((error) {
+                                if (context.mounted) {
                                   ErrorController()
                                       .showErrorSnackBar(context, error);
-                                  });
+                                }
+                              });
                             },
                             child: Text(
                               'Register',

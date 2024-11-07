@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/controller/auth_controller.dart';
+import 'package:provider/provider.dart';
 import 'package:wyd_front/controller/error_controller.dart';
 import 'package:wyd_front/service/test_service.dart';
-import 'package:wyd_front/view/home_page.dart';
+import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/view/register.dart';
 import 'package:wyd_front/widget/hover_text.dart';
 
@@ -79,18 +79,15 @@ class _LoginPageState extends State<LoginPage> {
               height: 50,
               width: 250,
               child: ElevatedButton(
-                onPressed: () async {
-                  await AuthController().login(context, _mail, _password).then( (_) {
-                      if (context.mounted) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomePage()));
-                      }
-                    },
-                  ).catchError((error) {
-                    ErrorController()
-                        .showErrorSnackBar(context, error.toString());
+                onPressed: () {
+                  final authProvider = Provider.of<AuthenticationProvider>(
+                      context,
+                      listen: false);
+
+                  authProvider.register(_mail, _password).catchError((error) {
+                    if (context.mounted) {
+                      ErrorController().showErrorSnackBar(context, error);
+                    }
                   });
                 },
                 child: Text(

@@ -13,7 +13,7 @@ class UserController {
   Future<void> initUser(BuildContext context) async {
 
     UserService(context).retrieve().then((response) {
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && context.mounted) {
         UserDto userDto = UserDto.fromJson(jsonDecode(response.body));
         context.read<MyAppState>().setUser(User.fromDto(userDto));
 

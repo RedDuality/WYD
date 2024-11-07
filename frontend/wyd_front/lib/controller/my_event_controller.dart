@@ -14,7 +14,7 @@ import 'package:wyd_front/state/my_app_state.dart';
 class MyEventController {
   Future<void> retrieveEvents(BuildContext context) async {
     UserService(context).listEvents().then((response) {
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && context.mounted) {
         List<MyEvent> eventi = List<MyEvent>.from(json
             .decode(response.body)
             .map((evento) => MyEvent.fromJson(evento)));
