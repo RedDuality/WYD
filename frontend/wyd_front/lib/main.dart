@@ -10,6 +10,7 @@ import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
+import 'package:wyd_front/view/register.dart';
 import 'package:wyd_front/widget/loading.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -25,13 +26,10 @@ Future main() async {
 
   //SharedPreferences prefs = await SharedPreferences.getInstance();
 
- 
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-
-
   const MyApp({super.key});
 
   @override
@@ -64,19 +62,26 @@ class MyApp extends StatelessWidget {
   GoRouter _router(AuthenticationProvider authProvider) {
     return GoRouter(
       redirect: (context, state) {
-        // Redirect based on authentication state
-        if (authProvider.isLoading) return null; // Show loading page
+        // Wait until the loading process completes
+        if (authProvider.isLoading) return null;
+
         final isLoggingIn = state.matchedLocation == '/login';
+        final needsAuth = !authProvider.isAuthenticated || !authProvider.isBackendVerified;
 
-        if (!authProvider.isAuthenticated && !isLoggingIn) return '/login';
-        if (authProvider.isAuthenticated && isLoggingIn) {return '/';}
+        // Redirect unauthenticated users to login, unless they're already on the login page
+        if (needsAuth && !isLoggingIn) return '/login';
 
-        return null; // no redirection
+        // Redirect authenticated users away from the login page if they're already logged in
+        if (!needsAuth && isLoggingIn) return '/';
+
+        return null; // No redirection needed
       },
       routes: <GoRoute>[
         GoRoute(
           path: '/',
           builder: (BuildContext context, GoRouterState state) {
+            debugPrint(
+                "backverified${authProvider.isBackendVerified.toString()}");
             return authProvider.isLoading
                 ? const LoadingPage()
                 : const HomePage();
@@ -86,6 +91,11 @@ class MyApp extends StatelessWidget {
           path: '/login',
           builder: (BuildContext context, GoRouterState state) =>
               const LoginPage(),
+        ),
+        GoRoute(
+          path: '/register',
+          builder: (BuildContext context, GoRouterState state) =>
+              const RegisterPage(),
         ),
         GoRoute(
           path: '/shared',
@@ -101,5 +111,4 @@ class MyApp extends StatelessWidget {
       ],
     );
   }
-
 }

@@ -84,8 +84,7 @@ class AuthenticationProvider extends ChangeNotifier {
         final response = await AuthService().verifyToken(idToken);
         
         if (response.statusCode == 200) {
-
-          _isBackendVerified = true; // Mark backend verification as successful
+          _isBackendVerified = true;
         } else {
           _isBackendVerified = false;
           debugPrint("Backend verification failed: ${response.statusCode}");
