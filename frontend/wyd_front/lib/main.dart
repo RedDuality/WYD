@@ -80,8 +80,6 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/',
           builder: (BuildContext context, GoRouterState state) {
-            debugPrint(
-                "backverified${authProvider.isBackendVerified.toString()}");
             return authProvider.isLoading
                 ? const LoadingPage()
                 : const HomePage();

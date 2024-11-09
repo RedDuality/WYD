@@ -1,34 +1,45 @@
 
 import 'package:wyd_front/model/community.dart';
-import 'package:wyd_front/model/user_dto.dart';
+import 'package:wyd_front/model/profile.dart';
 
-class User{
+class User {
   int id = -1;
-  String mail = "";
-  String username = "";
+  String uid = "";
+  String mainMail = "";
+  String userName = "";
+  List<Profile> profiles = [];
+  //List<Account> accounts = [];
+  //List<Group> groups = [];
   List<Community> communities = [];
 
-  User({this.id = -1, this.mail = "", this.username= "", this.communities=const []});
+  User({
+    this.id = -1,
+    this.uid = "",
+    this.mainMail = "",
+    this.userName = "",
+    List<Profile>? profiles,
+  }) : profiles = profiles ?? [];
 
-  User.fromDto(UserDto dto){
-    id = dto.id;
-    mail = dto.mail;
-    username = dto.username;
-    communities = dto.communities;
-  }
-
-  
   factory User.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-        'mail': String? email,
-        'username': String? username,
         'id': int? id,
+        'uid': String? uid,
+        'mainMail': String? email,
+        'userName': String? username,
+        'userRoles': List<dynamic>? roles,
       } =>
         User(
-            id: id?? -1,
-            mail: email ?? "",
-            username: username ?? "",
+          id: id ?? -1,
+          uid: uid ?? "",
+          mainMail: email ?? "",
+          userName: username ?? "",
+          profiles: roles != null
+              ? roles.map((role) {
+                  Profile p = Profile.fromJson(role as Map<String, dynamic>);
+                  return p;
+                }).toList()
+              : <Profile>[],
         ),
       _ => throw const FormatException('Failed to decode User')
     };

@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                       context,
                       listen: false);
 
-                  authProvider.register(_mail, _password).catchError((error) {
+                  authProvider.signIn(_mail, _password).catchError((error) {
                     if (context.mounted) {
                       ErrorController().showErrorSnackBar(context, error);
                     }

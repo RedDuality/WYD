@@ -1,0 +1,4 @@
+enum ProfileType{
+  personal,
+  business
+}
