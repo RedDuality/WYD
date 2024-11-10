@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/controller/my_event_controller.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/my_event.dart';
-import 'package:wyd_front/state/my_app_state.dart';
+import 'package:wyd_front/state/user_provider.dart';
 
 class Group {
   final int id;
@@ -17,7 +17,7 @@ class Group {
 }
 
 void showGroupsDialog(BuildContext context, MyEvent event) {
-  List<Community> communities = context.read<MyAppState>().user.communities;
+  List<Community> communities = context.read<UserProvider>().user!.communities;
 
   List<Group> groups =
       communities.map((cat) => Group(cat.id, cat.name, false)).toList();

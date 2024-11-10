@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
@@ -10,9 +9,9 @@ class CommunityService {
 
   final InterceptedClient client;
   
-  CommunityService(BuildContext context)
+  CommunityService()
       : client = InterceptedClient.build(interceptors: [
-          AuthInterceptor(context),
+          AuthInterceptor(),
           RequestInterceptor(),
         ]);
 

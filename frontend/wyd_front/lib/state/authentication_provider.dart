@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/user.dart' as model;
 import 'package:wyd_front/service/auth_service.dart';
 
-class AuthenticationProvider extends ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  User? _user;
-  bool _isLoading = true;
-  bool _isBackendVerified = false;
+class AuthenticationProvider with ChangeNotifier {
+  // Make the singleton instance private and static
+  static final AuthenticationProvider _instance = AuthenticationProvider._internal();
 
-  AuthenticationProvider() {
+  // Private constructor
+  AuthenticationProvider._internal() {
     _checkUserLoginStatus();
 
+    // Listen to auth state changes and update _user accordingly
     _auth.authStateChanges().listen((User? user) async {
       _user = user;
       if (_user == null) {
@@ -24,6 +24,17 @@ class AuthenticationProvider extends ChangeNotifier {
     });
   }
 
+  // Factory constructor returns the singleton instance
+  factory AuthenticationProvider() {
+    return _instance;
+  }
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? _user;
+  bool _isLoading = true;
+  bool _isBackendVerified = false;
+
+  // Public getters
   User? get user => _user;
   bool get isAuthenticated => _user != null;
   bool get isLoading => _isLoading;
