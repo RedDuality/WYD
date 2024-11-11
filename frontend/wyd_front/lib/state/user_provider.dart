@@ -39,6 +39,7 @@ class UserProvider extends ChangeNotifier {
         .firstWhere(
             (p) => p.type == ProfileType.personal && p.role == Role.owner)
         .id;
+
     List<TestEvent> sharedEvents = events
         .where((ev) =>
             ev.sharedWith
@@ -53,6 +54,7 @@ class UserProvider extends ChangeNotifier {
                 .confirmed ==
             true)
         .toList();
+
     privateProvider.addEvents(privateEvents);
     sharedProvider.addEvents(sharedEvents);
   }

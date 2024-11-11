@@ -136,7 +136,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   .catchError((error) {
                                 if (context.mounted) {
                                   ErrorController()
-                                      .showErrorSnackBar(context, error);
+                                      .showErrorSnackBar(context, error.message);
                                 }
                               });
                             },

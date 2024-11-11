@@ -3,12 +3,25 @@ import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wyd_front/model/user.dart' as model;
 import 'package:wyd_front/service/auth_service.dart';
+import 'package:wyd_front/state/user_provider.dart';
 
 class AuthenticationProvider with ChangeNotifier {
   // Make the singleton instance private and static
-  static final AuthenticationProvider _instance = AuthenticationProvider._internal();
+  static final AuthenticationProvider _instance =
+      AuthenticationProvider._internal();
+
+  BuildContext? _context;
+
+  factory AuthenticationProvider({BuildContext? context}) {
+    // Assign context only once during initialization
+    if (context != null && _instance._context == null) {
+      _instance._context = context;
+    }
+    return _instance;
+  }
 
   // Private constructor
   AuthenticationProvider._internal() {
@@ -22,11 +35,6 @@ class AuthenticationProvider with ChangeNotifier {
       }
       notifyListeners();
     });
-  }
-
-  // Factory constructor returns the singleton instance
-  factory AuthenticationProvider() {
-    return _instance;
   }
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -56,9 +64,9 @@ class AuthenticationProvider with ChangeNotifier {
       await verifyBackendAuth();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
-        throw Exception("Please insert a valid email");
+        throw "Please insert a valid email";
       } else if (e.code == 'invalid-credential') {
-        throw Exception("The mail or the password provided are wrong");
+        throw "The mail or the password provided are wrong";
       } else {
         debugPrint("Error signing in: $e");
         throw "Unexpected error, please try later";
@@ -98,6 +106,9 @@ class AuthenticationProvider with ChangeNotifier {
         if (response.statusCode == 200) {
           _isBackendVerified = true;
           model.User user = model.User.fromJson(jsonDecode(response.body));
+          final userProvider = _context!.read<UserProvider>();
+          userProvider.setUser(user);
+
           
         } else {
           _isBackendVerified = false;

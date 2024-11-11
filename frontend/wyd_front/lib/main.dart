@@ -8,6 +8,7 @@ import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
+import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
 import 'package:wyd_front/view/register.dart';
@@ -34,14 +35,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final privateProvider = PrivateProvider();
+    final sharedProvider = SharedProvider();
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MyAppState()),
-        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider<PrivateProvider>.value(value: privateProvider),
+        ChangeNotifierProvider<SharedProvider>.value(value: sharedProvider),
+        ChangeNotifierProvider<UserProvider>(
+          create: (_) => UserProvider(
+            privateProvider: privateProvider,
+            sharedProvider: sharedProvider,
+          ),
+        ),
+        ChangeNotifierProvider(
+            create: (context) => AuthenticationProvider(context: context)),
         ChangeNotifierProvider(create: (_) => UriProvider()),
         ChangeNotifierProvider(create: (_) => EventsProvider()),
-        ChangeNotifierProvider(create: (_) => PrivateProvider()),
-        ChangeNotifierProvider(create: (_) => SharedProvider()),
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
@@ -68,7 +79,8 @@ class MyApp extends StatelessWidget {
         final isLoggingIn = state.matchedLocation == '/login';
 
         debugPrint("location${state.matchedLocation}");
-        final needsAuth = !authProvider.isAuthenticated || !authProvider.isBackendVerified;
+        final needsAuth =
+            !authProvider.isAuthenticated || !authProvider.isBackendVerified;
 
         // Redirect unauthenticated users to login, unless they're already on the login page
         if (needsAuth && !isLoggingIn) return '/login';
