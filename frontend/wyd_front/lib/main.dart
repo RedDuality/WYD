@@ -66,6 +66,8 @@ class MyApp extends StatelessWidget {
         if (authProvider.isLoading) return null;
 
         final isLoggingIn = state.matchedLocation == '/login';
+
+        debugPrint("location${state.matchedLocation}");
         final needsAuth = !authProvider.isAuthenticated || !authProvider.isBackendVerified;
 
         // Redirect unauthenticated users to login, unless they're already on the login page
