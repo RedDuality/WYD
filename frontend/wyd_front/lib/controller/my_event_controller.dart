@@ -6,26 +6,30 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/my_event.dart';
+import 'package:wyd_front/model/test_event.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/service/user_service.dart';
 import 'package:wyd_front/state/events_provider.dart';
+import 'package:wyd_front/state/private_provider.dart';
+import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class MyEventController {
   Future<void> retrieveEvents(BuildContext context) async {
     UserService().listEvents().then((response) {
       if (response.statusCode == 200 && context.mounted) {
-        List<MyEvent> eventi = List<MyEvent>.from(json
+        List<TestEvent> eventi = List<TestEvent>.from(json
             .decode(response.body)
             .map((evento) => MyEvent.fromJson(evento)));
-        setEvents(context, eventi);
+        addEvents(context, eventi);
       }
     }).catchError((error) {
       debugPrint(error.toString());
     });
   }
 
-  Future<MyEvent?> retrieveFromHash(BuildContext context, String eventHash) async {
+  Future<MyEvent?> retrieveFromHash(
+      BuildContext context, String eventHash) async {
     MyEvent? event;
     await EventService().retrieveFromHash(eventHash).then((response) {
       if (response.statusCode == 200) {
@@ -56,8 +60,30 @@ class MyEventController {
     context.read<EventsProvider>().sharedEvents.setAppointements(public);
   }
 
+  void addEvents(BuildContext context, List<TestEvent> events) {
+    int mainProfileId = context.read<UserProvider>().getMainProfileId();
+
+    List<TestEvent> sharedEvents = events
+        .where((ev) =>
+            ev.sharedWith
+                .firstWhere((s) => s.profileId == mainProfileId)
+                .confirmed ==
+            true)
+        .toList();
+    List<TestEvent> privateEvents = events
+        .where((ev) =>
+            ev.sharedWith
+                .firstWhere((s) => s.profileId == mainProfileId)
+                .confirmed ==
+            true)
+        .toList();
+
+    context.read<PrivateProvider>().addEvents(privateEvents);
+    context.read<SharedProvider>().addEvents(sharedEvents);
+  }
+
   Future<void> createEvent(
-      BuildContext context, EventsDataSource privateEvents, MyEvent event) async {
+      EventsDataSource privateEvents, MyEvent event) async {
     EventService().create(event).then((response) {
       if (response.statusCode == 200) {
         MyEvent event = MyEvent.fromJson(jsonDecode(response.body));
@@ -68,7 +94,8 @@ class MyEventController {
     });
   }
 
-  Future<void> share(BuildContext context, Appointment event, List<Community> communities) async {
+  Future<void> share(BuildContext context, Appointment event,
+      List<Community> communities) async {
     Set<int> userIds = {};
     for (var c in communities) {
       if (c.users != null && c.users!.isNotEmpty) {
@@ -86,16 +113,14 @@ class MyEventController {
     });
   }
 
-  Future<bool> confirmFromHash(BuildContext context, MyEvent event, bool confirm) async {
+  Future<bool> confirmFromHash(
+      BuildContext context, MyEvent event, bool confirm) async {
     bool res = false;
-    await EventService()
-        .confirmFromHash(event.hash!, confirm)
-        .then((response) {
-          if(response.statusCode == 200){
-            res = true;
-          }
-        })
-        .catchError((error) {
+    await EventService().confirmFromHash(event.hash!, confirm).then((response) {
+      if (response.statusCode == 200) {
+        res = true;
+      }
+    }).catchError((error) {
       debugPrint(error.toString());
     });
 

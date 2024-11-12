@@ -1,61 +1,45 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:wyd_front/controller/my_event_controller.dart';
 import 'package:wyd_front/model/enum/profile_type.dart';
 import 'package:wyd_front/model/enum/role.dart';
-import 'package:wyd_front/model/test_event.dart';
 import 'package:wyd_front/model/user.dart';
-import 'package:wyd_front/service/user_service.dart';
-import 'package:wyd_front/state/private_provider.dart';
-import 'package:wyd_front/state/shared_provider.dart';
 
 class UserProvider extends ChangeNotifier {
-  late User _user;
+  BuildContext context;
+
+  User? _user;
+
+  UserProvider({required this.context});
 
   User? get user => _user;
 
-  // Inject dependencies for PrivateProvider and SharedProvider
-  final PrivateProvider privateProvider;
-  final SharedProvider sharedProvider;
-
-  UserProvider({required this.privateProvider, required this.sharedProvider});
-
-  void setUser(User user) {
-    _user = user;
-    notifyListeners();
-
-    List<TestEvent> events = [];
-    UserService().listEvents().then((response) {
-      if (response.statusCode == 200) {
-        events = jsonDecode(response.body)
-            .map((event) => TestEvent.fromJson(event as Map<String, dynamic>))
-            .toList();
-      }
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
-
-    int mainProfileId = user.profiles
+  int getMainProfileId() {
+    return user!.profiles
         .firstWhere(
             (p) => p.type == ProfileType.personal && p.role == Role.owner)
         .id;
+  }
 
-    List<TestEvent> sharedEvents = events
-        .where((ev) =>
-            ev.sharedWith
-                .firstWhere((s) => s.profileId == mainProfileId)
-                .confirmed ==
-            true)
-        .toList();
-    List<TestEvent> privateEvents = events
-        .where((ev) =>
-            ev.sharedWith
-                .firstWhere((s) => s.profileId == mainProfileId)
-                .confirmed ==
-            true)
-        .toList();
+  void updateUser(User user) {
+    _user == null
+        ? setUser(user)
+        : //
+        checkUserUpdate(user);
 
-    privateProvider.addEvents(privateEvents);
-    sharedProvider.addEvents(sharedEvents);
+    notifyListeners();
+  }
+
+  checkUserUpdate(user) {
+    if (_user!.id == user.id) {
+      //TODO check user updates on profiles
+    } else {
+      setUser(user);
+    }
+  }
+
+  void setUser(User user) {
+    _user = user;
+    MyEventController().retrieveEvents(context);
+    notifyListeners();
   }
 }

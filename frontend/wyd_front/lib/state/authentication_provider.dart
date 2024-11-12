@@ -89,9 +89,23 @@ class AuthenticationProvider with ChangeNotifier {
         throw "Unexpected error, please try later";
       }
     }
+
+    try {
+      await verifyBackendAuth();
+    } on Exception catch (e) {
+      debugPrint("Error registering: $e");
+      await _auth.currentUser?.delete();
+      throw "Unexpected error, please try later";
+    }
   }
 
-  Future<void> signOut() async {
+  Future<void> signOut() async {try {
+      await verifyBackendAuth();
+    } on Exception catch (e) {
+      debugPrint("Error registering: $e");
+      await _auth.currentUser?.delete();
+      throw "Unexpected error, please try later";
+    }
     await _auth.signOut();
   }
 
@@ -104,12 +118,12 @@ class AuthenticationProvider with ChangeNotifier {
         final response = await AuthService().verifyToken(idToken);
 
         if (response.statusCode == 200) {
-          _isBackendVerified = true;
-          model.User user = model.User.fromJson(jsonDecode(response.body));
           final userProvider = _context!.read<UserProvider>();
-          userProvider.setUser(user);
 
-          
+          model.User user = model.User.fromJson(jsonDecode(response.body));
+
+          userProvider.updateUser(user);
+          _isBackendVerified = true;
         } else {
           _isBackendVerified = false;
           debugPrint("Backend verification failed: ${response.statusCode}");

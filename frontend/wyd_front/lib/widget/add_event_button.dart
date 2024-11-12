@@ -6,6 +6,7 @@ import 'package:wyd_front/controller/my_event_controller.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:wyd_front/model/test_event.dart';
 import 'package:wyd_front/state/events_provider.dart';
 
 class AddEventButton extends StatelessWidget {
@@ -74,9 +75,17 @@ class AddEventButton extends StatelessWidget {
                       color: Colors.primaries[generatedColor],
                     );
 
+                    TestEvent testEvent = TestEvent(
+                      date: startDate ?? DateTime.now(),
+                      startTime: startDate ?? DateTime.now(),
+                      endTime: endDate ?? DateTime.now().add(const Duration(hours: 1)),
+                      title: eventName,
+                    );
+
+
                     var privateEvents =
                         context.read<EventsProvider>().privateEvents;
-                    MyEventController().createEvent(context, privateEvents, newEvent);
+                    MyEventController().createEvent(privateEvents, newEvent);
 
                     Navigator.of(context).pop();
                   },

@@ -44,11 +44,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<PrivateProvider>.value(value: privateProvider),
         ChangeNotifierProvider<SharedProvider>.value(value: sharedProvider),
         ChangeNotifierProvider<UserProvider>(
-          create: (_) => UserProvider(
-            privateProvider: privateProvider,
-            sharedProvider: sharedProvider,
-          ),
-        ),
+            create: (context) => UserProvider(context: context)),
         ChangeNotifierProvider(
             create: (context) => AuthenticationProvider(context: context)),
         ChangeNotifierProvider(create: (_) => UriProvider()),
@@ -78,7 +74,7 @@ class MyApp extends StatelessWidget {
 
         final isLoggingIn = state.matchedLocation == '/login';
 
-        debugPrint("location${state.matchedLocation}");
+        debugPrint("location ${state.matchedLocation}");
         final needsAuth =
             !authProvider.isAuthenticated || !authProvider.isBackendVerified;
 
