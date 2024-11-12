@@ -20,9 +20,9 @@ class UserProvider extends ChangeNotifier {
         .id;
   }
 
-  void updateUser(User user) {
+  void updateUser(User? user) {
     _user == null
-        ? setUser(user)
+        ? setUser(user!)
         : //
         checkUserUpdate(user);
 

@@ -112,17 +112,14 @@ class AuthenticationProvider with ChangeNotifier {
   // Method to perform backend verification
   Future<void> verifyBackendAuth() async {
     _isBackendVerified = false;
+    model.User? user;
     try {
       final idToken = await _user?.getIdToken();
       if (idToken != null) {
         final response = await AuthService().verifyToken(idToken);
 
         if (response.statusCode == 200) {
-          final userProvider = _context!.read<UserProvider>();
-
-          model.User user = model.User.fromJson(jsonDecode(response.body));
-
-          userProvider.updateUser(user);
+          user = model.User.fromJson(jsonDecode(response.body));
           _isBackendVerified = true;
         } else {
           _isBackendVerified = false;
@@ -134,5 +131,7 @@ class AuthenticationProvider with ChangeNotifier {
       debugPrint("Error during backend verification: $e");
     }
     notifyListeners();
+    final userProvider = _context!.read<UserProvider>();
+    userProvider.updateUser(user);
   }
 }
