@@ -35,14 +35,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final privateProvider = PrivateProvider();
-    final sharedProvider = SharedProvider();
 
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MyAppState()),
-        ChangeNotifierProvider<PrivateProvider>.value(value: privateProvider),
-        ChangeNotifierProvider<SharedProvider>.value(value: sharedProvider),
+        ChangeNotifierProvider(create: (_) => PrivateProvider()),
+        ChangeNotifierProvider(create: (_) => SharedProvider()),
         ChangeNotifierProvider<UserProvider>(
             create: (context) => UserProvider(context: context)),
         ChangeNotifierProvider(
@@ -50,6 +48,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UriProvider()),
         ChangeNotifierProvider(create: (_) => EventsProvider()),
       ],
+
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
           return MaterialApp.router(
@@ -63,11 +62,13 @@ class MyApp extends StatelessWidget {
           );
         },
       ),
+
     );
   }
 
   GoRouter _router(AuthenticationProvider authProvider) {
     return GoRouter(
+
       redirect: (context, state) {
         // Wait until the loading process completes
         if (authProvider.isLoading) return null;
@@ -86,6 +87,7 @@ class MyApp extends StatelessWidget {
 
         return null; // No redirection needed
       },
+      
       routes: <GoRoute>[
         GoRoute(
           path: '/',

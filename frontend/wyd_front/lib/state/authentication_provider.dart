@@ -99,7 +99,8 @@ class AuthenticationProvider with ChangeNotifier {
     }
   }
 
-  Future<void> signOut() async {try {
+  Future<void> signOut() async {
+    try {
       await verifyBackendAuth();
     } on Exception catch (e) {
       debugPrint("Error registering: $e");
@@ -125,13 +126,18 @@ class AuthenticationProvider with ChangeNotifier {
           _isBackendVerified = false;
           debugPrint("Backend verification failed: ${response.statusCode}");
         }
+      } else {
+        debugPrint("Token null");
       }
     } catch (e) {
       _isBackendVerified = false;
       debugPrint("Error during backend verification: $e");
     }
     notifyListeners();
-    final userProvider = _context!.read<UserProvider>();
-    userProvider.updateUser(user);
+
+    if (context.mounted) {
+      final userProvider = context.read<UserProvider>();
+      userProvider.updateUser(user);
+    }
   }
 }
