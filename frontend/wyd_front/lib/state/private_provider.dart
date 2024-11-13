@@ -12,6 +12,10 @@ class PrivateProvider extends EventController {
   addEvents(List<TestEvent> events){
     super.addAll(events);
   }
+
+  addEvent(TestEvent event){
+    super.add(event);
+  }
 }
 
 

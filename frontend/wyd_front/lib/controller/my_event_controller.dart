@@ -15,7 +15,12 @@ import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class MyEventController {
-  Future<void> retrieveEvents(BuildContext context) async {
+  late BuildContext context;
+  
+  MyEventController({required this.context});
+
+  Future<void> retrieveEvents( ) async {
+
     UserService().listEvents().then((response) {
       if (response.statusCode == 200 && context.mounted) {
         List<TestEvent> eventi = List<TestEvent>.from(json
@@ -23,9 +28,11 @@ class MyEventController {
             .map((evento) => MyEvent.fromJson(evento)));
         addEvents(context, eventi);
       }
+
     }).catchError((error) {
       debugPrint(error.toString());
     });
+
   }
 
   Future<MyEvent?> retrieveFromHash(
@@ -40,24 +47,6 @@ class MyEventController {
     });
 
     return event;
-  }
-
-  void setEvents(BuildContext context, List<MyEvent> eventi) {
-    int userId = context.read<UserProvider>().user!.id;
-
-    List<MyEvent> private = eventi
-        .where((event) => event.confirms
-            .where((c) => c.userId == userId && c.confirmed == true)
-            .isNotEmpty)
-        .toList();
-    List<MyEvent> public = eventi
-        .where((event) => event.confirms
-            .where((c) => c.userId == userId && c.confirmed == false)
-            .isNotEmpty)
-        .toList();
-
-    context.read<EventsProvider>().privateEvents.setAppointements(private);
-    context.read<EventsProvider>().sharedEvents.setAppointements(public);
   }
 
   void addEvents(BuildContext context, List<TestEvent> events) {
@@ -82,12 +71,11 @@ class MyEventController {
     context.read<SharedProvider>().addEvents(sharedEvents);
   }
 
-  Future<void> createEvent(
-      EventsDataSource privateEvents, MyEvent event) async {
+  Future<void> createEvent(TestEvent event) async {
     EventService().create(event).then((response) {
       if (response.statusCode == 200) {
-        MyEvent event = MyEvent.fromJson(jsonDecode(response.body));
-        privateEvents.addAppointement(event);
+        TestEvent event = TestEvent.fromJson(jsonDecode(response.body));
+        context.read<PrivateProvider>().addEvent(event);
       }
     }).catchError((error) {
       debugPrint(error.toString());
@@ -164,4 +152,5 @@ class MyEventController {
       debugPrint(error.toString());
     });
   }
+
 }

@@ -7,7 +7,7 @@ class AuthInterceptor extends InterceptorContract {
 
   @override
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
-    final authProvider =AuthenticationProvider();
+    final authProvider = AuthenticationProvider();
     String? token = await authProvider.user?.getIdToken();
 
     //debugPrint("interceptor: $token");

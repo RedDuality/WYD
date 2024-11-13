@@ -100,13 +100,6 @@ class AuthenticationProvider with ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    try {
-      await verifyBackendAuth();
-    } on Exception catch (e) {
-      debugPrint("Error registering: $e");
-      await _auth.currentUser?.delete();
-      throw "Unexpected error, please try later";
-    }
     await _auth.signOut();
   }
 
@@ -135,9 +128,7 @@ class AuthenticationProvider with ChangeNotifier {
     }
     notifyListeners();
 
-    if (context.mounted) {
-      final userProvider = context.read<UserProvider>();
-      userProvider.updateUser(user);
-    }
+    final userProvider = _context!.read<UserProvider>();
+    userProvider.updateUser(_context!, user);
   }
 }

@@ -82,10 +82,7 @@ class AddEventButton extends StatelessWidget {
                       title: eventName,
                     );
 
-
-                    var privateEvents =
-                        context.read<EventsProvider>().privateEvents;
-                    MyEventController().createEvent(privateEvents, newEvent);
+                    MyEventController(context: context).createEvent(testEvent);
 
                     Navigator.of(context).pop();
                   },

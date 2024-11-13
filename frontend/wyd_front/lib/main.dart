@@ -35,20 +35,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MyAppState()),
         ChangeNotifierProvider(create: (_) => PrivateProvider()),
         ChangeNotifierProvider(create: (_) => SharedProvider()),
-        ChangeNotifierProvider<UserProvider>(
-            create: (context) => UserProvider(context: context)),
-        ChangeNotifierProvider(
-            create: (context) => AuthenticationProvider(context: context)),
+        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => UriProvider()),
         ChangeNotifierProvider(create: (_) => EventsProvider()),
+        ChangeNotifierProvider(
+            create: (context) => AuthenticationProvider(context: context)),
       ],
-
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
           return MaterialApp.router(
@@ -62,32 +59,26 @@ class MyApp extends StatelessWidget {
           );
         },
       ),
-
     );
   }
 
   GoRouter _router(AuthenticationProvider authProvider) {
     return GoRouter(
-
       redirect: (context, state) {
-        // Wait until the loading process completes
+        // Wait until loading and backend verification complete
         if (authProvider.isLoading) return null;
 
         final isLoggingIn = state.matchedLocation == '/login';
 
-        debugPrint("location ${state.matchedLocation}");
-        final needsAuth =
-            !authProvider.isAuthenticated || !authProvider.isBackendVerified;
-
-        // Redirect unauthenticated users to login, unless they're already on the login page
-        if (needsAuth && !isLoggingIn) return '/login';
-
-        // Redirect authenticated users away from the login page if they're already logged in
-        if (!needsAuth && isLoggingIn) return '/';
-
-        return null; // No redirection needed
+        if (isLoggingIn) {
+          if (authProvider.isBackendVerified) {
+            return '/';
+          }
+        } else if (!authProvider.isBackendVerified) {
+          return '/login';
+        }
+        return null;
       },
-      
       routes: <GoRoute>[
         GoRoute(
           path: '/',

@@ -21,7 +21,7 @@ class EventsPage extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (eventHash != null) {
-        final event = await MyEventController().retrieveFromHash(context, eventHash);
+        final event = await MyEventController(context: context).retrieveFromHash(context, eventHash);
 
         if (event != null && context.mounted) {
           var dateText =
@@ -123,13 +123,13 @@ Future<void> _addEvent(
     BuildContext context, EventsDataSource privateEvents, EventsDataSource sharedEvents, MyEvent event, bool confirmed) async {
   if (confirmed) {
     if (sharedEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController().confirmFromHash(context, event, confirmed);
+      bool saved = await MyEventController(context: context).confirmFromHash(context, event, confirmed);
       if (saved) {
         sharedEvents.removeAppointment(event);
         privateEvents.addAppointement(event);
       }
     } else if (!privateEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController().confirmFromHash(context, event, confirmed);
+      bool saved = await MyEventController(context: context).confirmFromHash(context, event, confirmed);
       if (saved) {
         privateEvents.addAppointement(event);
       }
@@ -137,7 +137,7 @@ Future<void> _addEvent(
   } else {
     if (!privateEvents.appointments!.contains(event) &&
         !sharedEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController().confirmFromHash(context, event, confirmed);
+      bool saved = await MyEventController(context: context).confirmFromHash(context, event, confirmed);
       if (saved) {
         sharedEvents.addAppointement(event);
       }
@@ -202,7 +202,7 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
             actions: <Widget>[
               TextButton(
                   onPressed: () {
-                    MyEventController().confirm(context, appointmentDetails);
+                    MyEventController(context: context).confirm(context, appointmentDetails);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Confirm')),

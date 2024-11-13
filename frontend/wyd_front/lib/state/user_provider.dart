@@ -5,11 +5,8 @@ import 'package:wyd_front/model/enum/role.dart';
 import 'package:wyd_front/model/user.dart';
 
 class UserProvider extends ChangeNotifier {
-  BuildContext context;
 
   User? _user;
-
-  UserProvider({required this.context});
 
   User? get user => _user;
 
@@ -20,26 +17,26 @@ class UserProvider extends ChangeNotifier {
         .id;
   }
 
-  void updateUser(User? user) {
+  void updateUser(BuildContext context, User? user) {
     _user == null
-        ? setUser(user!)
+        ? setUser(context, user!)
         : //
-        checkUserUpdate(user);
+        checkUserUpdate(context, user);
 
     notifyListeners();
   }
 
-  checkUserUpdate(user) {
+  checkUserUpdate(context, user) {
     if (_user!.id == user.id) {
       //TODO check user updates on profiles
     } else {
-      setUser(user);
+      setUser(context, user);
     }
   }
 
-  void setUser(User user) {
+  void setUser(BuildContext context, User user) {
     _user = user;
-    MyEventController().retrieveEvents(context);
+    MyEventController(context:context).retrieveEvents();
     notifyListeners();
   }
 }

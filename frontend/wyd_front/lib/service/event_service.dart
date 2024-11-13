@@ -4,6 +4,7 @@ import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/controller/auth_interceptor.dart';
 import 'package:wyd_front/controller/request_interceptor.dart';
 import 'package:wyd_front/model/my_event.dart';
+import 'package:wyd_front/model/test_event.dart';
 
 class EventService {
   String? functionUrl = '${dotenv.env['BACK_URL']}Event/';
@@ -16,7 +17,7 @@ class EventService {
           RequestInterceptor(),
         ]);
 
-  Future<Response> create(MyEvent event) async {
+  Future<Response> create(TestEvent event) async {
     String url = '${functionUrl}Create';
 
     return client.post(Uri.parse(url), body: jsonEncode(event));
