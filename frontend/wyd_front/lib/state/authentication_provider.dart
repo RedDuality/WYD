@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/user.dart' as model;
-import 'package:wyd_front/service/auth_service.dart';
+import 'package:wyd_front/API/auth_api.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class AuthenticationProvider with ChangeNotifier {
@@ -110,7 +110,7 @@ class AuthenticationProvider with ChangeNotifier {
     try {
       final idToken = await _user?.getIdToken();
       if (idToken != null) {
-        final response = await AuthService().verifyToken(idToken);
+        final response = await AuthAPI().verifyToken(idToken);
 
         if (response.statusCode == 200) {
           user = model.User.fromJson(jsonDecode(response.body));

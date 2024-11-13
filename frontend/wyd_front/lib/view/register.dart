@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:wyd_front/controller/error_controller.dart';
+import 'package:wyd_front/service/error_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -135,7 +135,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   .register(_mail, _password)
                                   .catchError((error) {
                                 if (context.mounted) {
-                                  ErrorController()
+                                  ErrorService()
                                       .showErrorSnackBar(context, error.message);
                                 }
                               });

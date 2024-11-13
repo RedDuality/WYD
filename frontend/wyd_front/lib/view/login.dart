@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/controller/error_controller.dart';
-import 'package:wyd_front/service/test_service.dart';
+import 'package:wyd_front/service/error_service.dart';
+import 'package:wyd_front/API/test_api.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/view/register.dart';
 import 'package:wyd_front/widget/hover_text.dart';
@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
             ElevatedButton(
               onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
-                TestService().ping();
+                TestAPI().ping();
               },
               child: const Text(
                 'Forgot Password',
@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   authProvider.signIn(_mail, _password).catchError((error) {
                     if (context.mounted) {
-                      ErrorController().showErrorSnackBar(context, error);
+                      ErrorService().showErrorSnackBar(context, error);
                     }
                   });
                 },

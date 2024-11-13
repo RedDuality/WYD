@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/controller/my_event_controller.dart';
+import 'package:wyd_front/service/my_event_service.dart';
 import 'package:wyd_front/model/enum/profile_type.dart';
 import 'package:wyd_front/model/enum/role.dart';
 import 'package:wyd_front/model/user.dart';
@@ -36,7 +36,7 @@ class UserProvider extends ChangeNotifier {
 
   void setUser(BuildContext context, User user) {
     _user = user;
-    MyEventController(context:context).retrieveEvents();
+    MyEventService(context:context).retrieveEvents();
     notifyListeners();
   }
 }

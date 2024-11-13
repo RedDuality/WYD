@@ -5,9 +5,8 @@ import 'package:wyd_front/model/test_event.dart';
 
 
 class PrivateProvider extends EventController {
-  PrivateProvider() {
-  super.addAll(_events);
-  }
+
+  PrivateProvider() : super();
   
   addEvents(List<TestEvent> events){
     super.addAll(events);
@@ -16,6 +15,7 @@ class PrivateProvider extends EventController {
   addEvent(TestEvent event){
     super.add(event);
   }
+  
 }
 
 

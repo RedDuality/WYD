@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/controller/my_event_controller.dart';
+import 'package:wyd_front/service/my_event_service.dart';
 import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/my_event.dart';
-import 'package:wyd_front/service/test_service.dart';
+import 'package:wyd_front/API/test_api.dart';
 import 'package:wyd_front/state/events_provider.dart';
 class EventsPage extends StatelessWidget {
   final String uri;
@@ -21,7 +21,7 @@ class EventsPage extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (eventHash != null) {
-        final event = await MyEventController(context: context).retrieveFromHash(context, eventHash);
+        final event = await MyEventService(context: context).retrieveFromHash(context, eventHash);
 
         if (event != null && context.mounted) {
           var dateText =
@@ -108,7 +108,7 @@ class EventsPage extends StatelessWidget {
         TextButton(
             onPressed: () {
               //String json = jsonEncode(sharedEvents.appointments![0]);
-              TestService().ping().then((response) {
+              TestAPI().ping().then((response) {
                 debugPrint(response.body.toString());
               });
             },
@@ -123,13 +123,13 @@ Future<void> _addEvent(
     BuildContext context, EventsDataSource privateEvents, EventsDataSource sharedEvents, MyEvent event, bool confirmed) async {
   if (confirmed) {
     if (sharedEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController(context: context).confirmFromHash(context, event, confirmed);
+      bool saved = await MyEventService(context: context).confirmFromHash(context, event, confirmed);
       if (saved) {
         sharedEvents.removeAppointment(event);
         privateEvents.addAppointement(event);
       }
     } else if (!privateEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController(context: context).confirmFromHash(context, event, confirmed);
+      bool saved = await MyEventService(context: context).confirmFromHash(context, event, confirmed);
       if (saved) {
         privateEvents.addAppointement(event);
       }
@@ -137,7 +137,7 @@ Future<void> _addEvent(
   } else {
     if (!privateEvents.appointments!.contains(event) &&
         !sharedEvents.appointments!.contains(event)) {
-      bool saved = await MyEventController(context: context).confirmFromHash(context, event, confirmed);
+      bool saved = await MyEventService(context: context).confirmFromHash(context, event, confirmed);
       if (saved) {
         sharedEvents.addAppointement(event);
       }
@@ -148,6 +148,7 @@ Future<void> _addEvent(
 void calendarTapped(CalendarTapDetails details, BuildContext context) {
   if (details.targetElement == CalendarElement.appointment ||
       details.targetElement == CalendarElement.agenda) {
+
     final MyEvent appointmentDetails = details.appointments![0];
 
     var subjectText = appointmentDetails.subject;
@@ -202,7 +203,8 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
             actions: <Widget>[
               TextButton(
                   onPressed: () {
-                    MyEventController(context: context).confirm(context, appointmentDetails);
+                    //TODO
+                    //MyEventService(context: context).confirm(appointmentDetails);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Confirm')),

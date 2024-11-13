@@ -4,24 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:wyd_front/model/community.dart';
-import 'package:wyd_front/model/events_data_source.dart';
 import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/model/test_event.dart';
-import 'package:wyd_front/service/event_service.dart';
-import 'package:wyd_front/service/user_service.dart';
+import 'package:wyd_front/API/event_api.dart';
+import 'package:wyd_front/API/user_api.dart';
 import 'package:wyd_front/state/events_provider.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
-class MyEventController {
+class MyEventService {
   late BuildContext context;
   
-  MyEventController({required this.context});
+  MyEventService({required this.context});
 
   Future<void> retrieveEvents( ) async {
 
-    UserService().listEvents().then((response) {
+    UserAPI().listEvents().then((response) {
       if (response.statusCode == 200 && context.mounted) {
         List<TestEvent> eventi = List<TestEvent>.from(json
             .decode(response.body)
@@ -38,7 +37,7 @@ class MyEventController {
   Future<MyEvent?> retrieveFromHash(
       BuildContext context, String eventHash) async {
     MyEvent? event;
-    await EventService().retrieveFromHash(eventHash).then((response) {
+    await EventAPI().retrieveFromHash(eventHash).then((response) {
       if (response.statusCode == 200) {
         event = MyEvent.fromJson(jsonDecode(response.body));
       }
@@ -72,8 +71,8 @@ class MyEventController {
   }
 
   Future<void> createEvent(TestEvent event) async {
-    EventService().create(event).then((response) {
-      if (response.statusCode == 200) {
+    EventAPI().create(event).then((response) {
+      if (response.statusCode == 200 && context.mounted) {
         TestEvent event = TestEvent.fromJson(jsonDecode(response.body));
         context.read<PrivateProvider>().addEvent(event);
       }
@@ -93,7 +92,7 @@ class MyEventController {
       }
     }
 
-    EventService()
+    EventAPI()
         .share(event.id as int, userIds)
         .then((response) {})
         .catchError((error) {
@@ -104,7 +103,7 @@ class MyEventController {
   Future<bool> confirmFromHash(
       BuildContext context, MyEvent event, bool confirm) async {
     bool res = false;
-    await EventService().confirmFromHash(event.hash!, confirm).then((response) {
+    await EventAPI().confirmFromHash(event.hash!, confirm).then((response) {
       if (response.statusCode == 200) {
         res = true;
       }
@@ -115,12 +114,13 @@ class MyEventController {
     return res;
   }
 
-  Future<void> confirm(BuildContext context, MyEvent event) async {
+  Future<void> confirm(TestEvent event) async {
     var private = context.read<EventsProvider>().privateEvents;
     var public = context.read<EventsProvider>().sharedEvents;
     int userId = context.read<UserProvider>().user!.id;
 
-    EventService().confirm(event).then((response) {
+/*
+    EventAPI().confirm(event).then((response) {
       if (response.statusCode == 200) {
         event.confirms
                 .firstWhere((confirm) => confirm.userId == userId)
@@ -131,7 +131,7 @@ class MyEventController {
       }
     }).catchError((error) {
       debugPrint(error.toString());
-    });
+    });*/
   }
 
   Future<void> decline(BuildContext context, MyEvent event) async {
@@ -139,7 +139,7 @@ class MyEventController {
     var public = context.read<EventsProvider>().sharedEvents;
     int userId = context.read<UserProvider>().user!.id;
 
-    EventService().decline(event).then((response) {
+    EventAPI().decline(event).then((response) {
       if (response.statusCode == 200) {
         event.confirms
                 .firstWhere((confirm) => confirm.userId == userId)
