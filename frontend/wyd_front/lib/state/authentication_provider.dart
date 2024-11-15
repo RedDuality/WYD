@@ -118,6 +118,7 @@ class AuthenticationProvider with ChangeNotifier {
         } else {
           _isBackendVerified = false;
           debugPrint("Backend verification failed: ${response.statusCode}");
+          return;
         }
       } else {
         debugPrint("Token null");
@@ -125,10 +126,11 @@ class AuthenticationProvider with ChangeNotifier {
     } catch (e) {
       _isBackendVerified = false;
       debugPrint("Error during backend verification: $e");
+      return;
     }
     notifyListeners();
 
     final userProvider = _context!.read<UserProvider>();
-    userProvider.updateUser(_context!, user);
+    userProvider.updateUser(_context!, user!);
   }
 }

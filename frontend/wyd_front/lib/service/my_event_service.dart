@@ -24,7 +24,7 @@ class MyEventService {
       if (response.statusCode == 200 && context.mounted) {
         List<TestEvent> eventi = List<TestEvent>.from(json
             .decode(response.body)
-            .map((evento) => MyEvent.fromJson(evento)));
+            .map((evento) => TestEvent.fromJson(evento)));
         addEvents(context, eventi);
       }
 
@@ -55,15 +55,13 @@ class MyEventService {
         .where((ev) =>
             ev.sharedWith
                 .firstWhere((s) => s.profileId == mainProfileId)
-                .confirmed ==
-            true)
+                .confirmed == false)
         .toList();
     List<TestEvent> privateEvents = events
         .where((ev) =>
             ev.sharedWith
                 .firstWhere((s) => s.profileId == mainProfileId)
-                .confirmed ==
-            true)
+                .confirmed == true)
         .toList();
 
     context.read<PrivateProvider>().addEvents(privateEvents);
@@ -71,6 +69,7 @@ class MyEventService {
   }
 
   Future<void> createEvent(TestEvent event) async {
+
     EventAPI().create(event).then((response) {
       if (response.statusCode == 200 && context.mounted) {
         TestEvent event = TestEvent.fromJson(jsonDecode(response.body));
@@ -115,38 +114,35 @@ class MyEventService {
   }
 
   Future<void> confirm(TestEvent event) async {
-    var private = context.read<EventsProvider>().privateEvents;
-    var public = context.read<EventsProvider>().sharedEvents;
-    int userId = context.read<UserProvider>().user!.id;
+    var private = context.read<PrivateProvider>();
+    var public = context.read<SharedProvider>();
+    int profileId = context.read<UserProvider>().getMainProfileId();
 
-/*
     EventAPI().confirm(event).then((response) {
       if (response.statusCode == 200) {
-        event.confirms
-                .firstWhere((confirm) => confirm.userId == userId)
-                .confirmed ==
-            true;
-        private.addAppointement(event);
-        public.removeAppointment(event);
+        event.sharedWith
+                .firstWhere((confirm) => confirm.profileId == profileId)
+                .confirmed == true;
+        private.addEvent(event);
+        public.remove(event);
       }
     }).catchError((error) {
       debugPrint(error.toString());
-    });*/
+    });
   }
 
-  Future<void> decline(BuildContext context, MyEvent event) async {
-    var private = context.read<EventsProvider>().privateEvents;
-    var public = context.read<EventsProvider>().sharedEvents;
-    int userId = context.read<UserProvider>().user!.id;
+  Future<void> decline(TestEvent event) async {
+    var private = context.read<PrivateProvider>();
+    var public = context.read<SharedProvider>();
+    int profileId = context.read<UserProvider>().getMainProfileId();
 
     EventAPI().decline(event).then((response) {
       if (response.statusCode == 200) {
-        event.confirms
-                .firstWhere((confirm) => confirm.userId == userId)
-                .confirmed ==
-            false;
-        public.addAppointement(event);
-        private.removeAppointment(event);
+        event.sharedWith
+                .firstWhere((confirm) => confirm.profileId == profileId)
+                .confirmed == true;
+        private.remove(event);
+        public.add(event);
       }
     }).catchError((error) {
       debugPrint(error.toString());

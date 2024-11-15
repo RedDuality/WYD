@@ -31,11 +31,11 @@ class TestEvent extends CalendarEventData {
         'id': int? id,
         'hash': String? hash,
         'title': String? title,
-        'description': String? description,
+        //'description': String? description,
         'startTime': String startTime,
         'endTime': String endTime,
-        'color': String? color,
-        'groupId': int? groupId,
+        //'color': String? color,
+        //'groupId': int? groupId,
         'profileEvents': List<dynamic>? sharedWith,
       } =>
         TestEvent(
@@ -45,38 +45,30 @@ class TestEvent extends CalendarEventData {
           startTime: DateTime.parse(startTime),
           endTime: DateTime.parse(endTime),
           title: title ?? "",
-          description: description ?? "",
-          color:
-              color != null ? Color(int.parse(color, radix: 16)) : Colors.green,
-          groupId: groupId ?? -1,
-          sharedWith: sharedWith != null ?
-            sharedWith.map((pe) {return ProfileEvent.fromJson(pe as Map<String, dynamic>);}).toList() : <ProfileEvent>[],
+          //description: description ?? "",
+          //color: color != null ? Color(int.parse(color, radix: 16)) : Colors.green,
+          //groupId: groupId ?? -1,
+          sharedWith: sharedWith?.map((pe) {
+                return ProfileEvent.fromJson(pe as Map<String, dynamic>);
+              }).toList() ??
+              <ProfileEvent>[],
         ),
-      _ => throw const FormatException('Failed to decode Myevent')
+      _ => throw FormatException('Failed to decode TestEvent.'),
     };
   }
 
-/*
+  @override
   Map<String, dynamic> toJson() {
     return {
-      'startTime': startTime.toIso8601String(),
-      'endTime': endTime.toIso8601String(),
-      'isAllDay': isAllDay,
-      'subject': subject,
+      'id': id,
+      if (hash != null) 'hash': hash,
+      'title': title,
+      if (description != null) 'description': description,
+      'startTime': startTime!.toIso8601String(),
+      'endTime': endTime!.toIso8601String(),
       'color': color.value.toRadixString(16),
-      if(startTimeZone != null)'startTimeZone': startTimeZone,
-      if(endTimeZone != null)'endTimeZone': endTimeZone,
-      if(recurrenceRule != null)'recurrenceRule': recurrenceRule,
-      //'recurrenceExceptionDates': recurrenceExceptionDates,
-      if(notes != null)'notes': notes,
-      if(location != null)'location': location,
-      if(resourceIds != null)'resourceIds': resourceIds,
-      if(recurrenceId != null)'recurrenceId': recurrenceId,
-      if(id != null)'id': id,
-      if(hash != null)'hash': hash,
-      'userEvents': confirms.map((confirm) => confirm.toJson()).toList(), 
+      if (groupId != null) 'groupId': groupId,
+      'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
     };
   }
-
-  */
 }

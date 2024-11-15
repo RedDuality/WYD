@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/service/my_event_service.dart';
-import 'package:wyd_front/model/enum/profile_type.dart';
-import 'package:wyd_front/model/enum/role.dart';
 import 'package:wyd_front/model/user.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -11,15 +9,12 @@ class UserProvider extends ChangeNotifier {
   User? get user => _user;
 
   int getMainProfileId() {
-    return user!.profiles
-        .firstWhere(
-            (p) => p.type == ProfileType.personal && p.role == Role.owner)
-        .id;
+    return user!.mainProfileId;
   }
 
-  void updateUser(BuildContext context, User? user) {
+  void updateUser(BuildContext context, User user) {
     _user == null
-        ? setUser(context, user!)
+        ? setUser(context, user)
         : //
         checkUserUpdate(context, user);
 

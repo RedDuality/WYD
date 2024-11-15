@@ -82,7 +82,7 @@ void calendarTapped(CalendarTapDetails details, BuildContext context) {
           actions: <Widget>[
             TextButton(
                 onPressed: () {
-                  MyEventService(context: context).decline(context, appointmentDetails);
+                  //MyEventService(context: context).decline(context, appointmentDetails);
                   Navigator.of(context).pop();
                 },
                 child: const Text('Disdici')),

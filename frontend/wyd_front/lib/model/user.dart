@@ -1,4 +1,3 @@
-
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/profile.dart';
 
@@ -7,6 +6,7 @@ class User {
   String uid = "";
   String mainMail = "";
   String userName = "";
+  int mainProfileId = -1;
   List<Profile> profiles = [];
   //List<Account> accounts = [];
   //List<Group> groups = [];
@@ -17,6 +17,7 @@ class User {
     this.uid = "",
     this.mainMail = "",
     this.userName = "",
+    this.mainProfileId = -1,
     List<Profile>? profiles,
   }) : profiles = profiles ?? [];
 
@@ -27,6 +28,7 @@ class User {
         'uid': String? uid,
         'mainMail': String? email,
         'userName': String? username,
+        'mainProfileId': int? mainProfileId,
         'userRoles': List<dynamic>? roles,
       } =>
         User(
@@ -34,6 +36,7 @@ class User {
           uid: uid ?? "",
           mainMail: email ?? "",
           userName: username ?? "",
+          mainProfileId: mainProfileId ?? -1,
           profiles: roles != null
               ? roles.map((role) {
                   Profile p = Profile.fromJson(role as Map<String, dynamic>);

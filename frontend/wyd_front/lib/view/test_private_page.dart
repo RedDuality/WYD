@@ -19,7 +19,7 @@ class TestPrivatePage extends StatelessWidget {
         heightPerMinute: 0.75,
         keepScrollOffset: true,
         emulateVerticalOffsetBy: 2,
-        onEventTap: (events, date) => showEventDialog(context, events.whereType<TestEvent>().toList().first),
+        onEventTap: (events, date) => showEventDialog(context, events.whereType<TestEvent>().toList().first, true),
       ),
     );
   }

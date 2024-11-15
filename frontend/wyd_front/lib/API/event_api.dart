@@ -75,7 +75,7 @@ class EventAPI {
     return client.post(Uri.parse('$url/$eventHash'), body: confirmed.toString());
   }
 
-  Future<Response> decline(MyEvent event) async {
+  Future<Response> decline(TestEvent event) async {
     String url = '${functionUrl}Decline';
     int? eventId = event.id as int?;
 
