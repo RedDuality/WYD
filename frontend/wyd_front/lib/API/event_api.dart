@@ -3,8 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/service/auth_interceptor.dart';
 import 'package:wyd_front/service/request_interceptor.dart';
-import 'package:wyd_front/model/my_event.dart';
-import 'package:wyd_front/model/test_event.dart';
+import 'package:wyd_front/model/event.dart';
 
 class EventAPI {
   String? functionUrl = '${dotenv.env['BACK_URL']}Event/';
@@ -17,7 +16,7 @@ class EventAPI {
           RequestInterceptor(),
         ]);
 
-  Future<Response> create(TestEvent event) async {
+  Future<Response> create(Event event) async {
     String url = '${functionUrl}Create';
 
     return client.post(Uri.parse(url), body: jsonEncode(event));
@@ -29,13 +28,13 @@ class EventAPI {
     return client.get(Uri.parse('$url/$eventHash'));
   }
 
-  Future<Response> update(MyEvent event) async {
+  Future<Response> update(Event event) async {
     String url = '${functionUrl}Update';
 
     return client.post(Uri.parse(url), body: jsonEncode(event));
   }
 
-  Future<Response> delete(MyEvent event) async {
+  Future<Response> delete(Event event) async {
     String url = '${functionUrl}Delete';
     int? eventId = event.id as int?;
 
@@ -44,7 +43,7 @@ class EventAPI {
     );
   }
 
-  Future<Response> deleteForAll(MyEvent event) async {
+  Future<Response> deleteForAll(Event event) async {
     String url = '${functionUrl}DeleteForAll';
     int? eventId = event.id as int?;
 
@@ -60,7 +59,7 @@ class EventAPI {
         body: json.encode(userIds.toList()));
   }
 
-  Future<Response> confirm(TestEvent event) async {
+  Future<Response> confirm(Event event) async {
     String url = '${functionUrl}Confirm';
     int? eventId = event.id as int?;
 
@@ -75,7 +74,7 @@ class EventAPI {
     return client.post(Uri.parse('$url/$eventHash'), body: confirmed.toString());
   }
 
-  Future<Response> decline(TestEvent event) async {
+  Future<Response> decline(Event event) async {
     String url = '${functionUrl}Decline';
     int? eventId = event.id as int?;
 

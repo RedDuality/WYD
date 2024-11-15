@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/model/test_event.dart';
-import 'package:wyd_front/service/my_event_service.dart';
+import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/service/event_service.dart';
 
-void showEventDialog(BuildContext context, TestEvent event, bool _confirmed) {
+void showEventDialog(BuildContext context, Event event, bool confirmed) {
   var dateText =
       DateFormat('MMMM dd, yyyy').format(event.startTime!).toString();
 
@@ -53,17 +53,17 @@ void showEventDialog(BuildContext context, TestEvent event, bool _confirmed) {
             ),
           ),
           actions: <Widget>[
-            _confirmed
+            confirmed
                 ? TextButton(
                     onPressed: () {
-                      MyEventService(context: context).decline(event);
+                      EventService(context: context).decline(event);
                       Navigator.of(context).pop();
                     },
                     child: const Text('Decline'),
                   )
                 : TextButton(
                     onPressed: () {
-                      MyEventService(context: context).confirm(event);
+                      EventService(context: context).confirm(event);
                       Navigator.of(context).pop();
                     },
                     child: const Text('Confirm'),

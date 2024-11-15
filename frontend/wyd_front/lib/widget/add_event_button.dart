@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/service/my_event_service.dart';
+import 'package:wyd_front/service/event_service.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:wyd_front/model/test_event.dart';
+import 'package:wyd_front/model/event.dart';
 
 class AddEventButton extends StatelessWidget {
   const AddEventButton({super.key});
@@ -65,7 +65,7 @@ class AddEventButton extends StatelessWidget {
                     var generatedColor =
                         Random().nextInt(Colors.primaries.length);
 
-                    TestEvent testEvent = TestEvent(
+                    Event event = Event(
                       date: startDate ?? DateTime.now(),
                       startTime: startDate ?? DateTime.now(),
                       endTime: endDate ?? DateTime.now().add(const Duration(hours: 1)),
@@ -73,7 +73,7 @@ class AddEventButton extends StatelessWidget {
                       color: Color(generatedColor),
                     );
 
-                    MyEventService(context: context).createEvent(testEvent);
+                    EventService(context: context).createEvent(event);
 
                     Navigator.of(context).pop();
                   },

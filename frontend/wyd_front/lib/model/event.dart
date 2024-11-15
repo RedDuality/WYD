@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile_event.dart';
 
 // ignore: must_be_immutable
-class TestEvent extends CalendarEventData {
+class Event extends CalendarEventData {
   final int id;
   final String? hash;
   final int? groupId;
 
   List<ProfileEvent> sharedWith = [];
 
-  TestEvent({
+  Event({
     this.id = -1,
     this.hash,
     required super.date,
@@ -25,7 +25,7 @@ class TestEvent extends CalendarEventData {
     List<ProfileEvent>? sharedWith,
   }) : sharedWith = sharedWith ?? [];
 
-  factory TestEvent.fromJson(Map<String, dynamic> json) {
+  factory Event.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
         'id': int? id,
@@ -38,7 +38,7 @@ class TestEvent extends CalendarEventData {
         //'groupId': int? groupId,
         'profileEvents': List<dynamic>? sharedWith,
       } =>
-        TestEvent(
+        Event(
           id: id ?? -1,
           hash: hash ?? "",
           date: DateTime.parse(startTime),
@@ -53,7 +53,7 @@ class TestEvent extends CalendarEventData {
               }).toList() ??
               <ProfileEvent>[],
         ),
-      _ => throw FormatException('Failed to decode TestEvent.'),
+      _ => throw const FormatException('Failed to decode Event.'),
     };
   }
 
