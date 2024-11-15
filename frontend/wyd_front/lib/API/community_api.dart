@@ -1,18 +1,17 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/controller/auth_interceptor.dart';
-import 'package:wyd_front/controller/request_interceptor.dart';
+import 'package:wyd_front/service/auth_interceptor.dart';
+import 'package:wyd_front/service/request_interceptor.dart';
 
-class CommunityService {
+class CommunityAPI {
   String? functionUrl = '${dotenv.env['BACK_URL']}Comminity/';
 
   final InterceptedClient client;
   
-  CommunityService(BuildContext context)
+  CommunityAPI()
       : client = InterceptedClient.build(interceptors: [
-          AuthInterceptor(context),
+          AuthInterceptor(),
           RequestInterceptor(),
         ]);
 

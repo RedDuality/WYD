@@ -1,9 +1,9 @@
-import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/controller/test_event_controller.dart';
+import 'package:wyd_front/model/test_event.dart';
+import 'package:wyd_front/service/my_event_service.dart';
 
-void showEventDialog(BuildContext context, CalendarEventData event) {
+void showEventDialog(BuildContext context, TestEvent event, bool _confirmed) {
   var dateText =
       DateFormat('MMMM dd, yyyy').format(event.startTime!).toString();
 
@@ -53,12 +53,21 @@ void showEventDialog(BuildContext context, CalendarEventData event) {
             ),
           ),
           actions: <Widget>[
-            TextButton(
-                onPressed: () {
-                  TestEventController().confirm(context, event);
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Confirm')),
+            _confirmed
+                ? TextButton(
+                    onPressed: () {
+                      MyEventService(context: context).decline(event);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Decline'),
+                  )
+                : TextButton(
+                    onPressed: () {
+                      MyEventService(context: context).confirm(event);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Confirm'),
+                  ),
             TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();

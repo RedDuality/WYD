@@ -5,6 +5,10 @@ class SharedProvider extends EventController {
   SharedProvider() {
     super.addAll(_events);
   }
+  
+  addEvents(List<TestEvent> events) {
+    super.addAll(events);
+  }
 }
 
 DateTime get _now => DateTime.now();

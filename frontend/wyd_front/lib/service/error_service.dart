@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ErrorController{
+class ErrorService{
 
   showErrorDialog(BuildContext context, String title, String content){
     return showDialog(

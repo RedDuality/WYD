@@ -1,20 +1,19 @@
 
 
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/controller/auth_interceptor.dart';
-import 'package:wyd_front/controller/request_interceptor.dart';
+import 'package:wyd_front/service/auth_interceptor.dart';
+import 'package:wyd_front/service/request_interceptor.dart';
 
 
-class UserService {
+class UserAPI {
   String? functionUrl = '${dotenv.env['BACK_URL']}User/';
 
   final InterceptedClient client;
   
-  UserService(BuildContext context)
+  UserAPI()
       : client = InterceptedClient.build(interceptors: [
-          AuthInterceptor(context),
+          AuthInterceptor(),
           RequestInterceptor(),
         ]);
 

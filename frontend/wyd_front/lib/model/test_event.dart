@@ -1,82 +1,74 @@
 import 'package:calendar_view/calendar_view.dart';
-import 'package:wyd_front/model/confirm.dart';
+import 'package:flutter/material.dart';
+import 'package:wyd_front/model/profile_event.dart';
 
+// ignore: must_be_immutable
 class TestEvent extends CalendarEventData {
-  int id;
-  String? hash;
-  List<Confirm> confirms = [];
+  final int id;
+  final String? hash;
+  final int? groupId;
+
+  List<ProfileEvent> sharedWith = [];
 
   TestEvent({
+    this.id = -1,
+    this.hash,
+    required super.date,
     required super.startTime,
     required super.endTime,
-    required super.title,
-    required super.date,
-    super.color,
-    super.description,
-    super.descriptionStyle,
     super.endDate,
-    this.id = 0,
-    this.hash,
-    this.confirms = const [],
-  });
-
-
-/*
-  Map<String, dynamic> toJson() {
-    return {
-      'startTime': startTime.toIso8601String(),
-      'endTime': endTime.toIso8601String(),
-      'isAllDay': isAllDay,
-      'subject': subject,
-      'color': color.value.toRadixString(16),
-      if(startTimeZone != null)'startTimeZone': startTimeZone,
-      if(endTimeZone != null)'endTimeZone': endTimeZone,
-      if(recurrenceRule != null)'recurrenceRule': recurrenceRule,
-      //'recurrenceExceptionDates': recurrenceExceptionDates,
-      if(notes != null)'notes': notes,
-      if(location != null)'location': location,
-      if(resourceIds != null)'resourceIds': resourceIds,
-      if(recurrenceId != null)'recurrenceId': recurrenceId,
-      if(id != null)'id': id,
-      if(hash != null)'hash': hash,
-      'userEvents': confirms.map((confirm) => confirm.toJson()).toList(), 
-    };
-  }
+    required super.title,
+    super.description,
+    super.color,
+    super.descriptionStyle,
+    this.groupId,
+    List<ProfileEvent>? sharedWith,
+  }) : sharedWith = sharedWith ?? [];
 
   factory TestEvent.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-        'startTime': String startTime,
-        'endTime': String endTime,
-        'isAllDay': bool? isAllDay,
-        'subject': String? subject,
-        'color': String? color,
-        'startTimeZone': String? startTimeZone,
-        'endTimeZone': String? endTimeZone,
-        'recurrenceRule': String? recurrenceRule,
-        //'recurrenceExceptionDates': recurrenceExceptionDates,
-        'notes': String? notes,
-        'location': String? location,
         'id': int? id,
         'hash': String? hash,
-        'userEvents': List<dynamic>? confirms,
+        'title': String? title,
+        //'description': String? description,
+        'startTime': String startTime,
+        'endTime': String endTime,
+        //'color': String? color,
+        //'groupId': int? groupId,
+        'profileEvents': List<dynamic>? sharedWith,
       } =>
         TestEvent(
-            startTime: DateTime.parse(startTime), 
-            endTime: DateTime.parse(endTime), 
-            isAllDay: isAllDay ?? false,
-            subject: subject ?? "",
-            color: color != null ? Color(int.parse(color, radix: 16)) : Colors.green,
-            startTimeZone: startTimeZone ?? "",
-            endTimeZone: endTimeZone ?? "",
-            recurrenceRule: recurrenceRule ?? "",
-            notes: notes ?? "",
-            location: location ?? "",
-            id: id ?? -1,
-            hash: hash ?? "",
-            confirms: confirms != null ? confirms.map((confirm) => Confirm.fromJson( confirm as Map<String, dynamic>)).toList() : <Confirm>[],
+          id: id ?? -1,
+          hash: hash ?? "",
+          date: DateTime.parse(startTime),
+          startTime: DateTime.parse(startTime),
+          endTime: DateTime.parse(endTime),
+          title: title ?? "",
+          //description: description ?? "",
+          //color: color != null ? Color(int.parse(color, radix: 16)) : Colors.green,
+          //groupId: groupId ?? -1,
+          sharedWith: sharedWith?.map((pe) {
+                return ProfileEvent.fromJson(pe as Map<String, dynamic>);
+              }).toList() ??
+              <ProfileEvent>[],
         ),
-      _ => throw const FormatException('Failed to decode Myevent')
+      _ => throw FormatException('Failed to decode TestEvent.'),
     };
-  }*/
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      if (hash != null) 'hash': hash,
+      'title': title,
+      if (description != null) 'description': description,
+      'startTime': startTime!.toIso8601String(),
+      'endTime': endTime!.toIso8601String(),
+      'color': color.value.toRadixString(16),
+      if (groupId != null) 'groupId': groupId,
+      'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
+    };
+  }
 }

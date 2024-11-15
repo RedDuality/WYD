@@ -1,6 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/model/test_event.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/widget/dialog/event_dialog.dart';
 
@@ -18,7 +19,7 @@ class TestPrivatePage extends StatelessWidget {
         heightPerMinute: 0.75,
         keepScrollOffset: true,
         emulateVerticalOffsetBy: 2,
-        onEventTap: (events, date) => showEventDialog(context, events.first),
+        onEventTap: (events, date) => showEventDialog(context, events.whereType<TestEvent>().toList().first, true),
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/controller/user_controller.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/agenda_page.dart';
 import 'package:wyd_front/view/test_private_page.dart';
@@ -27,8 +26,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     selectedIndex = 0;
-    UserController().initUser(context);
-    
   }
 
 

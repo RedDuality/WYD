@@ -1,23 +1,23 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/controller/auth_interceptor.dart';
-import 'package:wyd_front/controller/request_interceptor.dart';
+import 'package:wyd_front/service/auth_interceptor.dart';
+import 'package:wyd_front/service/request_interceptor.dart';
 import 'package:wyd_front/model/my_event.dart';
+import 'package:wyd_front/model/test_event.dart';
 
-class EventService {
+class EventAPI {
   String? functionUrl = '${dotenv.env['BACK_URL']}Event/';
 
   final InterceptedClient client;
   
-  EventService(BuildContext context)
+  EventAPI()
       : client = InterceptedClient.build(interceptors: [
-          AuthInterceptor(context),
+          AuthInterceptor(),
           RequestInterceptor(),
         ]);
 
-  Future<Response> create(MyEvent event) async {
+  Future<Response> create(TestEvent event) async {
     String url = '${functionUrl}Create';
 
     return client.post(Uri.parse(url), body: jsonEncode(event));
@@ -60,7 +60,7 @@ class EventService {
         body: json.encode(userIds.toList()));
   }
 
-  Future<Response> confirm(MyEvent event) async {
+  Future<Response> confirm(TestEvent event) async {
     String url = '${functionUrl}Confirm';
     int? eventId = event.id as int?;
 
@@ -75,7 +75,7 @@ class EventService {
     return client.post(Uri.parse('$url/$eventHash'), body: confirmed.toString());
   }
 
-  Future<Response> decline(MyEvent event) async {
+  Future<Response> decline(TestEvent event) async {
     String url = '${functionUrl}Decline';
     int? eventId = event.id as int?;
 

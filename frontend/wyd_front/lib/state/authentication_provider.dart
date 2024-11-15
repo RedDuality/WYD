@@ -1,30 +1,48 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:wyd_front/service/auth_service.dart';
+import 'package:provider/provider.dart';
+import 'package:wyd_front/model/user.dart' as model;
+import 'package:wyd_front/API/auth_api.dart';
+import 'package:wyd_front/state/user_provider.dart';
 
-class AuthenticationProvider extends ChangeNotifier {
+class AuthenticationProvider with ChangeNotifier {
+  // Make the singleton instance private and static
+  static final AuthenticationProvider _instance =
+      AuthenticationProvider._internal();
+
+  BuildContext? _context;
+
+  factory AuthenticationProvider({BuildContext? context}) {
+    // Assign context only once during initialization
+    if (context != null && _instance._context == null) {
+      _instance._context = context;
+    }
+    return _instance;
+  }
+
+  // Private constructor
+  AuthenticationProvider._internal() {
+    _checkUserLoginStatus();
+
+    // Listen to auth state changes and update _user accordingly
+    _auth.authStateChanges().listen((User? user) async {
+      _user = user;
+      if (_user == null) {
+        _isBackendVerified = false;
+      }
+      notifyListeners();
+    });
+  }
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _user;
   bool _isLoading = true;
   bool _isBackendVerified = false;
 
-  AuthenticationProvider() {
-    _checkUserLoginStatus();
-    _auth.authStateChanges().listen((User? user) async {
-      _user = user;
-      _isLoading = true;
-
-      if (_user != null) {
-        await verifyBackendAuth();
-      } else {
-        _isBackendVerified = false;
-      }
-
-      _isLoading = false;
-      notifyListeners();
-    });
-  }
-
+  // Public getters
   User? get user => _user;
   bool get isAuthenticated => _user != null;
   bool get isLoading => _isLoading;
@@ -32,6 +50,7 @@ class AuthenticationProvider extends ChangeNotifier {
 
   Future<void> _checkUserLoginStatus() async {
     _user = _auth.currentUser;
+    _isLoading = true;
     if (_user != null) {
       await verifyBackendAuth();
     }
@@ -45,9 +64,9 @@ class AuthenticationProvider extends ChangeNotifier {
       await verifyBackendAuth();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
-        throw Exception("Please insert a valid email");
+        throw "Please insert a valid email";
       } else if (e.code == 'invalid-credential') {
-        throw Exception("The mail or the password provided are wrong");
+        throw "The mail or the password provided are wrong";
       } else {
         debugPrint("Error signing in: $e");
         throw "Unexpected error, please try later";
@@ -57,9 +76,10 @@ class AuthenticationProvider extends ChangeNotifier {
 
   Future<void> register(String email, String password) async {
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
       await verifyBackendAuth();
-    }on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw e.message.toString();
       } else if (e.code == 'email-already-in-use') {
@@ -69,6 +89,14 @@ class AuthenticationProvider extends ChangeNotifier {
         throw "Unexpected error, please try later";
       }
     }
+
+    try {
+      await verifyBackendAuth();
+    } on Exception catch (e) {
+      debugPrint("Error registering: $e");
+      await _auth.currentUser?.delete();
+      throw "Unexpected error, please try later";
+    }
   }
 
   Future<void> signOut() async {
@@ -77,24 +105,32 @@ class AuthenticationProvider extends ChangeNotifier {
 
   // Method to perform backend verification
   Future<void> verifyBackendAuth() async {
+    _isBackendVerified = false;
+    model.User? user;
     try {
       final idToken = await _user?.getIdToken();
       if (idToken != null) {
+        final response = await AuthAPI().verifyToken(idToken);
 
-        final response = await AuthService().verifyToken(idToken);
-        
         if (response.statusCode == 200) {
-
-          _isBackendVerified = true; // Mark backend verification as successful
+          user = model.User.fromJson(jsonDecode(response.body));
+          _isBackendVerified = true;
         } else {
           _isBackendVerified = false;
           debugPrint("Backend verification failed: ${response.statusCode}");
+          return;
         }
+      } else {
+        debugPrint("Token null");
       }
     } catch (e) {
       _isBackendVerified = false;
       debugPrint("Error during backend verification: $e");
+      return;
     }
     notifyListeners();
+
+    final userProvider = _context!.read<UserProvider>();
+    userProvider.updateUser(_context!, user!);
   }
 }

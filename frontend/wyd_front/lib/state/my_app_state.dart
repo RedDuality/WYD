@@ -1,18 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
-import 'package:wyd_front/model/user.dart';
-
-
 
 class MyAppState extends ChangeNotifier {
-
-  late User user ;
-  
-  void setUser(User user){
-    this.user = user;
-  }
-
-
   var current = WordPair.random();
   
   void getNext() {

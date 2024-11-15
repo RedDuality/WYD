@@ -8,8 +8,10 @@ import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
+import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
+import 'package:wyd_front/view/register.dart';
 import 'package:wyd_front/widget/loading.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -25,13 +27,10 @@ Future main() async {
 
   //SharedPreferences prefs = await SharedPreferences.getInstance();
 
- 
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-
-
   const MyApp({super.key});
 
   @override
@@ -39,11 +38,13 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MyAppState()),
-        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
-        ChangeNotifierProvider(create: (_) => UriProvider()),
-        ChangeNotifierProvider(create: (_) => EventsProvider()),
         ChangeNotifierProvider(create: (_) => PrivateProvider()),
         ChangeNotifierProvider(create: (_) => SharedProvider()),
+        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => UriProvider()),
+        ChangeNotifierProvider(create: (_) => EventsProvider()),
+        ChangeNotifierProvider(
+            create: (context) => AuthenticationProvider(context: context)),
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
@@ -64,14 +65,19 @@ class MyApp extends StatelessWidget {
   GoRouter _router(AuthenticationProvider authProvider) {
     return GoRouter(
       redirect: (context, state) {
-        // Redirect based on authentication state
-        if (authProvider.isLoading) return null; // Show loading page
+        // Wait until loading and backend verification complete
+        if (authProvider.isLoading) return null;
+
         final isLoggingIn = state.matchedLocation == '/login';
 
-        if (!authProvider.isAuthenticated && !isLoggingIn) return '/login';
-        if (authProvider.isAuthenticated && isLoggingIn) {return '/';}
-
-        return null; // no redirection
+        if (isLoggingIn) {
+          if (authProvider.isBackendVerified) {
+            return '/';
+          }
+        } else if (!authProvider.isBackendVerified) {
+          return '/login';
+        }
+        return null;
       },
       routes: <GoRoute>[
         GoRoute(
@@ -88,6 +94,11 @@ class MyApp extends StatelessWidget {
               const LoginPage(),
         ),
         GoRoute(
+          path: '/register',
+          builder: (BuildContext context, GoRouterState state) =>
+              const RegisterPage(),
+        ),
+        GoRoute(
           path: '/shared',
           builder: (BuildContext context, GoRouterState state) {
             String? uri = state.uri.toString();
@@ -101,5 +112,4 @@ class MyApp extends StatelessWidget {
       ],
     );
   }
-
 }
