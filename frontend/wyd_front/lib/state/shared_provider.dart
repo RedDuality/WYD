@@ -1,20 +1,20 @@
 import 'package:calendar_view/calendar_view.dart';
-import 'package:wyd_front/model/test_event.dart';
+import 'package:wyd_front/model/event.dart';
 
 class SharedProvider extends EventController {
   SharedProvider() {
     super.addAll(_events);
   }
   
-  addEvents(List<TestEvent> events) {
+  addEvents(List<Event> events) {
     super.addAll(events);
   }
 }
 
 DateTime get _now => DateTime.now();
 
-final List<TestEvent> _events = [
-  TestEvent(
+final List<Event> _events = [
+  Event(
     date: _now.add(const Duration(days: 1)),
     title: "Project meetings",
     description: "Today is project meeting.",

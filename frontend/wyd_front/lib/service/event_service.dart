@@ -2,29 +2,26 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:wyd_front/model/community.dart';
-import 'package:wyd_front/model/my_event.dart';
-import 'package:wyd_front/model/test_event.dart';
+import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
-import 'package:wyd_front/state/events_provider.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
-class MyEventService {
+class EventService {
   late BuildContext context;
   
-  MyEventService({required this.context});
+  EventService({required this.context});
 
   Future<void> retrieveEvents( ) async {
 
     UserAPI().listEvents().then((response) {
       if (response.statusCode == 200 && context.mounted) {
-        List<TestEvent> eventi = List<TestEvent>.from(json
+        List<Event> eventi = List<Event>.from(json
             .decode(response.body)
-            .map((evento) => TestEvent.fromJson(evento)));
+            .map((evento) => Event.fromJson(evento)));
         addEvents(context, eventi);
       }
 
@@ -34,12 +31,11 @@ class MyEventService {
 
   }
 
-  Future<MyEvent?> retrieveFromHash(
-      BuildContext context, String eventHash) async {
-    MyEvent? event;
+  Future<Event?> retrieveFromHash(String eventHash) async {
+    Event? event;
     await EventAPI().retrieveFromHash(eventHash).then((response) {
       if (response.statusCode == 200) {
-        event = MyEvent.fromJson(jsonDecode(response.body));
+        event = Event.fromJson(jsonDecode(response.body));
       }
     }).catchError((error) {
       debugPrint(error.toString());
@@ -48,16 +44,16 @@ class MyEventService {
     return event;
   }
 
-  void addEvents(BuildContext context, List<TestEvent> events) {
+  void addEvents(BuildContext context, List<Event> events) {
     int mainProfileId = context.read<UserProvider>().getMainProfileId();
 
-    List<TestEvent> sharedEvents = events
+    List<Event> sharedEvents = events
         .where((ev) =>
             ev.sharedWith
                 .firstWhere((s) => s.profileId == mainProfileId)
                 .confirmed == false)
         .toList();
-    List<TestEvent> privateEvents = events
+    List<Event> privateEvents = events
         .where((ev) =>
             ev.sharedWith
                 .firstWhere((s) => s.profileId == mainProfileId)
@@ -68,11 +64,11 @@ class MyEventService {
     context.read<SharedProvider>().addEvents(sharedEvents);
   }
 
-  Future<void> createEvent(TestEvent event) async {
+  Future<void> createEvent(Event event) async {
 
     EventAPI().create(event).then((response) {
       if (response.statusCode == 200 && context.mounted) {
-        TestEvent event = TestEvent.fromJson(jsonDecode(response.body));
+        Event event = Event.fromJson(jsonDecode(response.body));
         context.read<PrivateProvider>().addEvent(event);
       }
     }).catchError((error) {
@@ -80,7 +76,7 @@ class MyEventService {
     });
   }
 
-  Future<void> share(BuildContext context, Appointment event,
+  Future<void> share(Event event,
       List<Community> communities) async {
     Set<int> userIds = {};
     for (var c in communities) {
@@ -92,7 +88,7 @@ class MyEventService {
     }
 
     EventAPI()
-        .share(event.id as int, userIds)
+        .share(event.id, userIds)
         .then((response) {})
         .catchError((error) {
       debugPrint(error.toString());
@@ -100,7 +96,7 @@ class MyEventService {
   }
 
   Future<bool> confirmFromHash(
-      BuildContext context, MyEvent event, bool confirm) async {
+      BuildContext context, Event event, bool confirm) async {
     bool res = false;
     await EventAPI().confirmFromHash(event.hash!, confirm).then((response) {
       if (response.statusCode == 200) {
@@ -113,7 +109,7 @@ class MyEventService {
     return res;
   }
 
-  Future<void> confirm(TestEvent event) async {
+  Future<void> confirm(Event event) async {
     var private = context.read<PrivateProvider>();
     var public = context.read<SharedProvider>();
     int profileId = context.read<UserProvider>().getMainProfileId();
@@ -131,7 +127,7 @@ class MyEventService {
     });
   }
 
-  Future<void> decline(TestEvent event) async {
+  Future<void> decline(Event event) async {
     var private = context.read<PrivateProvider>();
     var public = context.read<SharedProvider>();
     int profileId = context.read<UserProvider>().getMainProfileId();

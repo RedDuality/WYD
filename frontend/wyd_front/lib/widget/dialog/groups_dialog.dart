@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/service/my_event_service.dart';
+import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/model/community.dart';
-import 'package:wyd_front/model/my_event.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class Group {
@@ -16,7 +16,7 @@ class Group {
   Group(this.id, this.name, this.isSelected);
 }
 
-void showGroupsDialog(BuildContext context, MyEvent event) {
+void showGroupsDialog(BuildContext context, Event event) {
   List<Community> communities = context.read<UserProvider>().user!.communities;
 
   List<Group> groups =
@@ -30,7 +30,7 @@ void showGroupsDialog(BuildContext context, MyEvent event) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
-            title: Text('Condividi ${event.subject} con i gruppi'),
+            title: Text('Condividi ${event.title} con i gruppi'),
             content: SizedBox(
               height: 300,
               width: 300,
@@ -60,7 +60,7 @@ void showGroupsDialog(BuildContext context, MyEvent event) {
                   List<Community> selectedGroups = communities
                       .where((c) => selectedIds.contains(c.id))
                       .toList();
-                  MyEventService(context: context).share(context, event, selectedGroups);
+                  EventService(context: context).share(event, selectedGroups);
 
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(

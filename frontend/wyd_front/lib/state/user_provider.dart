@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/service/my_event_service.dart';
+import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/model/user.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -31,7 +31,7 @@ class UserProvider extends ChangeNotifier {
 
   void setUser(BuildContext context, User user) {
     _user = user;
-    MyEventService(context:context).retrieveEvents();
+    EventService(context:context).retrieveEvents();
     notifyListeners();
   }
 }
