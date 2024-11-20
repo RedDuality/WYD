@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/state/private_provider.dart';
+import 'package:wyd_front/widget/dialog/create_event_dialog.dart';
 import 'package:wyd_front/widget/dialog/event_dialog.dart';
 
 class AgendaPage extends StatelessWidget {
@@ -20,6 +21,7 @@ class AgendaPage extends StatelessWidget {
         keepScrollOffset: true,
         emulateVerticalOffsetBy: 2,
         onEventTap: (events, date) => showEventDialog(context, events.whereType<Event>().toList().first, true),
+        onDateTap: (date) => showCreateEventDialog(context, date, true),
       ),
     );
   }

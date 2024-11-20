@@ -56,7 +56,6 @@ void showGroupsDialog(BuildContext context, Event event) {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-
                   List<Community> selectedGroups = communities
                       .where((c) => selectedIds.contains(c.id))
                       .toList();
@@ -78,6 +77,7 @@ void showGroupsDialog(BuildContext context, Event event) {
                       text: "$siteUrl#/shared?event=${event.hash}"));
 
                   if (context.mounted) {
+                    Navigator.of(context).pop();
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

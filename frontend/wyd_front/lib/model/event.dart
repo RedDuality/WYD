@@ -25,35 +25,31 @@ class Event extends CalendarEventData {
     List<ProfileEvent>? sharedWith,
   }) : sharedWith = sharedWith ?? [];
 
+  ProfileEvent? getProfileEvent(int profileId) {
+    return sharedWith.firstWhere((pe) => pe.profileId == profileId);
+  }
+
   factory Event.fromJson(Map<String, dynamic> json) {
     return switch (json) {
-      {
-        'id': int? id,
-        'hash': String? hash,
-        'title': String? title,
-        //'description': String? description,
-        'startTime': String startTime,
-        'endTime': String endTime,
-        //'color': String? color,
-        //'groupId': int? groupId,
-        'profileEvents': List<dynamic>? sharedWith,
-      } =>
-        Event(
-          id: id ?? -1,
-          hash: hash ?? "",
-          date: DateTime.parse(startTime),
-          startTime: DateTime.parse(startTime),
-          endTime: DateTime.parse(endTime),
-          title: title ?? "",
-          //description: description ?? "",
-          //color: color != null ? Color(int.parse(color, radix: 16)) : Colors.green,
-          //groupId: groupId ?? -1,
-          sharedWith: sharedWith?.map((pe) {
-                return ProfileEvent.fromJson(pe as Map<String, dynamic>);
-              }).toList() ??
+      _ => Event(
+          id: json['id'] as int? ?? -1,
+          hash: json['hash'] as String? ?? "",
+          date: DateTime.parse(json['startTime'] as String),
+          startTime: DateTime.parse(json['startTime'] as String),
+          endTime: DateTime.parse(json['endTime'] as String),
+          title: json['title'] as String? ?? "",
+          description: json['description'] as String? ?? "",
+          // Handle color parsing safely with a fallback
+          color: json['color'] != null
+              ? Color(int.parse(json['color'] as String, radix: 16))
+              : Colors.green,
+          groupId: json['groupId'] as int? ?? -1,
+          sharedWith: (json['profileEvents'] as List<dynamic>?)
+                  ?.map(
+                      (pe) => ProfileEvent.fromJson(pe as Map<String, dynamic>))
+                  .toList() ??
               <ProfileEvent>[],
-        ),
-      _ => throw const FormatException('Failed to decode Event.'),
+        )
     };
   }
 
@@ -63,11 +59,11 @@ class Event extends CalendarEventData {
       'id': id,
       if (hash != null) 'hash': hash,
       'title': title,
-      if (description != null) 'description': description,
+      //if (description != null) 'description': description,
       'startTime': startTime!.toIso8601String(),
       'endTime': endTime!.toIso8601String(),
-      'color': color.value.toRadixString(16),
-      if (groupId != null) 'groupId': groupId,
+      //'color': color.value.toRadixString(16),
+      //if (groupId != null) 'groupId': groupId,
       'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
     };
   }

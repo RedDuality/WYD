@@ -1,10 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:wyd_front/service/event_service.dart';
-import 'package:intl/intl.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/widget/dialog/create_event_dialog.dart';
 
 class AddEventButton extends StatelessWidget {
   const AddEventButton({super.key});
@@ -13,97 +8,10 @@ class AddEventButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            String eventName = 'Evento senza nome';
-            DateTime? startDate;
-            DateTime? endDate;
-            return AlertDialog(
-              title: const Text('Inserisci i dati dell\'evento'),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    TextField(
-                      decoration: const InputDecoration(labelText: 'Nome'),
-                      onChanged: (value) {
-                        eventName = value;
-                      },
-                    ),
-                    DateTimeField(
-                      decoration: const InputDecoration(
-                        labelText: 'Data e ora di inizio',
-                      ),
-                      format: DateFormat("yyyy-MM-dd HH:mm"),
-                      onChanged: (DateTime? value) {
-                        startDate = value;
-                      },
-                      onShowPicker: showDatePickerDialog,
-                    ),
-                    DateTimeField(
-                      decoration: const InputDecoration(
-                        labelText: 'Data e ora di Fine',
-                      ),
-                      format: DateFormat("yyyy-MM-dd HH:mm"),
-                      onChanged: (DateTime? value) {
-                        endDate = value;
-                      },
-                      onShowPicker: showDatePickerDialog,
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Annulla'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    var generatedColor =
-                        Random().nextInt(Colors.primaries.length);
-
-                    Event event = Event(
-                      date: startDate ?? DateTime.now(),
-                      startTime: startDate ?? DateTime.now(),
-                      endTime: endDate ?? DateTime.now().add(const Duration(hours: 1)),
-                      title: eventName,
-                      color: Color(generatedColor),
-                    );
-
-                    EventService(context: context).createEvent(event);
-
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Salva'),
-                ),
-              ],
-            );
-          },
-        );
+        showCreateEventDialog(context, null, null);
       },
       label: const Text('Aggiungi Evento'),
       icon: const Icon(Icons.add),
     );
-  }
-
-  Future<DateTime?> showDatePickerDialog(context, currentValue) async {
-    final date = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      initialDate: currentValue ?? DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-    if (date != null) {
-      final time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-      );
-      return DateTimeField.combine(date, time);
-    } else {
-      return currentValue;
-    }
   }
 }
