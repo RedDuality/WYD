@@ -11,24 +11,20 @@ import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
-  late BuildContext context;
-  
-  EventService({required this.context});
+  late final BuildContext _context;
 
-  Future<void> retrieveEvents( ) async {
+  EventService({required BuildContext context}) : _context = context;
 
+  Future<void> retrieveEvents() async {
     UserAPI().listEvents().then((response) {
-      if (response.statusCode == 200 && context.mounted) {
-        List<Event> eventi = List<Event>.from(json
-            .decode(response.body)
-            .map((evento) => Event.fromJson(evento)));
-        addEvents(context, eventi);
+      if (response.statusCode == 200 && _context.mounted) {
+        List<Event> eventi = List<Event>.from(
+            json.decode(response.body).map((evento) => Event.fromJson(evento)));
+        addEvents(_context, eventi);
       }
-
     }).catchError((error) {
       debugPrint(error.toString());
     });
-
   }
 
   Future<Event?> retrieveFromHash(String eventHash) async {
@@ -51,33 +47,36 @@ class EventService {
         .where((ev) =>
             ev.sharedWith
                 .firstWhere((s) => s.profileId == mainProfileId)
-                .confirmed == false)
+                .confirmed ==
+            false)
         .toList();
     List<Event> privateEvents = events
         .where((ev) =>
             ev.sharedWith
                 .firstWhere((s) => s.profileId == mainProfileId)
-                .confirmed == true)
+                .confirmed ==
+            true)
         .toList();
 
     context.read<PrivateProvider>().addEvents(privateEvents);
     context.read<SharedProvider>().addEvents(sharedEvents);
   }
 
-  Future<void> createEvent(Event event) async {
+  Future<void> createEvent(BuildContext context, Event event) async {
+    var response = await EventAPI().create(event);
 
-    EventAPI().create(event).then((response) {
-      if (response.statusCode == 200 && context.mounted) {
-        Event event = Event.fromJson(jsonDecode(response.body));
-        context.read<PrivateProvider>().addEvent(event);
-      }
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
+    if (response.statusCode == 200 && context.mounted) {
+      Event event = Event.fromJson(jsonDecode(response.body));
+
+      int mainProfileId = context.read<UserProvider>().getMainProfileId();
+      var pe = event.getProfileEvent(mainProfileId);
+      pe != null && pe.confirmed
+          ? context.read<PrivateProvider>().addEvent(event)
+          : context.read<SharedProvider>().addEvent(event);
+    }
   }
 
-  Future<void> share(Event event,
-      List<Community> communities) async {
+  Future<void> share(Event event, List<Community> communities) async {
     Set<int> userIds = {};
     for (var c in communities) {
       if (c.users != null && c.users!.isNotEmpty) {
@@ -87,10 +86,7 @@ class EventService {
       }
     }
 
-    EventAPI()
-        .share(event.id, userIds)
-        .then((response) {})
-        .catchError((error) {
+    EventAPI().share(event.id, userIds).then((response) {}).catchError((error) {
       debugPrint(error.toString());
     });
   }
@@ -110,15 +106,16 @@ class EventService {
   }
 
   Future<void> confirm(Event event) async {
-    var private = context.read<PrivateProvider>();
-    var public = context.read<SharedProvider>();
-    int profileId = context.read<UserProvider>().getMainProfileId();
+    var private = _context.read<PrivateProvider>();
+    var public = _context.read<SharedProvider>();
+    int profileId = _context.read<UserProvider>().getMainProfileId();
 
     EventAPI().confirm(event).then((response) {
       if (response.statusCode == 200) {
         event.sharedWith
                 .firstWhere((confirm) => confirm.profileId == profileId)
-                .confirmed == true;
+                .confirmed ==
+            true;
         private.addEvent(event);
         public.remove(event);
       }
@@ -128,15 +125,16 @@ class EventService {
   }
 
   Future<void> decline(Event event) async {
-    var private = context.read<PrivateProvider>();
-    var public = context.read<SharedProvider>();
-    int profileId = context.read<UserProvider>().getMainProfileId();
+    var private = _context.read<PrivateProvider>();
+    var public = _context.read<SharedProvider>();
+    int profileId = _context.read<UserProvider>().getMainProfileId();
 
     EventAPI().decline(event).then((response) {
       if (response.statusCode == 200) {
         event.sharedWith
                 .firstWhere((confirm) => confirm.profileId == profileId)
-                .confirmed == true;
+                .confirmed ==
+            true;
         private.remove(event);
         public.add(event);
       }
@@ -144,5 +142,4 @@ class EventService {
       debugPrint(error.toString());
     });
   }
-
 }

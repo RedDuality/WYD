@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event_service.dart';
+import 'package:wyd_front/widget/dialog/groups_dialog.dart';
 
 void showEventDialog(BuildContext context, Event event, bool confirmed) {
   var dateText =
@@ -10,12 +11,7 @@ void showEventDialog(BuildContext context, Event event, bool confirmed) {
   var startTimeText = DateFormat('hh:mm a').format(event.startTime!).toString();
   var endTimeText = DateFormat('hh:mm a').format(event.endTime!).toString();
 
-  var timeDetails = "";
-  if (event.isFullDayEvent) {
-    timeDetails = 'All day';
-  } else {
-    timeDetails = '$startTimeText-$endTimeText';
-  }
+  var timeDetails = '$startTimeText-$endTimeText';
 
   showDialog(
       context: context,
@@ -53,6 +49,11 @@ void showEventDialog(BuildContext context, Event event, bool confirmed) {
             ),
           ),
           actions: <Widget>[
+            TextButton(
+                onPressed: () {
+                  showGroupsDialog(context, event);
+                },
+                child: const Text('Condividi')),
             confirmed
                 ? TextButton(
                     onPressed: () {

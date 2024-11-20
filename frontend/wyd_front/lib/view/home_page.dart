@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
         page = const AgendaPage();
         break;
       case 1:
-        page = const EventsPage();
+        page = EventsPage(uri: uri);
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
