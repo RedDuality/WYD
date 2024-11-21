@@ -7,6 +7,7 @@ import 'package:wyd_front/view/register.dart';
 import 'package:wyd_front/widget/hover_text.dart';
 
 class LoginPage extends StatefulWidget {
+  
   const LoginPage({super.key});
 
   @override

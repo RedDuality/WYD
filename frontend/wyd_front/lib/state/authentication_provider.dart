@@ -49,8 +49,9 @@ class AuthenticationProvider with ChangeNotifier {
   bool get isBackendVerified => _isBackendVerified;
 
   Future<void> _checkUserLoginStatus() async {
-    _user = _auth.currentUser;
     _isLoading = true;
+    _isBackendVerified = false;
+    _user = _auth.currentUser;
     if (_user != null) {
       await verifyBackendAuth();
     }
@@ -117,7 +118,7 @@ class AuthenticationProvider with ChangeNotifier {
           _isBackendVerified = true;
         } else {
           _isBackendVerified = false;
-          debugPrint("Backend verification failed: ${response.statusCode}");
+          debugPrint("Server verification failed: ${response.statusCode}");
           return;
         }
       } else {
@@ -125,10 +126,10 @@ class AuthenticationProvider with ChangeNotifier {
       }
     } catch (e) {
       _isBackendVerified = false;
-      debugPrint("Error during backend verification: $e");
+      debugPrint("Error during server verification: $e");
       return;
     }
-    notifyListeners();
+    //notifyListeners();
 
     final userProvider = _context!.read<UserProvider>();
     userProvider.updateUser(_context!, user!);

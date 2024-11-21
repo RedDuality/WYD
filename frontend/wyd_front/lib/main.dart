@@ -66,16 +66,39 @@ class MyApp extends StatelessWidget {
         // Wait until loading and backend verification complete
         if (authProvider.isLoading) return null;
 
+        final isAuthenticated = authProvider.isBackendVerified;
         final isLoggingIn = state.matchedLocation == '/login';
 
-        if (isLoggingIn) {
-          if (authProvider.isBackendVerified) {
-            return '/';
-          }
-        } else if (!authProvider.isBackendVerified) {
-          return '/login';
+        // Step 1: Determine desiredUri
+        String originalUri = state.uri.toString();
+        debugPrint("Original URI: $originalUri");
+        String desiredUri = Uri.encodeComponent(originalUri);
+
+        if (!isAuthenticated) {
+          // Log desiredUri before redirect
+          debugPrint("Unauthenticated. Desired URI (encoded): $desiredUri");
+
+          // Redirect unauthenticated users to login
+          return isLoggingIn
+              ? null
+              : (originalUri == '/' ? '/login' : '/login?redirect=$desiredUri');
         }
-        return null;
+
+        // Step 2: Handle redirection after login
+        if (isAuthenticated && isLoggingIn) {
+          // Retrieve and decode the redirect query parameter
+          String? redirectQuery = state.uri.queryParameters['redirect'];
+          debugPrint("Redirect query parameter (raw): $redirectQuery");
+
+          if (redirectQuery != null) {
+            redirectQuery = Uri.decodeComponent(redirectQuery);
+            debugPrint("Redirect query parameter (decoded): $redirectQuery");
+          }
+
+          return redirectQuery ?? '/';
+        }
+
+        return null; // No redirect needed
       },
       routes: <GoRoute>[
         GoRoute(
@@ -88,8 +111,11 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/login',
-          builder: (BuildContext context, GoRouterState state) =>
-              const LoginPage(),
+          builder: (BuildContext context, GoRouterState state) {
+            return authProvider.isLoading
+                ? const LoadingPage()
+                : const LoginPage();
+          },
         ),
         GoRoute(
           path: '/register',
@@ -99,6 +125,7 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/shared',
           builder: (BuildContext context, GoRouterState state) {
+            debugPrint("ciao");
             String? uri = state.uri.toString();
             final uriProvider = Provider.of<UriProvider>(context);
             uriProvider.setUri(uri);
