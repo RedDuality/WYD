@@ -10,6 +10,7 @@
 .svn/
 migrate_working_dir/
 release.bat
+.env
 
 # IntelliJ related
 *.iml
