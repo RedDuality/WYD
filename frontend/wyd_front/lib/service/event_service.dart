@@ -11,16 +11,14 @@ import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
-  late final BuildContext _context;
 
-  EventService({required BuildContext context}) : _context = context;
 
   Future<void> retrieveEvents() async {
     UserAPI().listEvents().then((response) {
-      if (response.statusCode == 200 && _context.mounted) {
+      if (response.statusCode == 200) {
         List<Event> eventi = List<Event>.from(
             json.decode(response.body).map((evento) => Event.fromJson(evento)));
-        addEvents(_context, eventi);
+        addEvents(eventi);
       }
     }).catchError((error) {
       debugPrint(error.toString());
@@ -40,8 +38,8 @@ class EventService {
     return event;
   }
 
-  void addEvents(BuildContext context, List<Event> events) {
-    int mainProfileId = context.read<UserProvider>().getMainProfileId();
+  void addEvents(List<Event> events) {
+    int mainProfileId = UserProvider().getMainProfileId();
 
     List<Event> sharedEvents = events
         .where((ev) =>
@@ -58,8 +56,8 @@ class EventService {
             true)
         .toList();
 
-    context.read<PrivateProvider>().addEvents(privateEvents);
-    context.read<SharedProvider>().addEvents(sharedEvents);
+    PrivateProvider().addEvents(privateEvents);
+    SharedProvider().addEvents(sharedEvents);
   }
 
   Future<void> createEvent(BuildContext context, Event event) async {
@@ -106,9 +104,9 @@ class EventService {
   }
 
   Future<void> confirm(Event event) async {
-    var private = _context.read<PrivateProvider>();
-    var public = _context.read<SharedProvider>();
-    int profileId = _context.read<UserProvider>().getMainProfileId();
+    var private = PrivateProvider();
+    var public = SharedProvider();
+    int profileId = UserProvider().getMainProfileId();
 
     EventAPI().confirm(event).then((response) {
       if (response.statusCode == 200) {
@@ -125,9 +123,9 @@ class EventService {
   }
 
   Future<void> decline(Event event) async {
-    var private = _context.read<PrivateProvider>();
-    var public = _context.read<SharedProvider>();
-    int profileId = _context.read<UserProvider>().getMainProfileId();
+    var private = PrivateProvider();
+    var public = SharedProvider();
+    int profileId = UserProvider().getMainProfileId();
 
     EventAPI().decline(event).then((response) {
       if (response.statusCode == 200) {

@@ -3,6 +3,16 @@ import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/model/user.dart';
 
 class UserProvider extends ChangeNotifier {
+  // Private static instance
+  static final UserProvider _instance = UserProvider._internal();
+
+  // Factory constructor returns the singleton instance
+  factory UserProvider() {
+    return _instance;
+  }
+
+  // Private named constructor
+  UserProvider._internal();
 
   User? _user;
 
@@ -12,26 +22,26 @@ class UserProvider extends ChangeNotifier {
     return user!.mainProfileId;
   }
 
-  void updateUser(BuildContext context, User user) {
+  void updateUser(User user) {
     _user == null
-        ? setUser(context, user)
+        ? setUser(user)
         : //
-        checkUserUpdate(context, user);
+        checkUserUpdate(user);
 
     notifyListeners();
   }
 
-  checkUserUpdate(context, user) {
+  checkUserUpdate(user) {
     if (_user!.id == user.id) {
       //TODO check user updates on profiles
     } else {
-      setUser(context, user);
+      setUser(user);
     }
   }
 
-  void setUser(BuildContext context, User user) {
+  void setUser(User user) {
     _user = user;
-    EventService(context:context).retrieveEvents();
+    EventService().retrieveEvents();
     notifyListeners();
   }
 }

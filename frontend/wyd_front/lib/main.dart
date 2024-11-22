@@ -10,7 +10,6 @@ import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
-import 'package:wyd_front/view/register.dart';
 import 'package:wyd_front/widget/loading.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -39,10 +38,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MyAppState()),
         ChangeNotifierProvider(create: (_) => PrivateProvider()),
         ChangeNotifierProvider(create: (_) => SharedProvider()),
-        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => UriProvider()),
-        ChangeNotifierProvider(
-            create: (context) => AuthenticationProvider(context: context)),
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
@@ -64,18 +62,22 @@ class MyApp extends StatelessWidget {
     return GoRouter(
       redirect: (context, state) {
         // Wait until loading and backend verification complete
-        if (authProvider.isLoading) return null;
+         if (authProvider.isLoading) return null;
+
+        final isAuthenticated = authProvider.isBackendVerified;
+
+        String originalUri = state.uri.toString();
+        debugPrint("originalUri$originalUri");
 
         final isLoggingIn = state.matchedLocation == '/login';
 
-        if (isLoggingIn) {
-          if (authProvider.isBackendVerified) {
-            return '/';
-          }
-        } else if (!authProvider.isBackendVerified) {
-          return '/login';
+        if(isAuthenticated){
+          return isLoggingIn ? '/' : null;
+        } else {
+          final uriProvider = context.read<UriProvider>();
+          uriProvider.setUri(originalUri);
+          return isLoggingIn ? null : '/login';
         }
-        return null;
       },
       routes: <GoRoute>[
         GoRoute(
@@ -88,19 +90,17 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/login',
-          builder: (BuildContext context, GoRouterState state) =>
-              const LoginPage(),
-        ),
-        GoRoute(
-          path: '/register',
-          builder: (BuildContext context, GoRouterState state) =>
-              const RegisterPage(),
+          builder: (BuildContext context, GoRouterState state) {
+            return authProvider.isLoading
+                ? const LoadingPage()
+                : const LoginPage();
+          },
         ),
         GoRoute(
           path: '/shared',
           builder: (BuildContext context, GoRouterState state) {
             String? uri = state.uri.toString();
-            final uriProvider = Provider.of<UriProvider>(context);
+            final uriProvider = context.watch<UriProvider>();
             uriProvider.setUri(uri);
             return authProvider.isLoading
                 ? const LoadingPage()
@@ -109,5 +109,6 @@ class MyApp extends StatelessWidget {
         ),
       ],
     );
+    // localhost:9019/#/shared?event=r2Yb5_2uMFLScnuJq0mb3w
   }
 }

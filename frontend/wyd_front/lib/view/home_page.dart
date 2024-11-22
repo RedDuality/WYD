@@ -6,7 +6,6 @@ import 'package:wyd_front/view/events_page.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
 class HomePage extends StatefulWidget {
-
   const HomePage({super.key});
 
   @override
@@ -14,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   late int selectedIndex;
 
   @override
@@ -23,19 +21,27 @@ class _HomePageState extends State<HomePage> {
     selectedIndex = 0;
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     final uriProvider = Provider.of<UriProvider>(context);
     String uri = uriProvider.uri;
+
     if (uri.isNotEmpty) {
-      selectedIndex = 1;  // Handle the shared link scenario
+      String destination = uri.split('?').first.replaceAll('/', '');
+      switch (destination) {
+        case 'shared':
+          selectedIndex = 1;
+          break;
+        default:
+          selectedIndex = 0;
+      }
+      // Handle the shared link scenario
     }
 
-    uriProvider.setUri('');
+    uriProvider.setUri("");
 
-    Widget page;  
+
+    Widget page;
 
     switch (selectedIndex) {
       case 0:

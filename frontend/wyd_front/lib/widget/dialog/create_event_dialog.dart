@@ -133,7 +133,7 @@ void showCreateEventDialog(
 
 
               // Call the createEvent method and await its completion
-              await EventService(context: context).createEvent(context, event);
+              await EventService().createEvent(context, event);
 
               // Close the loading dialog and the current one
               if (context.mounted) {

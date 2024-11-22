@@ -59,7 +59,7 @@ void showGroupsDialog(BuildContext context, Event event) {
                   List<Community> selectedGroups = communities
                       .where((c) => selectedIds.contains(c.id))
                       .toList();
-                  EventService(context: context).share(event, selectedGroups);
+                  EventService().share(event, selectedGroups);
 
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
