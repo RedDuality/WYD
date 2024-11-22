@@ -9,7 +9,7 @@ class Event extends CalendarEventData {
   final int? groupId;
 
   List<ProfileEvent> sharedWith = [];
-
+  
   Event({
     this.id = -1,
     this.hash,
@@ -21,6 +21,7 @@ class Event extends CalendarEventData {
     super.description,
     super.color,
     super.descriptionStyle,
+    super.titleStyle = const TextStyle(color: Colors.white, fontSize: 16.0),
     this.groupId,
     List<ProfileEvent>? sharedWith,
   }) : sharedWith = sharedWith ?? [];

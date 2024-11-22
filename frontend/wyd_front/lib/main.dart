@@ -48,7 +48,10 @@ class MyApp extends StatelessWidget {
             title: 'WYD?',
             theme: ThemeData(
               useMaterial3: true,
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+              //
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.green,
+                ),
             ),
             locale: const Locale('it', 'IT'),
             routerConfig: _router(authProvider),
@@ -62,7 +65,7 @@ class MyApp extends StatelessWidget {
     return GoRouter(
       redirect: (context, state) {
         // Wait until loading and backend verification complete
-         if (authProvider.isLoading) return null;
+        if (authProvider.isLoading) return null;
 
         final isAuthenticated = authProvider.isBackendVerified;
 
@@ -71,7 +74,7 @@ class MyApp extends StatelessWidget {
 
         final isLoggingIn = state.matchedLocation == '/login';
 
-        if(isAuthenticated){
+        if (isAuthenticated) {
           return isLoggingIn ? '/' : null;
         } else {
           final uriProvider = context.read<UriProvider>();

@@ -40,7 +40,6 @@ class _HomePageState extends State<HomePage> {
 
     uriProvider.setUri("");
 
-
     Widget page;
 
     switch (selectedIndex) {
@@ -56,38 +55,33 @@ class _HomePageState extends State<HomePage> {
 
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
-        body: Row(
-          children: [
-            SafeArea(
-              child: NavigationRail(
-                extended: constraints.maxWidth >= 600,
-                selectedIndex: selectedIndex,
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.event_available),
-                    label: Text('My New Agenda'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.event),
-                    label: Text('New Shared'),
-                  ),
-                ],
-                onDestinationSelected: (value) {
-                  setState(() {
-                    selectedIndex = value;
-                  });
-                },
-              ),
-            ),
-            Expanded(
-              child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                child: page,
-              ),
-            ),
-          ],
+        body: Container(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: page,
         ),
-        floatingActionButton: const AddEventButton(),
+        bottomNavigationBar:
+            NavigationBar(
+              height: 50,
+              elevation: 0,
+              selectedIndex: selectedIndex,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+              onDestinationSelected: (value) {
+                setState(() {
+                  selectedIndex = value;
+                });
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_available, size: 30),
+                  label: 'My Agenda',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.event, size: 30),
+                  label: 'Shared with me',
+                ),
+              ],
+            ),
+          floatingActionButton: const AddEventButton(),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       );
     });

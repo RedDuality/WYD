@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/widget/dialog/create_event_dialog.dart';
+import 'package:wyd_front/widget/dialog/inspect_event_dialog.dart';
 
 class AddEventButton extends StatelessWidget {
   const AddEventButton({super.key});
@@ -8,7 +8,7 @@ class AddEventButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: () {
-        showCreateEventDialog(context, null, null);
+        showInspectEventDialog(context, null, null, null);
       },
       label: const Text('Aggiungi Evento'),
       icon: const Icon(Icons.add),
