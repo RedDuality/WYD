@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/service/error_service.dart';
 import 'package:wyd_front/API/test_api.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
+import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/register.dart';
 import 'package:wyd_front/widget/hover_text.dart';
 
 class LoginPage extends StatefulWidget {
-  
   const LoginPage({super.key});
 
   @override
@@ -81,10 +82,8 @@ class _LoginPageState extends State<LoginPage> {
               width: 250,
               child: ElevatedButton(
                 onPressed: () {
-                  final authProvider = Provider.of<AuthenticationProvider>(
-                      context,
-                      listen: false);
-
+                  final authProvider = AuthenticationProvider();
+                  
                   authProvider.signIn(_mail, _password).catchError((error) {
                     if (context.mounted) {
                       ErrorService().showErrorSnackBar(context, error);

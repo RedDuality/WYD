@@ -57,14 +57,14 @@ void showEventDialog(BuildContext context, Event event, bool confirmed) {
             confirmed
                 ? TextButton(
                     onPressed: () {
-                      EventService(context: context).decline(event);
+                      EventService().decline(event);
                       Navigator.of(context).pop();
                     },
                     child: const Text('Decline'),
                   )
                 : TextButton(
                     onPressed: () {
-                      EventService(context: context).confirm(event);
+                      EventService().confirm(event);
                       Navigator.of(context).pop();
                     },
                     child: const Text('Confirm'),
