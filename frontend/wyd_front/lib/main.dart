@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
               //
               colorScheme: ColorScheme.fromSeed(
                 seedColor: Colors.green,
-                ),
+              ),
             ),
             locale: const Locale('it', 'IT'),
             routerConfig: _router(authProvider),
@@ -64,21 +64,18 @@ class MyApp extends StatelessWidget {
   GoRouter _router(AuthenticationProvider authProvider) {
     return GoRouter(
       redirect: (context, state) {
-        // Wait until loading and backend verification complete
         if (authProvider.isLoading) return null;
 
         final isAuthenticated = authProvider.isBackendVerified;
-
-        String originalUri = state.uri.toString();
-        debugPrint("originalUri$originalUri");
-
         final isLoggingIn = state.matchedLocation == '/login';
 
         if (isAuthenticated) {
           return isLoggingIn ? '/' : null;
         } else {
           final uriProvider = context.read<UriProvider>();
+          String originalUri = state.uri.toString();
           uriProvider.setUri(originalUri);
+
           return isLoggingIn ? null : '/login';
         }
       },

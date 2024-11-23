@@ -12,6 +12,7 @@ import 'package:wyd_front/state/user_provider.dart';
 
 void showCreateEventDialog(
     BuildContext context, DateTime? date, bool? confirmed) {
+      
   Future<DateTime?> showDatePickerDialog(context, currentValue) async {
     final date = await showDatePicker(
       context: context,

@@ -64,6 +64,7 @@ class EventService {
     var response = await EventAPI().create(event);
 
     if (response.statusCode == 200 && context.mounted) {
+      
       Event event = Event.fromJson(jsonDecode(response.body));
 
       int mainProfileId = context.read<UserProvider>().getMainProfileId();
