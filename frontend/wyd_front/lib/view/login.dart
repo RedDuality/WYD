@@ -24,15 +24,21 @@ class _LoginPageState extends State<LoginPage> {
         child: FittedBox(
           fit: BoxFit.contain,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(top: 60.0),
+                padding: const EdgeInsets.only(top: 15.0), // Riduce lo spazio sopra l'immagine
                 child: Center(
                   child: SizedBox(
-                      width: 300,
-                      height: 400,
-                      child: Image.asset('assets/images/logo.jpg')),
+                    width: 300,
+                    height: 400,
+                    child: Expanded(
+                      child: Image.asset(
+                        'assets/images/logo.jpg',
+                        fit: BoxFit.cover, // Modifica il fit per adattare l'immagine
+                      ),
+                    ),
+                  ),
                 ),
               ),
               Container(
@@ -97,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 130),
+              const SizedBox(height: 30), // Aggiunge spazio tra "Login" e "New user?"
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -113,6 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                   fontSize: 18.0,
                 ),
               ),
+              const SizedBox(height: 15), // Aggiunge più spazio tra "New user?" e il bordo inferiore
             ],
           ),
         ),
