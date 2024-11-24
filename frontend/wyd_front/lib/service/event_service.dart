@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
@@ -60,17 +59,19 @@ class EventService {
     SharedProvider().addEvents(sharedEvents);
   }
 
-  Future<void> createEvent(BuildContext context, Event event) async {
+  Future<Event> createEvent(Event event) async {
     var response = await EventAPI().create(event);
 
-    if (response.statusCode == 200 && context.mounted) {
+    if (response.statusCode == 200) {
+      
       Event event = Event.fromJson(jsonDecode(response.body));
 
-      int mainProfileId = context.read<UserProvider>().getMainProfileId();
-      var pe = event.getProfileEvent(mainProfileId);
-      pe != null && pe.confirmed
-          ? context.read<PrivateProvider>().addEvent(event)
-          : context.read<SharedProvider>().addEvent(event);
+      event.confirmed()
+          ? PrivateProvider().addEvent(event)
+          : SharedProvider().addEvent(event);
+      return event;
+    } else {
+      throw "Error while creating the event";
     }
   }
 

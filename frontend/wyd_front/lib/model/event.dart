@@ -1,6 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile_event.dart';
+import 'package:wyd_front/state/user_provider.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
@@ -9,9 +10,9 @@ class Event extends CalendarEventData {
   final int? groupId;
 
   List<ProfileEvent> sharedWith = [];
-
+  
   Event({
-    this.id = -1,
+    this.id = 0,
     this.hash,
     required super.date,
     required super.startTime,
@@ -21,12 +22,22 @@ class Event extends CalendarEventData {
     super.description,
     super.color,
     super.descriptionStyle,
+    super.titleStyle = const TextStyle(color: Colors.white, fontSize: 16.0),
     this.groupId,
     List<ProfileEvent>? sharedWith,
   }) : sharedWith = sharedWith ?? [];
 
-  ProfileEvent? getProfileEvent(int profileId) {
-    return sharedWith.firstWhere((pe) => pe.profileId == profileId);
+  int totalShared(){
+    return sharedWith.length;
+  }
+
+  int totalConfirmed(){
+    return sharedWith.where((pe) => pe.confirmed == true).length;
+  }
+
+  bool confirmed() {
+    int profileId = UserProvider().getMainProfileId();
+    return sharedWith.firstWhere((pe) => pe.profileId == profileId).confirmed;
   }
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -35,8 +46,8 @@ class Event extends CalendarEventData {
           id: json['id'] as int? ?? -1,
           hash: json['hash'] as String? ?? "",
           date: DateTime.parse(json['startTime'] as String),
-          startTime: DateTime.parse(json['startTime'] as String),
-          endTime: DateTime.parse(json['endTime'] as String),
+          startTime: DateTime.parse(json['startTime'] as String).toLocal(),
+          endTime: DateTime.parse(json['endTime'] as String).toLocal(),
           title: json['title'] as String? ?? "",
           description: json['description'] as String? ?? "",
           // Handle color parsing safely with a fallback
@@ -60,8 +71,8 @@ class Event extends CalendarEventData {
       if (hash != null) 'hash': hash,
       'title': title,
       //if (description != null) 'description': description,
-      'startTime': startTime!.toIso8601String(),
-      'endTime': endTime!.toIso8601String(),
+      'startTime': startTime!.toUtc().toIso8601String(),
+      'endTime': endTime!.toUtc().toIso8601String(),
       //'color': color.value.toRadixString(16),
       //if (groupId != null) 'groupId': groupId,
       'profileEvents': sharedWith.map((share) => share.toJson()).toList(),

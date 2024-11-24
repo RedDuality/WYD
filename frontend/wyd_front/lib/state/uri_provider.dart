@@ -9,7 +9,7 @@ class UriProvider extends ChangeNotifier {
   void setUri(String uri){
 
     if(uri != '/login' && uri != '/') {
-      debugPrint("Uriprovider, setUri: $uri");
+      //debugPrint("Uriprovider, setUri: $uri");
       _uri = uri;
     }
   }

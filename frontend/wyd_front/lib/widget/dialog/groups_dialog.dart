@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/model/community.dart';
+import 'package:wyd_front/service/information_service.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class Group {
@@ -62,11 +63,10 @@ void showGroupsDialog(BuildContext context, Event event) {
                   EventService().share(event, selectedGroups);
 
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Evento condiviso con successo!'),
-                    ),
-                  );
+                  if (context.mounted) {
+                    InformationService().showInfoSnackBar(
+                        context, "Evento condiviso con successo");
+                  }
                 },
                 child: const Text('Condividi'),
               ),
@@ -79,11 +79,8 @@ void showGroupsDialog(BuildContext context, Event event) {
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Link copiato con successo!'),
-                      ),
-                    );
+                    InformationService().showInfoSnackBar(
+                        context, "Link copiato con successo");
                   }
                 },
                 child: const Text('Copia il link'),

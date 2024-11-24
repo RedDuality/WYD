@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:wyd_front/service/error_service.dart';
+import 'package:wyd_front/service/information_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -15,6 +15,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   String _mail = "";
   String _password = "";
+  bool _isFormValid = false; // Variabile di stato per la validità del form
 
   final _registerKey = GlobalKey<FormState>();
 
@@ -22,12 +23,25 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     _mail = widget.mail;
 
+    // Funzione per aggiornare la validità del form
+    void updateFormValidity() {
+      setState(() {
+        _isFormValid = _registerKey.currentState?.validate() ?? false;
+      });
+    }
+
+    // Funzione per ottenere il colore del testo del bottone
+    Color getButtonTextColor() {
+      return _isFormValid ? Colors.lightBlue : Theme.of(context).colorScheme.primaryContainer;
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: <Widget>[
           Form(
             key: _registerKey,
+            onChanged: updateFormValidity, // Chiama questa funzione ogni volta che il form cambia
             child: Column(
               children: <Widget>[
                 Flexible(
@@ -53,12 +67,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         Container(
                           constraints: const BoxConstraints(maxWidth: 500),
                           child: Padding(
-                            //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
                             padding: const EdgeInsets.symmetric(horizontal: 15),
                             child: TextFormField(
                               initialValue: widget.mail,
                               onChanged: (text) {
-                                _mail = text;
+                                setState(() {
+                                  _mail = text;
+                                });
+                                updateFormValidity();
                               },
                               validator: (value) =>
                                   EmailValidator.validate(value!)
@@ -67,8 +83,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: 'Email',
-                                  hintText:
-                                      'Enter valid email id as abc@mail.com'),
+                                  hintText: 'Enter valid email id as abc@mail.com'),
                             ),
                           ),
                         ),
@@ -76,7 +91,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           constraints: const BoxConstraints(maxWidth: 500),
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
-                            //padding: EdgeInsets.symmetric(horizontal: 15),
                             child: TextFormField(
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -88,7 +102,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                 return null;
                               },
                               onChanged: (text) {
-                                _password = text;
+                                setState(() {
+                                  _password = text;
+                                });
+                                updateFormValidity();
                               },
                               obscureText: true,
                               decoration: const InputDecoration(
@@ -103,7 +120,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 right: 15.0, bottom: 15.0, left: 15.0),
-                            //padding: EdgeInsets.symmetric(horizontal: 15),
                             child: TextFormField(
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -113,6 +129,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                   return 'The password doesn\'t match';
                                 }
                                 return null;
+                              },
+                              onChanged: (text) {
+                                updateFormValidity();
                               },
                               obscureText: true,
                               decoration: const InputDecoration(
@@ -128,25 +147,26 @@ class _RegisterPageState extends State<RegisterPage> {
                           width: 250,
                           child: ElevatedButton(
                             onPressed: () {
-                              final authProvider =
-                                  Provider.of<AuthenticationProvider>(context,
-                                      listen: false);
-                              authProvider
-                                  .register(_mail, _password)
-                                  .catchError((error) {
-                                if (context.mounted) {
-                                  ErrorService()
-                                      .showErrorSnackBar(context, error.message);
-                                }
-                              });
+                              if (_registerKey.currentState!.validate()) {
+                                final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+                                authProvider
+                                    .register(_mail, _password)
+                                    .catchError((error) {
+                                  if (context.mounted) {
+                                    InformationService().showErrorSnackBar(context, error.message);
+                                  }
+                                });
+                              }
                             },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                            ),
                             child: Text(
                               'Register',
                               style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
-                                  fontSize: 25),
+                                color: getButtonTextColor(),
+                                fontSize: 25,
+                              ),
                             ),
                           ),
                         ),
@@ -158,13 +178,13 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
           Positioned(
-            top: 40, // Position the button near the top (adjust as necessary)
-            left: 20, // Position the button near the left (adjust as necessary)
+            top: 40, // Posiziona il pulsante vicino alla parte superiore (regola se necessario)
+            left: 20, // Posiziona il pulsante vicino alla sinistra (regola se necessario)
             child: FloatingActionButton(
               onPressed: () {
-                Navigator.pop(context); // Go back to the previous page
+                Navigator.pop(context); // Torna alla pagina precedente
               },
-              mini: true, // Makes the button smaller and round
+              mini: true, // Rende il pulsante più piccolo e rotondo
               backgroundColor: Theme.of(context).colorScheme.onPrimary,
               child: Icon(Icons.arrow_back,
                   color: Theme.of(context).colorScheme.primaryContainer),
