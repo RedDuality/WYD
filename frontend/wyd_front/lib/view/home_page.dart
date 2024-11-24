@@ -59,29 +59,30 @@ class _HomePageState extends State<HomePage> {
           color: Theme.of(context).colorScheme.primaryContainer,
           child: page,
         ),
-        bottomNavigationBar:
-            NavigationBar(
-              height: 50,
-              elevation: 0,
-              selectedIndex: selectedIndex,
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-              onDestinationSelected: (value) {
-                setState(() {
-                  selectedIndex = value;
-                });
-              },
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.event_available, size: 30),
-                  label: 'My Agenda',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.event, size: 30),
-                  label: 'Shared with me',
-                ),
-              ],
+        bottomNavigationBar: NavigationBar(
+          height: 50,
+          elevation: 0,
+          selectedIndex: selectedIndex,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          onDestinationSelected: (value) {
+            setState(() {
+              selectedIndex = value;
+            });
+          },
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.event_available, size: 30),
+              label: 'My Agenda',
             ),
-          floatingActionButton: const AddEventButton(),
+            NavigationDestination(
+              icon: Icon(Icons.event, size: 30),
+              label: 'Shared with me',
+            ),
+          ],
+        ),
+        floatingActionButton: AddEventButton(
+          confirmed: selectedIndex == 0,
+        ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       );
     });

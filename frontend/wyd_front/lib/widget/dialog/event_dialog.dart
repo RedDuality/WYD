@@ -1,80 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/service/event_service.dart';
-import 'package:wyd_front/widget/dialog/groups_dialog.dart';
+import 'package:wyd_front/widget/event_detail.dart';
 
-void showEventDialog(BuildContext context, Event event, bool confirmed) {
-  var dateText =
-      DateFormat('MMMM dd, yyyy').format(event.startTime!).toString();
-
-  var startTimeText = DateFormat('hh:mm a').format(event.startTime!).toString();
-  var endTimeText = DateFormat('hh:mm a').format(event.endTime!).toString();
-
-  var timeDetails = '$startTimeText-$endTimeText';
-
+void showEventDialog(
+    BuildContext context, Event? event, DateTime? date, bool confirmed) {
   showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(event.title),
-          content: SizedBox(
-            height: 80,
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Text(
-                      dateText,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20,
-                      ),
+        return LayoutBuilder(builder: (context, constraints) {
+          double screenWidth = constraints.maxWidth;
+          double insetPaddingValue;
+
+          // Set the padding value based on screen width
+          if (screenWidth > 1000) {
+            insetPaddingValue = 100;
+          } else if (screenWidth > 700) {
+            insetPaddingValue = 50;
+          } else {
+            insetPaddingValue = 25;
+          }
+
+          return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.all(insetPaddingValue),
+              child: Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    //height: 200,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Theme.of(context).colorScheme.onPrimary),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                    child: EventDetail(
+                      initialEvent: event,
+                      date: date,
+                      confirmed: confirmed,
                     ),
-                  ],
-                ),
-                const Row(
-                  children: <Widget>[
-                    Text(''),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Text(timeDetails,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 15)),
-                  ],
-                )
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-                onPressed: () {
-                  showGroupsDialog(context, event);
-                },
-                child: const Text('Condividi')),
-            confirmed
-                ? TextButton(
-                    onPressed: () {
-                      EventService().decline(event);
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Decline'),
-                  )
-                : TextButton(
-                    onPressed: () {
-                      EventService().confirm(event);
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Confirm'),
                   ),
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('close'))
-          ],
-        );
+
+                  /*
+                  Positioned(
+                      top: -100,
+                      child: Image.network("https://i.imgur.com/2yaf2wb.png",
+                          width: 150, height: 150))
+                */
+                ],
+              ));
+        });
       });
 }

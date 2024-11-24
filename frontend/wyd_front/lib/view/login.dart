@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/service/error_service.dart';
+import 'package:wyd_front/service/information_service.dart';
 import 'package:wyd_front/API/test_api.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/view/register.dart';
@@ -27,16 +27,16 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(top: 15.0), // Riduce lo spazio sopra l'immagine
+                padding: const EdgeInsets.only(
+                    top: 15.0), // Riduce lo spazio sopra l'immagine
                 child: Center(
                   child: SizedBox(
                     width: 300,
                     height: 400,
-                    child: Expanded(
-                      child: Image.asset(
-                        'assets/images/logo.jpg',
-                        fit: BoxFit.cover, // Modifica il fit per adattare l'immagine
-                      ),
+                    child: Image.asset(
+                      'assets/images/logo.jpg',
+                      fit: BoxFit
+                          .cover, // Modifica il fit per adattare l'immagine
                     ),
                   ),
                 ),
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                     final authProvider = AuthenticationProvider();
                     authProvider.signIn(_mail, _password).catchError((error) {
                       if (context.mounted) {
-                        ErrorService().showErrorSnackBar(context, error);
+                        InformationService().showErrorSnackBar(context, error);
                       }
                     });
                   },
@@ -103,7 +103,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30), // Aggiunge spazio tra "Login" e "New user?"
+              const SizedBox(
+                  height: 30), // Aggiunge spazio tra "Login" e "New user?"
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -119,7 +120,9 @@ class _LoginPageState extends State<LoginPage> {
                   fontSize: 18.0,
                 ),
               ),
-              const SizedBox(height: 15), // Aggiunge più spazio tra "New user?" e il bordo inferiore
+              const SizedBox(
+                  height:
+                      15), // Aggiunge più spazio tra "New user?" e il bordo inferiore
             ],
           ),
         ),

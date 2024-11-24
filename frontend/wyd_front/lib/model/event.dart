@@ -1,6 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile_event.dart';
+import 'package:wyd_front/state/user_provider.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
@@ -11,7 +12,7 @@ class Event extends CalendarEventData {
   List<ProfileEvent> sharedWith = [];
   
   Event({
-    this.id = -1,
+    this.id = 0,
     this.hash,
     required super.date,
     required super.startTime,
@@ -26,8 +27,17 @@ class Event extends CalendarEventData {
     List<ProfileEvent>? sharedWith,
   }) : sharedWith = sharedWith ?? [];
 
-  ProfileEvent? getProfileEvent(int profileId) {
-    return sharedWith.firstWhere((pe) => pe.profileId == profileId);
+  int totalShared(){
+    return sharedWith.length;
+  }
+
+  int totalConfirmed(){
+    return sharedWith.where((pe) => pe.confirmed == true).length;
+  }
+
+  bool confirmed() {
+    int profileId = UserProvider().getMainProfileId();
+    return sharedWith.firstWhere((pe) => pe.profileId == profileId).confirmed;
   }
 
   factory Event.fromJson(Map<String, dynamic> json) {

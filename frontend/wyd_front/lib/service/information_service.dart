@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ErrorService{
+class InformationService{
 
   showErrorDialog(BuildContext context, String title, String content){
     return showDialog(
@@ -23,6 +23,14 @@ class ErrorService{
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red.withOpacity(0.5),
+        content: Text(title)),
+    );
+  }
+
+  showInfoSnackBar(BuildContext context, String title){
+    return ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         content: Text(title)),
     );
   }

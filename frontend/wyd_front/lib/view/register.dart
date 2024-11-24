@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:wyd_front/service/error_service.dart';
+import 'package:wyd_front/service/information_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -24,14 +24,14 @@ class _RegisterPageState extends State<RegisterPage> {
     _mail = widget.mail;
 
     // Funzione per aggiornare la validità del form
-    void _updateFormValidity() {
+    void updateFormValidity() {
       setState(() {
         _isFormValid = _registerKey.currentState?.validate() ?? false;
       });
     }
 
     // Funzione per ottenere il colore del testo del bottone
-    Color _getButtonTextColor() {
+    Color getButtonTextColor() {
       return _isFormValid ? Colors.lightBlue : Theme.of(context).colorScheme.primaryContainer;
     }
 
@@ -41,7 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
         children: <Widget>[
           Form(
             key: _registerKey,
-            onChanged: _updateFormValidity, // Chiama questa funzione ogni volta che il form cambia
+            onChanged: updateFormValidity, // Chiama questa funzione ogni volta che il form cambia
             child: Column(
               children: <Widget>[
                 Flexible(
@@ -74,7 +74,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 setState(() {
                                   _mail = text;
                                 });
-                                _updateFormValidity();
+                                updateFormValidity();
                               },
                               validator: (value) =>
                                   EmailValidator.validate(value!)
@@ -105,7 +105,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 setState(() {
                                   _password = text;
                                 });
-                                _updateFormValidity();
+                                updateFormValidity();
                               },
                               obscureText: true,
                               decoration: const InputDecoration(
@@ -131,7 +131,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 return null;
                               },
                               onChanged: (text) {
-                                _updateFormValidity();
+                                updateFormValidity();
                               },
                               obscureText: true,
                               decoration: const InputDecoration(
@@ -153,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     .register(_mail, _password)
                                     .catchError((error) {
                                   if (context.mounted) {
-                                    ErrorService().showErrorSnackBar(context, error.message);
+                                    InformationService().showErrorSnackBar(context, error.message);
                                   }
                                 });
                               }
@@ -164,7 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             child: Text(
                               'Register',
                               style: TextStyle(
-                                color: _getButtonTextColor(),
+                                color: getButtonTextColor(),
                                 fontSize: 25,
                               ),
                             ),
