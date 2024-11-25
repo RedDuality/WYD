@@ -11,7 +11,6 @@ import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
 
-
   Future<void> retrieveEvents() async {
     UserAPI().listEvents().then((response) {
       if (response.statusCode == 200) {
@@ -59,17 +58,29 @@ class EventService {
     SharedProvider().addEvents(sharedEvents);
   }
 
-  Future<Event> createEvent(Event event) async {
+  Future<Event> create(Event event) async {
     var response = await EventAPI().create(event);
 
     if (response.statusCode == 200) {
-      
       Event event = Event.fromJson(jsonDecode(response.body));
 
       event.confirmed()
           ? PrivateProvider().addEvent(event)
           : SharedProvider().addEvent(event);
       return event;
+    } else {
+      throw "Error while creating the event";
+    }
+  }
+
+  Future<Event> update(Event originalEvent, Event updatedEvent) async {
+    var response = await EventAPI().update(updatedEvent);
+
+    if (response.statusCode == 200) {
+      updatedEvent.confirmed()
+          ? PrivateProvider().update(originalEvent, updatedEvent)
+          : SharedProvider().update(originalEvent, updatedEvent);
+      return updatedEvent;
     } else {
       throw "Error while creating the event";
     }
@@ -88,20 +99,6 @@ class EventService {
     EventAPI().share(event.id, userIds).then((response) {}).catchError((error) {
       debugPrint(error.toString());
     });
-  }
-
-  Future<bool> confirmFromHash(
-      BuildContext context, Event event, bool confirm) async {
-    bool res = false;
-    await EventAPI().confirmFromHash(event.hash!, confirm).then((response) {
-      if (response.statusCode == 200) {
-        res = true;
-      }
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
-
-    return res;
   }
 
   Future<void> confirm(Event event) async {

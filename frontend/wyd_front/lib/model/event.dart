@@ -10,7 +10,7 @@ class Event extends CalendarEventData {
   final int? groupId;
 
   List<ProfileEvent> sharedWith = [];
-  
+
   Event({
     this.id = 0,
     this.hash,
@@ -27,11 +27,45 @@ class Event extends CalendarEventData {
     List<ProfileEvent>? sharedWith,
   }) : sharedWith = sharedWith ?? [];
 
-  int totalShared(){
+  
+  Event copy({
+    String? title,
+    String? description,
+    CalendarEventData? event,
+    Color? color,
+    DateTime? startTime,
+    DateTime? endTime,
+    TextStyle? titleStyle,
+    TextStyle? descriptionStyle,
+    DateTime? endDate,
+    DateTime? date,
+    int? id,
+    String? hash,
+    int? groupId,
+    List<ProfileEvent>? sharedWith,
+  }) {
+    return Event(
+      id: id ?? this.id,
+      hash: hash ?? this.hash,
+      groupId: groupId ?? this.groupId,
+      sharedWith: sharedWith ?? List<ProfileEvent>.from(this.sharedWith),
+      date: date ?? this.date,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      endDate: endDate ?? this.endDate,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      color: color ?? this.color,
+      descriptionStyle: descriptionStyle ?? this.descriptionStyle,
+      titleStyle: titleStyle ?? this.titleStyle,
+    );
+  }
+
+  int totalShared() {
     return sharedWith.length;
   }
 
-  int totalConfirmed(){
+  int totalConfirmed() {
     return sharedWith.where((pe) => pe.confirmed == true).length;
   }
 
