@@ -12,6 +12,7 @@ class EventDetail extends StatefulWidget {
   final Event? initialEvent;
   final DateTime? date;
   final bool confirmed;
+
   const EventDetail(
       {super.key, this.initialEvent, this.date, required this.confirmed});
 
@@ -21,27 +22,34 @@ class EventDetail extends StatefulWidget {
 
 class _EventDetailState extends State<EventDetail> {
   late bool hasBeenChanged;
+  late Event? event;
+
+  late String eventTitle;
+  late String? description;
+
+  late DateTime startDate;
+  late DateTime endDate;
 
   @override
   void initState() {
     super.initState();
     hasBeenChanged = false;
+
+    event = widget.initialEvent;
+
+    eventTitle = event != null ? event!.title : 'Evento senza nome';
+    description = event?.description;
+
+    startDate =
+        event != null ? event!.startTime! : (widget.date ?? DateTime.now());
+
+    endDate = event != null
+        ? event!.endTime!
+        : (widget.date ?? DateTime.now()).add(const Duration(hours: 1));
   }
 
   @override
   Widget build(BuildContext context) {
-    Event? event = widget.initialEvent;
-
-    String eventTitle = event != null ? event.title : 'Evento senza nome';
-    String? description = event?.description;
-
-    DateTime startDate =
-        event != null ? event.startTime! : (widget.date ?? DateTime.now());
-
-    DateTime endDate = event != null
-        ? event.endTime!
-        : (widget.date ?? DateTime.now()).add(const Duration(hours: 1));
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -58,9 +66,9 @@ class _EventDetailState extends State<EventDetail> {
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
                 onChanged: (value) {
-                  eventTitle = value;
                   setState(() {
                     hasBeenChanged = true;
+                    eventTitle = value;
                   });
                 },
                 decoration: const InputDecoration(
@@ -96,9 +104,9 @@ class _EventDetailState extends State<EventDetail> {
                       FocusManager.instance.primaryFocus?.unfocus();
                     },
                     onChanged: (value) {
-                      eventTitle = value;
                       setState(() {
                         hasBeenChanged = true;
+                        description = value;
                       });
                     },
                     decoration: const InputDecoration(
@@ -137,7 +145,7 @@ class _EventDetailState extends State<EventDetail> {
                       showGroupsDialog(context, event!);
                     },
                     child: const Text('Condividi')),
-              if (!hasBeenChanged && event != null && event.confirmed())
+              if (!hasBeenChanged && event != null && event!.confirmed())
                 TextButton(
                   onPressed: () {
                     EventService().decline(event!);
@@ -145,7 +153,7 @@ class _EventDetailState extends State<EventDetail> {
                   },
                   child: const Text('Decline'),
                 ),
-              if (!hasBeenChanged && event != null && !event.confirmed())
+              if (!hasBeenChanged && event != null && !event!.confirmed())
                 TextButton(
                   onPressed: () {
                     EventService().confirm(event!);
@@ -156,22 +164,13 @@ class _EventDetailState extends State<EventDetail> {
               if (event != null && hasBeenChanged)
                 TextButton(
                   onPressed: () async {
-                    Event createEvent = Event(
-                      date: startDate,
-                      startTime: startDate,
-                      endTime: endDate,
-                      title: eventTitle,
-                      description: description,
-                    );
 
-                    int mainProfileId = UserProvider().getMainProfileId();
-                    ProfileEvent profileEvent = ProfileEvent(
-                        mainProfileId, EventRole.owner, widget.confirmed, true);
-                    createEvent.sharedWith.add(profileEvent);
+                    Event updateEvent = event!.copy(title: eventTitle, date: startDate, startTime: startDate, endTime: endDate, description: description);
 
-                    event = await EventService().createEvent(createEvent);
+                    await EventService().update(event!, updateEvent);
                     setState(() {
                       hasBeenChanged = false;
+                      event = updateEvent;
                     });
                     if (context.mounted) {
                       InformationService().showInfoSnackBar(
@@ -196,9 +195,10 @@ class _EventDetailState extends State<EventDetail> {
                         mainProfileId, EventRole.owner, widget.confirmed, true);
                     createEvent.sharedWith.add(profileEvent);
 
-                    event = await EventService().createEvent(createEvent);
+                    Event newEvent = await EventService().create(createEvent);
                     setState(() {
                       hasBeenChanged = false;
+                      event = newEvent;
                     });
 
                     if (context.mounted) {
@@ -206,7 +206,7 @@ class _EventDetailState extends State<EventDetail> {
                           context, "Evento creato con successo");
                     }
                   },
-                  child: const Text('Salva'),
+                  child: const Text('Crea'),
                 ),
             ],
           ),

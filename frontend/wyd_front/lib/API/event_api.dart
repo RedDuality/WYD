@@ -16,6 +16,7 @@ class EventAPI {
           RequestInterceptor(),
         ]);
 
+
   Future<Response> create(Event event) async {
     String url = '${functionUrl}Create';
 
@@ -68,12 +69,6 @@ class EventAPI {
     );
   }
 
-  Future<Response> confirmFromHash(String eventHash, bool confirmed) async {
-    String url = '${functionUrl}Confirm/Hash';
-
-    return client.post(Uri.parse('$url/$eventHash'), body: confirmed.toString());
-  }
-
   Future<Response> decline(Event event) async {
     String url = '${functionUrl}Decline';
     int? eventId = event.id as int?;
@@ -82,4 +77,5 @@ class EventAPI {
       Uri.parse('$url/$eventId'),
     );
   }
+
 }

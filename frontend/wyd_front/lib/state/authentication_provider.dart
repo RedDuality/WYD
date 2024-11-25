@@ -44,7 +44,11 @@ class AuthenticationProvider with ChangeNotifier {
     _isBackendVerified = false;
     _user = _auth.currentUser;
     if (_user != null) {
-      await verifyBackendAuth();
+      try {
+        await verifyBackendAuth();
+      } catch (e) {
+        //_isLoading = false;
+      }
     }
     _isLoading = false;
     notifyListeners(); //scatena un cambio di route a '/'
@@ -54,7 +58,7 @@ class AuthenticationProvider with ChangeNotifier {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       await verifyBackendAuth();
-          notifyListeners();
+      notifyListeners();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         throw "Please insert a valid email";
@@ -65,7 +69,6 @@ class AuthenticationProvider with ChangeNotifier {
         throw "Unexpected error, please try later";
       }
     }
-
   }
 
   Future<void> register(String email, String password) async {
@@ -115,7 +118,7 @@ class AuthenticationProvider with ChangeNotifier {
         throw "Token null";
       }
     } catch (e) {
-      throw "Error during server verification: $e";
+      throw "Error during server verification: ${e.toString()}";
     }
 
     final userProvider = UserProvider();
