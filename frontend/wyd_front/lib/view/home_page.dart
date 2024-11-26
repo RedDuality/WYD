@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
-import 'package:wyd_front/view/agenda_page.dart';
 import 'package:wyd_front/view/events_page.dart';
+import 'package:wyd_front/view/group_page.dart';
 import 'package:wyd_front/widget/add_event_button.dart';
 
 class HomePage extends StatefulWidget {
@@ -44,10 +44,13 @@ class _HomePageState extends State<HomePage> {
 
     switch (selectedIndex) {
       case 0:
-        page = const AgendaPage();
+        page = const EventsPage(private: true);
         break;
       case 1:
-        page = EventsPage(uri: uri);
+        page = EventsPage(private: false, uri: uri);
+        break;
+      case 2:
+        page = const GroupPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -77,6 +80,10 @@ class _HomePageState extends State<HomePage> {
             NavigationDestination(
               icon: Icon(Icons.event, size: 30),
               label: 'Shared with me',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.message, size: 30),
+              label: 'Chat',
             ),
           ],
         ),

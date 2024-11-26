@@ -153,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     .register(_mail, _password)
                                     .catchError((error) {
                                   if (context.mounted) {
-                                    InformationService().showErrorSnackBar(context, error.message);
+                                    InformationService().showErrorSnackBar(context, error);
                                   }
                                 });
                               }

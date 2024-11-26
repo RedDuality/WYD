@@ -23,7 +23,7 @@ class InformationService{
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red.withOpacity(0.5),
-        content: Text(title)),
+        content: Center(child: Text(title))),
     );
   }
 
@@ -31,7 +31,7 @@ class InformationService{
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        content: Text(title)),
+        content: Center(child: Text(title))),
     );
   }
 }
