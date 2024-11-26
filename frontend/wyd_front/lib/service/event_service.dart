@@ -10,7 +10,6 @@ import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
-
   Future<void> retrieveEvents() async {
     UserAPI().listEvents().then((response) {
       if (response.statusCode == 200) {
@@ -101,41 +100,42 @@ class EventService {
     });
   }
 
-  Future<void> confirm(Event event) async {
+  Future<Event?> confirm(Event event) async {
     var private = PrivateProvider();
     var public = SharedProvider();
     int profileId = UserProvider().getMainProfileId();
 
-    EventAPI().confirm(event).then((response) {
-      if (response.statusCode == 200) {
-        event.sharedWith
-                .firstWhere((confirm) => confirm.profileId == profileId)
-                .confirmed ==
-            true;
-        private.addEvent(event);
-        public.remove(event);
-      }
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
+    var response = await EventAPI().confirm(event);
+    if (response.statusCode == 200) {
+      event.sharedWith
+          .firstWhere((confirm) => confirm.profileId == profileId)
+          .confirmed = true;
+      private.addEvent(event);
+      public.remove(event);
+      return event;
+    } else {
+      debugPrint(response.statusCode.toString());
+      return null;
+    }
   }
 
-  Future<void> decline(Event event) async {
+  Future<Event?> decline(Event event) async {
     var private = PrivateProvider();
     var public = SharedProvider();
     int profileId = UserProvider().getMainProfileId();
 
-    EventAPI().decline(event).then((response) {
-      if (response.statusCode == 200) {
-        event.sharedWith
-                .firstWhere((confirm) => confirm.profileId == profileId)
-                .confirmed ==
-            true;
-        private.remove(event);
-        public.add(event);
-      }
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
+    var response = await EventAPI().decline(event);
+
+    if (response.statusCode == 200) {
+      event.sharedWith
+          .firstWhere((confirm) => confirm.profileId == profileId)
+          .confirmed = false;
+      private.remove(event);
+      public.addEvent(event);
+      return event;
+    } else {
+      debugPrint(response.statusCode.toString());
+      return null;
+    }
   }
 }

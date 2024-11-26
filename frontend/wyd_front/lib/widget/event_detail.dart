@@ -147,25 +147,37 @@ class _EventDetailState extends State<EventDetail> {
                     child: const Text('Condividi')),
               if (!hasBeenChanged && event != null && event!.confirmed())
                 TextButton(
-                  onPressed: () {
-                    EventService().decline(event!);
-                    Navigator.of(context).pop();
+                  onPressed: () async {
+                    var newEvent = await EventService().decline(event!);
+                    if (newEvent != null) {
+                      setState(() {
+                        event = newEvent;
+                      });
+                    }
                   },
                   child: const Text('Decline'),
                 ),
               if (!hasBeenChanged && event != null && !event!.confirmed())
                 TextButton(
-                  onPressed: () {
-                    EventService().confirm(event!);
-                    Navigator.of(context).pop();
+                  onPressed: () async {
+                    var newEvent = await EventService().confirm(event!);
+                    if (newEvent != null) {
+                      setState(() {
+                        event = newEvent;
+                      });
+                    }
                   },
                   child: const Text('Confirm'),
                 ),
               if (event != null && hasBeenChanged)
                 TextButton(
                   onPressed: () async {
-
-                    Event updateEvent = event!.copy(title: eventTitle, date: startDate, startTime: startDate, endTime: endDate, description: description);
+                    Event updateEvent = event!.copy(
+                        title: eventTitle,
+                        date: startDate,
+                        startTime: startDate,
+                        endTime: endDate,
+                        description: description);
 
                     await EventService().update(event!, updateEvent);
                     setState(() {
