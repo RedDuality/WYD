@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/events_page.dart';
 import 'package:wyd_front/view/group_page.dart';
-import 'package:wyd_front/widget/add_event_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -82,15 +81,12 @@ class _HomePageState extends State<HomePage> {
               label: 'Shared with me',
             ),
             NavigationDestination(
-              icon: Icon(Icons.message, size: 30),
-              label: 'Chat',
+              icon: Icon(Icons.group, size: 30),
+              label: 'Groups',
             ),
           ],
         ),
-        floatingActionButton: AddEventButton(
-          confirmed: selectedIndex == 0,
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        
       );
     });
   }

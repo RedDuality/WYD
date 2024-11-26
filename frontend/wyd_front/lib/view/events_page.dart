@@ -4,6 +4,7 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
+import 'package:wyd_front/widget/add_event_button.dart';
 import 'package:wyd_front/widget/dialog/event_dialog.dart';
 import 'package:wyd_front/widget/event_tile.dart';
 
@@ -38,6 +39,7 @@ class _EventsPageState extends State<EventsPage> {
         }
       }
     }
+    
     return Scaffold(
       body: WeekView(
         eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
@@ -51,12 +53,17 @@ class _EventsPageState extends State<EventsPage> {
         controller: events,
         showLiveTimeLineInAllDays: false,
         scrollOffset: 480.0,
-        onEventTap: (events, date) => showEventDialog(
-            context, events.whereType<Event>().toList().first, null, widget.private),
-        onDateLongPress: (date) => showEventDialog(context, null, date, widget.private),
+        onEventTap: (events, date) => showEventDialog(context,
+            events.whereType<Event>().toList().first, null, widget.private),
+        onDateLongPress: (date) =>
+            showEventDialog(context, null, date, widget.private),
         minuteSlotSize: MinuteSlotSize.minutes15,
         keepScrollOffset: true,
       ),
+      floatingActionButton: AddEventButton(
+        confirmed: widget.private,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
