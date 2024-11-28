@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "wyd_front",
+            "name": "WYD",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "wyd_front (profile mode)",
+            "name": "WYD (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "wyd_front (release mode)",
+            "name": "WYD (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
