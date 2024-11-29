@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:wyd_front/widget/user_search_bar.dart';
 
 class GroupPage extends StatefulWidget {
   const GroupPage({super.key});
@@ -17,7 +18,7 @@ class GroupPageState extends State<GroupPage> {
       ),
       body: const Column(
         children: <Widget>[
-          SearchBar(),
+          UserSearchBar()
         ],
       ),
     );

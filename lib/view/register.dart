@@ -20,8 +20,13 @@ class _RegisterPageState extends State<RegisterPage> {
   final _registerKey = GlobalKey<FormState>();
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     _mail = widget.mail;
+  }
+  
+  @override
+  Widget build(BuildContext context) {
 
     // Funzione per aggiornare la validità del form
     void updateFormValidity() {
@@ -178,8 +183,8 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
           Positioned(
-            top: 40, // Posiziona il pulsante vicino alla parte superiore (regola se necessario)
-            left: 20, // Posiziona il pulsante vicino alla sinistra (regola se necessario)
+            top: 30, // Posiziona il pulsante vicino alla parte superiore (regola se necessario)
+            left: 30, // Posiziona il pulsante vicino alla sinistra (regola se necessario)
             child: FloatingActionButton(
               onPressed: () {
                 Navigator.pop(context); // Torna alla pagina precedente

@@ -1,18 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:wyd_front/model/DTO/user_dto.dart';
+import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/service/user_service.dart';
 
-class SearchBar extends StatefulWidget {
-  const SearchBar({super.key});
+class UserSearchBar extends StatefulWidget {
+  const UserSearchBar({super.key});
 
   @override
-  State<SearchBar> createState() => _SearchBarState();
+  State<UserSearchBar> createState() => _UserSearchBarState();
 }
 
-class _SearchBarState extends State<SearchBar> {
+class _UserSearchBarState extends State<UserSearchBar> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  List<String> _filteredItems = [];
+  List<UserDto> _filteredUsers = [];
   bool _isLoading = false;
   Timer? _debounce;
   final LayerLink _layerLink = LayerLink();
@@ -24,7 +27,7 @@ class _SearchBarState extends State<SearchBar> {
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
         setState(() {
-          _filteredItems = [];
+          _filteredUsers = [];
         });
       }
     });
@@ -42,21 +45,22 @@ class _SearchBarState extends State<SearchBar> {
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 200), () {
-      _fetchItems(_searchController.text);
+      if (_searchController.text.isNotEmpty) {
+        _fetchItems(_searchController.text);
+      }
     });
   }
 
   Future<void> _fetchItems(String tag) async {
-    // Simulate a call to the backend function UserService().FromTag(String tag)
-    // Replace this with your actual backend call
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(const Duration(seconds: 1));
+    var users = await UserService().searchByTag(tag);
+
     setState(() {
-      _filteredItems = ['Item1', 'Item2', 'Item3', 'Item4']
-          .where((item) => item.contains(tag))
-          .toList();
+      if(users != null){
+        _filteredUsers = users;
+      }
       _isLoading = false;
     });
   }
@@ -73,9 +77,9 @@ class _SearchBarState extends State<SearchBar> {
             width: MediaQuery.of(context).size.width - 64,
             child: ListView(
               shrinkWrap: true,
-              children: _filteredItems.map((String value) {
+              children: _filteredUsers.map((UserDto value) {
                 return ListTile(
-                  title: Text(value),
+                  title: Text(value.userName),
                   onTap: () {
                     // Handle dropdown item selection
                   },
@@ -107,7 +111,7 @@ class _SearchBarState extends State<SearchBar> {
           ),
         ),
         if (_isLoading) const CircularProgressIndicator(),
-        if (!_isLoading && _filteredItems.isNotEmpty) _buildDropdown(),
+        if (!_isLoading && _filteredUsers.isNotEmpty) _buildDropdown(),
       ],
     );
   }
