@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
+import 'package:wyd_front/model/group.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
@@ -68,7 +68,7 @@ class EventService {
           : SharedProvider().addEvent(event);
       return event;
     } else {
-      throw "Error while creating the event";
+      throw "Error while creating the event, please retry later";
     }
   }
 
@@ -85,11 +85,11 @@ class EventService {
     }
   }
 
-  Future<void> share(Event event, List<Community> communities) async {
+  Future<void> share(Event event, List<Group> groups) async {
     Set<int> userIds = {};
-    for (var c in communities) {
-      if (c.users != null && c.users!.isNotEmpty) {
-        for (var u in c.users!) {
+    for (var c in groups) {
+      if (c.users.isNotEmpty) {
+        for (var u in c.users) {
           userIds.add(u.id);
         }
       }
@@ -138,4 +138,5 @@ class EventService {
       return null;
     }
   }
+
 }

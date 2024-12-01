@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/service/information_service.dart';
 import 'package:wyd_front/state/user_provider.dart';
@@ -31,7 +30,7 @@ void showGroupsDialog(BuildContext context, Event event) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
-            title: Text('Condividi ${event.title} con i gruppi'),
+            title: Text('Condividi ${event.title}'),
             content: SizedBox(
               height: 300,
               width: 300,
@@ -60,7 +59,7 @@ void showGroupsDialog(BuildContext context, Event event) {
                   List<Community> selectedGroups = communities
                       .where((c) => selectedIds.contains(c.id))
                       .toList();
-                  EventService().share(event, selectedGroups);
+                  //EventService().share(event, selectedGroups);
 
                   Navigator.of(context).pop();
                   if (context.mounted) {

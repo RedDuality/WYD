@@ -177,6 +177,7 @@ class _EventDetailState extends State<EventDetail> {
                         date: startDate,
                         startTime: startDate,
                         endTime: endDate,
+                        endDate: endDate,
                         description: description);
 
                     await EventService().update(event!, updateEvent);
@@ -198,6 +199,7 @@ class _EventDetailState extends State<EventDetail> {
                       date: startDate,
                       startTime: startDate,
                       endTime: endDate,
+                      endDate: endDate,
                       title: eventTitle,
                       description: description,
                     );

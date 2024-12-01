@@ -22,7 +22,7 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   Widget build(BuildContext context) {
-    var events = widget.private ? PrivateProvider() : SharedProvider();
+    var eventsProvider = widget.private ? PrivateProvider() : SharedProvider();
 
     if (!widget.private) {
       if (!_dialogShown) {
@@ -50,7 +50,7 @@ class _EventsPageState extends State<EventsPage> {
               startDuration: startDuration,
               endDuration: endDuration);
         },
-        controller: events,
+        controller: eventsProvider,
         showLiveTimeLineInAllDays: false,
         scrollOffset: 480.0,
         onEventTap: (events, date) => showEventDialog(context,

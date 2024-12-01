@@ -19,13 +19,14 @@ class EventTile<T> extends StatelessWidget {
   final DateTime endDuration;
 
   @override
+
   Widget build(BuildContext context) {
     if (events.isNotEmpty) {
       final event = events[0];
       return RoundedEventTile(
         borderRadius: BorderRadius.circular(8.0),
         title: event.title,
-        totalEvents: events.length - 1,
+        totalEvents: events.length,
         description: event.description,
         padding: const EdgeInsets.fromLTRB(4.0, 0.0, 3.0, 3.0),
         backgroundColor: event.color,

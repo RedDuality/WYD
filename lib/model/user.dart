@@ -3,40 +3,41 @@ import 'package:wyd_front/model/profile.dart';
 
 class User {
   int id = -1;
-  String uid = "";
+  String hash = "";
   String mainMail = "";
   String userName = "";
   String tag = "";
   int mainProfileId = -1;
   List<Profile> profiles = [];
-  //List<Account> accounts = [];
-  //List<Group> groups = [];
   List<Community> communities = [];
 
   User({
     this.id = -1,
-    this.uid = "",
+    this.hash = "",
     this.mainMail = "",
     this.userName = "",
     this.tag = "",
     this.mainProfileId = -1,
     List<Profile>? profiles,
-  }) : profiles = profiles ?? [];
+    List<Community>? communities,
+  })  : profiles = profiles ?? [],
+        communities = communities ?? [];
 
   factory User.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
         'id': int? id,
-        'uid': String? uid,
+        'hash': String? hash,
         'mainMail': String? email,
         'userName': String? username,
         'tag': String? tag,
         'mainProfileId': int? mainProfileId,
         'userRoles': List<dynamic>? roles,
+        'communities': List<dynamic>? communities,
       } =>
         User(
           id: id ?? -1,
-          uid: uid ?? "",
+          hash: hash ?? "",
           mainMail: email ?? "",
           userName: username ?? "",
           tag: tag ?? "",
@@ -47,6 +48,12 @@ class User {
                   return p;
                 }).toList()
               : <Profile>[],
+          communities: communities != null
+              ? communities
+                  .map((community) =>
+                      Community.fromJson(community as Map<String, dynamic>))
+                  .toList()
+              : <Community>[],
         ),
       _ => throw const FormatException('Failed to decode User')
     };

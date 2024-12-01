@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:wyd_front/model/DTO/create_community_dto.dart';
 import 'package:wyd_front/model/DTO/user_dto.dart';
-import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/service/community_service.dart';
 import 'package:wyd_front/service/user_service.dart';
 
 class UserSearchBar extends StatefulWidget {
@@ -19,15 +20,16 @@ class _UserSearchBarState extends State<UserSearchBar> {
   bool _isLoading = false;
   Timer? _debounce;
   final LayerLink _layerLink = LayerLink();
+  bool _isDropdownOpen = false;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
     _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
+      if (!_focusNode.hasFocus && _isDropdownOpen) {
         setState(() {
-          _filteredUsers = [];
+          _isDropdownOpen = false; // Close the dropdown on focus out
         });
       }
     });
@@ -58,7 +60,8 @@ class _UserSearchBarState extends State<UserSearchBar> {
     var users = await UserService().searchByTag(tag);
 
     setState(() {
-      if(users != null){
+      if (users != null) {
+        _isDropdownOpen = true;
         _filteredUsers = users;
       }
       _isLoading = false;
@@ -70,21 +73,44 @@ class _UserSearchBarState extends State<UserSearchBar> {
       link: _layerLink,
       showWhenUnlinked: false,
       offset: const Offset(0, 40), // Adjust the offset as needed
-      child: Center(
-        child: Material(
-          elevation: 4.0,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width - 64,
-            child: ListView(
-              shrinkWrap: true,
-              children: _filteredUsers.map((UserDto value) {
-                return ListTile(
-                  title: Text(value.userName),
-                  onTap: () {
-                    // Handle dropdown item selection
-                  },
-                );
-              }).toList(),
+      child: Visibility(
+        visible: _isDropdownOpen,
+        child: GestureDetector(
+          onPanDown: (_) {
+            _focusNode.requestFocus();
+          },
+          child: Center(
+            child: Material(
+              elevation: 4.0,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width - 64,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: _filteredUsers.map((UserDto value) {
+                    return ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(value.userName),
+                          TextButton.icon(
+                            icon: const Icon(Icons.add),
+                            label: const Text("Add"),
+                            onPressed: () {
+                              debugPrint("ciaoo");
+                              CreateCommunityDto community = CreateCommunityDto(users: [value]);
+
+                              CommunityService().create(community);
+                            },
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        debugPrint("ciaoo1");
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
           ),
         ),
@@ -98,14 +124,24 @@ class _UserSearchBarState extends State<UserSearchBar> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: CompositedTransformTarget(
-            link: _layerLink,
-            child: TextField(
-              controller: _searchController,
-              focusNode: _focusNode,
-              decoration: const InputDecoration(
-                labelText: 'Search User',
-                border: OutlineInputBorder(),
+          child: GestureDetector(
+            onTap: () {
+              if (!_isDropdownOpen) {
+                _focusNode.requestFocus(); // Open dropdown
+                setState(() {
+                  _isDropdownOpen = true;
+                });
+              }
+            },
+            child: CompositedTransformTarget(
+              link: _layerLink,
+              child: TextField(
+                controller: _searchController,
+                focusNode: _focusNode,
+                decoration: const InputDecoration(
+                  labelText: 'Search User',
+                  border: OutlineInputBorder(),
+                ),
               ),
             ),
           ),

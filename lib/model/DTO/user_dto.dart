@@ -1,34 +1,44 @@
 
-import 'package:wyd_front/model/profile.dart';
+
 
 class UserDto {
-  int id = -1;
-  String mail = "";
+  int id = 0;
   String userName = "";
   String tag = "";
+  int mainProfileId = 0;
 
   UserDto({
-    this.id = -1,
-    this.mail = "",
+    this.id = 0,
     this.userName = "",
     this.tag = "",
+    this.mainProfileId = 0
   });
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
         'id': int? id,
-        'mail': String? mail,
         'userName': String? username,
         'tag': String? tag,
+        'mainProfileId': int? mainProfileId,
       } =>
         UserDto(
-          id: id ?? -1,
-          mail: mail ?? "",
+          id: id ?? 0,
           userName: username ?? "",
           tag: tag ?? "",
+          mainProfileId: mainProfileId ?? 0,
         ),
       _ => throw const FormatException('Failed to decode UserDto')
+    };
+  }
+
+
+    Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userName': userName,
+      'tag': tag,
+      'mainProfileId': mainProfileId,
     };
   }
 }

@@ -14,20 +14,26 @@ class Event extends CalendarEventData {
   Event({
     this.id = 0,
     this.hash,
-    required super.date,
-    required super.startTime,
-    required super.endTime,
-    super.endDate,
+    required DateTime date,
+    required DateTime startTime,
+    required DateTime endTime,
+    DateTime? endDate,
     required super.title,
     super.description,
     super.color,
     super.descriptionStyle,
-    super.titleStyle = const TextStyle(color: Colors.white, fontSize: 16.0),
+    TextStyle super.titleStyle = const TextStyle(color: Colors.white, fontSize: 16.0),
     this.groupId,
     List<ProfileEvent>? sharedWith,
-  }) : sharedWith = sharedWith ?? [];
+  })  : sharedWith = sharedWith ?? [],
+        super(
+          date: date.toLocal(),
+          startTime: startTime.toLocal(),
+          endTime: endTime.toLocal(),
+          endDate: endDate?.toLocal(),
+        );
 
-  
+
   Event copy({
     String? title,
     String? description,
@@ -50,14 +56,14 @@ class Event extends CalendarEventData {
       groupId: groupId ?? this.groupId,
       sharedWith: sharedWith ?? List<ProfileEvent>.from(this.sharedWith),
       date: date ?? this.date,
-      startTime: startTime ?? this.startTime,
-      endTime: endTime ?? this.endTime,
+      startTime: startTime ?? this.startTime!,
+      endTime: endTime ?? this.endTime!,
       endDate: endDate ?? this.endDate,
       title: title ?? this.title,
       description: description ?? this.description,
       color: color ?? this.color,
       descriptionStyle: descriptionStyle ?? this.descriptionStyle,
-      titleStyle: titleStyle ?? this.titleStyle,
+      titleStyle: titleStyle ?? this.titleStyle!,
     );
   }
 
@@ -80,13 +86,14 @@ class Event extends CalendarEventData {
           id: json['id'] as int? ?? -1,
           hash: json['hash'] as String? ?? "",
           date: DateTime.parse(json['startTime'] as String),
-          startTime: DateTime.parse(json['startTime'] as String).toLocal(),
-          endTime: DateTime.parse(json['endTime'] as String).toLocal(),
+          startTime: DateTime.parse(json['startTime'] as String),
+          endTime: DateTime.parse(json['endTime'] as String),
+          endDate: DateTime.parse(json['endTime'] as String),
           title: json['title'] as String? ?? "",
           description: json['description'] as String? ?? "",
           // Handle color parsing safely with a fallback
           color: json['color'] != null
-              ? Color(int.parse(json['color'] as String, radix: 16))
+              ? Color(int.parse(json['color'] as String))
               : Colors.green,
           groupId: json['groupId'] as int? ?? -1,
           sharedWith: (json['profileEvents'] as List<dynamic>?)
@@ -107,7 +114,7 @@ class Event extends CalendarEventData {
       //if (description != null) 'description': description,
       'startTime': startTime!.toUtc().toIso8601String(),
       'endTime': endTime!.toUtc().toIso8601String(),
-      //'color': color.value.toRadixString(16),
+      //'color': color.value,
       //if (groupId != null) 'groupId': groupId,
       'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
     };
