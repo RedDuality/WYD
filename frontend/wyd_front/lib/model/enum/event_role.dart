@@ -1,4 +1,0 @@
-enum EventRole{
-  owner,
-  viewer
-}

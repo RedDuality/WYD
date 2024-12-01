@@ -1,0 +1,53 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.wyd_front.app-mergeReleaseResources-19:/values-en-rAU/values-en-rAU.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Giacomo\\.gradle\\caches\\transforms-3\\79726f7ed5ac24eeee6f8940d5089d49\\transformed\\jetified-credentials-1.2.0-rc01\\res\\values-en-rAU\\values-en-rAU.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,167",
+                        "endColumns": "111,113",
+                        "endOffsets": "162,276"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Giacomo\\.gradle\\caches\\transforms-3\\41f44ee4d75bd62ccf77f2bb4d70f6c0\\transformed\\browser-1.4.0\\res\\values-en-rAU\\values-en-rAU.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,153,250,359",
+                        "endColumns": "97,96,108,98",
+                        "endOffsets": "148,245,354,453"
+                    },
+                    "to": {
+                        "startLines": "4,5,6,7",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "281,379,476,585",
+                        "endColumns": "97,96,108,98",
+                        "endOffsets": "374,471,580,679"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Giacomo\\.gradle\\caches\\transforms-3\\1227bb32d338e358eff4c5bf5b08270c\\transformed\\core-1.6.0\\res\\values-en-rAU\\values-en-rAU.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    },
+                    "to": {
+                        "startLines": "8",
+                        "startColumns": "4",
+                        "startOffsets": "684",
+                        "endColumns": "100",
+                        "endOffsets": "780"
+                    }
+                }
+            ]
+        }
+    ]
+}

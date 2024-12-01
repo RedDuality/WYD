@@ -1,0 +1,25 @@
+com.example.wyd_front.app-core-1.6.0-0 C:\Users\Giacomo\.gradle\caches\transforms-3\1227bb32d338e358eff4c5bf5b08270c\transformed\core-1.6.0\res
+com.example.wyd_front.app-jetified-window-1.0.0-beta04-1 C:\Users\Giacomo\.gradle\caches\transforms-3\1f063c91a907141588f51f373b1f5f4a\transformed\jetified-window-1.0.0-beta04\res
+com.example.wyd_front.app-jetified-datastore-1.0.0-2 C:\Users\Giacomo\.gradle\caches\transforms-3\22da2347209e42d3f67009d797bf8861\transformed\jetified-datastore-1.0.0\res
+com.example.wyd_front.app-browser-1.4.0-3 C:\Users\Giacomo\.gradle\caches\transforms-3\41f44ee4d75bd62ccf77f2bb4d70f6c0\transformed\browser-1.4.0\res
+com.example.wyd_front.app-jetified-play-services-auth-20.7.0-4 C:\Users\Giacomo\.gradle\caches\transforms-3\6a06f0f0976051339cd8586c8d08c60b\transformed\jetified-play-services-auth-20.7.0\res
+com.example.wyd_front.app-jetified-window-java-1.0.0-beta04-5 C:\Users\Giacomo\.gradle\caches\transforms-3\6d2f8042b989e9f02a2914d91ea7c64c\transformed\jetified-window-java-1.0.0-beta04\res
+com.example.wyd_front.app-jetified-credentials-1.2.0-rc01-6 C:\Users\Giacomo\.gradle\caches\transforms-3\79726f7ed5ac24eeee6f8940d5089d49\transformed\jetified-credentials-1.2.0-rc01\res
+com.example.wyd_front.app-jetified-play-services-base-18.0.1-7 C:\Users\Giacomo\.gradle\caches\transforms-3\83bd7fcc26403a15e00188c3570da0fa\transformed\jetified-play-services-base-18.0.1\res
+com.example.wyd_front.app-jetified-annotation-experimental-1.1.0-8 C:\Users\Giacomo\.gradle\caches\transforms-3\a15c6353ebee292a754ca976f2ce177d\transformed\jetified-annotation-experimental-1.1.0\res
+com.example.wyd_front.app-jetified-firebase-common-21.0.0-9 C:\Users\Giacomo\.gradle\caches\transforms-3\a1e9b7e171ebe989e7c2215846d4f6bc\transformed\jetified-firebase-common-21.0.0\res
+com.example.wyd_front.app-jetified-credentials-play-services-auth-1.2.0-rc01-10 C:\Users\Giacomo\.gradle\caches\transforms-3\a9b08db1573a95b453ac84331ed80949\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\res
+com.example.wyd_front.app-jetified-datastore-preferences-1.0.0-11 C:\Users\Giacomo\.gradle\caches\transforms-3\b97a7650a846c2dd08589591c9598bd4\transformed\jetified-datastore-preferences-1.0.0\res
+com.example.wyd_front.app-jetified-play-services-basement-18.3.0-12 C:\Users\Giacomo\.gradle\caches\transforms-3\e76aed36a087f5f71489bfa0e357771e\transformed\jetified-play-services-basement-18.3.0\res
+com.example.wyd_front.app-main-13 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\android\app\src\main\res
+com.example.wyd_front.app-release-14 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\android\app\src\release\res
+com.example.wyd_front.app-google-services-15 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\app\generated\res\google-services\release
+com.example.wyd_front.app-pngs-16 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\app\generated\res\pngs\release
+com.example.wyd_front.app-resValues-17 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\app\generated\res\resValues\release
+com.example.wyd_front.app-rs-18 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\app\generated\res\rs\release
+com.example.wyd_front.app-mergeReleaseResources-19 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\app\intermediates\incremental\release\mergeReleaseResources\merged.dir
+com.example.wyd_front.app-mergeReleaseResources-20 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\app\intermediates\incremental\release\mergeReleaseResources\stripped.dir
+com.example.wyd_front.app-merged_res-21 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\app\intermediates\merged_res\release
+com.example.wyd_front.app-packaged_res-22 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\firebase_auth\intermediates\packaged_res\release
+com.example.wyd_front.app-packaged_res-23 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\firebase_core\intermediates\packaged_res\release
+com.example.wyd_front.app-packaged_res-24 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\frontend\wyd_front\build\shared_preferences_android\intermediates\packaged_res\release

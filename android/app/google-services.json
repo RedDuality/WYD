@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "500769062162",
+    "project_id": "wydaccounts",
+    "storage_bucket": "wydaccounts.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:500769062162:android:c2fdbf6675d200191247cb",
+        "android_client_info": {
+          "package_name": "com.example.wyd_front"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSab3eAr9yqlsrBLPPc1rd6u2cwsORVWs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
