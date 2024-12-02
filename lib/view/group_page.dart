@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/state/user_provider.dart';
-import 'package:wyd_front/view/search_user_page.dart';
+import 'package:wyd_front/widget/search_user_page.dart';
 
 class GroupPage extends StatefulWidget {
   const GroupPage({super.key});
@@ -13,13 +13,6 @@ class GroupPage extends StatefulWidget {
 }
 
 class GroupPageState extends State<GroupPage> {
-  final List<String> groups = [
-    "Group 1",
-    "Group 2",
-    "Group 3",
-    "Group 4",
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,21 +56,55 @@ class GroupPageState extends State<GroupPage> {
             itemCount: communities.length,
             itemBuilder: (context, index) {
               var community = communities[index];
-              var mainGroup = community.groups[0];
-              return ListTile(
-                title: Text(community.type == CommunityType.personal
-                    ? mainGroup.users
-                        .where((u) =>
-                            u.mainProfileId !=
-                            UserProvider().getMainProfileId())
-                        .first
-                        .userName
-                    : mainGroup.name),
-              );
+              return _buildCommunityTile(community);
             },
           );
         },
       ),
     );
   }
+
+  Widget _buildCommunityTile(Community community) {
+    switch (community.type) {
+      case CommunityType.personal:
+        return _buildPersonalTile(community);
+      case CommunityType.singlegroup:
+        return _buildSingleGroupTile(community);
+      case CommunityType.community:
+        return _buildMultiGroupTile(community);
+      default:
+        return Container();
+    }
+  }
+
+  Widget _buildPersonalTile(Community community) {
+    final mainGroup = community.groups.first;
+    final user = mainGroup.users
+        .where((u) => u.mainProfileId != UserProvider().getMainProfileId())
+        .first;
+    return ListTile(
+      title: Text(user.userName),
+    );
+  }
+
+  Widget _buildSingleGroupTile(Community community) {
+    return ListTile(
+      title: Text(community.name),
+    );
+  }
+
+  Widget _buildMultiGroupTile(Community community) {
+    return ExpansionTile(
+      title: Text(community.name),
+      children: community.groups.map((group) {
+        return ListTile(
+          title: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Text(group.name),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
 }
