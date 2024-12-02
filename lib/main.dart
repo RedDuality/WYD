@@ -14,6 +14,8 @@ import 'package:wyd_front/widget/loading.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future main() async {
   await dotenv.load(fileName: ".env");
 
@@ -45,6 +47,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
           return MaterialApp.router(
+            
             title: 'WYD?',
             theme: ThemeData(
               useMaterial3: true,
@@ -63,6 +66,7 @@ class MyApp extends StatelessWidget {
 
   GoRouter _router(AuthenticationProvider authProvider) {
     return GoRouter(
+      navigatorKey: navigatorKey,
       redirect: (context, state) {
         if (authProvider.isLoading) return null;
 

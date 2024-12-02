@@ -22,7 +22,11 @@ class Event extends CalendarEventData {
     super.description,
     super.color,
     super.descriptionStyle,
-    TextStyle super.titleStyle = const TextStyle(color: Colors.white, fontSize: 16.0),
+    TextStyle super.titleStyle = const TextStyle(
+      color: Colors.white,
+      fontSize: 12.0,
+      overflow: TextOverflow.clip,
+    ),
     this.groupId,
     List<ProfileEvent>? sharedWith,
   })  : sharedWith = sharedWith ?? [],
@@ -32,7 +36,6 @@ class Event extends CalendarEventData {
           endTime: endTime.toLocal(),
           endDate: endDate?.toLocal(),
         );
-
 
   Event copy({
     String? title,
@@ -73,6 +76,12 @@ class Event extends CalendarEventData {
 
   int totalConfirmed() {
     return sharedWith.where((pe) => pe.confirmed == true).length;
+  }
+
+  String getConfirmTitle() {
+    return totalShared() > 1
+        ? "(${totalConfirmed()}/${totalShared()}) "
+        : "";
   }
 
   bool confirmed() {

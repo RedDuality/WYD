@@ -53,11 +53,11 @@ class EventAPI {
     );
   }
 
-  Future<Response> share(int eventId, Set<int> userIds) async {
-    String url = '${functionUrl}Share/Community';
+  Future<Response> shareToGroups(int eventId, Set<int> groupIds) async {
+    String url = '${functionUrl}Share/Groups';
 
     return client.post(Uri.parse('$url/$eventId'),
-        body: json.encode(userIds.toList()));
+        body: json.encode(groupIds.toList()));
   }
 
   Future<Response> confirm(Event event) async {

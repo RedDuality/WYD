@@ -5,8 +5,9 @@ import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/service/information_service.dart';
 import 'package:wyd_front/state/user_provider.dart';
-import 'package:wyd_front/widget/dialog/groups_dialog.dart';
-import 'package:wyd_front/widget/range_editor.dart';
+import 'package:wyd_front/widget/dialog/custom_dialog.dart';
+import 'package:wyd_front/widget/event/range_editor.dart';
+import 'package:wyd_front/widget/event/share.dart';
 
 class EventDetail extends StatefulWidget {
   final Event? initialEvent;
@@ -79,6 +80,7 @@ class _EventDetailState extends State<EventDetail> {
                   border: OutlineInputBorder(borderSide: BorderSide.none),
                 ),
               )),
+              Text(event!.getConfirmTitle().trim()),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -142,7 +144,7 @@ class _EventDetailState extends State<EventDetail> {
               if (!hasBeenChanged && event != null)
                 TextButton(
                     onPressed: () {
-                      showGroupsDialog(context, event!);
+                      showCustomDialog(context, Share(event: event!));
                     },
                     child: const Text('Condividi')),
               if (!hasBeenChanged && event != null && event!.confirmed())

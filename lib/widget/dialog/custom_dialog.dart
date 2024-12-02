@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/widget/event_detail.dart';
 
-void showEventDialog(
-    BuildContext context, Event? event, DateTime? date, bool confirmed) {
+void showCustomDialog(
+    BuildContext context, Widget child) {
   showDialog(
       context: context,
       barrierDismissible: false,
@@ -34,11 +32,7 @@ void showEventDialog(
                         borderRadius: BorderRadius.circular(15),
                         color: Theme.of(context).colorScheme.onPrimary),
                     padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                    child: EventDetail(
-                      initialEvent: event,
-                      date: date,
-                      confirmed: confirmed,
-                    ),
+                    child: child
                   ),
 
                   /*

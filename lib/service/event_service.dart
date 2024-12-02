@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
-import 'package:wyd_front/model/group.dart';
+import 'package:wyd_front/service/information_service.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
@@ -85,19 +85,15 @@ class EventService {
     }
   }
 
-  Future<void> share(Event event, List<Group> groups) async {
-    Set<int> userIds = {};
-    for (var c in groups) {
-      if (c.users.isNotEmpty) {
-        for (var u in c.users) {
-          userIds.add(u.id);
-        }
-      }
-    }
+  Future<void> shareToGroups(Event event, Set<int> groupsIds) async {
 
-    EventAPI().share(event.id, userIds).then((response) {}).catchError((error) {
+    EventAPI().shareToGroups(event.id, groupsIds).then((response) {
+      InformationService().showOverlaySnackBar("Evento condiviso con successo");
+    }).catchError((error) {
       debugPrint(error.toString());
+      InformationService().showOverlaySnackBar(error.toString());
     });
+
   }
 
   Future<Event?> confirm(Event event) async {
@@ -138,5 +134,4 @@ class EventService {
       return null;
     }
   }
-
 }
