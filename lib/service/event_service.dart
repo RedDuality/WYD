@@ -36,7 +36,7 @@ class EventService {
   }
 
   void addEvents(List<Event> events) {
-    int mainProfileId = UserProvider().getMainProfileId();
+    int mainProfileId = UserProvider().getCurrentProfileId();
 
     List<Event> sharedEvents = events
         .where((ev) =>
@@ -99,7 +99,7 @@ class EventService {
   Future<Event?> confirm(Event event) async {
     var private = PrivateProvider();
     var public = SharedProvider();
-    int profileId = UserProvider().getMainProfileId();
+    int profileId = UserProvider().getCurrentProfileId();
 
     var response = await EventAPI().confirm(event);
     if (response.statusCode == 200) {
@@ -118,7 +118,7 @@ class EventService {
   Future<Event?> decline(Event event) async {
     var private = PrivateProvider();
     var public = SharedProvider();
-    int profileId = UserProvider().getMainProfileId();
+    int profileId = UserProvider().getCurrentProfileId();
 
     var response = await EventAPI().decline(event);
 
