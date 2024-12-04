@@ -80,6 +80,7 @@ class _EventDetailState extends State<EventDetail> {
                   border: OutlineInputBorder(borderSide: BorderSide.none),
                 ),
               )),
+              if(event != null)
               Text(event!.getConfirmTitle().trim()),
               TextButton(
                 onPressed: () {
