@@ -207,7 +207,7 @@ class _EventDetailState extends State<EventDetail> {
                       description: description,
                     );
 
-                    int mainProfileId = UserProvider().getMainProfileId();
+                    int mainProfileId = UserProvider().getCurrentProfileId();
                     ProfileEvent profileEvent = ProfileEvent(
                         mainProfileId, EventRole.owner, widget.confirmed, true);
                     createEvent.sharedWith.add(profileEvent);

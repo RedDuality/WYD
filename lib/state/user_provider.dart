@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/service/community_service.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/model/user.dart';
 
@@ -15,11 +17,12 @@ class UserProvider extends ChangeNotifier {
   UserProvider._internal();
 
   User? _user;
+  Profile ? _currentProfile; 
 
   User? get user => _user;
 
-  int getMainProfileId() {
-    return user!.mainProfileId;
+  int getCurrentProfileId() {
+    return _currentProfile!.id;
   }
 
   void updateUser(User user) {
@@ -41,6 +44,8 @@ class UserProvider extends ChangeNotifier {
 
   void setUser(User user) {
     _user = user;
+    _currentProfile = user.profiles.firstWhere((p) => p.id == user.mainProfileId);
+    CommunityService().retrieveCommunities(_currentProfile!);
     EventService().retrieveEvents();
     notifyListeners();
   }

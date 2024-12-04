@@ -5,12 +5,14 @@ import 'package:wyd_front/model/group.dart';
 class Community {
   int id = 0;
   String name = "";
+  String imageHash = "";
   CommunityType type = CommunityType.personal;
   List<Group> groups = [];
 
   Community({
     this.id = -1,
     this.name = "",
+    this.imageHash = "",
     this.type = CommunityType.personal,
     List<Group>? groups,
   }) : groups = groups ?? [];
@@ -20,11 +22,13 @@ class Community {
       {
         "id" : int id,
         "name" : String name,
+        "imageHash": String? imageHash,
         "type" : int? type,
         "groups" : List<dynamic>? groups,
       } => Community(
         id : id, 
         name : name, 
+        imageHash: imageHash ?? "",
         type : type != null ? CommunityType.values[type] : CommunityType.personal, 
         groups : groups != null ? groups.map((user) => Group.fromJson(user as Map<String,dynamic>)).toList() : <Group>[]
         ),
@@ -36,6 +40,7 @@ class Community {
     return {
       'id': id,
       'name': name,
+      'imageHash': imageHash,
       'type': type.index,
       'groups': groups.map((user) => user.toJson()).toList(),
     };

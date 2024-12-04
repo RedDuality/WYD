@@ -1,17 +1,18 @@
-import 'package:wyd_front/model/DTO/user_dto.dart';
+
 import 'package:wyd_front/model/enum/community_type.dart';
+import 'package:wyd_front/model/profile.dart';
 
 class CreateCommunityDto {
   int id = 0;
   String name = "";
   CommunityType type = CommunityType.personal;
-  List<UserDto> users = [];
+  List<Profile> users = [];
 
   CreateCommunityDto({
     this.id = -1,
     this.name = "",
     this.type = CommunityType.personal,
-    List<UserDto>? users,
+    List<Profile>? users,
   }) : users = users ?? [];
 
   factory CreateCommunityDto.fromJson(Map<String, dynamic> json) {
@@ -25,7 +26,7 @@ class CreateCommunityDto {
         id : id, 
         name : name, 
         type : type != null ? CommunityType.values[type] : CommunityType.personal, 
-        users : users != null ? users.map((user) => UserDto.fromJson(user as Map<String,dynamic>)).toList() : <UserDto>[]
+        users : users != null ? users.map((user) => Profile.fromJson(user as Map<String,dynamic>)).toList() : <Profile>[]
         ),
       _ => throw const FormatException('Failed to decode community')
     };

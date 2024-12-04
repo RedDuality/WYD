@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
+import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/widget/search_user_page.dart';
 
@@ -49,13 +50,12 @@ class GroupPageState extends State<GroupPage> {
           ),
         ],
       ),
-      body: Selector<UserProvider, List<Community>>(
-        selector: (context, userProvider) => userProvider.user!.communities,
-        builder: (context, communities, child) {
+      body: Consumer<CommunityProvider>(
+       builder: (context, communityProvider, child) {
           return ListView.builder(
-            itemCount: communities.length,
+            itemCount: communityProvider.communities!.length,
             itemBuilder: (context, index) {
-              var community = communities[index];
+              var community = communityProvider.communities![index];
               return _buildCommunityTile(community);
             },
           );
@@ -79,11 +79,11 @@ class GroupPageState extends State<GroupPage> {
 
   Widget _buildPersonalTile(Community community) {
     final mainGroup = community.groups.first;
-    final user = mainGroup.users
-        .where((u) => u.mainProfileId != UserProvider().getMainProfileId())
+    final profile = mainGroup.profiles
+        .where((p) => p.id != UserProvider().getCurrentProfileId())
         .first;
     return ListTile(
-      title: Text(user.userName),
+      title: Text(profile.name),
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/group.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/service/information_service.dart';
+import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class Share extends StatefulWidget {
@@ -44,12 +45,10 @@ class _ShareState extends State<Share> {
         ),
         Expanded(
           child: SingleChildScrollView(
-            child: Selector<UserProvider, List<Community>>(
-              selector: (context, userProvider) =>
-                  userProvider.user!.communities,
-              builder: (context, communities, child) {
+            child: Consumer<CommunityProvider>(
+              builder: (context, communityProvider, child) {
                 return Column(
-                  children: communities
+                  children: communityProvider.communities!
                       .map((community) => _buildCommunityTile(community))
                       .toList(),
                 );
@@ -106,11 +105,11 @@ class _ShareState extends State<Share> {
 
   Widget _buildPersonalCommunityTile(Community community) {
     final mainGroup = community.groups.first;
-    final user = mainGroup.users
-        .where((u) => u.mainProfileId != UserProvider().getMainProfileId())
+    final profile = mainGroup.profiles
+        .where((p) => p.id != UserProvider().getCurrentProfileId())
         .first;
     return ListTile(
-        title: Text(user.userName), trailing: _groupCheckBox(mainGroup));
+        title: Text(profile.name), trailing: _groupCheckBox(mainGroup));
   }
 
   Widget _buildSingleGroupCommunityTile(Community community) {

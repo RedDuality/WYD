@@ -85,7 +85,7 @@ class Event extends CalendarEventData {
   }
 
   bool confirmed() {
-    int profileId = UserProvider().getMainProfileId();
+    int profileId = UserProvider().getCurrentProfileId();
     return sharedWith.firstWhere((pe) => pe.profileId == profileId).confirmed;
   }
 

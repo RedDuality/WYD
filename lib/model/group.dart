@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/DTO/user_dto.dart';
+import 'package:wyd_front/model/profile.dart';
 
 class Group {
   int id;
-  String name;
   String hash;
+  String name;
   Color color;
   bool trusted;
   bool generalForCommunity;
-  List<UserDto> users;
+  List<Profile> profiles;
 
   Group({
     this.id = 0,
@@ -17,8 +17,8 @@ class Group {
     this.color = Colors.white,
     this.trusted = false,
     this.generalForCommunity = false,
-    List<UserDto>? users,
-  }) : users = users ?? [];
+    List<Profile>? profiles,
+  }) : profiles = profiles ?? [];
 
   factory Group.fromJson(Map<String, dynamic> json) {
     return switch (json) {
@@ -29,23 +29,21 @@ class Group {
         "color": int? color,
         "trusted": bool? trusted,
         "generalForCommunity": bool? generalForCommunity,
-        "users": List<dynamic>? users,
+        "profiles": List<dynamic>? profiles,
       } =>
         Group(
             id: id ?? 0,
             name: name ?? "",
             hash: hash ?? "",
-            color: color != null
-                ? Color(color)
-                : Colors.green,
+            color: color != null ? Color(color) : Colors.green,
             trusted: trusted ?? false,
             generalForCommunity: generalForCommunity ?? false,
-            users: users != null
-                ? users
-                    .map((user) =>
-                        UserDto.fromJson(user as Map<String, dynamic>))
+            profiles: profiles != null
+                ? profiles
+                    .map((profile) =>
+                        Profile.fromJson(profile as Map<String, dynamic>))
                     .toList()
-                : <UserDto>[]),
+                : <Profile>[]),
       _ => throw const FormatException('Failed to decode group')
     };
   }
@@ -57,8 +55,8 @@ class Group {
       'hash': hash,
       'color': color.value,
       'trusted': trusted,
-      'generalForCommunity' : generalForCommunity,
-      'users': users.map((user) => user.toJson()).toList(),
+      'generalForCommunity': generalForCommunity,
+      'profiles': profiles.map((profile) => profile.toJson()).toList(),
     };
   }
 }

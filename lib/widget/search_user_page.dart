@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/DTO/create_community_dto.dart';
-import 'package:wyd_front/model/DTO/user_dto.dart';
+import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/community_service.dart';
 import 'package:wyd_front/service/user_service.dart';
 
@@ -14,7 +14,7 @@ class SearchUserPage extends StatefulWidget {
 }
 
 class _SearchUserPageState extends State<SearchUserPage> {
-  List<UserDto> _filteredUsers = [];
+  List<Profile> _filteredUsers = [];
   bool _isLoading = false;
   Timer? _debounce;
 
@@ -42,12 +42,12 @@ class _SearchUserPageState extends State<SearchUserPage> {
   Widget _buildList() {
     return ListView(
       shrinkWrap: true,
-      children: _filteredUsers.map((UserDto value) {
+      children: _filteredUsers.map((Profile value) {
         return ListTile(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(value.userName),
+              Text(value.name),
               TextButton.icon(
                 icon: const Icon(Icons.add),
                 label: const Text("Add"),
