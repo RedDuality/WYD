@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/events_page.dart';
 import 'package:wyd_front/view/group_page.dart';
+import 'package:wyd_front/view/profiles_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -51,6 +52,8 @@ class _HomePageState extends State<HomePage> {
       case 2:
         page = const GroupPage();
         break;
+      case 3:
+        page = ProfilesPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -71,22 +74,29 @@ class _HomePageState extends State<HomePage> {
               selectedIndex = value;
             });
           },
-          destinations: const [
-            NavigationDestination(
+          destinations: [
+            const NavigationDestination(
               icon: Icon(Icons.event_available, size: 30),
               label: 'My Agenda',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.event, size: 30),
               label: 'Shared with me',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.group, size: 30),
               label: 'Groups',
             ),
+            NavigationDestination(
+              icon: Image.asset(
+                'assets/images/logoimage.png',
+                width: 30,
+                height: 30,
+              ),
+              label: 'Profiles',
+            )
           ],
         ),
-        
       );
     });
   }
