@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
@@ -56,7 +57,18 @@ class BlobEditor extends StatelessWidget {
       String? mimeType = lookupMimeType(image.name);
       if (mimeType != null) {
         final Uint8List imageData = await image.readAsBytes();
-        blobProvider.addNewImage(BlobData(data: imageData, mimeType: mimeType));
+
+        // Compress the image data
+        final Uint8List compressedImageData =
+            await FlutterImageCompress.compressWithList(
+          imageData,
+          minWidth: 800,
+          minHeight: 800,
+          quality: 85,
+        );
+
+        blobProvider.addNewImage(
+            BlobData(data: compressedImageData, mimeType: mimeType));
       }
     }
   }
