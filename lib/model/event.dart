@@ -32,8 +32,10 @@ class Event extends CalendarEventData {
     ),
     this.groupId,
     List<String>? images,
+    List<BlobData>? newBlobs,
     List<ProfileEvent>? sharedWith,
   })  : sharedWith = sharedWith ?? [],
+        newBlobs = newBlobs ?? [],
         images = images ?? [],
         super(
           date: date.toLocal(),

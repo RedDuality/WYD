@@ -77,9 +77,8 @@ class EventAPI {
     );
   }
 
-  Future<Response> addPhoto(Event event, BlobData imageData) async {
+  Future<Response> addPhoto(int eventId, BlobData imageData) async {
     String url = '${functionUrl}Photo/Add';
-    int? eventId = event.id as int?;
 
     return client.post(
       Uri.parse('$url/$eventId'),

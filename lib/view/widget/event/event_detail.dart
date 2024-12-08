@@ -57,6 +57,61 @@ class _EventDetailState extends State<EventDetail> {
     });
   }
 
+  Future<void> _createEvent(BuildContext context) async {
+    final dateRangeProvider =
+        Provider.of<DateRangeProvider>(context, listen: false);
+    final blobProvider = Provider.of<BlobProvider>(context, listen: false);
+
+    Event createEvent = Event(
+      date: dateRangeProvider.startDate,
+      startTime: dateRangeProvider.startDate,
+      endTime: dateRangeProvider.endDate,
+      endDate: dateRangeProvider.endDate,
+      title: eventTitle,
+      description: description,
+      newBlobs: blobProvider.newImages,
+    );
+
+    int mainProfileId = UserProvider().getCurrentProfileId();
+    ProfileEvent profileEvent =
+        ProfileEvent(mainProfileId, EventRole.owner, widget.confirmed, true);
+    createEvent.sharedWith.add(profileEvent);
+
+    Event newEvent = await EventService().create(createEvent);
+    setState(() {
+      hasBeenChanged = false;
+      event = newEvent;
+    });
+
+    if (context.mounted) {
+      InformationService()
+          .showInfoSnackBar(context, "Evento creato con successo");
+    }
+  }
+
+  Future<void> _updateEvent(BuildContext context) async {
+    final dateRangeProvider =
+        Provider.of<DateRangeProvider>(context, listen: false);
+
+    Event updateEvent = event!.copy(
+        date: dateRangeProvider.startDate,
+        startTime: dateRangeProvider.startDate,
+        endTime: dateRangeProvider.endDate,
+        endDate: dateRangeProvider.endDate,
+        title: eventTitle,
+        description: description);
+
+    await EventService().update(event!, updateEvent);
+    setState(() {
+      hasBeenChanged = false;
+      event = updateEvent;
+    });
+    if (context.mounted) {
+      InformationService()
+          .showInfoSnackBar(context, "Evento aggiornato con successo");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -66,7 +121,8 @@ class _EventDetailState extends State<EventDetail> {
               DateRangeProvider(startDate, endDate, onChanged: _onFieldChanged),
         ),
         ChangeNotifierProvider(
-          create: (_) => BlobProvider(event != null ? event!.hash : "", event != null ? event!.images : [],
+          create: (_) => BlobProvider(event != null ? event!.hash : "",
+              event != null ? event!.images : [],
               onChanged: _onFieldChanged),
         ),
       ],
@@ -195,63 +251,14 @@ class _EventDetailState extends State<EventDetail> {
                   if (event != null && hasBeenChanged) //Update
                     TextButton(
                       onPressed: () async {
-                        final dateRangeProvider =
-                            Provider.of<DateRangeProvider>(context,
-                                listen: false);
-
-                        Event updateEvent = event!.copy(
-                            date: dateRangeProvider.startDate,
-                            startTime: dateRangeProvider.startDate,
-                            endTime: dateRangeProvider.endDate,
-                            endDate: dateRangeProvider.endDate,
-                            title: eventTitle,
-                            description: description);
-
-                        await EventService().update(event!, updateEvent);
-                        setState(() {
-                          hasBeenChanged = false;
-                          event = updateEvent;
-                        });
-                        if (context.mounted) {
-                          InformationService().showInfoSnackBar(
-                              context, "Evento aggiornato con successo");
-                        }
+                        await _updateEvent(context);
                       },
                       child: const Text('Aggiorna'),
                     ),
                   if (event == null) //Save
                     TextButton(
                       onPressed: () async {
-                        final dateRangeProvider =
-                            Provider.of<DateRangeProvider>(context,
-                                listen: false);
-
-                        Event createEvent = Event(
-                          date: dateRangeProvider.startDate,
-                          startTime: dateRangeProvider.startDate,
-                          endTime: dateRangeProvider.endDate,
-                          endDate: dateRangeProvider.endDate,
-                          title: eventTitle,
-                          description: description,
-                        );
-
-                        int mainProfileId =
-                            UserProvider().getCurrentProfileId();
-                        ProfileEvent profileEvent = ProfileEvent(mainProfileId,
-                            EventRole.owner, widget.confirmed, true);
-                        createEvent.sharedWith.add(profileEvent);
-
-                        Event newEvent =
-                            await EventService().create(createEvent);
-                        setState(() {
-                          hasBeenChanged = false;
-                          event = newEvent;
-                        });
-
-                        if (context.mounted) {
-                          InformationService().showInfoSnackBar(
-                              context, "Evento creato con successo");
-                        }
+                        await _createEvent(context);
                       },
                       child: const Text('Crea'),
                     ),
