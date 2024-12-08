@@ -5,14 +5,14 @@ import 'package:wyd_front/model/group.dart';
 class Community {
   int id = 0;
   String name = "";
-  String imageHash = "";
+  String blobHash = "";
   CommunityType type = CommunityType.personal;
   List<Group> groups = [];
 
   Community({
     this.id = -1,
     this.name = "",
-    this.imageHash = "",
+    this.blobHash = "",
     this.type = CommunityType.personal,
     List<Group>? groups,
   }) : groups = groups ?? [];
@@ -22,17 +22,17 @@ class Community {
       {
         "id" : int id,
         "name" : String name,
-        "imageHash": String? imageHash,
+        "blobHash": String? blobHash,
         "type" : int? type,
         "groups" : List<dynamic>? groups,
       } => Community(
         id : id, 
         name : name, 
-        imageHash: imageHash ?? "",
+        blobHash: blobHash ?? "",
         type : type != null ? CommunityType.values[type] : CommunityType.personal, 
         groups : groups != null ? groups.map((user) => Group.fromJson(user as Map<String,dynamic>)).toList() : <Group>[]
         ),
-      _ => throw const FormatException('Failed to decode community')
+      _ => throw const FormatException('Failed to decode Community')
     };
   }
 
@@ -40,7 +40,7 @@ class Community {
     return {
       'id': id,
       'name': name,
-      'imageHash': imageHash,
+      'blobHash': blobHash,
       'type': type.index,
       'groups': groups.map((user) => user.toJson()).toList(),
     };

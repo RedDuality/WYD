@@ -25,6 +25,10 @@ class UserProvider extends ChangeNotifier {
     return _currentProfile!.id;
   }
 
+  String getCurrentProfileHash(){
+    return _currentProfile!.hash;
+  }
+
   void updateUser(User user) {
     _user == null
         ? setUser(user)

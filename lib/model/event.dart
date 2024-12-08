@@ -1,19 +1,22 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:wyd_front/model/DTO/blob_data.dart';
 import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
   final int id;
-  final String? hash;
+  final String hash;
   final int? groupId;
+  List<String> images = [];
+  List<BlobData> newBlobs =  [];
 
   List<ProfileEvent> sharedWith = [];
 
   Event({
     this.id = 0,
-    this.hash,
+    this.hash = "",
     required DateTime date,
     required DateTime startTime,
     required DateTime endTime,
@@ -28,8 +31,10 @@ class Event extends CalendarEventData {
       overflow: TextOverflow.clip,
     ),
     this.groupId,
+    List<String>? images,
     List<ProfileEvent>? sharedWith,
   })  : sharedWith = sharedWith ?? [],
+        images = images ?? [],
         super(
           date: date.toLocal(),
           startTime: startTime.toLocal(),
@@ -51,12 +56,14 @@ class Event extends CalendarEventData {
     int? id,
     String? hash,
     int? groupId,
+    List<String>? images,
     List<ProfileEvent>? sharedWith,
   }) {
     return Event(
       id: id ?? this.id,
       hash: hash ?? this.hash,
       groupId: groupId ?? this.groupId,
+      images: images ?? List<String>.from(this.images),
       sharedWith: sharedWith ?? List<ProfileEvent>.from(this.sharedWith),
       date: date ?? this.date,
       startTime: startTime ?? this.startTime!,
@@ -79,9 +86,7 @@ class Event extends CalendarEventData {
   }
 
   String getConfirmTitle() {
-    return totalShared() > 1
-        ? "(${totalConfirmed()}/${totalShared()}) "
-        : "";
+    return totalShared() > 1 ? "(${totalConfirmed()}/${totalShared()}) " : "";
   }
 
   bool confirmed() {
@@ -105,6 +110,9 @@ class Event extends CalendarEventData {
               ? Color(int.parse(json['color'] as String))
               : Colors.green,
           groupId: json['groupId'] as int? ?? -1,
+          images: json['blobHashes'] != null
+              ? json['blobHashes'].cast<String>().toList()
+              : <String>[],
           sharedWith: (json['profileEvents'] as List<dynamic>?)
                   ?.map(
                       (pe) => ProfileEvent.fromJson(pe as Map<String, dynamic>))
@@ -118,14 +126,16 @@ class Event extends CalendarEventData {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      if (hash != null) 'hash': hash,
+      'hash': hash,
       'title': title,
       //if (description != null) 'description': description,
       'startTime': startTime!.toUtc().toIso8601String(),
       'endTime': endTime!.toUtc().toIso8601String(),
       //'color': color.value,
       //if (groupId != null) 'groupId': groupId,
+      'blobHash': images,
       'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
+      'newBlobData': newBlobs.map((blob) => blob.toJson()).toList(),
     };
   }
 }
