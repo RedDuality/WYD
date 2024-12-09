@@ -89,9 +89,9 @@ class _HomePageState extends State<HomePage> {
             ),
             NavigationDestination(
               icon: Image.asset(
-                'assets/images/logoimage.png',
-                width: 30,
-                height: 30,
+                'assets/images/logoimage_mini.png',
+                width: 25,
+                height: 25,
               ),
               label: 'Profiles',
             )

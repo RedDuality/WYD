@@ -6,7 +6,7 @@ class Profile {
   String name = "";
   String hash = "";
   String tag = "";
-  String? imageHash = "";
+  String? blobHash = "";
   ProfileType type;
   Role? role;
 
@@ -15,7 +15,7 @@ class Profile {
       this.name = "",
       this.hash = "",
       this.tag = "",
-      this.imageHash = "",
+      this.blobHash = "",
       this.type = ProfileType.personal,
       this.role = Role.owner});
 
@@ -27,7 +27,7 @@ class Profile {
         'name': String? name,
         'hash': String? hash,
         'tag': String? tag,
-        'imageHash': String? imageHash,
+        'blobHash': String? blobHash,
         'type': int? type,
       } =>
         Profile(
@@ -35,7 +35,7 @@ class Profile {
           name: name ?? "",
           hash: hash ?? "",
           tag: tag ?? "",
-          imageHash: imageHash ?? "",
+          blobHash: blobHash ?? "",
           type: ProfileType.values[type ?? 0],
         ),
       _ => throw const FormatException('Failed to decode Profile')
@@ -52,7 +52,7 @@ class Profile {
           name: profile['name'] ?? "",
           hash: profile['hash'] ?? "",
           tag: profile['tag'] ?? "",
-          imageHash: profile['imageHash'] ?? "",
+          blobHash: profile['blobHash'] ?? "",
           type: ProfileType.values[profile['type'] ?? 0],
           role: Role.values[role],
         ),

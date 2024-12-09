@@ -10,6 +10,7 @@ import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/service/information_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/view/widget/util/image_preview.dart';
 
 class Share extends StatefulWidget {
   final Event event;
@@ -109,24 +110,46 @@ class _ShareState extends State<Share> {
         .where((p) => p.id != UserProvider().getCurrentProfileId())
         .first;
     return ListTile(
-        title: Text(profile.name), trailing: _groupCheckBox(mainGroup));
+        leading: CircleAvatar(
+          backgroundImage: const ImagePreview(
+            size: ImageSize.mini,
+          ).getImageProvider(),
+        ),
+        title: Text(profile.name),
+        trailing: _groupCheckBox(mainGroup));
   }
 
   Widget _buildSingleGroupCommunityTile(Community community) {
     final group = community.groups.first;
-    return ListTile(title: Text(group.name), trailing: _groupCheckBox(group));
+    return ListTile(
+        leading: CircleAvatar(
+          backgroundImage: const ImagePreview(
+            size: ImageSize.mini,
+          ).getImageProvider(),
+        ),
+        title: Text(group.name),
+        trailing: _groupCheckBox(group));
   }
 
   Widget _buildMultiGroupCommunityTile(Community community) {
     return ExpansionTile(
+      leading: CircleAvatar(
+        backgroundImage: const ImagePreview(
+          size: ImageSize.mini,
+        ).getImageProvider(),
+      ),
       title: Text(community.name),
       children: community.groups.map((group) {
-        return ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Text(group.name),
-            ),
-            trailing: _groupCheckBox(group));
+        return Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: const ImagePreview(
+                    size: ImageSize.mini,
+                  ).getImageProvider(),
+                ),
+                title: Text(group.name),
+                trailing: _groupCheckBox(group)));
       }).toList(),
     );
   }

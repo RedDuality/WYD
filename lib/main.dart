@@ -11,8 +11,8 @@ import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/login.dart';
-import 'package:wyd_front/widget/loading.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:wyd_front/view/widget/loading.dart';
 import 'firebase_options.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

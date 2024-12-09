@@ -4,7 +4,6 @@ import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/model/DTO/create_community_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/auth_interceptor.dart';
-import 'package:wyd_front/service/request_interceptor.dart';
 
 class CommunityAPI {
   String? functionUrl = '${dotenv.env['BACK_URL']}Community/';
@@ -14,7 +13,6 @@ class CommunityAPI {
   CommunityAPI()
       : client = InterceptedClient.build(interceptors: [
           AuthInterceptor(),
-          RequestInterceptor(),
         ]);
 
   Future<Response> retrieveCommunities(Profile profile) async {

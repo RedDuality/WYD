@@ -4,10 +4,10 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event_service.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
-import 'package:wyd_front/widget/util/add_event_button.dart';
-import 'package:wyd_front/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/widget/event/event_detail.dart';
-import 'package:wyd_front/widget/event/event_tile.dart';
+import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
+import 'package:wyd_front/view/widget/event/event_detail.dart';
+import 'package:wyd_front/view/widget/event/event_tile.dart';
+import 'package:wyd_front/view/widget/util/add_event_button.dart';
 
 class EventsPage extends StatefulWidget {
   final String uri;

@@ -76,10 +76,12 @@ class EventService {
     var response = await EventAPI().update(updatedEvent);
 
     if (response.statusCode == 200) {
+      Event event = Event.fromJson(jsonDecode(response.body));
+
       updatedEvent.confirmed()
-          ? PrivateProvider().update(originalEvent, updatedEvent)
-          : SharedProvider().update(originalEvent, updatedEvent);
-      return updatedEvent;
+          ? PrivateProvider().update(originalEvent, event)
+          : SharedProvider().update(originalEvent, event);
+      return event;
     } else {
       throw "Error while creating the event";
     }
