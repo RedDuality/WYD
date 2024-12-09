@@ -10,3 +10,5 @@ flutter run
 
 ## Firebase
 npm install -g firebase-tools
+
+npm install pica

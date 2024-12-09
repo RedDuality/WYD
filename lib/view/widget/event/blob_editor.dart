@@ -54,21 +54,24 @@ class BlobEditor extends StatelessWidget {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      String? mimeType = lookupMimeType(image.name);
-      if (mimeType != null) {
-        final Uint8List imageData = await image.readAsBytes();
+      final Uint8List imageData = await image.readAsBytes();
 
-        // Compress the image data
-        final Uint8List compressedImageData =
-            await FlutterImageCompress.compressWithList(
-          imageData,
-          minWidth: 800,
-          minHeight: 800,
-          quality: 85,
-        );
+      // Compress the image data
+      if (imageData.isNotEmpty) {
+        try {
+          // Compress the image data
+          final compressedImageData =
+              await FlutterImageCompress.compressWithList(
+            imageData,
+            minWidth: 403,
+            quality: 85,
+          );
 
-        blobProvider.addNewImage(
-            BlobData(data: compressedImageData, mimeType: mimeType));
+          blobProvider.addNewImage(
+              BlobData(data: compressedImageData, mimeType: "image/jpeg"));
+        } catch (e) {
+          debugPrint(e.toString());
+        }
       }
     }
   }
@@ -89,7 +92,7 @@ class BlobEditor extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _pickImage(blobProvider);
+                    _pickImage(blobProvider); //blobProvider);
                   },
                   child: const Text("Choose Image"),
                 ),
@@ -114,7 +117,9 @@ class BlobEditor extends StatelessWidget {
                     runSpacing: 8.0, // Space between widgets vertically
                     children: blobProvider._newImages.map((imageData) {
                       return ImageDisplay(
-                          imageData: imageData.data, hasError: false);
+                          maxWidth: 403,
+                          imageData: imageData.data,
+                          hasError: false);
                     }).toList(),
                   ),
                   const SizedBox(height: 10),
@@ -123,7 +128,10 @@ class BlobEditor extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Vecchie"),
+                const Divider(
+                  color: Colors.grey, // You can change the color
+                  thickness: 0.5, // You can change the thickness
+                ),
                 const SizedBox(height: 10),
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -139,12 +147,10 @@ class BlobEditor extends StatelessWidget {
                         spacing: 8.0, // Space between widgets horizontally
                         runSpacing: 8.0, // Space between widgets vertically
                         children: blobProvider.startingHashes.map((hash) {
-                          return SizedBox(
-                            width: itemWidth.floor().toDouble() - 6,
-                            child: ImageLoader(
-                              imageHash: hash,
-                              blobProvider: blobProvider,
-                            ),
+                          return ImageLoader(
+                            maxWidth: itemWidth.floor().toDouble() - 6,
+                            imageHash: hash,
+                            blobProvider: blobProvider,
                           );
                         }).toList(),
                       ),
@@ -163,21 +169,33 @@ class BlobEditor extends StatelessWidget {
 class ImageDisplay extends StatelessWidget {
   final Uint8List imageData;
   final bool hasError;
+  final double maxWidth;
 
   const ImageDisplay({
+    required this.maxWidth,
     required this.imageData,
     required this.hasError,
     super.key,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 500, minWidth: 200),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: hasError ? const Icon(Icons.error) : Image.memory(imageData),
+      constraints: BoxConstraints(
+        maxWidth: maxWidth,
       ),
+      decoration: BoxDecoration(
+        borderRadius:
+            BorderRadius.circular(12.0), // Adjust the radius as needed
+      ),
+      child: hasError
+          ? const Icon(Icons.error)
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(12.0),
+              child: Image.memory(
+                imageData,
+                fit: BoxFit.cover,
+              ),
+            ),
     );
   }
 }
@@ -185,8 +203,10 @@ class ImageDisplay extends StatelessWidget {
 class ImageLoader extends StatelessWidget {
   final String imageHash;
   final BlobProvider blobProvider;
+  final double maxWidth;
 
   const ImageLoader({
+    required this.maxWidth,
     required this.imageHash,
     required this.blobProvider,
     super.key,
@@ -199,11 +219,12 @@ class ImageLoader extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
-            constraints: const BoxConstraints(maxWidth: 500, minWidth: 200),
+            constraints: BoxConstraints(maxWidth: maxWidth),
             child: const CircularProgressIndicator(),
           );
         } else if (snapshot.hasError) {
           return ImageDisplay(
+            maxWidth: maxWidth,
             imageData: Uint8List(0), // Empty data for error case
             hasError: true,
           );
@@ -217,17 +238,20 @@ class ImageLoader extends StatelessWidget {
             );
             blobProvider.addImage(imageHash, imageData);
             return ImageDisplay(
+              maxWidth: maxWidth,
               imageData: imageData.data,
               hasError: false,
             );
           } else {
             return ImageDisplay(
+              maxWidth: maxWidth,
               imageData: Uint8List(0), // Empty data for error case
               hasError: true,
             );
           }
         } else {
           return ImageDisplay(
+            maxWidth: maxWidth,
             imageData: Uint8List(0), // Empty data for error case
             hasError: true,
           );
