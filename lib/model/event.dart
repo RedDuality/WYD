@@ -60,6 +60,7 @@ class Event extends CalendarEventData {
     int? groupId,
     List<String>? images,
     List<ProfileEvent>? sharedWith,
+    List<BlobData>? newBlobs
   }) {
     return Event(
       id: id ?? this.id,
@@ -76,6 +77,7 @@ class Event extends CalendarEventData {
       color: color ?? this.color,
       descriptionStyle: descriptionStyle ?? this.descriptionStyle,
       titleStyle: titleStyle ?? this.titleStyle!,
+      newBlobs: newBlobs ?? this.newBlobs,
     );
   }
 
@@ -135,7 +137,7 @@ class Event extends CalendarEventData {
       'endTime': endTime!.toUtc().toIso8601String(),
       //'color': color.value,
       //if (groupId != null) 'groupId': groupId,
-      'blobHash': images,
+      'blobHashes': images,
       'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
       'newBlobData': newBlobs.map((blob) => blob.toJson()).toList(),
     };

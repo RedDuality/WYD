@@ -78,6 +78,7 @@ class _EventDetailState extends State<EventDetail> {
     createEvent.sharedWith.add(profileEvent);
 
     Event newEvent = await EventService().create(createEvent);
+
     setState(() {
       hasBeenChanged = false;
       event = newEvent;
@@ -92,19 +93,23 @@ class _EventDetailState extends State<EventDetail> {
   Future<void> _updateEvent(BuildContext context) async {
     final dateRangeProvider =
         Provider.of<DateRangeProvider>(context, listen: false);
+    final blobProvider = Provider.of<BlobProvider>(context, listen: false);
 
-    Event updateEvent = event!.copy(
+    Event updatesEvent = event!.copy(
         date: dateRangeProvider.startDate,
         startTime: dateRangeProvider.startDate,
         endTime: dateRangeProvider.endDate,
         endDate: dateRangeProvider.endDate,
         title: eventTitle,
-        description: description);
+        description: description,
+        newBlobs: blobProvider.newImages);
 
-    await EventService().update(event!, updateEvent);
+    var updatedEvent = await EventService().update(event!, updatesEvent);
+    
+     blobProvider.updateImages(updatedEvent.images);
     setState(() {
       hasBeenChanged = false;
-      event = updateEvent;
+      event = updatedEvent;
     });
     if (context.mounted) {
       InformationService()
