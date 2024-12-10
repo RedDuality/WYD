@@ -1,7 +1,7 @@
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/service/request_interceptor.dart';
+import 'package:wyd_front/service/util/request_interceptor.dart';
 
 class TestAPI {
   String? functionUrl = '${dotenv.env['BACK_URL']}';

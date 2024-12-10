@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/community_service.dart';
-import 'package:wyd_front/service/event_service.dart';
+import 'package:wyd_front/service/model/community_service.dart';
+import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/model/user.dart';
 
 class UserProvider extends ChangeNotifier {

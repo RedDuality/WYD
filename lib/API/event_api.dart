@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/model/DTO/blob_data.dart';
-import 'package:wyd_front/service/auth_interceptor.dart';
+import 'package:wyd_front/service/util/auth_interceptor.dart';
 import 'package:wyd_front/model/event.dart';
 
 class EventAPI {
