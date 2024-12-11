@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="gcm_defaultSenderId" translatable="false">500769062162</string>
-    <string name="google_api_key" translatable="false">AIzaSyDSab3eAr9yqlsrBLPPc1rd6u2cwsORVWs</string>
-    <string name="google_app_id" translatable="false">1:500769062162:android:c2fdbf6675d200191247cb</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDSab3eAr9yqlsrBLPPc1rd6u2cwsORVWs</string>
-    <string name="google_storage_bucket" translatable="false">wydaccounts.appspot.com</string>
-    <string name="project_id" translatable="false">wydaccounts</string>
-</resources>
