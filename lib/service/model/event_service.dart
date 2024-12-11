@@ -10,6 +10,7 @@ import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
+
   Future<void> retrieveEvents() async {
     UserAPI().listEvents().then((response) {
       if (response.statusCode == 200) {
@@ -136,4 +137,5 @@ class EventService {
       return null;
     }
   }
+  
 }
