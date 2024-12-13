@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/DTO/create_community_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/community_service.dart';
-import 'package:wyd_front/service/user_service.dart';
+import 'package:wyd_front/service/profile_service.dart';
 
 class SearchUserPage extends StatefulWidget {
   const SearchUserPage({super.key});
@@ -29,7 +29,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
     setState(() {
       _isLoading = true;
     });
-    var users = await UserService().searchByTag(tag);
+    var users = await ProfileService().searchByTag(tag);
 
     setState(() {
       if (users != null) {
