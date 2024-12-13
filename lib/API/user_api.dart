@@ -30,14 +30,6 @@ class UserAPI {
     );
   }
 
-  Future<Response> searchByTag(String searchTag) async {
-    String url = '${functionUrl}SearchbyTag';
-
-    return client.get(
-      Uri.parse('$url/$searchTag'),
-    );
-  }
-
 /*
 
   Future<Response> update(User user) async {
