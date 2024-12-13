@@ -29,7 +29,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
     setState(() {
       _isLoading = true;
     });
-    var users = await UserService().searchByTag(tag);
+    var users = await ProfileService().searchByTag(tag);
 
     setState(() {
       if (users != null) {
