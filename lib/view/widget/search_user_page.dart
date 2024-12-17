@@ -51,7 +51,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
                 icon: const Icon(Icons.add),
                 label: const Text("Add"),
                 onPressed: () {
-                  CreateCommunityDto community = CreateCommunityDto(users: [value]);
+                  CreateCommunityDto community = CreateCommunityDto(ids: [value.id]);
 
                   CommunityService().create(community);
                 },
