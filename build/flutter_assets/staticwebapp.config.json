@@ -1,0 +1,8 @@
+{
+  "globalHeaders": {
+    "X-Frame-Options": "DENY"
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  }
+}
