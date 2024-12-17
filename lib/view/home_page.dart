@@ -26,6 +26,8 @@ class _HomePageState extends State<HomePage> {
     final uriProvider = Provider.of<UriProvider>(context);
     String uri = uriProvider.uri;
 
+
+
     if (uri.isNotEmpty) {
       String destination = uri.split('?').first.replaceAll('/', '');
       switch (destination) {

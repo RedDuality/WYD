@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/service/information_service.dart';
+import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/API/test_api.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/view/register.dart';

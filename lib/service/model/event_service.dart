@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
-import 'package:wyd_front/service/information_service.dart';
+import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
+
   Future<void> retrieveEvents() async {
     UserAPI().listEvents().then((response) {
       if (response.statusCode == 200) {
@@ -136,4 +137,5 @@ class EventService {
       return null;
     }
   }
+  
 }

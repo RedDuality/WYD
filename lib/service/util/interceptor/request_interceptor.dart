@@ -11,7 +11,7 @@ class RequestInterceptor extends InterceptorContract {
     try {
       request.headers[HttpHeaders.accessControlAllowOriginHeader] = '*';
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint("request interceptor $e");
     }
     return request;
   }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/community_service.dart';
-import 'package:wyd_front/service/event_service.dart';
+import 'package:wyd_front/service/model/community_service.dart';
+import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/service/util/real_time_provider.dart';
 
 class UserProvider extends ChangeNotifier {
   // Private static instance
@@ -17,7 +18,7 @@ class UserProvider extends ChangeNotifier {
   UserProvider._internal();
 
   User? _user;
-  Profile ? _currentProfile; 
+  Profile? _currentProfile;
 
   User? get user => _user;
 
@@ -25,7 +26,7 @@ class UserProvider extends ChangeNotifier {
     return _currentProfile!.id;
   }
 
-  String getCurrentProfileHash(){
+  String getCurrentProfileHash() {
     return _currentProfile!.hash;
   }
 
@@ -48,9 +49,13 @@ class UserProvider extends ChangeNotifier {
 
   void setUser(User user) {
     _user = user;
-    _currentProfile = user.profiles.firstWhere((p) => p.id == user.mainProfileId);
+    _currentProfile =
+        user.profiles.firstWhere((p) => p.id == user.mainProfileId);
+    notifyListeners();
     CommunityService().retrieveCommunities(_currentProfile!);
     EventService().retrieveEvents();
-    notifyListeners();
+
+
+    RealTimeProvider().initialize();
   }
 }
