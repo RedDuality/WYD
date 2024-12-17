@@ -65,6 +65,7 @@ class Profile {
       'profile': {
         'id': id,
         'type': type.index,
+        'hash': hash,
       },
       'role': role?.index,
     };

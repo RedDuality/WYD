@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/DTO/create_community_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/community_service.dart';
-import 'package:wyd_front/service/model/user_service.dart';
-
+import 'package:wyd_front/service/model/profile_service.dart';
 class SearchUserPage extends StatefulWidget {
   const SearchUserPage({super.key});
 

@@ -124,4 +124,5 @@ class AuthenticationProvider with ChangeNotifier {
     final userProvider = UserProvider();
     userProvider.updateUser(user);
   }
+
 }

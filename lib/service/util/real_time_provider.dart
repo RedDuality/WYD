@@ -1,66 +1,58 @@
-import 'dart:io';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:signalr_netcore/ihub_protocol.dart';
-import 'package:signalr_netcore/signalr_client.dart';
-import 'package:wyd_front/service/util/interceptor/auth_interceptor.dart';
+import 'package:wyd_front/model/enum/update_type.dart';
 
 class RealTimeProvider with ChangeNotifier {
-  // Make the singleton instance private and static
   static final RealTimeProvider _instance = RealTimeProvider._internal();
 
   factory RealTimeProvider({BuildContext? context}) {
     return _instance;
   }
-
-  final String realTimeUpdateUrl = '${dotenv.env['BACK_URL']}';
-  static late final HubConnection _hubConnection;
-
   // Private constructor
   RealTimeProvider._internal();
 
-  initialize() async {
-    String? header = await AuthInterceptor().getAuthHeader();
-    var defaultHeaders = MessageHeaders();
-    defaultHeaders.setHeaderValue(HttpHeaders.authorizationHeader, header!);
+  bool firstread = true;
 
-    var httpConnectionOptions = HttpConnectionOptions(headers: defaultHeaders);
-
-    _hubConnection = HubConnectionBuilder()
-        .withUrl(realTimeUpdateUrl, options: httpConnectionOptions)
-        .build();
-
-    debugPrint('initialized signalr connection');
-
-    _hubConnection.on(
-        'ReceiveUpdate', (arguments) => _handleReceiveUpdate(arguments));
-
-    _startConnection();
+  initialize(String userHash) async {
+    FirebaseFirestore.instance
+        .collection(userHash)
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .snapshots()
+        .listen((snapshot) {
+      if (firstread) {
+        firstread = false;
+      } else {
+        handleUpdate(snapshot.docs);
+      }
+    });
   }
 
-  Future<void> _startConnection() async {
-    //await _hubConnection.start();
-    notifyListeners();
-  }
-
-  void _handleReceiveUpdate(List<Object?>? args) {
-    if (args != null && args.isNotEmpty) {
-      final message = args[0] as String;
-      debugPrint('Received message: $message');
-      // You can add more logic here to handle the received message
+  void handleUpdate(var snapshot) {
+    var type = snapshot['type'];
+    switch (type) {
+      case UpdateType.event:
+        _handleEventUpdate(snapshot['id']);
+        break;
+      case UpdateType.confirm:
+        //_handleConfirmUpdate(snapshot['id']);
+        break;
+      case UpdateType.profile:
+        //_handleProfileUpdate(snapshot['id']);
+        break;
+      default:
     }
   }
 
-  @override
-  void dispose() {
-    _hubConnection.stop();
-    super.dispose();
-  }
-
-  void stopConnection(String userHash) async {
-    await _hubConnection.invoke("RemoveFromGroup", args: <Object>[userHash]);
-    await _hubConnection.stop();
-    debugPrint("Connection stopped and left group $userHash");
+  void _handleEventUpdate(var id) {
+    if(int.parse(id).isNaN) {
+      debugPrint("RTService, error in event id convertion");
+      return;
+    }
+    int eventId  =  int.parse(id);
+    
+    
+    
+    
   }
 }

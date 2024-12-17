@@ -56,6 +56,6 @@ class UserProvider extends ChangeNotifier {
     EventService().retrieveEvents();
 
 
-    RealTimeProvider().initialize();
+    RealTimeProvider().initialize(user.hash);
   }
 }
