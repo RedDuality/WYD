@@ -1,7 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/service/event_service.dart';
+import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/state/private_provider.dart';
 import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
@@ -33,6 +33,7 @@ class _EventsPageState extends State<EventsPage> {
             final event = await EventService().retrieveFromHash(eventHash);
 
             if (event != null && context.mounted) {
+              eventsProvider.add(event);
               showCustomDialog(
                   context,
                   EventDetail(

@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/service/request_interceptor.dart';
+import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class ImageApi {
   String? blobUrl = '${dotenv.env['BLOB_URL']}';
