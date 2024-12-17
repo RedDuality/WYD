@@ -33,6 +33,7 @@ class _EventsPageState extends State<EventsPage> {
             final event = await EventService().retrieveFromHash(eventHash);
 
             if (event != null && context.mounted) {
+              eventsProvider.add(event);
               showCustomDialog(
                   context,
                   EventDetail(

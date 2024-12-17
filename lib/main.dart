@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/service/util/real_time_provider.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
@@ -46,7 +45,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UriProvider()),
         ChangeNotifierProvider(create: (_) => CommunityProvider()),
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
-        ChangeNotifierProvider(create: (_) => RealTimeProvider()),
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
