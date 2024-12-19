@@ -6,11 +6,10 @@ import 'package:wyd_front/state/user_provider.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
-
   final String hash;
   final int? groupId;
   List<String> images = [];
-  List<BlobData> newBlobs =  [];
+  List<BlobData> newBlobs = [];
 
   List<ProfileEvent> sharedWith = [];
 
@@ -43,24 +42,23 @@ class Event extends CalendarEventData {
           endDate: endDate?.toLocal(),
         );
 
-  Event copy({
-    String? title,
-    String? description,
-    CalendarEventData? event,
-    Color? color,
-    DateTime? startTime,
-    DateTime? endTime,
-    TextStyle? titleStyle,
-    TextStyle? descriptionStyle,
-    DateTime? endDate,
-    DateTime? date,
-    int? id,
-    String? hash,
-    int? groupId,
-    List<String>? images,
-    List<ProfileEvent>? sharedWith,
-    List<BlobData>? newBlobs
-  }) {
+  Event copy(
+      {String? title,
+      String? description,
+      CalendarEventData? event,
+      Color? color,
+      DateTime? startTime,
+      DateTime? endTime,
+      TextStyle? titleStyle,
+      TextStyle? descriptionStyle,
+      DateTime? endDate,
+      DateTime? date,
+      int? id,
+      String? hash,
+      int? groupId,
+      List<String>? images,
+      List<ProfileEvent>? sharedWith,
+      List<BlobData>? newBlobs}) {
     return Event(
       hash: hash ?? this.hash,
       groupId: groupId ?? this.groupId,
@@ -94,6 +92,20 @@ class Event extends CalendarEventData {
   bool confirmed() {
     int profileId = UserProvider().getCurrentProfileId();
     return sharedWith.firstWhere((pe) => pe.profileId == profileId).confirmed;
+  }
+
+  void confirm() {
+    int profileId = UserProvider().getCurrentProfileId();
+    sharedWith
+        .firstWhere((confirm) => confirm.profileId == profileId)
+        .confirmed = true;
+  }
+
+  void decline() {
+    int profileId = UserProvider().getCurrentProfileId();
+    sharedWith
+        .firstWhere((confirm) => confirm.profileId == profileId)
+        .confirmed = false;
   }
 
   factory Event.fromJson(Map<String, dynamic> json) {

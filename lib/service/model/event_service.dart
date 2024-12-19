@@ -6,10 +6,9 @@ import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/event_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
-  Future<void> retrieveMultiples() async {
+  Future<void> retrieveMultiple() async {
     UserAPI().listEvents().then((response) {
       if (response.statusCode == 200) {
         List<Event> events = List<Event>.from(
@@ -21,26 +20,25 @@ class EventService {
     });
   }
 
-  //automatically add the event to the correct provider
-  Future<Event> retrieveNewByHash(String eventHash) async {
-    var response = await EventAPI().retrieveFromHash(eventHash);
-
-    if (response.statusCode == 200) {
-      var event = Event.fromJson(jsonDecode(response.body));
-      EventProvider().add(event);
-      return event;
-    }
-
-    throw "Error while retrieving event";
-  }
-
-  //TODO
   Future<Event> retrieveUpdateByHash(String eventHash) async {
     var response = await EventAPI().retrieveFromHash(eventHash);
 
     if (response.statusCode == 200) {
       var event = Event.fromJson(jsonDecode(response.body));
       EventProvider().updateEvent(event);
+      return event;
+    }
+
+    throw "Error while updating the event";
+  }
+
+  //automatically add the event
+  Future<Event> retrieveNewByHash(String eventHash) async {
+    var response = await EventAPI().sharedWithHash(eventHash);
+
+    if (response.statusCode == 200) {
+      var event = Event.fromJson(jsonDecode(response.body));
+      EventProvider().add(event);
       return event;
     }
 
@@ -74,13 +72,9 @@ class EventService {
   }
 
   Future<Event?> confirm(Event event) async {
-    int profileId = UserProvider().getCurrentProfileId();
-
     var response = await EventAPI().confirm(event.hash);
     if (response.statusCode == 200) {
-      event.sharedWith
-          .firstWhere((confirm) => confirm.profileId == profileId)
-          .confirmed = true;
+      event.confirm();
       EventProvider().updateEvent(event);
       return event;
     } else {
@@ -90,14 +84,10 @@ class EventService {
   }
 
   Future<Event?> decline(Event event) async {
-    int profileId = UserProvider().getCurrentProfileId();
-
     var response = await EventAPI().decline(event.hash);
 
     if (response.statusCode == 200) {
-      event.sharedWith
-          .firstWhere((confirm) => confirm.profileId == profileId)
-          .confirmed = false;
+      event.decline();
       EventProvider().updateEvent(event);
       return event;
     } else {

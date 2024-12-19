@@ -53,7 +53,7 @@ class UserProvider extends ChangeNotifier {
         user.profiles.firstWhere((p) => p.id == user.mainProfileId);
     notifyListeners();
     CommunityService().retrieveCommunities(_currentProfile!);
-    EventService().retrieveMultiples();
+    EventService().retrieveMultiple();
 
 
     RealTimeService().initialize(user.hash);

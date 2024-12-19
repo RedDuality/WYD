@@ -54,55 +54,28 @@ class _HomePageState extends State<HomePage> {
 
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
-        body: Stack(
-          children: [
-            Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: page,
+        body: Container(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: page,
+        ),
+        bottomNavigationBar: NavigationBar(
+          height: 50,
+          elevation: 0,
+          selectedIndex: selectedIndex,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          onDestinationSelected: (value) {
+            setState(() {
+              selectedIndex = value;
+            });
+          },
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.calendar_today, size: 30),
+              label: 'My Agenda',
             ),
-            Positioned(
-              bottom: 10,
-              left: 20,
-              right: 20,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(30), // Rounded corners
-                child: Container(
-                  height: 50,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: NavigationBar(
-                    height: 50,
-                    elevation: 0,
-                    selectedIndex: selectedIndex,
-                    labelBehavior:
-                        NavigationDestinationLabelBehavior.alwaysHide,
-                    onDestinationSelected: (value) {
-                      setState(() {
-                        selectedIndex = value;
-                      });
-                    },
-                    destinations: const [
-                      NavigationDestination(
-                        icon: Icon(Icons.calendar_today, size: 30),
-                        label: 'My Agenda',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.group, size: 30),
-                        label: 'Groups',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            NavigationDestination(
+              icon: Icon(Icons.group, size: 30),
+              label: 'Groups',
             ),
           ],
         ),

@@ -29,7 +29,7 @@ class EventTile<T> extends StatelessWidget {
         description: event.description,
         padding: const EdgeInsets.fromLTRB(4.0, 0.0, 3.0, 3.0),
         backgroundColor: event.color,
-        margin: const EdgeInsets.all(3.0),
+        margin: const EdgeInsets.all(1.5),
         titleStyle: event.titleStyle,
         descriptionStyle: event.descriptionStyle,
       );

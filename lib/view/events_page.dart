@@ -58,37 +58,43 @@ class _EventsPageState extends State<EventsPage> {
 
     return Scaffold(
       appBar: Header(title: _private ? 'Agenda' : 'Eventi', actions: actions()),
-      body: WeekView(
-        eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
-          return EventTile(
-              date: date,
-              events: events.whereType<Event>().toList(),
-              boundary: boundary,
-              startDuration: startDuration,
-              endDuration: endDuration);
-        },
-        controller: EventProvider(),
-        showLiveTimeLineInAllDays: false,
-        scrollOffset: 480.0,
-        onEventTap: (events, date) => showCustomDialog(
-          context,
-          EventDetail(
-              initialEvent: events.whereType<Event>().toList().first,
-              date: null,
-              confirmed: widget.private),
+      body: Stack(children: [
+        WeekView(
+          eventTileBuilder:
+              (date, events, boundary, startDuration, endDuration) {
+            return EventTile(
+                date: date,
+                events: events.whereType<Event>().toList(),
+                boundary: boundary,
+                startDuration: startDuration,
+                endDuration: endDuration);
+          },
+          controller: EventProvider(),
+          showLiveTimeLineInAllDays: false,
+          scrollOffset: 480.0,
+          onEventTap: (events, date) => showCustomDialog(
+            context,
+            EventDetail(
+                initialEvent: events.whereType<Event>().toList().first,
+                date: null,
+                confirmed: widget.private),
+          ),
+          onDateLongPress: (date) => showCustomDialog(
+            context,
+            EventDetail(
+                initialEvent: null, date: date, confirmed: widget.private),
+          ),
+          minuteSlotSize: MinuteSlotSize.minutes15,
+          keepScrollOffset: true,
         ),
-        onDateLongPress: (date) => showCustomDialog(
-          context,
-          EventDetail(
-              initialEvent: null, date: date, confirmed: widget.private),
+        Positioned(
+          bottom: 70, // 100 pixels higher than usual
+          right: 16, // Align to the end
+          child: AddEventButton(
+            confirmed: widget.private,
+          ),
         ),
-        minuteSlotSize: MinuteSlotSize.minutes15,
-        keepScrollOffset: true,
-      ),
-      floatingActionButton: AddEventButton(
-        confirmed: widget.private,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      ]),
     );
   }
 
@@ -161,7 +167,7 @@ class _EventsPageState extends State<EventsPage> {
                 ? Container(
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: Colors.blue,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: TextButton.icon(
@@ -175,7 +181,7 @@ class _EventsPageState extends State<EventsPage> {
                           size: 30, color: Colors.white),
                       label: showText
                           ? const Text(
-                              'Eventi',
+                              'Agenda',
                               style:
                                   TextStyle(fontSize: 20, color: Colors.white),
                             )
@@ -189,7 +195,7 @@ class _EventsPageState extends State<EventsPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.green, // Background color of the button
+                      color: Colors.blue, // Background color of the button
                       borderRadius:
                           BorderRadius.circular(8), // Optional: Rounded corners
                     ),

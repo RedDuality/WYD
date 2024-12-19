@@ -15,6 +15,6 @@ class AuthAPI {
 
   Future<Response> verifyToken(String token) async {
     final url = '${functionUrl}VerifyToken';
-    return client.get(Uri.parse(url)).timeout(const Duration(minutes: 1));
+    return client.get(Uri.parse(url)).timeout(const Duration(seconds: 30));
   }
 }

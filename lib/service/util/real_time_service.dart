@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/model/event_service.dart';
+import 'package:wyd_front/state/event_provider.dart';
 
 class RealTimeService {
   static final RealTimeService _instance = RealTimeService._internal();
@@ -50,28 +51,37 @@ class RealTimeService {
   }
 
   void handleUpdate(var snapshot) {
-    var type = snapshot['type'];
-    switch (type) {
+    var typeIndex = snapshot['type'];
+    switch (UpdateType.values[typeIndex]) {
       case UpdateType.newEvent:
-        _handleEventUpdate(snapshot['hash']);
+        EventService().retrieveNewByHash(snapshot['hash']);
         break;
       case UpdateType.updateEvent:
-        //_handleEventUpdate(snapshot['hash']);
+        EventService().retrieveUpdateByHash(snapshot['hash']);
         break;
       case UpdateType.confirmEvent:
-        //_handleConfirmUpdate(snapshot['id']);
+        debugPrint("confirmed");
+        var event = EventProvider().findEventByHash(snapshot['hash']);
+        if (event != null) {
+          event.confirm();
+          EventProvider().updateEvent(event);
+        }
         break;
       case UpdateType.declineEvent:
-        //_handleDeclineUpdate(snapshot['hash']);
+        debugPrint("declined");
+        var event = EventProvider().findEventByHash(snapshot['hash']);
+        if (event != null) {
+          event.decline();
+          EventProvider().updateEvent(event);
+        }
         break;
       case UpdateType.profileDetails:
         //_handleProfileUpdate(snapshot['id']);
         break;
       default:
+        debugPrint("default notification not catch $typeIndex" );
+        break;
     }
   }
 
-  Future<void> _handleEventUpdate(String hash) async {
-    await EventService().retrieveNewByHash(hash);
-  }
 }
