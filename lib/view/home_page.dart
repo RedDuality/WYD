@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/events_page.dart';
 import 'package:wyd_front/view/group_page.dart';
-import 'package:wyd_front/view/profiles_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,79 +23,87 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final uriProvider = Provider.of<UriProvider>(context);
+
     String uri = uriProvider.uri;
-
-
-
+    Widget page;
+    bool private = true;
     if (uri.isNotEmpty) {
       String destination = uri.split('?').first.replaceAll('/', '');
       switch (destination) {
         case 'shared':
-          selectedIndex = 1;
+          private = false;
           break;
         default:
-          selectedIndex = 0;
+          break;
       }
       // Handle the shared link scenario
     }
 
     uriProvider.setUri("");
 
-    Widget page;
-
     switch (selectedIndex) {
       case 0:
-        page = const EventsPage(private: true);
+        page = EventsPage(private: private, uri: uri);
         break;
       case 1:
-        page = EventsPage(private: false, uri: uri);
-        break;
-      case 2:
         page = const GroupPage();
         break;
-      case 3:
-        page = ProfilesPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
 
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
-        body: Container(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          child: page,
-        ),
-        bottomNavigationBar: NavigationBar(
-          height: 50,
-          elevation: 0,
-          selectedIndex: selectedIndex,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          onDestinationSelected: (value) {
-            setState(() {
-              selectedIndex = value;
-            });
-          },
-          destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.event_available, size: 30),
-              label: 'My Agenda',
+        body: Stack(
+          children: [
+            Container(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: page,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.event, size: 30),
-              label: 'Shared with me',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.group, size: 30),
-              label: 'Groups',
-            ),
-            NavigationDestination(
-              icon: Image.asset(
-                'assets/images/logoimage_mini.png',
-                width: 25,
-                height: 25,
+            Positioned(
+              bottom: 10,
+              left: 20,
+              right: 20,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30), // Rounded corners
+                child: Container(
+                  height: 50,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: NavigationBar(
+                    height: 50,
+                    elevation: 0,
+                    selectedIndex: selectedIndex,
+                    labelBehavior:
+                        NavigationDestinationLabelBehavior.alwaysHide,
+                    onDestinationSelected: (value) {
+                      setState(() {
+                        selectedIndex = value;
+                      });
+                    },
+                    destinations: const [
+                      NavigationDestination(
+                        icon: Icon(Icons.calendar_today, size: 30),
+                        label: 'My Agenda',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.group, size: 30),
+                        label: 'Groups',
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              label: 'Profiles',
-            )
+            ),
           ],
         ),
       );

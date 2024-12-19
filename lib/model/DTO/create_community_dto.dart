@@ -3,13 +3,13 @@ import 'package:wyd_front/model/enum/community_type.dart';
 
 class CreateCommunityDto {
   int id = 0;
-  String name = "";
+  String name = "Personal";
   CommunityType type = CommunityType.personal;
   List<int> profileIds = [];
 
   CreateCommunityDto({
     this.id = -1,
-    this.name = "",
+    this.name = "Personal",
     this.type = CommunityType.personal,
     List<int>? ids,
   }) : profileIds = ids ?? [];

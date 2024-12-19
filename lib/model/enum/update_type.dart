@@ -1,1 +1,1 @@
-enum UpdateType { event, profile, confirm }
+enum UpdateType { newEvent, updateEvent, confirmEvent, declineEvent, profileDetails }

@@ -32,60 +32,62 @@ class EventAPI {
     return client.get(Uri.parse('$url/$eventHash'));
   }
 
+  Future<Response> sharedWithHash(String eventHash) async {
+    String url = '${functionUrl}SharedWithHash';
+
+    return client.get(Uri.parse('$url/$eventHash'));
+  }
+  
   Future<Response> update(Event event) async {
     String url = '${functionUrl}Update';
 
     return client.post(Uri.parse(url), body: jsonEncode(event));
   }
 
-  Future<Response> delete(Event event) async {
+  Future<Response> delete(String eventHash) async {
     String url = '${functionUrl}Delete';
-    int? eventId = event.id as int?;
 
     return client.delete(
-      Uri.parse('$url/$eventId'),
+      Uri.parse('$url/$eventHash'),
     );
   }
 
-  Future<Response> deleteForAll(Event event) async {
+  Future<Response> deleteForAll(String eventHash) async {
     String url = '${functionUrl}DeleteForAll';
-    int? eventId = event.id as int?;
 
     return client.delete(
-      Uri.parse('$url/$eventId'),
+      Uri.parse('$url/$eventHash'),
     );
   }
 
-  Future<Response> shareToGroups(int eventId, Set<int> groupIds) async {
+  Future<Response> shareToGroups(String eventhash, Set<int> groupIds) async {
     String url = '${functionUrl}Share/Groups';
 
-    return client.post(Uri.parse('$url/$eventId'),
+    return client.post(Uri.parse('$url/$eventhash'),
         body: json.encode(groupIds.toList()));
   }
 
-  Future<Response> confirm(Event event) async {
+  Future<Response> confirm(String eventHash) async {
     String url = '${functionUrl}Confirm';
-    int? eventId = event.id as int?;
 
     return client.get(
-      Uri.parse('$url/$eventId'),
+      Uri.parse('$url/$eventHash'),
     );
   }
 
-  Future<Response> decline(Event event) async {
+  Future<Response> decline(String eventHash) async {
     String url = '${functionUrl}Decline';
-    int? eventId = event.id as int?;
 
     return client.get(
-      Uri.parse('$url/$eventId'),
+      Uri.parse('$url/$eventHash'),
     );
   }
 
-  Future<Response> addPhoto(int eventId, BlobData imageData) async {
+  Future<Response> addPhoto(String eventHash, BlobData imageData) async {
     String url = '${functionUrl}Photo/Add';
 
     return client.post(
-      Uri.parse('$url/$eventId'),
+      Uri.parse('$url/$eventHash'),
       body: jsonEncode(imageData)
     );
   }

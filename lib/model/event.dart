@@ -6,7 +6,7 @@ import 'package:wyd_front/state/user_provider.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
-  final int id;
+
   final String hash;
   final int? groupId;
   List<String> images = [];
@@ -15,7 +15,6 @@ class Event extends CalendarEventData {
   List<ProfileEvent> sharedWith = [];
 
   Event({
-    this.id = 0,
     this.hash = "",
     required DateTime date,
     required DateTime startTime,
@@ -63,7 +62,6 @@ class Event extends CalendarEventData {
     List<BlobData>? newBlobs
   }) {
     return Event(
-      id: id ?? this.id,
       hash: hash ?? this.hash,
       groupId: groupId ?? this.groupId,
       images: images ?? List<String>.from(this.images),
@@ -101,7 +99,6 @@ class Event extends CalendarEventData {
   factory Event.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       _ => Event(
-          id: json['id'] as int? ?? -1,
           hash: json['hash'] as String? ?? "",
           date: DateTime.parse(json['startTime'] as String),
           startTime: DateTime.parse(json['startTime'] as String),
@@ -129,7 +126,6 @@ class Event extends CalendarEventData {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'hash': hash,
       'title': title,
       //if (description != null) 'description': description,

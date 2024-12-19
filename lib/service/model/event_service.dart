@@ -5,57 +5,46 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
 import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/state/private_provider.dart';
-import 'package:wyd_front/state/shared_provider.dart';
+import 'package:wyd_front/state/event_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
-
-  Future<void> retrieveEvents() async {
+  Future<void> retrieveMultiples() async {
     UserAPI().listEvents().then((response) {
       if (response.statusCode == 200) {
-        List<Event> eventi = List<Event>.from(
+        List<Event> events = List<Event>.from(
             json.decode(response.body).map((evento) => Event.fromJson(evento)));
-        addEvents(eventi);
+        EventProvider().addAll(events);
       }
     }).catchError((error) {
       debugPrint(error.toString());
     });
   }
 
-  Future<Event?> retrieveFromHash(String eventHash) async {
-    Event? event;
-    await EventAPI().retrieveFromHash(eventHash).then((response) {
-      if (response.statusCode == 200) {
-        event = Event.fromJson(jsonDecode(response.body));
-      }
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
+  //automatically add the event to the correct provider
+  Future<Event> retrieveNewByHash(String eventHash) async {
+    var response = await EventAPI().retrieveFromHash(eventHash);
 
-    return event;
+    if (response.statusCode == 200) {
+      var event = Event.fromJson(jsonDecode(response.body));
+      EventProvider().add(event);
+      return event;
+    }
+
+    throw "Error while retrieving event";
   }
 
-  void addEvents(List<Event> events) {
-    int mainProfileId = UserProvider().getCurrentProfileId();
+  //TODO
+  Future<Event> retrieveUpdateByHash(String eventHash) async {
+    var response = await EventAPI().retrieveFromHash(eventHash);
 
-    List<Event> sharedEvents = events
-        .where((ev) =>
-            ev.sharedWith
-                .firstWhere((s) => s.profileId == mainProfileId)
-                .confirmed ==
-            false)
-        .toList();
-    List<Event> privateEvents = events
-        .where((ev) =>
-            ev.sharedWith
-                .firstWhere((s) => s.profileId == mainProfileId)
-                .confirmed ==
-            true)
-        .toList();
+    if (response.statusCode == 200) {
+      var event = Event.fromJson(jsonDecode(response.body));
+      EventProvider().updateEvent(event);
+      return event;
+    }
 
-    PrivateProvider().addEvents(privateEvents);
-    SharedProvider().addEvents(sharedEvents);
+    throw "Error while retrieving event";
   }
 
   Future<Event> create(Event event) async {
@@ -64,53 +53,35 @@ class EventService {
     if (response.statusCode == 200) {
       Event event = Event.fromJson(jsonDecode(response.body));
 
-      event.confirmed()
-          ? PrivateProvider().addEvent(event)
-          : SharedProvider().addEvent(event);
+      EventProvider().add(event);
+
       return event;
     } else {
       throw "Error while creating the event, please retry later";
     }
   }
 
-  Future<Event> update(Event originalEvent, Event updatedEvent) async {
+  Future<Event> update(Event updatedEvent) async {
     var response = await EventAPI().update(updatedEvent);
 
     if (response.statusCode == 200) {
       Event event = Event.fromJson(jsonDecode(response.body));
-
-      updatedEvent.confirmed()
-          ? PrivateProvider().update(originalEvent, event)
-          : SharedProvider().update(originalEvent, event);
+      EventProvider().updateEvent(event);
       return event;
     } else {
       throw "Error while creating the event";
     }
   }
 
-  Future<void> shareToGroups(Event event, Set<int> groupsIds) async {
-
-    EventAPI().shareToGroups(event.id, groupsIds).then((response) {
-      InformationService().showOverlaySnackBar("Evento condiviso con successo");
-    }).catchError((error) {
-      debugPrint(error.toString());
-      InformationService().showOverlaySnackBar(error.toString());
-    });
-
-  }
-
   Future<Event?> confirm(Event event) async {
-    var private = PrivateProvider();
-    var public = SharedProvider();
     int profileId = UserProvider().getCurrentProfileId();
 
-    var response = await EventAPI().confirm(event);
+    var response = await EventAPI().confirm(event.hash);
     if (response.statusCode == 200) {
       event.sharedWith
           .firstWhere((confirm) => confirm.profileId == profileId)
           .confirmed = true;
-      private.addEvent(event);
-      public.remove(event);
+      EventProvider().updateEvent(event);
       return event;
     } else {
       debugPrint(response.statusCode.toString());
@@ -119,23 +90,28 @@ class EventService {
   }
 
   Future<Event?> decline(Event event) async {
-    var private = PrivateProvider();
-    var public = SharedProvider();
     int profileId = UserProvider().getCurrentProfileId();
 
-    var response = await EventAPI().decline(event);
+    var response = await EventAPI().decline(event.hash);
 
     if (response.statusCode == 200) {
       event.sharedWith
           .firstWhere((confirm) => confirm.profileId == profileId)
           .confirmed = false;
-      private.remove(event);
-      public.addEvent(event);
+      EventProvider().updateEvent(event);
       return event;
     } else {
       debugPrint(response.statusCode.toString());
       return null;
     }
   }
-  
+
+  Future<void> shareToGroups(Event event, Set<int> groupsIds) async {
+    EventAPI().shareToGroups(event.hash, groupsIds).then((response) {
+      InformationService().showOverlaySnackBar("Evento condiviso con successo");
+    }).catchError((error) {
+      debugPrint(error.toString());
+      InformationService().showOverlaySnackBar(error.toString());
+    });
+  }
 }
