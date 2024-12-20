@@ -5,8 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
-import 'package:wyd_front/state/private_provider.dart';
-import 'package:wyd_front/state/shared_provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/home_page.dart';
@@ -39,12 +37,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MyAppState()),
-        ChangeNotifierProvider(create: (_) => PrivateProvider()),
-        ChangeNotifierProvider(create: (_) => SharedProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => UriProvider()),
         ChangeNotifierProvider(create: (_) => CommunityProvider()),
-        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider())
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {

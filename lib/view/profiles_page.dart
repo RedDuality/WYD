@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/widget/util/image_preview.dart';
-
 class ProfilesPage extends StatelessWidget {
   final List<Profile> profiles = UserProvider().user!.profiles;
 
@@ -10,6 +10,7 @@ class ProfilesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = AuthenticationProvider(); 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profiles'),
@@ -27,6 +28,18 @@ class ProfilesPage extends StatelessWidget {
             ),
             const SizedBox(width: 300, height: 300, child: ImagePreview()),
             const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                await authProvider.signOut(); // Chiama la funzione signOut
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white, // Sfondo bianco
+                foregroundColor: Colors.black, // Testo nero
+                textStyle: const TextStyle(fontSize: 16),
+              ),
+              child: const Text('Log out'),
+            ),
+            const SizedBox(height: 10),
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
@@ -34,7 +47,6 @@ class ProfilesPage extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
-            //const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: profiles.length,

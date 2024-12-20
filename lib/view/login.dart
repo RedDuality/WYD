@@ -74,7 +74,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  //TODO FORGOT PASSWORD SCREEN GOES HERE
                   TestAPI().ping();
                 },
                 child: const Text(

@@ -3,6 +3,7 @@ import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/community_service.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/service/util/real_time_service.dart';
 
 class UserProvider extends ChangeNotifier {
   // Private static instance
@@ -52,7 +53,9 @@ class UserProvider extends ChangeNotifier {
         user.profiles.firstWhere((p) => p.id == user.mainProfileId);
     notifyListeners();
     CommunityService().retrieveCommunities(_currentProfile!);
-    EventService().retrieveEvents();
+    EventService().retrieveMultiple();
 
+
+    RealTimeService().initialize(user.hash);
   }
 }

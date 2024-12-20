@@ -104,7 +104,7 @@ class _EventDetailState extends State<EventDetail> {
         description: description,
         newBlobs: blobProvider.newImages);
 
-    var updatedEvent = await EventService().update(event!, updatesEvent);
+    var updatedEvent = await EventService().update(updatesEvent);
     
      blobProvider.updateImages(updatedEvent.images);
     setState(() {

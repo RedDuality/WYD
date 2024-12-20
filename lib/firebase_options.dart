@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '500769062162',
     projectId: 'wydaccounts',
     authDomain: 'wydaccounts.firebaseapp.com',
-    storageBucket: 'wydaccounts.appspot.com',
+    storageBucket: 'wydaccounts.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:500769062162:android:c2fdbf6675d200191247cb',
     messagingSenderId: '500769062162',
     projectId: 'wydaccounts',
-    storageBucket: 'wydaccounts.appspot.com',
+    storageBucket: 'wydaccounts.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -62,7 +62,7 @@ class DefaultFirebaseOptions {
     appId: '1:500769062162:ios:adea9cef64a12a6d1247cb',
     messagingSenderId: '500769062162',
     projectId: 'wydaccounts',
-    storageBucket: 'wydaccounts.appspot.com',
+    storageBucket: 'wydaccounts.firebasestorage.app',
     iosBundleId: 'com.example.wydFront',
   );
 
@@ -71,7 +71,7 @@ class DefaultFirebaseOptions {
     appId: '1:500769062162:ios:adea9cef64a12a6d1247cb',
     messagingSenderId: '500769062162',
     projectId: 'wydaccounts',
-    storageBucket: 'wydaccounts.appspot.com',
+    storageBucket: 'wydaccounts.firebasestorage.app',
     iosBundleId: 'com.example.wydFront',
   );
 
@@ -81,7 +81,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '500769062162',
     projectId: 'wydaccounts',
     authDomain: 'wydaccounts.firebaseapp.com',
-    storageBucket: 'wydaccounts.appspot.com',
+    storageBucket: 'wydaccounts.firebasestorage.app',
   );
 
 }
