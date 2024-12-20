@@ -58,43 +58,37 @@ class _EventsPageState extends State<EventsPage> {
 
     return Scaffold(
       appBar: Header(title: _private ? 'Agenda' : 'Eventi', actions: actions()),
-      body: Stack(children: [
-        WeekView(
-          eventTileBuilder:
-              (date, events, boundary, startDuration, endDuration) {
-            return EventTile(
-                date: date,
-                events: events.whereType<Event>().toList(),
-                boundary: boundary,
-                startDuration: startDuration,
-                endDuration: endDuration);
-          },
-          controller: EventProvider(),
-          showLiveTimeLineInAllDays: false,
-          scrollOffset: 480.0,
-          onEventTap: (events, date) => showCustomDialog(
-            context,
-            EventDetail(
-                initialEvent: events.whereType<Event>().toList().first,
-                date: null,
-                confirmed: widget.private),
-          ),
-          onDateLongPress: (date) => showCustomDialog(
-            context,
-            EventDetail(
-                initialEvent: null, date: date, confirmed: widget.private),
-          ),
-          minuteSlotSize: MinuteSlotSize.minutes15,
-          keepScrollOffset: true,
+      body: WeekView(
+        eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
+          return EventTile(
+              date: date,
+              events: events.whereType<Event>().toList(),
+              boundary: boundary,
+              startDuration: startDuration,
+              endDuration: endDuration);
+        },
+        controller: EventProvider(),
+        showLiveTimeLineInAllDays: false,
+        scrollOffset: 480.0,
+        onEventTap: (events, date) => showCustomDialog(
+          context,
+          EventDetail(
+              initialEvent: events.whereType<Event>().toList().first,
+              date: null,
+              confirmed: widget.private),
         ),
-        Positioned(
-          bottom: 70, // 100 pixels higher than usual
-          right: 16, // Align to the end
-          child: AddEventButton(
-            confirmed: widget.private,
-          ),
+        onDateLongPress: (date) => showCustomDialog(
+          context,
+          EventDetail(
+              initialEvent: null, date: date, confirmed: widget.private),
         ),
-      ]),
+        minuteSlotSize: MinuteSlotSize.minutes15,
+        keepScrollOffset: true,
+      ),
+      floatingActionButton: AddEventButton(
+        confirmed: widget.private,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
