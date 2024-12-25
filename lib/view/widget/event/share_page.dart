@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
@@ -8,19 +6,19 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/group.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
-class Share extends StatefulWidget {
+
+class SharePage extends StatefulWidget {
   final Event event;
 
-  const Share({super.key, required this.event});
+  const SharePage({super.key, required this.event});
 
   @override
-  State<Share> createState() => _ShareState();
+  State<SharePage> createState() => _SharePageState();
 }
 
-class _ShareState extends State<Share> {
+class _SharePageState extends State<SharePage> {
   Set<int> selectedGroups = {};
 
   @override
@@ -56,6 +54,7 @@ class _ShareState extends State<Share> {
             ),
           ),
         ),
+        if(selectedGroups.isNotEmpty)
         Align(
           alignment: Alignment.bottomRight,
           child: Row(
@@ -67,22 +66,7 @@ class _ShareState extends State<Share> {
                   Navigator.of(context).pop();
                 },
                 child: const Text('Condividi'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  String? siteUrl = '${dotenv.env['SITE_URL']}';
-                  await Clipboard.setData(ClipboardData(
-                      text: "$siteUrl#/shared?event=${widget.event.hash}"));
-
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    InformationService()
-                        .showInfoSnackBar(context, "Link copiato con successo");
-                  }
-                },
-                child: const Text('Copia il link'),
-              ),
+              )
             ],
           ),
         ),
@@ -110,8 +94,7 @@ class _ShareState extends State<Share> {
         .first;
     return ListTile(
         leading: CircleAvatar(
-          backgroundImage: ImageService().getImage(null, ImageSize.mini)
-        ),
+            backgroundImage: ImageService().getImage(null, ImageSize.mini)),
         title: Text(profile.name),
         trailing: _groupCheckBox(mainGroup));
   }
@@ -129,16 +112,15 @@ class _ShareState extends State<Share> {
   Widget _buildMultiGroupCommunityTile(Community community) {
     return ExpansionTile(
       leading: CircleAvatar(
-        backgroundImage: ImageService().getImage(null, ImageSize.mini)
-      ),
+          backgroundImage: ImageService().getImage(null, ImageSize.mini)),
       title: Text(community.name),
       children: community.groups.map((group) {
         return Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: ListTile(
                 leading: CircleAvatar(
-                  backgroundImage: ImageService().getImage(null, ImageSize.mini)
-                ),
+                    backgroundImage:
+                        ImageService().getImage(null, ImageSize.mini)),
                 title: Text(group.name),
                 trailing: _groupCheckBox(group)));
       }).toList(),
@@ -159,4 +141,5 @@ class _ShareState extends State<Share> {
       },
     );
   }
+
 }

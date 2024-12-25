@@ -1,5 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/model/enum/event_role.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/profile_event.dart';
@@ -9,7 +13,7 @@ import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/widget/event/blob_editor.dart';
 import 'package:wyd_front/view/widget/event/range_editor.dart';
-import 'package:wyd_front/view/widget/event/share.dart';
+import 'package:wyd_front/view/widget/event/share_page.dart';
 
 class EventDetail extends StatefulWidget {
   final Event? initialEvent;
@@ -105,8 +109,8 @@ class _EventDetailState extends State<EventDetail> {
         newBlobs: blobProvider.newImages);
 
     var updatedEvent = await EventService().update(updatesEvent);
-    
-     blobProvider.updateImages(updatedEvent.images);
+
+    blobProvider.updateImages(updatedEvent.images);
     setState(() {
       hasBeenChanged = false;
       event = updatedEvent;
@@ -222,9 +226,32 @@ class _EventDetailState extends State<EventDetail> {
                   if (!hasBeenChanged && event != null) //Share
                     TextButton(
                         onPressed: () {
-                          showCustomDialog(context, Share(event: event!));
+                          showCustomDialog(context, SharePage(event: event!));
                         },
                         child: const Text('Condividi')),
+                  if (!hasBeenChanged && event != null) //Share
+                    TextButton(
+                      onPressed: () async {
+                        String? siteUrl = dotenv.env['SITE_URL'];
+                        String fullUrl =
+                            "$siteUrl#/shared?event=${event!.hash}";
+
+                        if (kIsWeb) {
+                          await Clipboard.setData(ClipboardData(text: fullUrl));
+
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                            InformationService().showInfoSnackBar(
+                                context, "Link copiato con successo");
+                          }
+                        } else {
+                          // If running on mobile, use the share dialog
+                          await Share.share(fullUrl);
+                        }
+                      },
+                      child: const Text('Invia'),
+                    ),
                   if (!hasBeenChanged &&
                       event != null &&
                       event!.confirmed()) //Decline
