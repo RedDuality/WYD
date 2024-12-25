@@ -7,11 +7,10 @@ import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/group.dart';
 import 'package:wyd_front/service/model/event_service.dart';
+import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
-import 'package:wyd_front/view/widget/util/image_preview.dart';
-
 class Share extends StatefulWidget {
   final Event event;
 
@@ -111,9 +110,7 @@ class _ShareState extends State<Share> {
         .first;
     return ListTile(
         leading: CircleAvatar(
-          backgroundImage: const ImagePreview(
-            size: ImageSize.mini,
-          ).getImageProvider(),
+          backgroundImage: ImageService().getImage(null, ImageSize.mini)
         ),
         title: Text(profile.name),
         trailing: _groupCheckBox(mainGroup));
@@ -123,9 +120,7 @@ class _ShareState extends State<Share> {
     final group = community.groups.first;
     return ListTile(
         leading: CircleAvatar(
-          backgroundImage: const ImagePreview(
-            size: ImageSize.mini,
-          ).getImageProvider(),
+          backgroundImage: ImageService().getImage(null, ImageSize.mini),
         ),
         title: Text(group.name),
         trailing: _groupCheckBox(group));
@@ -134,9 +129,7 @@ class _ShareState extends State<Share> {
   Widget _buildMultiGroupCommunityTile(Community community) {
     return ExpansionTile(
       leading: CircleAvatar(
-        backgroundImage: const ImagePreview(
-          size: ImageSize.mini,
-        ).getImageProvider(),
+        backgroundImage: ImageService().getImage(null, ImageSize.mini)
       ),
       title: Text(community.name),
       children: community.groups.map((group) {
@@ -144,9 +137,7 @@ class _ShareState extends State<Share> {
             padding: const EdgeInsets.only(left: 16.0),
             child: ListTile(
                 leading: CircleAvatar(
-                  backgroundImage: const ImagePreview(
-                    size: ImageSize.mini,
-                  ).getImageProvider(),
+                  backgroundImage: ImageService().getImage(null, ImageSize.mini)
                 ),
                 title: Text(group.name),
                 trailing: _groupCheckBox(group)));

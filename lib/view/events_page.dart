@@ -171,7 +171,7 @@ class _EventsPageState extends State<EventsPage> {
                           EventProvider().changeMode(_private);
                         });
                       },
-                      icon: const Icon(Icons.event,
+                      icon: const Icon(Icons.event_available,
                           size: 30, color: Colors.white),
                       label: showText
                           ? const Text(
@@ -195,7 +195,7 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.event,
+                      icon: const Icon(Icons.event_available,
                           size: 30), // Icon inside the button
                       onPressed: () {
                         setState(() {
