@@ -141,7 +141,7 @@ class _EventDetailState extends State<EventDetail> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Row(
                 children: [
                   Expanded(
@@ -170,7 +170,13 @@ class _EventDetailState extends State<EventDetail> {
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: const Text('Chiudi'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red, // Sets the icon color to red
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      size: 36, // Adjusts the size of the "X" icon
+                    ),
                   ),
                 ],
               ),
@@ -218,6 +224,7 @@ class _EventDetailState extends State<EventDetail> {
                 ),
               ),
             ),
+            //Buttons
             Align(
               alignment: Alignment.bottomRight,
               child: Row(

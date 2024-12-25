@@ -16,7 +16,7 @@ void showCustomDialog(
           } else if (screenWidth > 700) {
             insetPaddingValue = 50;
           } else {
-            insetPaddingValue = 25;
+            insetPaddingValue = 15;
           }
 
           return Dialog(
@@ -31,7 +31,7 @@ void showCustomDialog(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                         color: Theme.of(context).colorScheme.onPrimary),
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: child
                   ),
 
