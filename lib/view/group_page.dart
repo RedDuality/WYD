@@ -81,7 +81,7 @@ class GroupPage extends StatelessWidget {
         .first;
     return ListTile(
       leading: CircleAvatar(
-        backgroundImage: ImageService().getImage(null, ImageSize.mini),
+        backgroundImage: ImageService().getImageProvider(),
       ),
       title: Text(profile.name),
     );
@@ -90,7 +90,7 @@ class GroupPage extends StatelessWidget {
   Widget _buildSingleGroupTile(Community community) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundImage: ImageService().getImage(null, ImageSize.mini),
+        backgroundImage: ImageService().getImageProvider(),
       ),
       title: Text(community.name),
     );
@@ -99,7 +99,7 @@ class GroupPage extends StatelessWidget {
   Widget _buildMultiGroupTile(Community community) {
     return ExpansionTile(
       leading: CircleAvatar(
-        backgroundImage: ImageService().getImage(null, ImageSize.mini),
+        backgroundImage: ImageService().getImageProvider(),
       ),
       title: Text(community.name),
       children: community.groups.map((group) {
@@ -107,7 +107,7 @@ class GroupPage extends StatelessWidget {
           padding: const EdgeInsets.only(left: 16.0),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: ImageService().getImage(null, ImageSize.mini),
+              backgroundImage: ImageService().getImageProvider(),
             ),
             title: Text(group.name),
           ),

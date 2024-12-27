@@ -31,7 +31,7 @@ void showCustomDialog(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                         color: Theme.of(context).colorScheme.onPrimary),
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    padding: EdgeInsets.zero,
                     child: child
                   ),
 

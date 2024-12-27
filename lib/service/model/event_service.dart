@@ -98,8 +98,8 @@ class EventService {
     }
   }
 
-  Future<void> shareToGroups(Event event, Set<int> groupsIds) async {
-    EventAPI().shareToGroups(event.hash, groupsIds).then((response) {
+  Future<void> shareToGroups(String eventHash, Set<int> groupsIds) async {
+    EventAPI().shareToGroups(eventHash, groupsIds).then((response) {
       InformationService().showOverlaySnackBar("Evento condiviso con successo");
     }).catchError((error) {
       debugPrint(error.toString());

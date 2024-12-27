@@ -39,6 +39,7 @@ class EventProvider extends EventController {
   }
 
   myUpdateFilter() {
+  
     super
         .updateFilter(newFilter: (date, events) => myEventFilter(date, events));
   }
@@ -48,7 +49,7 @@ class EventProvider extends EventController {
     return events
         .whereType<Event>()
         .where(
-            (event) => event.occursOnDate(date) && event.confirmed() == private)
+            (event) => event.occursOnDate(date.toLocal()) && event.confirmed() == private)
         .toList();
   }
 }

@@ -10,7 +10,7 @@ class Event extends CalendarEventData {
   final int? groupId;
   List<String> images = [];
   List<BlobData> newBlobs = [];
-
+  
   List<ProfileEvent> sharedWith = [];
 
   Event({

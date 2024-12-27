@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
-import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/group.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/image_service.dart';
@@ -10,9 +9,10 @@ import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class SharePage extends StatefulWidget {
-  final Event event;
+  final String eventTitle;
+  final String eventHash;
 
-  const SharePage({super.key, required this.event});
+  const SharePage({super.key, required this.eventTitle, required this.eventHash});
 
   @override
   State<SharePage> createState() => _SharePageState();
@@ -31,7 +31,7 @@ class _SharePageState extends State<SharePage> {
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
           child: Row(
             children: [
-              Expanded(child: Text(widget.event.title)),
+              Expanded(child: Text(widget.eventTitle)),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -62,7 +62,7 @@ class _SharePageState extends State<SharePage> {
             children: [
               TextButton(
                 onPressed: () async {
-                  EventService().shareToGroups(widget.event, selectedGroups);
+                  EventService().shareToGroups(widget.eventHash, selectedGroups);
                   Navigator.of(context).pop();
                 },
                 child: const Text('Condividi'),
@@ -94,7 +94,7 @@ class _SharePageState extends State<SharePage> {
         .first;
     return ListTile(
         leading: CircleAvatar(
-            backgroundImage: ImageService().getImage(null, ImageSize.mini)),
+            backgroundImage: ImageService().getImageProvider()),
         title: Text(profile.name),
         trailing: _groupCheckBox(mainGroup));
   }
@@ -103,7 +103,7 @@ class _SharePageState extends State<SharePage> {
     final group = community.groups.first;
     return ListTile(
         leading: CircleAvatar(
-          backgroundImage: ImageService().getImage(null, ImageSize.mini),
+          backgroundImage: ImageService().getImageProvider(),
         ),
         title: Text(group.name),
         trailing: _groupCheckBox(group));
@@ -112,7 +112,7 @@ class _SharePageState extends State<SharePage> {
   Widget _buildMultiGroupCommunityTile(Community community) {
     return ExpansionTile(
       leading: CircleAvatar(
-          backgroundImage: ImageService().getImage(null, ImageSize.mini)),
+          backgroundImage: ImageService().getImageProvider()),
       title: Text(community.name),
       children: community.groups.map((group) {
         return Padding(
@@ -120,7 +120,7 @@ class _SharePageState extends State<SharePage> {
             child: ListTile(
                 leading: CircleAvatar(
                     backgroundImage:
-                        ImageService().getImage(null, ImageSize.mini)),
+                        ImageService().getImageProvider()),
                 title: Text(group.name),
                 trailing: _groupCheckBox(group)));
       }).toList(),

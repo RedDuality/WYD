@@ -30,8 +30,7 @@ class ProfilesPage extends StatelessWidget {
             SizedBox(
               width: 300,
               height: 300,
-              child:
-                  Image(image: ImageService().getImage(null, ImageSize.big)),
+              child: ImageService().getImage(size: ImageSize.big),
             ),
             const SizedBox(height: 10),
             ElevatedButton(
@@ -69,7 +68,7 @@ class ProfilesPage extends StatelessWidget {
                             height: 40,
                             child: CircleAvatar(
                               backgroundImage:
-                                  ImageService().getImage(null, ImageSize.big),
+                                  ImageService().getImageProvider(),
                               radius: 30,
                             ),
                           ),
