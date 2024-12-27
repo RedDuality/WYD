@@ -117,6 +117,12 @@ class EventDetailProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addNewImages(List<BlobData> images) {
+    newImages.addAll(images);
+    _updateType(imagesMod);
+    notifyListeners();
+  }
+
   void cleadNewImages() {
     newImages.clear();
     _updateType(imagesMod);

@@ -1,11 +1,120 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:wyd_front/model/DTO/blob_data.dart';
 
 enum ImageSize { mini, midi, big }
 
 class ImageService {
+  Future<void> requestPermissions() async {
+    // Request permission to access photos
+    PermissionStatus status = await Permission.photos.request();
+
+    if (status.isGranted) {
+      debugPrint("Gallery access granted!");
+    } else if (status.isDenied) {
+      debugPrint("Gallery access denied.");
+      // Check if permission is denied permanently and guide the user to settings
+      if (await Permission.photos.isPermanentlyDenied) {
+        debugPrint("Permission is permanently denied. Opening settings...");
+        openAppSettings(); // Opens app settings so the user can manually enable the permission
+      }
+    } else if (status.isPermanentlyDenied) {
+      // The user has permanently denied the permission, show an explanation
+      debugPrint("Gallery access permanently denied. Opening settings...");
+      openAppSettings(); // Open app settings for the user to manually enable
+    }
+  }
+
+  Future<BlobData?> _compressImage(Uint8List imageData) async {
+    if (imageData.isNotEmpty) {
+      try {
+        // Compress the image data
+        final compressedImageData = await FlutterImageCompress.compressWithList(
+          imageData,
+          minWidth: 403,
+          quality: 85,
+        );
+
+        return BlobData(data: compressedImageData, mimeType: "image/jpeg");
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+    }
+    return null;
+  }
+
+  Future<BlobData?> pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      final Uint8List imageData = await image.readAsBytes();
+      return _compressImage(imageData);
+    }
+    return null;
+  }
+
+  Future<List<BlobData>> retrieveImages(DateTime? start, DateTime? end) async {
+    // Request permissions to access photos before proceeding
+    await ImageService().requestPermissions();
+
+    if (start == null || end == null) {
+      throw ArgumentError("Both start and end dates must be provided.");
+    }
+
+    // Define the filter options for retrieving media
+    final FilterOptionGroup optionGroup = FilterOptionGroup(
+      createTimeCond: DateTimeCond(
+        min: start,
+        max: end,
+      ),
+      orders: [
+        OrderOption(type: OrderOptionType.createDate, asc: false)
+      ], // Order by creation date descending
+    );
+
+    // Get the list of media albums
+    final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
+      type: RequestType.image,
+      filterOption: optionGroup,
+    );
+
+    // Filter the list to find the main camera folder
+    AssetPathEntity? album;
+    try {
+      album =
+          albums.firstWhere((album) => album.name.toLowerCase() == "camera");
+    } catch (e) {
+      debugPrint("No Camera album was found");
+      return [];
+    }
+
+    final List<AssetEntity> media = await album.getAssetListPaged(
+      page: 0,
+      size: await album.assetCountAsync,
+    );
+
+    final List<BlobData> result = [];
+    for (final asset in media) {
+      final Uint8List? data = await asset.originBytes;
+      if (data != null) {
+        var blobData = await _compressImage(data);
+        if (blobData != null) {
+          result.add(
+              blobData); // You can replace this with your compression function
+        }
+      }
+    }
+    return result;
+  }
+
   bool _isValid(String? url) {
     return url != null && Uri.parse(url).hasAbsolutePath;
   }
@@ -60,6 +169,12 @@ class ImageService {
     }
   }
 
+  Image getEventImage(String eventHash, String blobHash) {
+    String? blobUrl = '${dotenv.env['BLOB_URL']}';
+    final url = '$blobUrl${eventHash.toLowerCase()}/${blobHash.toLowerCase()}';
+    return getImage(imageUrl: url);
+  }
+
   Image getImage(
       {String? imageUrl, ImageSize size = ImageSize.big, Widget? onError}) {
     if (_isValid(imageUrl)) {
@@ -86,11 +201,5 @@ class ImageService {
     } else {
       return _wydLogo(size);
     }
-  }
-
-  Image getEventImage(String eventHash, String blobHash) {
-    String? blobUrl = '${dotenv.env['BLOB_URL']}';
-    final url = '$blobUrl${eventHash.toLowerCase()}/${blobHash.toLowerCase()}';
-    return getImage(imageUrl: url);
   }
 }
