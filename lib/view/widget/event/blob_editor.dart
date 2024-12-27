@@ -22,9 +22,9 @@ class BlobEditor extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                var image = await ImageService().pickImage();
-                if (image != null) {
-                  provider.addNewImage(image);
+                var images = await ImageService().pickImages();
+                if (images.isNotEmpty) {
+                  provider.addNewImages(images);
                 }
               },
               child: const Text("Choose Image"),
@@ -36,7 +36,7 @@ class BlobEditor extends StatelessWidget {
                       .retrieveImages(
                           DateTime.now().subtract(Duration(days: 1)),
                           DateTime.now());
-                  if(newImages.isNotEmpty){
+                  if (newImages.isNotEmpty) {
                     provider.addNewImages(newImages);
                   }
                 },
@@ -45,32 +45,60 @@ class BlobEditor extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final maxWidth = constraints.maxWidth;
-            const minwidth = 403;
-            final divider = (maxWidth / minwidth).floor();
-            final itemWidth = (maxWidth < 200
-                        ? maxWidth
-                        : maxWidth / (divider == 0 ? 1 : divider))
-                    .floor()
-                    .toDouble() -
-                6;
-            //debugPrint('$maxWidth $divider $minwidth $itemWidth');
-            return Center(
-              child: Wrap(
+        if (provider.newImages.isNotEmpty)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Nuove"),
+              const SizedBox(height: 10),
+              Wrap(
                 spacing: 8.0, // Space between widgets horizontally
                 runSpacing: 8.0, // Space between widgets vertically
-                children: provider.imageHashes.map((imageHash) {
+                children: provider.newImages.map((imageData) {
                   return ImageDisplay(
-                    maxWidth: itemWidth,
-                    image:
-                        ImageService().getEventImage(provider.hash!, imageHash),
+                    image: Image.memory(imageData.data),
                   );
                 }).toList(),
               ),
-            );
-          },
+              const SizedBox(height: 10),
+            ],
+          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Divider(
+              color: Colors.grey,
+              thickness: 0.5,
+            ),
+            const SizedBox(height: 10),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final maxWidth = constraints.maxWidth;
+                const minwidth = 203;
+                final divider = (maxWidth / minwidth).floor();
+                final itemWidth = (maxWidth < minwidth
+                            ? maxWidth
+                            : maxWidth / (divider == 0 ? 1 : divider))
+                        .floor()
+                        .toDouble() -
+                    6; //compensate for spacing
+                //debugPrint('$maxWidth $divider $itemWidth');
+                return Center(
+                  child: Wrap(
+                    spacing: 8.0, // Space between widgets horizontally
+                    runSpacing: 8.0, // Space between widgets vertically
+                    children: provider.imageHashes.map((imageHash) {
+                      return ImageDisplay(
+                        maxWidth: itemWidth,
+                        image: ImageService()
+                            .getEventImage(provider.hash!, imageHash),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -93,11 +121,11 @@ class ImageDisplay extends StatelessWidget {
       constraints: BoxConstraints(
         maxWidth: maxWidth ?? double.infinity,
       ),
-      decoration: BoxDecoration(
+      child: ClipRRect(
         borderRadius:
             BorderRadius.circular(12.0), // Adjust the radius as needed
+        child: image,
       ),
-      child: image,
     );
   }
 }

@@ -50,20 +50,27 @@ class ImageService {
     return null;
   }
 
-  Future<BlobData?> pickImage() async {
+  Future<List<BlobData>> pickImages() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final List<XFile> images = await picker.pickMultiImage();
 
-    if (image != null) {
-      final Uint8List imageData = await image.readAsBytes();
-      return _compressImage(imageData);
+    if (images.isNotEmpty) {
+      List<BlobData> compressedImages = [];
+      for (XFile image in images) {
+        final Uint8List imageData = await image.readAsBytes();
+        BlobData? data = await _compressImage(imageData);
+        if (data != null) {
+          compressedImages.add(data);
+        }
+      }
+      return compressedImages;
     }
-    return null;
+    return [];
   }
 
   Future<List<BlobData>> retrieveImages(DateTime? start, DateTime? end) async {
     // Request permissions to access photos before proceeding
-    await ImageService().requestPermissions();
+    await requestPermissions();
 
     if (start == null || end == null) {
       throw ArgumentError("Both start and end dates must be provided.");

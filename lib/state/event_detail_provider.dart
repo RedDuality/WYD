@@ -97,7 +97,7 @@ class EventDetailProvider extends ChangeNotifier {
   }
 
   void updateDescription(String newDescription) {
-    title = newDescription;
+    description = newDescription;
 
     _updateType(descriptionMod);
     notifyListeners();

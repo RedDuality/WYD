@@ -73,7 +73,7 @@ class RangeEditor extends StatelessWidget {
               ),
               SizedBox(
                 width: constraints.maxWidth > 600
-                    ? constraints.maxWidth / 2 - 4
+                    ? (constraints.maxWidth / 2) - 4
                     : constraints.maxWidth,
                 child: DateTimeField(
                   key: UniqueKey(),
@@ -105,7 +105,7 @@ class RangeEditor extends StatelessWidget {
             children: [
               SizedBox(
                 width: constraints.maxWidth > 600
-                    ? constraints.maxWidth / 2 - 4
+                    ? (constraints.maxWidth / 2) - 4
                     : constraints.maxWidth,
                 child: DateTimeField(
                   key: UniqueKey(),
@@ -131,7 +131,7 @@ class RangeEditor extends StatelessWidget {
               ),
               SizedBox(
                 width: constraints.maxWidth > 600
-                    ? constraints.maxWidth / 2 - 4
+                    ? (constraints.maxWidth / 2) - 4
                     : constraints.maxWidth,
                 child: DateTimeField(
                   key: UniqueKey(),
