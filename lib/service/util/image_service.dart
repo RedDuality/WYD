@@ -50,6 +50,29 @@ class ImageService {
     return null;
   }
 
+  Future<List<XFile>> pickImages() async {
+    final ImagePicker picker = ImagePicker();
+    return await picker.pickMultiImage();
+  }
+
+  ImageProvider getImageFromXFile(XFile file) {
+
+    return NetworkImage(file.path);
+  }
+
+  Future<List<BlobData>> dataFromXFile(List<XFile> files) async {
+    List<BlobData> compressedImages = [];
+    for (XFile image in files) {
+      final Uint8List imageData = await image.readAsBytes();
+      BlobData? data = await _compressImage(imageData);
+      if (data != null) {
+        compressedImages.add(data);
+      }
+    }
+    return compressedImages;
+  }
+
+/*
   Future<List<BlobData>> pickImages() async {
     final ImagePicker picker = ImagePicker();
     final List<XFile> images = await picker.pickMultiImage();
@@ -67,7 +90,7 @@ class ImageService {
     }
     return [];
   }
-
+*/
   Future<List<BlobData>> retrieveImages(DateTime? start, DateTime? end) async {
     // Request permissions to access photos before proceeding
     await requestPermissions();
@@ -160,7 +183,11 @@ class ImageService {
   }
 
   Image _wydLogo(ImageSize size) {
-    return Image.asset(_getSizeUrl('assets/images/logoimage.png', size));
+    return Image.asset(
+      _getSizeUrl('assets/images/logoimage.png', size),
+      scale: 2,
+      fit: BoxFit.contain,
+    );
   }
 
   Text _failedToLoadImage() {
@@ -168,18 +195,18 @@ class ImageService {
   }
 
   ImageProvider getImageProvider(
-      {String? imageUrl, ImageSize size = ImageSize.mini, Widget? onError}) {
+      {String? imageUrl, ImageSize size = ImageSize.big, Widget? onError}) {
     if (_isValid(imageUrl)) {
-      return NetworkImage(_getSizeUrl(imageUrl, size));
+      return NetworkImage(_getSizeUrl(imageUrl, size), headers: _getHeaders());
     } else {
       return AssetImage(_getSizeUrl('assets/images/logoimage.png', size));
     }
   }
 
-  Image getEventImage(String eventHash, String blobHash) {
+  ImageProvider getEventImage(String eventHash, String blobHash) {
     String? blobUrl = '${dotenv.env['BLOB_URL']}';
     final url = '$blobUrl${eventHash.toLowerCase()}/${blobHash.toLowerCase()}';
-    return getImage(imageUrl: url);
+    return getImageProvider(imageUrl: url);
   }
 
   Image getImage(
@@ -187,6 +214,8 @@ class ImageService {
     if (_isValid(imageUrl)) {
       return Image.network(
         _getSizeUrl(imageUrl, size),
+        fit: BoxFit.contain,
+        scale: 2,
         headers: _getHeaders(),
         loadingBuilder: (BuildContext context, Widget child,
             ImageChunkEvent? loadingProgress) {

@@ -27,10 +27,10 @@ class EventProvider extends EventController {
         .firstOrNull;
   }
 
-  updateEvent(Event event) {
-    var originalEvent = findEventByHash(event.hash);
+  updateEvent(Event updatedEvent) {
+    var originalEvent = findEventByHash(updatedEvent.hash);
 
-    originalEvent != null ? update(originalEvent, event) : add(event);
+    originalEvent != null ? update(originalEvent, updatedEvent) : add(updatedEvent);
   }
 
   changeMode(bool privateMode) {

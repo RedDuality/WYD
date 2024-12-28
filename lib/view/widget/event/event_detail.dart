@@ -13,7 +13,7 @@ import 'package:wyd_front/view/widget/event/blob_editor.dart';
 import 'package:wyd_front/view/widget/event/range_editor.dart';
 import 'package:wyd_front/view/widget/event/share_page.dart';
 
-class EventDetail extends StatelessWidget{
+class EventDetail extends StatelessWidget {
   const EventDetail({super.key});
 
   Future<void> _createEvent(EventDetailProvider provider) async {
@@ -38,158 +38,215 @@ class EventDetail extends StatelessWidget{
         bool hasBeenChanged = provider.hasBeenChanged();
         bool exists = provider.exists();
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        return Stack(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.lightBlue,
-              ),
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: TextFormField(
-                    style: const TextStyle(fontSize: 26),
-                    initialValue: provider.title,
-                    onTapOutside: (e) {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    },
-                    onChanged: (value) {
-                      provider.updateTitle(value);
-                    },
-                    decoration: const InputDecoration(
-                      hintText: 'Inserisci il nome dell\'evento',
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 4), // Adjust this value
-                      isDense: true, // Ensures a more compact height
-                      border: OutlineInputBorder(borderSide: BorderSide.none),
-                    ),
-                  )),
-                  //if (currentEvent != null) Text(currentEvent.getConfirmTitle().trim()),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor:
-                          Colors.grey, // Sets the icon color to red
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      size: 36, // Adjusts the size of the "X" icon
-                    ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.lightBlue,
                   ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-                child: SingleChildScrollView(
-                  child: Column(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: Row(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Dettagli"),
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              style: const TextStyle(fontSize: 14),
-                              initialValue: provider.description,
-                              onTapOutside: (event) {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              onChanged: (value) {
-                                provider.updateDescription(value);
-                              },
-                              decoration: const InputDecoration(
-                                hintText: 'No description',
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 4), // Adjust this value
-                                isDense: true, // Ensures a more compact height
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide.none),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          RangeEditor(provider: provider),
-                          const SizedBox(height: 10),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (!hasBeenChanged &&
-                                    exists &&
-                                    provider.confirmed) //Decline
-                                  TextButton(
-                                    onPressed: () async {
-                                      await EventService().decline(
-                                          provider.getEventWithCurrentFields());
-                                      provider.decline();
-                                    },
-                                    child: const Text('Decline'),
-                                  ),
-                                if (!hasBeenChanged &&
-                                    exists &&
-                                    !provider.confirmed) //Confirm
-                                  TextButton(
-                                    onPressed: () async {
-                                      await EventService().confirm(
-                                          provider.getEventWithCurrentFields());
-                                      provider.confirm();
-                                    },
-                                    child: const Text('Confirm'),
-                                  ),
-                                if (exists && hasBeenChanged) //Update
-                                  TextButton(
-                                    onPressed: () async {
-                                      await _updateEvent(provider);
-                                      if (context.mounted) {
-                                        InformationService().showInfoSnackBar(
-                                            context,
-                                            "Evento aggiornato con successo");
-                                      }
-                                    },
-                                    child: const Text('Aggiorna'),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          if (exists) BlobEditor(provider: provider),
-                        ],
+                      Expanded(
+                          child: TextFormField(
+                        style: const TextStyle(fontSize: 26),
+                        initialValue: provider.title,
+                        onTapOutside: (e) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        onChanged: (value) {
+                          provider.updateTitle(value);
+                        },
+                        decoration: const InputDecoration(
+                          hintText: 'Inserisci il nome dell\'evento',
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 4), // Adjust this value
+                          isDense: true, // Ensures a more compact height
+                          border:
+                              OutlineInputBorder(borderSide: BorderSide.none),
+                        ),
+                      )),
+                      //if (currentEvent != null) Text(currentEvent.getConfirmTitle().trim()),
+                      TextButton(
+                        onPressed: () {
+                          provider.close();
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor:
+                              Colors.grey, // Sets the icon color to red
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          size: 36, // Adjusts the size of the "X" icon
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
+
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Dettagli"),
+                              const SizedBox(height: 8),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 14),
+                                  initialValue: provider.description,
+                                  onTapOutside: (event) {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  },
+                                  onChanged: (value) {
+                                    provider.updateDescription(value);
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: 'No description',
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 4), // Adjust this value
+                                    isDense:
+                                        true, // Ensures a more compact height
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide.none),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              RangeEditor(provider: provider),
+                              const SizedBox(height: 10),
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (!hasBeenChanged &&
+                                        exists &&
+                                        provider.confirmed) // Decline
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          await EventService().decline(provider
+                                              .getEventWithCurrentFields());
+                                          provider.decline();
+                                        },
+                                        icon: Icon(Icons.event_busy),
+                                        label: Row(
+                                          children: [
+                                            if (MediaQuery.of(context)
+                                                    .size
+                                                    .width >
+                                                200)
+                                              Text('Decline',
+                                                  style:
+                                                      TextStyle(fontSize: 18)),
+                                          ],
+                                        ),
+                                      ),
+                                    if (!hasBeenChanged &&
+                                        exists &&
+                                        !provider.confirmed) // Confirm
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          await EventService().confirm(provider
+                                              .getEventWithCurrentFields());
+                                          provider.confirm();
+                                        },
+                                        icon: Icon(Icons.event_available),
+                                        label: Row(
+                                          children: [
+                                            if (MediaQuery.of(context)
+                                                    .size
+                                                    .width >
+                                                200)
+                                              Text('Confirm',
+                                                  style:
+                                                      TextStyle(fontSize: 18)),
+                                          ],
+                                        ),
+                                      ),
+                                    if (exists && hasBeenChanged) // Update
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          await _updateEvent(provider);
+                                          if (context.mounted) {
+                                            InformationService().showInfoSnackBar(
+                                                context,
+                                                "Evento aggiornato con successo");
+                                          }
+                                        },
+                                        icon: Icon(Icons.update),
+                                        label: Row(
+                                          children: [
+                                            if (MediaQuery.of(context)
+                                                    .size
+                                                    .width >
+                                                200)
+                                              Text('Update',
+                                                  style:
+                                                      TextStyle(fontSize: 18)),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          //Photos
+                          if (exists)
+                            const Divider(
+                              color: Colors.grey,
+                              thickness: 0.5,
+                            ),
+                          if (exists) 
+                            BlobEditor(provider: provider),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                //Buttons
+              ],
             ),
-            //Buttons
-            Align(
-              alignment: Alignment.bottomRight,
+            Positioned(
+              bottom: 16,
+              right: 16,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (!hasBeenChanged && exists) //Share
-                    TextButton(
-                        onPressed: () {
-                          showCustomDialog(
-                              context,
-                              SharePage(
-                                  eventTitle: provider.title,
-                                  eventHash: provider.hash!));
-                        },
-                        child: const Text('Condividi')),
-                  if (!hasBeenChanged && exists) //Share
-                    TextButton(
+                  if (!hasBeenChanged && exists) // Share
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showCustomDialog(
+                          context,
+                          SharePage(
+                              eventTitle: provider.title,
+                              eventHash: provider.hash!),
+                        );
+                      },
+                      icon: Icon(Icons.share),
+                      label: Row(
+                        children: [
+                          if (MediaQuery.of(context).size.width > 400)
+                            Text('Share', style: TextStyle(fontSize: 18)),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(width: 10),
+                  if (!hasBeenChanged && exists) // Send
+                    ElevatedButton.icon(
                       onPressed: () async {
                         String? siteUrl = dotenv.env['SITE_URL'];
                         String fullUrl =
@@ -200,7 +257,6 @@ class EventDetail extends StatelessWidget{
 
                           if (context.mounted) {
                             Navigator.of(context).pop();
-                            Navigator.of(context).pop();
                             InformationService().showInfoSnackBar(
                                 context, "Link copiato con successo");
                           }
@@ -209,10 +265,16 @@ class EventDetail extends StatelessWidget{
                           await Share.share(fullUrl);
                         }
                       },
-                      child: const Text('Invia'),
+                      icon: Icon(Icons.send),
+                      label: Row(
+                        children: [
+                          if (MediaQuery.of(context).size.width > 400)
+                            Text('Send', style: TextStyle(fontSize: 18)),
+                        ],
+                      ),
                     ),
-                  if (!exists) //Save
-                    TextButton(
+                  if (!exists) // Save
+                    ElevatedButton.icon(
                       onPressed: () async {
                         await _createEvent(provider);
                         if (context.mounted) {
@@ -220,7 +282,13 @@ class EventDetail extends StatelessWidget{
                               context, "Evento creato con successo");
                         }
                       },
-                      child: const Text('Crea'),
+                      icon: Icon(Icons.save),
+                      label: Row(
+                        children: [
+                          if (MediaQuery.of(context).size.width > 400)
+                            Text('Save', style: TextStyle(fontSize: 18)),
+                        ],
+                      ),
                     ),
                 ],
               ),

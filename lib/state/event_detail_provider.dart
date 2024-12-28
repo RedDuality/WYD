@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/DTO/blob_data.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:wyd_front/model/enum/event_role.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/profile_event.dart';
@@ -28,7 +28,7 @@ class EventDetailProvider extends ChangeNotifier {
 
   List<String> imageHashes = [];
 
-  final List<BlobData> newImages = [];
+  List<XFile> newImages = [];
 
   void initialize(Event? initialEvent, DateTime? date, bool confirmed) {
     originalEvent = initialEvent;
@@ -45,7 +45,15 @@ class EventDetailProvider extends ChangeNotifier {
 
     imageHashes = initialEvent?.images ?? [];
 
+    newImages = initialEvent?.newFiles ?? [];
+
     notifyListeners();
+  }
+
+
+  void close() {
+    //TODO save in cache new images
+    newImages.clear();
   }
 
   bool exists() {
@@ -110,14 +118,7 @@ class EventDetailProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Method to add a new image to the newImages list
-  void addNewImage(BlobData image) {
-    newImages.add(image);
-    _updateType(imagesMod);
-    notifyListeners();
-  }
-
-  void addNewImages(List<BlobData> images) {
+  void addNewImages(List<XFile> images) {
     newImages.addAll(images);
     _updateType(imagesMod);
     notifyListeners();

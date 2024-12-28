@@ -1,92 +1,150 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/DTO/blob_data.dart';
 import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/event_detail_provider.dart';
+import 'package:wyd_front/view/widget/event/image_display.dart';
 
 class BlobEditor extends StatelessWidget {
   final EventDetailProvider provider;
   const BlobEditor({super.key, required this.provider});
+
+  double _getWidth(double maxWidth, double minWidth, int elementcount) {
+    final divider = (maxWidth / minWidth).floor();
+    final itemWidth = (maxWidth < minWidth
+                ? maxWidth
+                : maxWidth /
+                    (divider == 0
+                        ? 1
+                        : (elementcount != 0 && elementcount < divider
+                            ? elementcount
+                            : divider)))
+            .floor()
+            .toDouble() -
+        8; //compensate for card border
+    //debugPrint('$maxWidth $minWidth $itemWidth');
+    return itemWidth;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Text("Immagini"),
-            const SizedBox(
-              height: 10,
-              width: 10,
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                var images = await ImageService().pickImages();
-                if (images.isNotEmpty) {
-                  provider.addNewImages(images);
-                }
-              },
-              child: const Text("Choose Image"),
-            ),
-            if (!kIsWeb)
-              ElevatedButton(
-                onPressed: () async {
-                  List<BlobData> newImages = await ImageService()
-                      .retrieveImages(
-                          DateTime.now().subtract(Duration(days: 1)),
-                          DateTime.now());
-                  if (newImages.isNotEmpty) {
-                    provider.addNewImages(newImages);
-                  }
-                },
-                child: const Text("Upload Images"),
-              ),
-          ],
-        ),
-        const SizedBox(height: 10),
         if (provider.newImages.isNotEmpty)
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Nuove"),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8.0, // Space between widgets horizontally
-                runSpacing: 8.0, // Space between widgets vertically
-                children: provider.newImages.map((imageData) {
-                  return ImageDisplay(
-                    image: Image.memory(imageData.data),
-                  );
-                }).toList(),
+              /*if (!kIsWeb)
+                  ElevatedButton(
+                    onPressed: () async {
+                      List<BlobData> newImages = await ImageService()
+                          .retrieveImages(
+                              DateTime.now().subtract(Duration(days: 1)),
+                              DateTime.now());
+                      if (newImages.isNotEmpty) {
+                        provider.addNewImages(newImages);
+                      }
+                    },
+                    child: const Text("Upload Images"),
+                  ),*/
+
+              Text('These are the images you took during this event:',
+                  style: TextStyle(fontSize: 18)),
+              SizedBox(
+                height: 8,
               ),
-              const SizedBox(height: 10),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  var itemWidth = _getWidth(
+                      constraints.maxWidth, 303, provider.newImages.length);
+                  return Center(
+                    child: Wrap(
+                      children: List.generate(
+                        provider.newImages.length,
+                        (index) => ImageDisplay(
+                          maxWidth: itemWidth,
+                          image: ImageService()
+                              .getImageFromXFile(provider.newImages[index]),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        var images = await ImageService().pickImages();
+                        if (images.isNotEmpty) {
+                          provider.addNewImages(images);
+                        }
+                      },
+                      icon: Icon(Icons.thumb_up_alt),
+                      label: Row(
+                        children: [
+                          if (MediaQuery.of(context).size.width > 200)
+                            Text('Approve', style: TextStyle(fontSize: 18)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              const Divider(
+                color: Colors.grey,
+                thickness: 0.5,
+              ),
             ],
           ),
+        //Old Images
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Divider(
-              color: Colors.grey,
-              thickness: 0.5,
+            SizedBox(
+              height: 8,
+            ),
+            //uploadImages
+            Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      var images = await ImageService().pickImages();
+                      if (images.isNotEmpty) {
+                        provider.addNewImages(images);
+                      }
+                    },
+                    icon: Icon(Icons.upload),
+                    label: Row(
+                      children: [
+                        if (MediaQuery.of(context).size.width > 200)
+                          Text('Upload New Images',
+                              style: TextStyle(fontSize: 18)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 10),
+
             LayoutBuilder(
               builder: (context, constraints) {
-                final maxWidth = constraints.maxWidth;
-                const minwidth = 203;
-                final divider = (maxWidth / minwidth).floor();
-                final itemWidth = (maxWidth < minwidth
-                            ? maxWidth
-                            : maxWidth / (divider == 0 ? 1 : divider))
-                        .floor()
-                        .toDouble() -
-                    6; //compensate for spacing
+                var itemWidth = _getWidth(
+                    constraints.maxWidth, 303, provider.imageHashes.length);
                 //debugPrint('$maxWidth $divider $itemWidth');
                 return Center(
                   child: Wrap(
-                    spacing: 8.0, // Space between widgets horizontally
-                    runSpacing: 8.0, // Space between widgets vertically
                     children: provider.imageHashes.map((imageHash) {
                       return ImageDisplay(
                         maxWidth: itemWidth,
@@ -105,27 +163,3 @@ class BlobEditor extends StatelessWidget {
   }
 }
 
-class ImageDisplay extends StatelessWidget {
-  final double? maxWidth;
-  final Image image;
-
-  const ImageDisplay({
-    super.key,
-    this.maxWidth,
-    required this.image,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(
-        maxWidth: maxWidth ?? double.infinity,
-      ),
-      child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(12.0), // Adjust the radius as needed
-        child: image,
-      ),
-    );
-  }
-}

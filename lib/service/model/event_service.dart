@@ -8,13 +8,12 @@ import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/event_provider.dart';
 
 class EventService {
-
   Future<void> retrieveMultiple() async {
     UserAPI().listEvents().then((response) {
       if (response.statusCode == 200) {
         List<Event> events = List<Event>.from(
             json.decode(response.body).map((evento) => Event.fromJson(evento)));
-            
+
         EventProvider().addAll(events);
       }
     }).catchError((error) {
@@ -62,6 +61,7 @@ class EventService {
   }
 
   Future<Event> update(Event updatedEvent) async {
+    updatedEvent.fillBlobData();
     var response = await EventAPI().update(updatedEvent);
 
     if (response.statusCode == 200) {
@@ -69,7 +69,8 @@ class EventService {
       EventProvider().updateEvent(event);
       return event;
     } else {
-      throw "Error while creating the event";
+      updatedEvent.newBlobDatas = [];
+      throw "Error while updating the event";
     }
   }
 
