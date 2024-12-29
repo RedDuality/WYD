@@ -2,7 +2,7 @@ import 'package:wyd_front/model/enum/profile_type.dart';
 import 'package:wyd_front/model/enum/role.dart';
 
 class Profile {
-  int id = 0;
+  int id;
   String name = "";
   String hash = "";
   String tag = "";
@@ -63,7 +63,6 @@ class Profile {
   Map<String, dynamic> toJson() {
     return {
       'profile': {
-        'id': id,
         'type': type.index,
         'hash': hash,
       },

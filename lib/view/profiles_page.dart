@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
-import 'package:wyd_front/view/widget/util/image_preview.dart';
+
 class ProfilesPage extends StatelessWidget {
   final List<Profile> profiles = UserProvider().user!.profiles;
 
@@ -10,7 +11,7 @@ class ProfilesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = AuthenticationProvider(); 
+    final authProvider = AuthenticationProvider();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profiles'),
@@ -26,7 +27,11 @@ class ProfilesPage extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(width: 300, height: 300, child: ImagePreview()),
+            SizedBox(
+              width: 300,
+              height: 300,
+              child: ImageService().getImage(size: ImageSize.big),
+            ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
@@ -63,8 +68,7 @@ class ProfilesPage extends StatelessWidget {
                             height: 40,
                             child: CircleAvatar(
                               backgroundImage:
-                                  const ImagePreview(size: ImageSize.mini)
-                                      .getImageProvider(),
+                                  ImageService().getImageProvider(),
                               radius: 30,
                             ),
                           ),

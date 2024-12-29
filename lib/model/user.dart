@@ -4,13 +4,13 @@ import 'package:wyd_front/model/profile.dart';
 class User {
   int id = -1;
   String hash = "";
-  int mainProfileId = -1;
+  String mainProfileHash = "";
   List<Profile> profiles = [];
 
   User({
     this.id = -1,
     this.hash = "",
-    this.mainProfileId = -1,
+    this.mainProfileHash = "",
     List<Profile>? profiles,
     List<Community>? communities,
   })  : profiles = profiles ?? [];
@@ -20,13 +20,13 @@ class User {
       {
         'id': int? id,
         'hash': String? hash,
-        'mainProfileId': int? mainProfileId,
+        'mainProfileHash': String? mainProfileHash,
         'userRoles': List<dynamic>? roles,
       } =>
         User(
           id: id ?? -1,
           hash: hash ?? "",
-          mainProfileId: mainProfileId ?? -1,
+          mainProfileHash: mainProfileHash ?? "",
           profiles: roles != null
               ? roles.map((role) {
                   Profile p = Profile.fromUserRoleJson(role as Map<String, dynamic>);

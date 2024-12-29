@@ -27,10 +27,10 @@ class EventProvider extends EventController {
         .firstOrNull;
   }
 
-  updateEvent(Event event) {
-    var originalEvent = findEventByHash(event.hash);
+  updateEvent(Event updatedEvent) {
+    var originalEvent = findEventByHash(updatedEvent.hash);
 
-    originalEvent != null ? update(originalEvent, event) : add(event);
+    originalEvent != null ? update(originalEvent, updatedEvent) : add(updatedEvent);
   }
 
   changeMode(bool privateMode) {
@@ -39,6 +39,7 @@ class EventProvider extends EventController {
   }
 
   myUpdateFilter() {
+  
     super
         .updateFilter(newFilter: (date, events) => myEventFilter(date, events));
   }
@@ -48,7 +49,7 @@ class EventProvider extends EventController {
     return events
         .whereType<Event>()
         .where(
-            (event) => event.occursOnDate(date) && event.confirmed() == private)
+            (event) => event.occursOnDate(date.toLocal()) && event.confirmed() == private)
         .toList();
   }
 }

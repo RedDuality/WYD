@@ -1,6 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/DTO/blob_data.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
@@ -8,9 +8,10 @@ import 'package:wyd_front/state/user_provider.dart';
 class Event extends CalendarEventData {
   final String hash;
   final int? groupId;
-  List<String> images = [];
-  List<BlobData> newBlobs = [];
 
+
+  List<String> images = [];
+  List<AssetEntity> cachedNewImages = [];
   List<ProfileEvent> sharedWith = [];
 
   Event({
@@ -21,7 +22,7 @@ class Event extends CalendarEventData {
     DateTime? endDate,
     required super.title,
     super.description,
-    super.color,
+    super.color = Colors.green, // Default color
     super.descriptionStyle,
     TextStyle super.titleStyle = const TextStyle(
       color: Colors.white,
@@ -30,10 +31,10 @@ class Event extends CalendarEventData {
     ),
     this.groupId,
     List<String>? images,
-    List<BlobData>? newBlobs,
+    List<AssetEntity>? newFiles,
     List<ProfileEvent>? sharedWith,
   })  : sharedWith = sharedWith ?? [],
-        newBlobs = newBlobs ?? [],
+        cachedNewImages = newFiles ?? [],
         images = images ?? [],
         super(
           date: date.toLocal(),
@@ -42,6 +43,8 @@ class Event extends CalendarEventData {
           endDate: endDate?.toLocal(),
         );
 
+
+/*
   Event copy(
       {String? title,
       String? description,
@@ -57,8 +60,7 @@ class Event extends CalendarEventData {
       String? hash,
       int? groupId,
       List<String>? images,
-      List<ProfileEvent>? sharedWith,
-      List<BlobData>? newBlobs}) {
+      List<ProfileEvent>? sharedWith}) {
     return Event(
       hash: hash ?? this.hash,
       groupId: groupId ?? this.groupId,
@@ -73,9 +75,9 @@ class Event extends CalendarEventData {
       color: color ?? this.color,
       descriptionStyle: descriptionStyle ?? this.descriptionStyle,
       titleStyle: titleStyle ?? this.titleStyle!,
-      newBlobs: newBlobs ?? this.newBlobs,
     );
   }
+  */
 
   int totalShared() {
     return sharedWith.length;
@@ -90,22 +92,15 @@ class Event extends CalendarEventData {
   }
 
   bool confirmed() {
-    int profileId = UserProvider().getCurrentProfileId();
-    return sharedWith.firstWhere((pe) => pe.profileId == profileId).confirmed;
+    String profileHash = UserProvider().getCurrentProfileHash();
+    return sharedWith.firstWhere((pe) => pe.profileHash == profileHash).confirmed;
   }
 
-  void confirm() {
-    int profileId = UserProvider().getCurrentProfileId();
+  void confirm(bool confirmed, {String? profHash}) {
+    String profileHash = profHash ??  UserProvider().getCurrentProfileHash();
     sharedWith
-        .firstWhere((confirm) => confirm.profileId == profileId)
-        .confirmed = true;
-  }
-
-  void decline() {
-    int profileId = UserProvider().getCurrentProfileId();
-    sharedWith
-        .firstWhere((confirm) => confirm.profileId == profileId)
-        .confirmed = false;
+        .firstWhere((confirm) => confirm.profileHash == profileHash)
+        .confirmed = confirmed;
   }
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -140,14 +135,13 @@ class Event extends CalendarEventData {
     return {
       'hash': hash,
       'title': title,
-      //if (description != null) 'description': description,
+      if (description != null) 'description': description,
       'startTime': startTime!.toUtc().toIso8601String(),
       'endTime': endTime!.toUtc().toIso8601String(),
       //'color': color.value,
       //if (groupId != null) 'groupId': groupId,
       'blobHashes': images,
       'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
-      'newBlobData': newBlobs.map((blob) => blob.toJson()).toList(),
     };
   }
 }
