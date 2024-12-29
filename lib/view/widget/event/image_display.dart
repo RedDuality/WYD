@@ -49,45 +49,38 @@ class ImageDisplayState extends State<ImageDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Card(
       elevation: 3.0,
       child: Stack(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12.0),
-            child: _isLoading || _isLoading
+            child: _isLoading || _isError
                 ? SizedBox(
                     width: widget.maxWidth ?? widget.maxHeight,
                     height: widget.maxHeight ?? widget.maxWidth,
                     child: Center(
                       child: _isError
                           ? Text('Failed to load image')
-                          : CircularProgressIndicator(),
+                          : Center(child: CircularProgressIndicator()),
                     ),
                   )
                 : SizedBox(
                     width: widget.maxWidth,
                     height: widget.maxHeight,
-                    child: _isError
-                        ? Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : Image(
-                            image: widget.image,
-                            fit: BoxFit.contain,
-                          ),
+                    child: Image(
+                      image: widget.image,
+                      fit: BoxFit.contain,
+                    ),
                   ),
           ),
-          if (!_isLoading && !_isError && widget.onDelete != null)
+          if (!_isLoading && (_isError || widget.onDelete != null))
             Positioned(
               top: 8.0,
               right: 8.0,
               child: IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () {
-                  widget.onDelete;
-                },
+                onPressed: widget.onDelete,
               ),
             ),
         ],

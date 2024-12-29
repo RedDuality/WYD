@@ -5,14 +5,14 @@ class CreateCommunityDto {
   int id = 0;
   String name = "Personal";
   CommunityType type = CommunityType.personal;
-  List<int> profileIds = [];
+  List<String> profileHashes = [];
 
   CreateCommunityDto({
     this.id = -1,
     this.name = "Personal",
     this.type = CommunityType.personal,
-    List<int>? ids,
-  }) : profileIds = ids ?? [];
+    List<String>? hashes,
+  }) : profileHashes = hashes ?? [];
 
   factory CreateCommunityDto.fromJson(Map<String, dynamic> json) {
     return switch (json) {
@@ -20,12 +20,12 @@ class CreateCommunityDto {
         "id" : int id,
         "name" : String name,
         "type" : int? type,
-        "profiles" : List<int>? profileIds,
+        "profiles" : List<String>? profileHashes,
       } => CreateCommunityDto(
         id : id, 
         name : name, 
         type : type != null ? CommunityType.values[type] : CommunityType.personal, 
-        ids : profileIds ?? [],
+        hashes : profileHashes ?? [],
         ),
       _ => throw const FormatException('Failed to decode community')
     };
@@ -36,7 +36,7 @@ class CreateCommunityDto {
       'id': id,
       'name': name,
       'type': type.index,
-      'profiles': profileIds,
+      'profiles': profileHashes,
     };
   }
 

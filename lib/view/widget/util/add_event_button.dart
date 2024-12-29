@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wyd_front/state/event_detail_provider.dart';
+import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/widget/event/event_detail.dart';
 
@@ -12,9 +11,7 @@ class AddEventButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: () {
-        EventDetailProvider provider =
-            Provider.of<EventDetailProvider>(context, listen: false);
-        provider.initialize(null, null, confirmed);
+        EventService().initializeDetails(null, null, confirmed);
         showCustomDialog(context, EventDetail());
       },
       label: const Text('Aggiungi Evento'),

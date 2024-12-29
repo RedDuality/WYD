@@ -90,7 +90,7 @@ class _SharePageState extends State<SharePage> {
   Widget _buildPersonalCommunityTile(Community community) {
     final mainGroup = community.groups.first;
     final profile = mainGroup.profiles
-        .where((p) => p.id != UserProvider().getCurrentProfileId())
+        .where((p) => p.hash != UserProvider().getCurrentProfileHash())
         .first;
     return ListTile(
         leading: CircleAvatar(

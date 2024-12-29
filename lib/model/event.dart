@@ -1,18 +1,17 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:wyd_front/model/DTO/blob_data.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:wyd_front/model/profile_event.dart';
-import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
   final String hash;
   final int? groupId;
+
+
   List<String> images = [];
-  List<XFile> newFiles = [];
-  List<BlobData> newBlobDatas = [];
+  List<AssetEntity> cachedNewImages = [];
   List<ProfileEvent> sharedWith = [];
 
   Event({
@@ -23,7 +22,7 @@ class Event extends CalendarEventData {
     DateTime? endDate,
     required super.title,
     super.description,
-    super.color,
+    super.color = Colors.green, // Default color
     super.descriptionStyle,
     TextStyle super.titleStyle = const TextStyle(
       color: Colors.white,
@@ -32,10 +31,10 @@ class Event extends CalendarEventData {
     ),
     this.groupId,
     List<String>? images,
-    List<XFile>? newBlobs,
+    List<AssetEntity>? newFiles,
     List<ProfileEvent>? sharedWith,
   })  : sharedWith = sharedWith ?? [],
-        newFiles = newBlobs ?? [],
+        cachedNewImages = newFiles ?? [],
         images = images ?? [],
         super(
           date: date.toLocal(),
@@ -43,6 +42,8 @@ class Event extends CalendarEventData {
           endTime: endTime.toLocal(),
           endDate: endDate?.toLocal(),
         );
+
+
 /*
   Event copy(
       {String? title,
@@ -91,26 +92,15 @@ class Event extends CalendarEventData {
   }
 
   bool confirmed() {
-    int profileId = UserProvider().getCurrentProfileId();
-    return sharedWith.firstWhere((pe) => pe.profileId == profileId).confirmed;
+    String profileHash = UserProvider().getCurrentProfileHash();
+    return sharedWith.firstWhere((pe) => pe.profileHash == profileHash).confirmed;
   }
 
-  void confirm() {
-    int profileId = UserProvider().getCurrentProfileId();
+  void confirm(bool confirmed, {String? profHash}) {
+    String profileHash = profHash ??  UserProvider().getCurrentProfileHash();
     sharedWith
-        .firstWhere((confirm) => confirm.profileId == profileId)
-        .confirmed = true;
-  }
-
-  void decline() {
-    int profileId = UserProvider().getCurrentProfileId();
-    sharedWith
-        .firstWhere((confirm) => confirm.profileId == profileId)
-        .confirmed = false;
-  }
-
-  Future<void> fillBlobData() async {
-    newBlobDatas = await ImageService().dataFromXFile(newFiles);
+        .firstWhere((confirm) => confirm.profileHash == profileHash)
+        .confirmed = confirmed;
   }
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -145,14 +135,13 @@ class Event extends CalendarEventData {
     return {
       'hash': hash,
       'title': title,
-      //if (description != null) 'description': description,
+      if (description != null) 'description': description,
       'startTime': startTime!.toUtc().toIso8601String(),
       'endTime': endTime!.toUtc().toIso8601String(),
       //'color': color.value,
       //if (groupId != null) 'groupId': groupId,
       'blobHashes': images,
       'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
-      'newBlobData': newBlobDatas.map((blob) => blob.toJson()).toList(),
     };
   }
 }

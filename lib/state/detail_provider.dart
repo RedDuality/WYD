@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:wyd_front/model/enum/event_role.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/profile_event.dart';
@@ -8,10 +7,18 @@ import 'package:wyd_front/state/user_provider.dart';
 const int titleMod = 1;
 const int descriptionMod = 2;
 const int datesMod = 4;
-const int imagesMod = 8;
 
-class EventDetailProvider extends ChangeNotifier {
-  EventDetailProvider();
+class DetailProvider extends ChangeNotifier {
+  // Private static instance variable
+  static final DetailProvider _instance = DetailProvider._internal();
+
+  // Private constructor
+  DetailProvider._internal();
+
+  // Public factory method to provide access to the instance
+  factory DetailProvider() {
+    return _instance;
+  }
 
   Event? originalEvent;
 
@@ -26,10 +33,6 @@ class EventDetailProvider extends ChangeNotifier {
 
   int changes = 0;
 
-  List<String> imageHashes = [];
-
-  List<XFile> newImages = [];
-
   void initialize(Event? initialEvent, DateTime? date, bool confirmed) {
     originalEvent = initialEvent;
     hash = initialEvent?.hash;
@@ -43,17 +46,30 @@ class EventDetailProvider extends ChangeNotifier {
 
     this.confirmed = initialEvent?.confirmed() ?? confirmed;
 
-    imageHashes = initialEvent?.images ?? [];
-
-    newImages = initialEvent?.newFiles ?? [];
+    changes = 0;
 
     notifyListeners();
   }
 
+  void updateCurrentEvent(Event newEvent) {
+    if (hash == newEvent.hash) {
+      originalEvent = newEvent;
+      startTime = newEvent.startTime!;
+      endTime = newEvent.endTime!;
+
+      title = newEvent.title;
+      description = newEvent.description;
+
+      confirmed = newEvent.confirmed();
+
+      changes = 0;
+
+      notifyListeners();
+    }
+  }
 
   void close() {
-    //TODO save in cache new images
-    newImages.clear();
+    hash = "";
   }
 
   bool exists() {
@@ -89,11 +105,6 @@ class EventDetailProvider extends ChangeNotifier {
             changes = changes - mod;
           }
           break;
-        case imagesMod:
-          if (newImages.isEmpty) {
-            changes = changes - mod;
-          }
-          break;
       }
     }
   }
@@ -118,47 +129,6 @@ class EventDetailProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addNewImages(List<XFile> images) {
-    newImages.addAll(images);
-    _updateType(imagesMod);
-    notifyListeners();
-  }
-
-  void cleadNewImages() {
-    newImages.clear();
-    _updateType(imagesMod);
-    notifyListeners();
-  }
-
-  void confirm() {
-    confirmed = true;
-    notifyListeners();
-  }
-
-  void decline() {
-    confirmed = false;
-    notifyListeners();
-  }
-
-  void updateEvent(Event newEvent) {
-    originalEvent = newEvent;
-    hash = newEvent.hash;
-
-    startTime = newEvent.startTime!;
-    endTime = newEvent.endTime!;
-
-    title = newEvent.title;
-    description = newEvent.description;
-
-    confirmed = newEvent.confirmed();
-
-    imageHashes = newEvent.images;
-
-    changes = 0;
-
-    notifyListeners();
-  }
-
   Event getEventWithCurrentFields() {
     Event event = Event(
       hash: hash ?? "",
@@ -168,13 +138,11 @@ class EventDetailProvider extends ChangeNotifier {
       endDate: endTime,
       title: title,
       description: description,
-      images: imageHashes,
-      newBlobs: newImages,
     );
 
-    int mainProfileId = UserProvider().getCurrentProfileId();
+    String mainProfileHash = UserProvider().getCurrentProfileHash();
     ProfileEvent profileEvent =
-        ProfileEvent(mainProfileId, EventRole.owner, confirmed, true);
+        ProfileEvent(mainProfileHash, EventRole.owner, confirmed, true);
     event.sharedWith.add(profileEvent);
 
     return event;

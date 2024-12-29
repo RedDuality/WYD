@@ -1,301 +1,106 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/service/model/event_service.dart';
-import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/state/event_detail_provider.dart';
-import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/view/widget/event/blob_editor.dart';
-import 'package:wyd_front/view/widget/event/range_editor.dart';
-import 'package:wyd_front/view/widget/event/share_page.dart';
+import 'package:wyd_front/state/detail_provider.dart';
+import 'package:wyd_front/view/widget/event/event_detail_editor.dart';
+import 'package:wyd_front/view/widget/event/image_detail.dart';
 
-class EventDetail extends StatelessWidget {
+class EventDetail extends StatefulWidget {
   const EventDetail({super.key});
 
-  Future<void> _createEvent(EventDetailProvider provider) async {
-    Event createEvent = provider.getEventWithCurrentFields();
-    Event newEvent = await EventService().create(createEvent);
-    provider.updateEvent(newEvent);
+  @override
+  EventDetailState createState() => EventDetailState();
+}
+
+class EventDetailState extends State<EventDetail> {
+  final _titleController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
   }
 
-  Future<void> _updateEvent(EventDetailProvider provider) async {
-    Event updatesEvent = provider.getEventWithCurrentFields();
-
-    var updatedEvent = await EventService().update(updatesEvent);
-
-    provider.updateEvent(updatedEvent);
-    provider.cleadNewImages();
+  void _updateTitle(DetailProvider provider) {
+    provider.updateTitle(_titleController.text);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<EventDetailProvider>(
-      builder: (context, provider, child) {
-        bool hasBeenChanged = provider.hasBeenChanged();
-        bool exists = provider.exists();
-
-        return Stack(
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.lightBlue,
-                  ),
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: TextFormField(
-                        style: const TextStyle(fontSize: 26),
-                        initialValue: provider.title,
-                        onTapOutside: (e) {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                        },
-                        onChanged: (value) {
-                          provider.updateTitle(value);
-                        },
-                        decoration: const InputDecoration(
-                          hintText: 'Inserisci il nome dell\'evento',
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 4), // Adjust this value
-                          isDense: true, // Ensures a more compact height
-                          border:
-                              OutlineInputBorder(borderSide: BorderSide.none),
-                        ),
-                      )),
-                      //if (currentEvent != null) Text(currentEvent.getConfirmTitle().trim()),
-                      TextButton(
-                        onPressed: () {
-                          provider.close();
-                          Navigator.of(context).pop();
-                        },
-                        style: TextButton.styleFrom(
-                          foregroundColor:
-                              Colors.grey, // Sets the icon color to red
-                        ),
-                        child: const Icon(
-                          Icons.close,
-                          size: 36, // Adjusts the size of the "X" icon
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text("Dettagli"),
-                              const SizedBox(height: 8),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 14),
-                                  initialValue: provider.description,
-                                  onTapOutside: (event) {
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
-                                  },
-                                  onChanged: (value) {
-                                    provider.updateDescription(value);
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintText: 'No description',
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 4), // Adjust this value
-                                    isDense:
-                                        true, // Ensures a more compact height
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide.none),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              RangeEditor(provider: provider),
-                              const SizedBox(height: 10),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (!hasBeenChanged &&
-                                        exists &&
-                                        provider.confirmed) // Decline
-                                      ElevatedButton.icon(
-                                        onPressed: () async {
-                                          await EventService().decline(provider
-                                              .getEventWithCurrentFields());
-                                          provider.decline();
-                                        },
-                                        icon: Icon(Icons.event_busy),
-                                        label: Row(
-                                          children: [
-                                            if (MediaQuery.of(context)
-                                                    .size
-                                                    .width >
-                                                200)
-                                              Text('Decline',
-                                                  style:
-                                                      TextStyle(fontSize: 18)),
-                                          ],
-                                        ),
-                                      ),
-                                    if (!hasBeenChanged &&
-                                        exists &&
-                                        !provider.confirmed) // Confirm
-                                      ElevatedButton.icon(
-                                        onPressed: () async {
-                                          await EventService().confirm(provider
-                                              .getEventWithCurrentFields());
-                                          provider.confirm();
-                                        },
-                                        icon: Icon(Icons.event_available),
-                                        label: Row(
-                                          children: [
-                                            if (MediaQuery.of(context)
-                                                    .size
-                                                    .width >
-                                                200)
-                                              Text('Confirm',
-                                                  style:
-                                                      TextStyle(fontSize: 18)),
-                                          ],
-                                        ),
-                                      ),
-                                    if (exists && hasBeenChanged) // Update
-                                      ElevatedButton.icon(
-                                        onPressed: () async {
-                                          await _updateEvent(provider);
-                                          if (context.mounted) {
-                                            InformationService().showInfoSnackBar(
-                                                context,
-                                                "Evento aggiornato con successo");
-                                          }
-                                        },
-                                        icon: Icon(Icons.update),
-                                        label: Row(
-                                          children: [
-                                            if (MediaQuery.of(context)
-                                                    .size
-                                                    .width >
-                                                200)
-                                              Text('Update',
-                                                  style:
-                                                      TextStyle(fontSize: 18)),
-                                          ],
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          //Photos
-                          if (exists)
-                            const Divider(
-                              color: Colors.grey,
-                              thickness: 0.5,
-                            ),
-                          if (exists) 
-                            BlobEditor(provider: provider),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                //Buttons
-              ],
-            ),
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (!hasBeenChanged && exists) // Share
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        showCustomDialog(
-                          context,
-                          SharePage(
-                              eventTitle: provider.title,
-                              eventHash: provider.hash!),
-                        );
-                      },
-                      icon: Icon(Icons.share),
-                      label: Row(
-                        children: [
-                          if (MediaQuery.of(context).size.width > 400)
-                            Text('Share', style: TextStyle(fontSize: 18)),
-                        ],
-                      ),
-                    ),
-                  const SizedBox(width: 10),
-                  if (!hasBeenChanged && exists) // Send
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        String? siteUrl = dotenv.env['SITE_URL'];
-                        String fullUrl =
-                            "$siteUrl#/shared?event=${provider.hash}";
-
-                        if (kIsWeb) {
-                          await Clipboard.setData(ClipboardData(text: fullUrl));
-
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                            InformationService().showInfoSnackBar(
-                                context, "Link copiato con successo");
-                          }
-                        } else {
-                          // If running on mobile, use the share dialog
-                          await Share.share(fullUrl);
-                        }
-                      },
-                      icon: Icon(Icons.send),
-                      label: Row(
-                        children: [
-                          if (MediaQuery.of(context).size.width > 400)
-                            Text('Send', style: TextStyle(fontSize: 18)),
-                        ],
-                      ),
-                    ),
-                  if (!exists) // Save
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        await _createEvent(provider);
-                        if (context.mounted) {
-                          InformationService().showInfoSnackBar(
-                              context, "Evento creato con successo");
-                        }
-                      },
-                      icon: Icon(Icons.save),
-                      label: Row(
-                        children: [
-                          if (MediaQuery.of(context).size.width > 400)
-                            Text('Save', style: TextStyle(fontSize: 18)),
-                        ],
-                      ),
-                    ),
-                ],
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverAppBar(
+          expandedHeight: 200.0,
+          floating: false,
+          pinned: true,
+          leading: Container(
+            padding: EdgeInsets.zero,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey,
+              ),
+              child: const Icon(
+                Icons.close,
+                size: 36,
               ),
             ),
           ],
-        );
-      },
+          flexibleSpace: FlexibleSpaceBar(
+            titlePadding: EdgeInsets.zero, // Remove default padding
+            title: Container(
+              alignment: Alignment.bottomLeft,
+              padding: const EdgeInsets.only(
+                  left: 16.0, bottom: 8.0), // Adjust left and bottom padding
+              child:
+                  Consumer<DetailProvider>(builder: (context, provider, child) {
+                _titleController.text = provider.title;
+                return TextFormField(
+                  controller: _titleController,
+                  decoration: InputDecoration(
+                    labelText: '',
+                    border: InputBorder.none,
+                    labelStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                  onFieldSubmitted: (value) {
+                    _updateTitle(provider);
+                  },
+                  onTapOutside: (event) {
+                    _updateTitle(provider);
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                );
+              }),
+            ),
+            background: Image.asset(
+              'assets/images/logoimage.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          backgroundColor: Colors.blue,
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: EventDetailEditor(),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: ImageDetail(),
+          ),
+        ),
+      ],
     );
   }
 }

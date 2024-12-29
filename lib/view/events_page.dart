@@ -1,13 +1,11 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/model/event_service.dart';
-import 'package:wyd_front/state/event_detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/view/widget/event/event_detail.dart';
 import 'package:wyd_front/view/widget/event/event_tile.dart';
+import 'package:wyd_front/view/widget/event/event_detail.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/widget/util/add_event_button.dart';
 
@@ -37,12 +35,11 @@ class _EventsPageState extends State<EventsPage> {
         var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
         if (eventHash != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-            EventDetailProvider provider =
-                Provider.of<EventDetailProvider>(context, listen: false);
 
-            final event = await EventService().retrieveNewByHash(eventHash);
 
-            provider.initialize(event, null, event.confirmed());
+            final event = await EventService().retrieveAndAddByHash(eventHash);
+
+            EventService().initializeDetails(event, null, event.confirmed());
             if (context.mounted) {
               showCustomDialog(context, EventDetail());
             }
@@ -72,17 +69,15 @@ class _EventsPageState extends State<EventsPage> {
         showLiveTimeLineInAllDays: false,
         scrollOffset: 480.0,
         onEventTap: (events, date) {
-          EventDetailProvider provider =
-              Provider.of<EventDetailProvider>(context, listen: false);
-          provider.initialize(
-              events.whereType<Event>().toList().first, null, widget.private);
+          Event selectedEvent = events.whereType<Event>().toList().first;
+
+          EventService().initializeDetails(selectedEvent, null, widget.private);
+
           showCustomDialog(context, EventDetail());
         },
         onDateLongPress: (date) {
-          EventDetailProvider provider =
-              Provider.of<EventDetailProvider>(context, listen: false);
-          provider.initialize(
-              null, date, widget.private);
+          EventService().initializeDetails(null, date, widget.private);
+
           showCustomDialog(context, EventDetail());
         },
         minuteSlotSize: MinuteSlotSize.minutes15,

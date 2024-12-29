@@ -77,7 +77,7 @@ class GroupPage extends StatelessWidget {
   Widget _buildPersonalTile(Community community) {
     final mainGroup = community.groups.first;
     final profile = mainGroup.profiles
-        .where((p) => p.id != UserProvider().getCurrentProfileId())
+        .where((p) => p.hash != UserProvider().getCurrentProfileHash())
         .first;
     return ListTile(
       leading: CircleAvatar(

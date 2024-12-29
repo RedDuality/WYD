@@ -3,8 +3,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
+import 'package:wyd_front/state/blob_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
-import 'package:wyd_front/state/event_detail_provider.dart';
+import 'package:wyd_front/state/detail_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
@@ -37,7 +38,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => EventDetailProvider()),
+        ChangeNotifierProvider(create: (_) => DetailProvider()),
+        ChangeNotifierProvider(create: (_) => BlobProvider()),
         ChangeNotifierProvider(create: (_) => MyAppState()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => UriProvider()),
@@ -47,7 +49,6 @@ class MyApp extends StatelessWidget {
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
           return MaterialApp.router(
-            
             title: 'WYD?',
             theme: ThemeData(
               useMaterial3: true,

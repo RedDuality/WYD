@@ -7,6 +7,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:wyd_front/model/DTO/blob_data.dart';
 
 enum ImageSize { mini, midi, big }
@@ -37,10 +38,10 @@ class ImageService {
       try {
         // Compress the image data
         final compressedImageData = await FlutterImageCompress.compressWithList(
-          imageData,
-          minWidth: 403,
-          quality: 85,
-        );
+            imageData,
+            minWidth: 403,
+            quality: 85,
+            format: CompressFormat.jpeg);
 
         return BlobData(data: compressedImageData, mimeType: "image/jpeg");
       } catch (e) {
@@ -50,13 +51,24 @@ class ImageService {
     return null;
   }
 
-  Future<List<XFile>> pickImages() async {
+  Future<List<BlobData>> pickImages() async {
     final ImagePicker picker = ImagePicker();
-    return await picker.pickMultiImage();
+    var files = await picker.pickMultiImage();
+    List<BlobData> compressedImages = [];
+    if (files.isNotEmpty) {
+      for (XFile image in files) {
+        final Uint8List imageData = await image.readAsBytes();
+        BlobData? data = await _compressImage(imageData);
+        if (data != null) {
+          compressedImages.add(data);
+        }
+      }
+    }
+    return compressedImages;
   }
 
+/*
   ImageProvider getImageFromXFile(XFile file) {
-
     return NetworkImage(file.path);
   }
 
@@ -71,27 +83,31 @@ class ImageService {
     }
     return compressedImages;
   }
+*/
 
-/*
-  Future<List<BlobData>> pickImages() async {
-    final ImagePicker picker = ImagePicker();
-    final List<XFile> images = await picker.pickMultiImage();
+  ImageProvider<Object> getImageFromAssetEntity(AssetEntity entity) {
+    return AssetEntityImageProvider(entity);
+  }
 
-    if (images.isNotEmpty) {
-      List<BlobData> compressedImages = [];
-      for (XFile image in images) {
-        final Uint8List imageData = await image.readAsBytes();
-        BlobData? data = await _compressImage(imageData);
-        if (data != null) {
-          compressedImages.add(data);
+  Future<List<BlobData>> dataFromAssetEntities(
+      List<AssetEntity> entities) async {
+    List<BlobData> compressedImages = [];
+    for (AssetEntity asset in entities) {
+      final Uint8List? data = await asset.originBytes;
+      if (data != null) {
+        var blobData = await _compressImage(
+          data,
+        );
+        if (blobData != null) {
+          compressedImages.add(blobData);
         }
       }
-      return compressedImages;
     }
-    return [];
+    return compressedImages;
   }
-*/
-  Future<List<BlobData>> retrieveImages(DateTime? start, DateTime? end) async {
+
+  Future<List<AssetEntity>> retrieveImagesByTime(
+      DateTime? start, DateTime? end) async {
     // Request permissions to access photos before proceeding
     await requestPermissions();
 
@@ -126,23 +142,10 @@ class ImageService {
       return [];
     }
 
-    final List<AssetEntity> media = await album.getAssetListPaged(
+    return await album.getAssetListPaged(
       page: 0,
       size: await album.assetCountAsync,
     );
-
-    final List<BlobData> result = [];
-    for (final asset in media) {
-      final Uint8List? data = await asset.originBytes;
-      if (data != null) {
-        var blobData = await _compressImage(data);
-        if (blobData != null) {
-          result.add(
-              blobData); // You can replace this with your compression function
-        }
-      }
-    }
-    return result;
   }
 
   bool _isValid(String? url) {
@@ -185,8 +188,7 @@ class ImageService {
   Image _wydLogo(ImageSize size) {
     return Image.asset(
       _getSizeUrl('assets/images/logoimage.png', size),
-      scale: 2,
-      fit: BoxFit.contain,
+      fit: BoxFit.cover,
     );
   }
 
@@ -214,7 +216,7 @@ class ImageService {
     if (_isValid(imageUrl)) {
       return Image.network(
         _getSizeUrl(imageUrl, size),
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
         scale: 2,
         headers: _getHeaders(),
         loadingBuilder: (BuildContext context, Widget child,

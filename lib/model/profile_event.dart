@@ -3,24 +3,24 @@
 import 'package:wyd_front/model/enum/event_role.dart';
 
 class ProfileEvent{
-  int profileId = -1;
+  String profileHash = "";
   EventRole role;
   bool confirmed = false;
   bool trusted = false;
 
-  ProfileEvent(this.profileId, this.role, this.confirmed, this.trusted);
+  ProfileEvent(this.profileHash, this.role, this.confirmed, this.trusted);
 
 
 
   factory ProfileEvent.fromJson(Map<String, dynamic> json){
     return switch (json) {
       {
-        'profileId': int profileId,
+        'profileHash': String profileHash,
         'role': int? role,
         'confirmed': bool confirmed,
         'trusted': bool trusted
       } => ProfileEvent(
-        profileId,
+        profileHash,
         EventRole.values[role ?? 0],
         confirmed,
         trusted
@@ -32,7 +32,7 @@ class ProfileEvent{
   
   Map<String, dynamic> toJson() {
     return {
-      'profileId': profileId,
+      'profileHash': profileHash,
       'confirmed': confirmed,
       'trusted': trusted,
       'eventRole': role.index,

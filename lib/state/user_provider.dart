@@ -22,9 +22,6 @@ class UserProvider extends ChangeNotifier {
 
   User? get user => _user;
 
-  int getCurrentProfileId() {
-    return _currentProfile!.id;
-  }
 
   String getCurrentProfileHash() {
     return _currentProfile!.hash;
@@ -50,12 +47,12 @@ class UserProvider extends ChangeNotifier {
   void setUser(User user) {
     _user = user;
     _currentProfile =
-        user.profiles.firstWhere((p) => p.id == user.mainProfileId);
+        user.profiles.firstWhere((p) => p.hash == user.mainProfileHash);
     notifyListeners();
     CommunityService().retrieveCommunities(_currentProfile!);
     EventService().retrieveMultiple();
 
 
-    RealTimeService().initialize(user.hash);
+    RealTimeService().start(user.hash);
   }
 }

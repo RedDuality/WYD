@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
+import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
@@ -48,12 +51,21 @@ class UserAPI {
 
 */
 
-  Future<Response> listEvents() async {
+  Future<List<Event>> listEvents() async {
     String url = '${functionUrl}Events';
 
-    return client.get(
+    var response = await client.get(
       Uri.parse(url),
     );
+    
+    if (response.statusCode == 200) {
+      List<Event> events = List<Event>.from(
+          json.decode(response.body).map((evento) => Event.fromJson(evento)));
+
+      return events;
+    }
+
+    throw "There was an error while fetching events";
   }
 
   Future<Response> retrieveCommunities() async {
