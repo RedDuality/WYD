@@ -1,13 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
-class ProfilesPage extends StatelessWidget {
-  final List<Profile> profiles = UserProvider().user!.profiles;
-
+class ProfilesPage extends StatefulWidget {
   ProfilesPage({super.key});
+
+  @override
+  State<ProfilesPage> createState() => _ProfilesPageState();
+}
+
+class _ProfilesPageState extends State<ProfilesPage> {
+  final List<Profile> profiles = UserProvider().user!.profiles;
+  String _version = "Loading...";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = packageInfo.version;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +109,17 @@ class ProfilesPage extends StatelessWidget {
                     ),
                   );
                 },
+              ),
+            ),
+            // Add the version number text box here
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Text(
+                _version,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
               ),
             ),
           ],

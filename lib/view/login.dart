@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/API/test_api.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
@@ -15,6 +16,20 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String _mail = "prova@mail.com";
   String _password = "password";
+  String _version = "Loading...";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = packageInfo.version;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,16 +42,14 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(
-                    top: 15.0), // Riduce lo spazio sopra l'immagine
+                padding: const EdgeInsets.only(top: 15.0),
                 child: Center(
                   child: SizedBox(
                     width: 300,
                     height: 400,
                     child: Image.asset(
                       'assets/images/logo.jpg',
-                      fit: BoxFit
-                          .cover, // Modifica il fit per adattare l'immagine
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
@@ -102,8 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(
-                  height: 30), // Aggiunge spazio tra "Login" e "New user?"
+              const SizedBox(height: 30),
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -119,9 +131,18 @@ class _LoginPageState extends State<LoginPage> {
                   fontSize: 18.0,
                 ),
               ),
-              const SizedBox(
-                  height:
-                      15), // Aggiunge più spazio tra "New user?" e il bordo inferiore
+              const SizedBox(height: 15),
+              // Add the version number text box here
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(
+                  _version,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
