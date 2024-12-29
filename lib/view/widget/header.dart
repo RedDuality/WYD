@@ -11,7 +11,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       flexibleSpace: actions != null && actions!.isNotEmpty
           ? Align(
-              alignment: Alignment.topLeft,
+              alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(

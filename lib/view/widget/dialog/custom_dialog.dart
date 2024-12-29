@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-void showCustomDialog(
-    BuildContext context, Widget child) {
+void showCustomDialog(BuildContext context, Widget child) {
   showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return LayoutBuilder(builder: (context, constraints) {
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
           double screenWidth = constraints.maxWidth;
           double insetPaddingValue;
 
@@ -16,33 +16,37 @@ void showCustomDialog(
           } else if (screenWidth > 700) {
             insetPaddingValue = 50;
           } else {
-            insetPaddingValue = 25;
+            insetPaddingValue = 15;
           }
 
           return Dialog(
-              backgroundColor: Colors.transparent,
-              insetPadding: EdgeInsets.all(insetPaddingValue),
-              child: Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  Container(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.all(insetPaddingValue),
+            child: Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Container(
                     width: double.infinity,
-                    //height: 200,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Theme.of(context).colorScheme.onPrimary),
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                    child: child
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                    padding: EdgeInsets.zero,
+                    child: child,
                   ),
-
-                  /*
+                ),
+                /*
                   Positioned(
                       top: -100,
                       child: Image.network("https://i.imgur.com/2yaf2wb.png",
                           width: 150, height: 150))
                 */
-                ],
-              ));
-        });
-      });
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
 }

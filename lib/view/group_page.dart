@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
+import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/widget/search_user_page.dart';
-import 'package:wyd_front/view/widget/util/image_preview.dart';
 
 class GroupPage extends StatelessWidget {
   const GroupPage({super.key});
@@ -77,13 +77,11 @@ class GroupPage extends StatelessWidget {
   Widget _buildPersonalTile(Community community) {
     final mainGroup = community.groups.first;
     final profile = mainGroup.profiles
-        .where((p) => p.id != UserProvider().getCurrentProfileId())
+        .where((p) => p.hash != UserProvider().getCurrentProfileHash())
         .first;
     return ListTile(
       leading: CircleAvatar(
-        backgroundImage: const ImagePreview(
-          size: ImageSize.mini,
-        ).getImageProvider(),
+        backgroundImage: ImageService().getImageProvider(),
       ),
       title: Text(profile.name),
     );
@@ -92,9 +90,7 @@ class GroupPage extends StatelessWidget {
   Widget _buildSingleGroupTile(Community community) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundImage: const ImagePreview(
-          size: ImageSize.mini,
-        ).getImageProvider(),
+        backgroundImage: ImageService().getImageProvider(),
       ),
       title: Text(community.name),
     );
@@ -103,9 +99,7 @@ class GroupPage extends StatelessWidget {
   Widget _buildMultiGroupTile(Community community) {
     return ExpansionTile(
       leading: CircleAvatar(
-        backgroundImage: const ImagePreview(
-          size: ImageSize.mini,
-        ).getImageProvider(),
+        backgroundImage: ImageService().getImageProvider(),
       ),
       title: Text(community.name),
       children: community.groups.map((group) {
@@ -113,9 +107,7 @@ class GroupPage extends StatelessWidget {
           padding: const EdgeInsets.only(left: 16.0),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: const ImagePreview(
-                size: ImageSize.mini,
-              ).getImageProvider(),
+              backgroundImage: ImageService().getImageProvider(),
             ),
             title: Text(group.name),
           ),

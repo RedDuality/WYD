@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/enum/update_type.dart';
@@ -18,19 +16,10 @@ class RealTimeService {
 
   RealTimeService._internal();
 
-  static String _generateUniqueId() {
-    const chars =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    final rand = Random();
-    return List.generate(6, (index) => chars[rand.nextInt(chars.length)])
-        .join();
-  }
-
   bool firstread = true;
 
-  initialize(String userHash) async {
+  start(String userHash) async {
     creationTime = DateTime.now();
-    deviceId = _generateUniqueId();
 
     FirebaseFirestore.instance
         .collection(userHash)
@@ -43,10 +32,9 @@ class RealTimeService {
         return;
       }
       var update = snapshot.docs[0];
-      if (!update.data().containsKey("deviceId") ||
-          update["deviceId"] != deviceId) {
-        handleUpdate(update);
-      }
+
+      //Yes, current device will update 2 times
+      handleUpdate(update);
     });
   }
 
@@ -56,32 +44,35 @@ class RealTimeService {
       case UpdateType.newEvent:
         EventService().retrieveNewByHash(snapshot['hash']);
         break;
+      case UpdateType.shareEvent:
+        EventService().retrieveSharedByHash(snapshot['hash']);
+        break;
       case UpdateType.updateEvent:
         EventService().retrieveUpdateByHash(snapshot['hash']);
         break;
+      case UpdateType.updatePhotos:
+        EventService().retrieveImageUpdateByHash(snapshot['hash']);
+        break;
       case UpdateType.confirmEvent:
-        debugPrint("confirmed");
         var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null) {
-          event.confirm();
-          EventProvider().updateEvent(event);
+        if (event != null && snapshot['phash'] != null) {
+          EventService()
+              .localConfirm(event, true, profileHash: snapshot['phash']);
         }
         break;
       case UpdateType.declineEvent:
-        debugPrint("declined");
         var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null) {
-          event.decline();
-          EventProvider().updateEvent(event);
+        if (event != null && snapshot['phash'] != null) {
+          EventService()
+              .localConfirm(event, false, profileHash: snapshot['phash']);
         }
         break;
       case UpdateType.profileDetails:
         //_handleProfileUpdate(snapshot['id']);
         break;
       default:
-        debugPrint("default notification not catch $typeIndex" );
+        debugPrint("default notification not catch $typeIndex");
         break;
     }
   }
-
 }

@@ -23,7 +23,7 @@ class CommunityAPI {
     String url = '${functionUrl}Retrieve/Profile';
 
     return client.get(
-      Uri.parse("$url/${profile.id}"),
+      Uri.parse("$url/${profile.hash}"),
     );
   }
 

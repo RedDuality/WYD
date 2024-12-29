@@ -4,8 +4,8 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/state/event_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/view/widget/event/event_detail.dart';
 import 'package:wyd_front/view/widget/event/event_tile.dart';
+import 'package:wyd_front/view/widget/event/event_detail.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/widget/util/add_event_button.dart';
 
@@ -35,15 +35,13 @@ class _EventsPageState extends State<EventsPage> {
         var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
         if (eventHash != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-            final event = await EventService().retrieveNewByHash(eventHash);
 
+
+            final event = await EventService().retrieveAndAddByHash(eventHash);
+
+            EventService().initializeDetails(event, null, event.confirmed());
             if (context.mounted) {
-              showCustomDialog(
-                  context,
-                  EventDetail(
-                      initialEvent: event,
-                      date: null,
-                      confirmed: event.confirmed()));
+              showCustomDialog(context, EventDetail());
             }
           });
           _dialogShown = true;
@@ -70,18 +68,18 @@ class _EventsPageState extends State<EventsPage> {
         controller: EventProvider(),
         showLiveTimeLineInAllDays: false,
         scrollOffset: 480.0,
-        onEventTap: (events, date) => showCustomDialog(
-          context,
-          EventDetail(
-              initialEvent: events.whereType<Event>().toList().first,
-              date: null,
-              confirmed: widget.private),
-        ),
-        onDateLongPress: (date) => showCustomDialog(
-          context,
-          EventDetail(
-              initialEvent: null, date: date, confirmed: widget.private),
-        ),
+        onEventTap: (events, date) {
+          Event selectedEvent = events.whereType<Event>().toList().first;
+
+          EventService().initializeDetails(selectedEvent, null, widget.private);
+
+          showCustomDialog(context, EventDetail());
+        },
+        onDateLongPress: (date) {
+          EventService().initializeDetails(null, date, widget.private);
+
+          showCustomDialog(context, EventDetail());
+        },
         minuteSlotSize: MinuteSlotSize.minutes15,
         keepScrollOffset: true,
       ),
@@ -171,7 +169,7 @@ class _EventsPageState extends State<EventsPage> {
                           EventProvider().changeMode(_private);
                         });
                       },
-                      icon: const Icon(Icons.event,
+                      icon: const Icon(Icons.event_available,
                           size: 30, color: Colors.white),
                       label: showText
                           ? const Text(
@@ -195,7 +193,7 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.event,
+                      icon: const Icon(Icons.event_available,
                           size: 30), // Icon inside the button
                       onPressed: () {
                         setState(() {
