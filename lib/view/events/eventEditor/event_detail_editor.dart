@@ -91,7 +91,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (!hasBeenChanged && exists) // Share
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () {
                         showCustomDialog(
                           context,
@@ -99,17 +99,18 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                               eventTitle: event.title, eventHash: event.hash!),
                         );
                       },
-                      icon: Icon(Icons.share),
-                      label: Row(
+                      child: Row(
                         children: [
-                          if (MediaQuery.of(context).size.width > 450)
-                            Text('Share', style: TextStyle(fontSize: 18)),
+                          Icon(Icons.share),
+                          MediaQuery.of(context).size.width > 450
+                              ? Text('Share', style: TextStyle(fontSize: 18))
+                              : Container(),
                         ],
                       ),
                     ),
                   const SizedBox(width: 10),
                   if (!hasBeenChanged && exists) // Send
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         String? siteUrl = dotenv.env['SITE_URL'];
                         String fullUrl = "$siteUrl#/shared?event=${event.hash}";
@@ -123,48 +124,52 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                           }
                         } else {
                           // If running on mobile, use the share dialog
-                          await Share.share(fullUrl);
+                          await Share.share(fullUrl, subject: event.title);
                         }
                       },
-                      icon: Icon(Icons.send),
-                      label: Row(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (MediaQuery.of(context).size.width > 450)
-                            Text('Send', style: TextStyle(fontSize: 18)),
+                          Icon(Icons.send),
+                          MediaQuery.of(context).size.width > 450
+                              ? Text('Send', style: TextStyle(fontSize: 18))
+                              : SizedBox.shrink(),
                         ],
                       ),
                     ),
                   const SizedBox(width: 10),
                   if (!hasBeenChanged && exists && event.confirmed) // Decline
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         var currentEvent = event.getEventWithCurrentFields();
                         await EventService().decline(currentEvent);
                       },
-                      icon: Icon(Icons.event_busy),
-                      label: Row(
+                      child: Row(
                         children: [
-                          if (MediaQuery.of(context).size.width > 400)
-                            Text('Decline', style: TextStyle(fontSize: 18)),
+                          Icon(Icons.event_busy),
+                          MediaQuery.of(context).size.width > 400
+                              ? Text('Decline', style: TextStyle(fontSize: 18))
+                              : Container(),
                         ],
                       ),
                     ),
                   if (!hasBeenChanged && exists && !event.confirmed) // Confirm
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         var currentEvent = event.getEventWithCurrentFields();
                         await EventService().confirm(currentEvent);
                       },
-                      icon: Icon(Icons.event_available),
-                      label: Row(
+                      child: Row(
                         children: [
-                          if (MediaQuery.of(context).size.width > 300)
-                            Text('Confirm', style: TextStyle(fontSize: 18)),
+                          Icon(Icons.event_available),
+                          MediaQuery.of(context).size.width > 300
+                              ? Text('Confirm', style: TextStyle(fontSize: 18))
+                              : Container(),
                         ],
                       ),
                     ),
                   if (exists && hasBeenChanged) // Update
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         await _updateEvent(event);
                         if (context.mounted) {
@@ -172,16 +177,16 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                               context, "Evento aggiornato con successo");
                         }
                       },
-                      icon: Icon(Icons.update),
-                      label: Row(
+                      child: Row(
                         children: [
+                          Icon(Icons.update),
                           if (MediaQuery.of(context).size.width > 200)
                             Text('Update', style: TextStyle(fontSize: 18)),
                         ],
                       ),
                     ),
                   if (!exists) // Save
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         await _createEvent(event);
                         if (context.mounted) {
@@ -189,9 +194,9 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                               context, "Evento creato con successo");
                         }
                       },
-                      icon: Icon(Icons.save),
-                      label: Row(
+                      child: Row(
                         children: [
+                          Icon(Icons.save),
                           if (MediaQuery.of(context).size.width > 400)
                             Text('Save', style: TextStyle(fontSize: 18)),
                         ],
