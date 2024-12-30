@@ -107,13 +107,14 @@ class EventAPI {
     throw "It was not possible to decline the event";
   }
 
-  Future<void> shareToGroups(String eventhash, Set<int> groupIds) async {
+  Future<Event> shareToGroups(String eventhash, Set<int> groupIds) async {
     String url = '${functionUrl}Share/Groups';
 
     var response = await client.post(Uri.parse('$url/$eventhash'),
         body: json.encode(groupIds.toList()));
     if (response.statusCode == 200) {
-      return;
+      Event event = Event.fromJson(jsonDecode(response.body));
+      return event;
     }
     throw "There was an error while sharing the event";
   }

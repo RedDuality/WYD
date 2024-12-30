@@ -3,7 +3,6 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
 import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/blob_provider.dart';
 import 'package:wyd_front/state/detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
@@ -118,10 +117,8 @@ class EventService {
   }
 
   Future<void> shareToGroups(String eventHash, Set<int> groupsIds) async {
-    EventAPI().shareToGroups(eventHash, groupsIds).then((response) {
-      InformationService().showOverlaySnackBar("Evento condiviso con successo");
-    }).catchError((error) {
-      InformationService().showOverlaySnackBar(error.toString());
-    });
+    var event = await EventAPI().shareToGroups(eventHash, groupsIds);
+
+    localUpdate(event);
   }
 }
