@@ -31,6 +31,9 @@ android {
     ndkVersion flutter.ndkVersion
 
     compileOptions {
+        //flutter_local_notifications
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -48,10 +51,13 @@ android {
         applicationId "com.example.wyd_front"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 23
+        minSdkVersion 34
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        //flutter_local_notifications
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -67,4 +73,9 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    //flutter_local_notifications
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    //implementation 'androidx.window:window:1.0.0'
+    //implementation 'androidx.window:window-java:1.0.0'
+}

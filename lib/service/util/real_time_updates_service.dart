@@ -4,17 +4,17 @@ import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/state/event_provider.dart';
 
-class RealTimeService {
-  static final RealTimeService _instance = RealTimeService._internal();
+class RealTimeUpdateService {
+  static final RealTimeUpdateService _instance = RealTimeUpdateService._internal();
 
-  factory RealTimeService({BuildContext? context}) {
+  factory RealTimeUpdateService({BuildContext? context}) {
     return _instance;
   }
 
   late String deviceId;
   late DateTime creationTime;
 
-  RealTimeService._internal();
+  RealTimeUpdateService._internal();
 
   bool firstread = true;
 

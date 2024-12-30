@@ -60,6 +60,8 @@ dependencies:
   permission_handler: ^11.3.1
   photo_manager_image_provider: ^2.2.0
   package_info_plus: ^8.1.2
+  workmanager: ^0.5.2
+  flutter_local_notifications: ^18.0.1
 
 
 dev_dependencies:

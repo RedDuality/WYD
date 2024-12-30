@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/service/util/notification_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/eventEditor/blob_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
@@ -25,6 +27,8 @@ Future main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  if (!kIsWeb) NotificationService().initialize();
 
   //SharedPreferences prefs = await SharedPreferences.getInstance();
 

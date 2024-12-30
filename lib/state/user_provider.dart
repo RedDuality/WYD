@@ -3,7 +3,7 @@ import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/community_service.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/model/user.dart';
-import 'package:wyd_front/service/util/real_time_service.dart';
+import 'package:wyd_front/service/util/real_time_updates_service.dart';
 
 class UserProvider extends ChangeNotifier {
   // Private static instance
@@ -53,6 +53,6 @@ class UserProvider extends ChangeNotifier {
     EventService().retrieveMultiple();
 
 
-    RealTimeService().start(user.hash);
+    RealTimeUpdateService().start(user.hash);
   }
 }
