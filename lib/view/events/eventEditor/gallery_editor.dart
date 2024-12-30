@@ -4,11 +4,11 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/state/blob_provider.dart';
-import 'package:wyd_front/view/widget/event/image_display.dart';
+import 'package:wyd_front/state/eventEditor/blob_provider.dart';
+import 'package:wyd_front/view/widget/image_display.dart';
 
-class ImageDetail extends StatelessWidget {
-  const ImageDetail({super.key});
+class GalleryEditor extends StatelessWidget {
+  const GalleryEditor({super.key});
 
   double _getWidth(double maxWidth, double minWidth, int elementcount) {
     final divider = (maxWidth / minWidth).floor();
@@ -40,22 +40,22 @@ class ImageDetail extends StatelessWidget {
                     color: Colors.grey,
                     thickness: 0.5,
                   ),
+                if (!kIsWeb)
+                  ElevatedButton(
+                    onPressed: () async {
+                      List<AssetEntity> newImages = await ImageService()
+                          .retrieveImagesByTime(
+                              DateTime.now().subtract(Duration(days: 1)),
+                              DateTime.now());
+                      if (newImages.isNotEmpty) {
+                        imageProvider.addCachedImages(newImages);
+                      }
+                    },
+                    child: const Text("Trigger Test Upload Images"),
+                  ),
                 if (imageProvider.cachedImages.isNotEmpty)
                   Column(
                     children: [
-                      if (!kIsWeb)
-                        ElevatedButton(
-                          onPressed: () async {
-                            List<AssetEntity> newImages = await ImageService()
-                                .retrieveImagesByTime(
-                                    DateTime.now().subtract(Duration(days: 1)),
-                                    DateTime.now());
-                            if (newImages.isNotEmpty) {
-                              imageProvider.cachedImages.addAll(newImages);
-                            }
-                          },
-                          child: const Text("Trigger Test Upload Images"),
-                        ),
                       Text('These are the images you took during this event:',
                           style: TextStyle(fontSize: 18)),
                       SizedBox(
@@ -98,8 +98,7 @@ class ImageDetail extends StatelessWidget {
                                         imageProvider.cachedImages);
                                 await EventService().uploadImages(
                                     imageProvider.hash!, cachedImages);
-                                //EventProvider's event's CachedImages are already cleared by the EventProvider.updateEvent
-                                imageProvider.clearNewImages();
+
                               },
                               icon: Icon(Icons.thumb_up_alt),
                               label: Row(

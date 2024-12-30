@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
-import 'package:wyd_front/view/events_page.dart';
-import 'package:wyd_front/view/group_page.dart';
+import 'package:wyd_front/view/events/events_page.dart';
+import 'package:wyd_front/view/groups/group_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

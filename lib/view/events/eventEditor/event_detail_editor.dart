@@ -7,10 +7,10 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/state/detail_provider.dart';
+import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/view/widget/event/range_editor.dart';
-import 'package:wyd_front/view/widget/event/share_page.dart';
+import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
+import 'package:wyd_front/view/events/eventEditor/share_page.dart';
 
 class EventDetailEditor extends StatefulWidget {
   const EventDetailEditor({super.key});

@@ -3,8 +3,8 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
 import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/state/blob_provider.dart';
-import 'package:wyd_front/state/detail_provider.dart';
+import 'package:wyd_front/state/eventEditor/blob_provider.dart';
+import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
 
 class EventService {
@@ -30,7 +30,7 @@ class EventService {
 
   void addCachedImages(Event event) {
     EventProvider().updateEvent(event);
-    BlobProvider().addCachedImages(event);
+    BlobProvider().addCachedImages(event.cachedNewImages);
   }
 
   void localUpdate(Event updatedEvent) {
@@ -38,8 +38,8 @@ class EventService {
     DetailProvider().updateCurrentEvent(updatedEvent);
   }
 
-  void localImageUpdate(Event updatedEvent) {
-    EventProvider().updateEvent(updatedEvent);
+  void localImageUpdate(Event updatedEvent, {bool keepCachedImages = true}) {
+    EventProvider().updateEvent(updatedEvent, keepCachedImages: keepCachedImages);
     BlobProvider().updateImageHashes(updatedEvent.images);
   }
 
@@ -70,6 +70,8 @@ class EventService {
     if (EventProvider().findEventByHash(eventHash) == null) {
       var event = await EventAPI().retrieveFromHash(eventHash);
       EventProvider().add(event);
+    } else{
+      retrieveUpdateByHash(eventHash);
     }
   }
 
@@ -100,8 +102,13 @@ class EventService {
 
   Future<void> uploadImages(String eventHash, List<BlobData> blobs) async {
     var event = await EventAPI().uploadImages(eventHash, blobs);
-
     localImageUpdate(event);
+  }
+
+  Future<void> uploadCachedImages(String eventHash, List<BlobData> blobs) async {
+    var event = await EventAPI().uploadImages(eventHash, blobs);
+
+    localImageUpdate(event, keepCachedImages: false);
   }
 
   Future<void> confirm(Event event) async {

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:wyd_front/model/event.dart';
-
-
 
 class BlobProvider extends ChangeNotifier {
   // Private static instance variable
@@ -22,7 +19,14 @@ class BlobProvider extends ChangeNotifier {
 
   List<AssetEntity> cachedImages = [];
 
-  void initialize({String? hash, List<String>? imageHashes,   List<AssetEntity>? cachedImages}) {
+  bool cacheHashBeenModified = false;
+
+  void initialize(
+      {String? hash,
+      List<String>? imageHashes,
+      List<AssetEntity>? cachedImages}) {
+    cacheHashBeenModified = false;
+
     this.hash = hash;
     this.imageHashes = imageHashes ?? [];
     this.cachedImages = cachedImages ?? [];
@@ -39,27 +43,31 @@ class BlobProvider extends ChangeNotifier {
     return hash != null;
   }
 
-  
-  void addCachedImages(Event event) {
-    if (event.hash == hash) {
-      cachedImages.addAll(event.cachedNewImages);
-      notifyListeners();
-    }
+  void addCachedImages(List<AssetEntity> cachedNewImages) {
+    cachedImages.addAll(cachedNewImages);
+    notifyListeners();
   }
 
   void removeNewImage(AssetEntity image) {
+    cacheHashBeenModified = true;
     cachedImages.remove(image);
     notifyListeners();
   }
 
   void clearNewImages() {
     cachedImages.clear();
+    cacheHashBeenModified = true;
+
     notifyListeners();
   }
 
-  void updateImageHashes(List<String> imageHashes){
+  void updateImageHashes(List<String> imageHashes,
+      {bool keepCachedImages = true}) {
     this.imageHashes = imageHashes;
+    if (!keepCachedImages) {
+      cachedImages.clear();
+      cacheHashBeenModified = false;
+    }
     notifyListeners();
   }
-
 }

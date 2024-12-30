@@ -6,7 +6,7 @@ import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 import 'package:wyd_front/view/widget/header.dart';
-import 'package:wyd_front/view/widget/search_user_page.dart';
+import 'package:wyd_front/view/groups/search_user_page.dart';
 
 class GroupPage extends StatelessWidget {
   const GroupPage({super.key});

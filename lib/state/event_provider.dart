@@ -27,9 +27,12 @@ class EventProvider extends EventController {
         .firstOrNull;
   }
 
-  updateEvent(Event updatedEvent) {
+  updateEvent(Event updatedEvent, {bool keepCachedImages = true}) {
     var originalEvent = findEventByHash(updatedEvent.hash);
 
+    if(originalEvent != null && keepCachedImages){
+      updatedEvent.cachedNewImages = originalEvent.cachedNewImages;
+    }
     originalEvent != null ? update(originalEvent, updatedEvent) : add(updatedEvent);
   }
 
