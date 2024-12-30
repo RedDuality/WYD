@@ -71,6 +71,9 @@ class EventDetailState extends State<EventDetail> {
                     color: Colors.white,
                     fontSize: 20.0,
                   ),
+                  onEditingComplete: () {
+                    _updateTitle(provider);
+                  },
                   onFieldSubmitted: (value) {
                     _updateTitle(provider);
                   },

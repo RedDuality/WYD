@@ -71,6 +71,9 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                 onFieldSubmitted: (value) {
                   _updateDescription(event);
                 },
+                onEditingComplete: () {
+                  _updateDescription(event);
+                },
                 decoration: const InputDecoration(
                   hintText: 'No description',
                   contentPadding: EdgeInsets.symmetric(vertical: 4),
