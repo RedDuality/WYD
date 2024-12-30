@@ -27,13 +27,20 @@ class EventProvider extends EventController {
         .firstOrNull;
   }
 
-  updateEvent(Event updatedEvent, {bool keepCachedImages = true}) {
+  Event retrieveEventByHash(String eventHash) {
+    var event = findEventByHash(eventHash);
+    if (event != null) {
+      return event;
+    }
+    throw "There was an error while retrieving the event";
+  }
+
+  updateEvent(Event updatedEvent) {
     var originalEvent = findEventByHash(updatedEvent.hash);
 
-    if(originalEvent != null && keepCachedImages){
-      updatedEvent.cachedNewImages = originalEvent.cachedNewImages;
-    }
-    originalEvent != null ? update(originalEvent, updatedEvent) : add(updatedEvent);
+    originalEvent != null
+        ? update(originalEvent, updatedEvent)
+        : add(updatedEvent);
   }
 
   changeMode(bool privateMode) {
@@ -42,7 +49,6 @@ class EventProvider extends EventController {
   }
 
   myUpdateFilter() {
-  
     super
         .updateFilter(newFilter: (date, events) => myEventFilter(date, events));
   }
@@ -51,8 +57,8 @@ class EventProvider extends EventController {
       DateTime date, List<CalendarEventData<T>> events) {
     return events
         .whereType<Event>()
-        .where(
-            (event) => event.occursOnDate(date.toLocal()) && event.confirmed() == private)
+        .where((event) =>
+            event.occursOnDate(date.toLocal()) && event.confirmed() == private)
         .toList();
   }
 }

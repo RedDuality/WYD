@@ -51,7 +51,10 @@ class RealTimeService {
         EventService().retrieveUpdateByHash(snapshot['hash']);
         break;
       case UpdateType.updatePhotos:
-        EventService().retrieveImageUpdateByHash(snapshot['hash']);
+        var event = EventProvider().findEventByHash(snapshot['hash']);
+        if (event != null ) {
+          EventService().retrieveImageUpdatesByHash(event);
+        }
         break;
       case UpdateType.confirmEvent:
         var event = EventProvider().findEventByHash(snapshot['hash']);

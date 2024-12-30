@@ -13,7 +13,7 @@ class BlobProvider extends ChangeNotifier {
     return _instance;
   }
 
-  String? hash;
+  String hash = "";
 
   List<String> imageHashes = [];
 
@@ -27,7 +27,7 @@ class BlobProvider extends ChangeNotifier {
       List<AssetEntity>? cachedImages}) {
     cacheHashBeenModified = false;
 
-    this.hash = hash;
+    this.hash = hash ?? "";
     this.imageHashes = imageHashes ?? [];
     this.cachedImages = cachedImages ?? [];
 
@@ -40,34 +40,46 @@ class BlobProvider extends ChangeNotifier {
   }
 
   bool exists() {
-    return hash != null;
+    return hash.isNotEmpty;
   }
 
-  void addCachedImages(List<AssetEntity> cachedNewImages) {
-    cachedImages.addAll(cachedNewImages);
-    notifyListeners();
-  }
-
-  void removeNewImage(AssetEntity image) {
-    cacheHashBeenModified = true;
-    cachedImages.remove(image);
-    notifyListeners();
-  }
-
-  void clearNewImages() {
-    cachedImages.clear();
-    cacheHashBeenModified = true;
-
-    notifyListeners();
-  }
-
-  void updateImageHashes(List<String> imageHashes,
-      {bool keepCachedImages = true}) {
-    this.imageHashes = imageHashes;
-    if (!keepCachedImages) {
-      cachedImages.clear();
-      cacheHashBeenModified = false;
+  void addCachedImages(List<AssetEntity> cachedNewImages,
+      {required String hash}) {
+    if (this.hash == hash) {
+      cachedImages.addAll(cachedNewImages);
+      notifyListeners();
     }
-    notifyListeners();
+  }
+
+  void removeCachedImage(AssetEntity image, {required String hash}) {
+    if (this.hash == hash) {
+      cacheHashBeenModified = true;
+      cachedImages.remove(image);
+      notifyListeners();
+    }
+  }
+
+  void clearCachedImages({required String hash}) {
+    if (this.hash == hash) {
+      cachedImages.clear();
+      cacheHashBeenModified = true;
+      notifyListeners();
+    }
+  }
+
+  void updateImageHashes(List<String> imageHashes, {required String hash}) {
+    if (this.hash == hash) {
+      this.imageHashes = imageHashes;
+      notifyListeners();
+    }
+  }
+
+  void uploadedCachedImages(List<String> imageHashes, {required String hash}) {
+    if (this.hash == hash) {
+      cachedImages.clear();
+      cacheHashBeenModified = true;
+      this.imageHashes = imageHashes;
+      notifyListeners();
+    }
   }
 }
