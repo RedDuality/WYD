@@ -119,7 +119,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                           await Clipboard.setData(ClipboardData(text: fullUrl));
 
                           if (context.mounted) {
-                            InformationService().showInfoSnackBar(
+                            InformationService().showOverlaySnackBar(
                                 context, "Link copiato con successo");
                           }
                         } else {
@@ -173,7 +173,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                       onPressed: () async {
                         await _updateEvent(event);
                         if (context.mounted) {
-                          InformationService().showInfoSnackBar(
+                          InformationService().showOverlaySnackBar(
                               context, "Evento aggiornato con successo");
                         }
                       },
@@ -189,10 +189,6 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                     ElevatedButton(
                       onPressed: () async {
                         await _createEvent(event);
-                        if (context.mounted) {
-                          InformationService().showInfoSnackBar(
-                              context, "Evento creato con successo");
-                        }
                       },
                       child: Row(
                         children: [

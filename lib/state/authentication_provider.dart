@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -99,19 +98,13 @@ class AuthenticationProvider with ChangeNotifier {
     try {
       final idToken = await _user?.getIdToken();
       if (idToken != null) {
-        final response = await AuthAPI().verifyToken(idToken);
-
-        if (response.statusCode == 200) {
-          user = model.User.fromJson(jsonDecode(response.body));
+        user = await AuthAPI().verifyToken(idToken);
           _isBackendVerified = true;
-        } else {
-          throw "Server verification failed: ${response.statusCode}";
-        }
       } else {
-        throw "Token null";
+        throw "It was not possible to login";
       }
     } catch (e) {
-      throw "Error during server verification: ${e.toString()}";
+      throw e.toString();
     }
 
     notifyListeners(); //successful,move to HomePage
