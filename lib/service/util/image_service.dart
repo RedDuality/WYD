@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:wyd_front/model/DTO/blob_data.dart';
@@ -13,25 +12,7 @@ import 'package:wyd_front/model/DTO/blob_data.dart';
 enum ImageSize { mini, midi, big }
 
 class ImageService {
-  Future<void> requestPermissions() async {
-    // Request permission to access photos
-    PermissionStatus status = await Permission.photos.request();
 
-    if (status.isGranted) {
-      debugPrint("Gallery access granted!");
-    } else if (status.isDenied) {
-      debugPrint("Gallery access denied.");
-      // Check if permission is denied permanently and guide the user to settings
-      if (await Permission.photos.isPermanentlyDenied) {
-        debugPrint("Permission is permanently denied. Opening settings...");
-        openAppSettings(); // Opens app settings so the user can manually enable the permission
-      }
-    } else if (status.isPermanentlyDenied) {
-      // The user has permanently denied the permission, show an explanation
-      debugPrint("Gallery access permanently denied. Opening settings...");
-      openAppSettings(); // Open app settings for the user to manually enable
-    }
-  }
 
   Future<BlobData?> _compressImage(Uint8List imageData) async {
     if (imageData.isNotEmpty) {
@@ -106,47 +87,7 @@ class ImageService {
     return compressedImages;
   }
 
-  Future<List<AssetEntity>> retrieveImagesByTime(
-      DateTime? start, DateTime? end) async {
-    // Request permissions to access photos before proceeding
-    await requestPermissions();
 
-    if (start == null || end == null) {
-      throw ArgumentError("Both start and end dates must be provided.");
-    }
-
-    // Define the filter options for retrieving media
-    final FilterOptionGroup optionGroup = FilterOptionGroup(
-      createTimeCond: DateTimeCond(
-        min: start,
-        max: end,
-      ),
-      orders: [
-        OrderOption(type: OrderOptionType.createDate, asc: false)
-      ], // Order by creation date descending
-    );
-
-    // Get the list of media albums
-    final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
-      type: RequestType.image,
-      filterOption: optionGroup,
-    );
-
-    // Filter the list to find the main camera folder
-    AssetPathEntity? album;
-    try {
-      album =
-          albums.firstWhere((album) => album.name.toLowerCase() == "camera");
-    } catch (e) {
-      debugPrint("No Camera album was found");
-      return [];
-    }
-
-    return await album.getAssetListPaged(
-      page: 0,
-      size: await album.assetCountAsync,
-    );
-  }
 
   bool _isValid(String? url) {
     return url != null && Uri.parse(url).hasAbsolutePath;

@@ -32,6 +32,8 @@ class EventAPI {
     throw "Error while fetching the event";
   }
 
+
+
   //automatically add the event
   Future<Event> sharedWithHash(String eventHash) async {
     String url = '${functionUrl}Shared';
@@ -71,14 +73,28 @@ class EventAPI {
     throw "Error while updating the event";
   }
 
-  Future<Event> uploadImages(String eventHash, List<BlobData> blobs) async {
+  Future<List<String>> retrieveImageUpdatesFromHash(String eventHash) async {
+    String url = '${functionUrl}Retrieve';
+
+    var response = await client.get(Uri.parse('$url/$eventHash'));
+
+    if (response.statusCode == 200) {
+      var event = Event.fromJson(jsonDecode(response.body));
+      return event.images;
+    }
+
+    throw "Error while fetching the event";
+  }
+
+  Future<List<String>> uploadImages(
+      String eventHash, List<BlobData> blobs) async {
     String url = '${functionUrl}Upload/Photos';
 
     var response = await client.post(Uri.parse('$url/$eventHash'),
         body: jsonEncode(blobs));
     if (response.statusCode == 200) {
       Event event = Event.fromJson(jsonDecode(response.body));
-      return event;
+      return event.images;
     }
     throw "Error while updating the event";
   }
@@ -107,13 +123,14 @@ class EventAPI {
     throw "It was not possible to decline the event";
   }
 
-  Future<void> shareToGroups(String eventhash, Set<int> groupIds) async {
+  Future<Event> shareToGroups(String eventhash, Set<int> groupIds) async {
     String url = '${functionUrl}Share/Groups';
 
     var response = await client.post(Uri.parse('$url/$eventhash'),
         body: json.encode(groupIds.toList()));
     if (response.statusCode == 200) {
-      return;
+      Event event = Event.fromJson(jsonDecode(response.body));
+      return event;
     }
     throw "There was an error while sharing the event";
   }

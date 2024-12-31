@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/view/profiles_page.dart';
+import 'package:wyd_front/view/profiles/profiles_page.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
   final String title;

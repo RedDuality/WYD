@@ -1,14 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/state/blob_provider.dart';
-import 'package:wyd_front/view/widget/event/image_display.dart';
+import 'package:wyd_front/service/util/photo_retriever_service.dart';
+import 'package:wyd_front/state/eventEditor/blob_provider.dart';
+import 'package:wyd_front/state/event_provider.dart';
+import 'package:wyd_front/view/widget/image_display.dart';
 
-class ImageDetail extends StatelessWidget {
-  const ImageDetail({super.key});
+class GalleryEditor extends StatelessWidget {
+  const GalleryEditor({super.key});
 
   double _getWidth(double maxWidth, double minWidth, int elementcount) {
     final divider = (maxWidth / minWidth).floor();
@@ -40,22 +41,35 @@ class ImageDetail extends StatelessWidget {
                     color: Colors.grey,
                     thickness: 0.5,
                   ),
-                if (imageProvider.cachedImages.isNotEmpty)
-                  Column(
-                    children: [
-                      if (!kIsWeb)
+                if (!kIsWeb)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         ElevatedButton(
                           onPressed: () async {
-                            List<AssetEntity> newImages = await ImageService()
-                                .retrieveImagesByTime(
-                                    DateTime.now().subtract(Duration(days: 1)),
-                                    DateTime.now());
-                            if (newImages.isNotEmpty) {
-                              imageProvider.cachedImages.addAll(newImages);
-                            }
+                            PhotoRetrieverService()
+                                .retrieveShootedPhotos(imageProvider.hash);
                           },
-                          child: const Text("Trigger Test Upload Images"),
+                          child: Row(
+                            children: [
+                              Icon(Icons.search),
+                              MediaQuery.of(context).size.width > 200
+                                  ? const Text("Cerca Immagini",
+                                      style: TextStyle(fontSize: 18))
+                                  : Container(),
+                            ],
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
+
+                if (imageProvider.cachedImages.isNotEmpty ||
+                    imageProvider.cacheHashBeenModified)
+                  Column(
+                    children: [
                       Text('These are the images you took during this event:',
                           style: TextStyle(fontSize: 18)),
                       SizedBox(
@@ -76,7 +90,8 @@ class ImageDetail extends StatelessWidget {
                                   image: ImageService()
                                       .getImageFromAssetEntity(image),
                                   onDelete: () =>
-                                      imageProvider.removeNewImage(image),
+                                      imageProvider.removeCachedImage(
+                                          hash: imageProvider.hash, image),
                                 );
                               }),
                             ),
@@ -91,22 +106,25 @@ class ImageDetail extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ElevatedButton.icon(
+                            ElevatedButton(
                               onPressed: () async {
                                 var cachedImages = await ImageService()
                                     .dataFromAssetEntities(
                                         imageProvider.cachedImages);
-                                await EventService().uploadImages(
-                                    imageProvider.hash!, cachedImages);
-                                //EventProvider's event's CachedImages are already cleared by the EventProvider.updateEvent
-                                imageProvider.clearNewImages();
+                                var event = EventProvider()
+                                    .retrieveEventByHash(imageProvider.hash);
+                                cachedImages.isNotEmpty
+                                    ? await EventService()
+                                        .uploadCachedImages(event, cachedImages)
+                                    : EventService().clearCachedImages(event);
                               },
-                              icon: Icon(Icons.thumb_up_alt),
-                              label: Row(
+                              child: Row(
                                 children: [
-                                  if (MediaQuery.of(context).size.width > 200)
-                                    Text('Approve',
-                                        style: TextStyle(fontSize: 18)),
+                                  Icon(Icons.thumb_up_alt),
+                                  MediaQuery.of(context).size.width > 200
+                                      ? Text('Confirm',
+                                          style: TextStyle(fontSize: 18))
+                                      : Container(),
                                 ],
                               ),
                             ),
@@ -139,8 +157,10 @@ class ImageDetail extends StatelessWidget {
                             onPressed: () async {
                               var images = await ImageService().pickImages();
                               if (images.isNotEmpty) {
-                                EventService()
-                                    .uploadImages(imageProvider.hash!, images);
+                                var event = EventProvider()
+                                    .retrieveEventByHash(imageProvider.hash);
+                                await EventService()
+                                    .uploadImages(event, images);
                               }
                             },
                             icon: Icon(Icons.upload),
@@ -169,7 +189,7 @@ class ImageDetail extends StatelessWidget {
                               return ImageDisplay(
                                 maxWidth: itemWidth,
                                 image: ImageService().getEventImage(
-                                    imageProvider.hash!, imageHash),
+                                    imageProvider.hash, imageHash),
                               );
                             }).toList(),
                           ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/state/detail_provider.dart';
-import 'package:wyd_front/view/widget/event/event_detail_editor.dart';
-import 'package:wyd_front/view/widget/event/image_detail.dart';
+import 'package:wyd_front/state/eventEditor/detail_provider.dart';
+import 'package:wyd_front/view/events/eventEditor/event_detail_editor.dart';
+import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
 
 class EventDetail extends StatefulWidget {
   const EventDetail({super.key});
@@ -71,6 +71,9 @@ class EventDetailState extends State<EventDetail> {
                     color: Colors.white,
                     fontSize: 20.0,
                   ),
+                  onEditingComplete: () {
+                    _updateTitle(provider);
+                  },
                   onFieldSubmitted: (value) {
                     _updateTitle(provider);
                   },
@@ -97,7 +100,7 @@ class EventDetailState extends State<EventDetail> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: ImageDetail(),
+            child: GalleryEditor(),
           ),
         ),
       ],

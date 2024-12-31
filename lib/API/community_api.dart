@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/model/DTO/create_community_dto.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
@@ -19,21 +19,40 @@ class CommunityAPI {
           ProfileInterceptor()
         ]);
 
-  Future<Response> retrieveCommunities(Profile profile) async {
+  Future<List<Community>> retrieveCommunities(String profileHash) async {
     String url = '${functionUrl}Retrieve/Profile';
 
-    return client.get(
-      Uri.parse("$url/${profile.hash}"),
+    var response = await client.get(
+      Uri.parse("$url/$profileHash"),
     );
+
+    if (response.statusCode == 200) {
+      List<dynamic> parsedJson = json.decode(response.body);
+      List<Community> communities = parsedJson
+          .map((community) =>
+              Community.fromJson(community as Map<String, dynamic>))
+          .toList();
+
+      return communities;
+    } else {
+      throw "Error while creating the community, please retry later";
+    }
   }
 
-  Future<Response> create(CreateCommunityDto community) async {
+  Future<Community> create(CreateCommunityDto community) async {
     String url = '${functionUrl}Create';
 
-    return client.post(
+    var response = await client.post(
       Uri.parse(url),
       body: jsonEncode(community),
     );
+
+     if (response.statusCode == 200) {
+      Community newCommunity = Community.fromJson(jsonDecode(response.body));
+      return newCommunity;
+    } else {
+      throw "Error while creating the community, please retry later";
+    }
   }
 
 /*

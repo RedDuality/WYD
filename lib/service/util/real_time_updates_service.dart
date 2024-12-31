@@ -3,26 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/state/event_provider.dart';
+import 'package:wyd_front/state/user_provider.dart';
 
-class RealTimeService {
-  static final RealTimeService _instance = RealTimeService._internal();
+class RealTimeUpdateService {
+  static final RealTimeUpdateService _instance =
+      RealTimeUpdateService._internal();
 
-  factory RealTimeService({BuildContext? context}) {
+  factory RealTimeUpdateService({BuildContext? context}) {
     return _instance;
   }
 
   late String deviceId;
   late DateTime creationTime;
 
-  RealTimeService._internal();
+  RealTimeUpdateService._internal();
 
   bool firstread = true;
 
-  start(String userHash) async {
+  start() async {
+    
+    var user = UserProvider().user;
+    if (user == null) throw "User is null";
+
     creationTime = DateTime.now();
 
     FirebaseFirestore.instance
-        .collection(userHash)
+        .collection(user.hash)
         .orderBy('timestamp', descending: true)
         .limit(1)
         .snapshots()
@@ -51,7 +57,10 @@ class RealTimeService {
         EventService().retrieveUpdateByHash(snapshot['hash']);
         break;
       case UpdateType.updatePhotos:
-        EventService().retrieveImageUpdateByHash(snapshot['hash']);
+        var event = EventProvider().findEventByHash(snapshot['hash']);
+        if (event != null) {
+          EventService().retrieveImageUpdatesByHash(event);
+        }
         break;
       case UpdateType.confirmEvent:
         var event = EventProvider().findEventByHash(snapshot['hash']);

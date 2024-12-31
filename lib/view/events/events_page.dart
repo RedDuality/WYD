@@ -4,8 +4,8 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/state/event_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/view/widget/event/event_tile.dart';
-import 'package:wyd_front/view/widget/event/event_detail.dart';
+import 'package:wyd_front/view/events/event_tile.dart';
+import 'package:wyd_front/view/events/eventEditor/event_detail.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/widget/util/add_event_button.dart';
 
