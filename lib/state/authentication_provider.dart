@@ -51,14 +51,13 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
     _isLoading = false;
-    notifyListeners(); //scatena un cambio di route a '/'
+    notifyListeners(); //scatena un cambio di route a '/' che poi checka isBackendVerified
   }
 
   Future<void> signIn(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       await verifyBackendAuth();
-      notifyListeners();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         throw "Please insert a valid email";
@@ -85,19 +84,13 @@ class AuthenticationProvider with ChangeNotifier {
         throw "Unexpected error, please try later";
       }
     }
-
     try {
       await verifyBackendAuth();
-      notifyListeners();
     } on Exception catch (e) {
       debugPrint("Error registering: $e");
       await _auth.currentUser?.delete();
       throw "Unexpected error, please try later";
     }
-  }
-
-  Future<void> signOut() async {
-    await _auth.signOut();
   }
 
   // Method to perform backend verification
@@ -121,8 +114,12 @@ class AuthenticationProvider with ChangeNotifier {
       throw "Error during server verification: ${e.toString()}";
     }
 
-    final userProvider = UserProvider();
-    userProvider.updateUser(user);
+    notifyListeners(); //successful,move to HomePage
+
+    UserProvider().updateUser(user);
   }
 
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
 }

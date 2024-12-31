@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/image_service.dart';
+import 'package:wyd_front/service/util/photo_retriever_service.dart';
 import 'package:wyd_front/state/eventEditor/blob_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
 import 'package:wyd_front/view/widget/image_display.dart';
@@ -42,19 +42,30 @@ class GalleryEditor extends StatelessWidget {
                     thickness: 0.5,
                   ),
                 if (!kIsWeb)
-                  ElevatedButton(
-                    onPressed: () async {
-                      List<AssetEntity> newImages = await ImageService()
-                          .retrieveImagesByTime(
-                              DateTime.now().subtract(Duration(days: 1)),
-                              DateTime.now());
-                      if (newImages.isNotEmpty) {
-                        var event = EventProvider().retrieveEventByHash(imageProvider.hash);
-                        EventService().addCachedImages(event, newImages);
-                      }
-                    },
-                    child: const Text("Trigger Test Upload Images"),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            PhotoRetrieverService()
+                                .retrieveShootedPhotos(imageProvider.hash);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.search),
+                              MediaQuery.of(context).size.width > 200
+                                  ? const Text("Cerca Immagini",
+                                      style: TextStyle(fontSize: 18))
+                                  : Container(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+
                 if (imageProvider.cachedImages.isNotEmpty ||
                     imageProvider.cacheHashBeenModified)
                   Column(
@@ -79,7 +90,8 @@ class GalleryEditor extends StatelessWidget {
                                   image: ImageService()
                                       .getImageFromAssetEntity(image),
                                   onDelete: () =>
-                                      imageProvider.removeCachedImage(hash: imageProvider.hash,image),
+                                      imageProvider.removeCachedImage(
+                                          hash: imageProvider.hash, image),
                                 );
                               }),
                             ),
@@ -94,7 +106,7 @@ class GalleryEditor extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ElevatedButton.icon(
+                            ElevatedButton(
                               onPressed: () async {
                                 var cachedImages = await ImageService()
                                     .dataFromAssetEntities(
@@ -102,13 +114,13 @@ class GalleryEditor extends StatelessWidget {
                                 var event = EventProvider()
                                     .retrieveEventByHash(imageProvider.hash);
                                 cachedImages.isNotEmpty
-                                    ? await EventService().uploadCachedImages(
-                                        event, cachedImages)
+                                    ? await EventService()
+                                        .uploadCachedImages(event, cachedImages)
                                     : EventService().clearCachedImages(event);
                               },
-                              icon: Icon(Icons.thumb_up_alt),
-                              label: Row(
+                              child: Row(
                                 children: [
+                                  Icon(Icons.thumb_up_alt),
                                   MediaQuery.of(context).size.width > 200
                                       ? Text('Confirm',
                                           style: TextStyle(fontSize: 18))
@@ -145,7 +157,8 @@ class GalleryEditor extends StatelessWidget {
                             onPressed: () async {
                               var images = await ImageService().pickImages();
                               if (images.isNotEmpty) {
-                                var event = EventProvider().retrieveEventByHash(imageProvider.hash);
+                                var event = EventProvider()
+                                    .retrieveEventByHash(imageProvider.hash);
                                 await EventService()
                                     .uploadImages(event, images);
                               }

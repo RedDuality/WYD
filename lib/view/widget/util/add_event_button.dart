@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/service/model/event_service.dart';
-import 'package:wyd_front/service/util/notification_service.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/event_detail.dart';
 
@@ -13,7 +12,6 @@ class AddEventButton extends StatelessWidget {
     return FloatingActionButton.extended(
       onPressed: () {
         EventService().initializeDetails(null, null, confirmed);
-        NotificationService().showNotification("ciao", "ciao2");
         showCustomDialog(context, EventDetail());
       },
       label: const Text('Aggiungi Evento'),

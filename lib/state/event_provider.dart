@@ -1,5 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/service/util/photo_retriever_service.dart';
 
 class EventProvider extends EventController {
   // Private static instance
@@ -36,11 +37,18 @@ class EventProvider extends EventController {
   }
 
   updateEvent(Event updatedEvent) {
-    var originalEvent = findEventByHash(updatedEvent.hash);
+    var originalEvent = retrieveEventByHash(updatedEvent.hash);
 
-    originalEvent != null
-        ? update(originalEvent, updatedEvent)
-        : add(updatedEvent);
+    if (originalEvent.endTime != updatedEvent.endTime) {
+      PhotoRetrieverService().addTimer(updatedEvent);
+    }
+    update(originalEvent, updatedEvent);
+  }
+
+
+  addEvent(Event event) {
+    PhotoRetrieverService().addTimer(event);
+    super.add(event);
   }
 
   changeMode(bool privateMode) {

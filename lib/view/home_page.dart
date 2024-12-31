@@ -1,5 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/service/model/community_service.dart';
+import 'package:wyd_front/service/model/event_service.dart';
+import 'package:wyd_front/service/util/notification_service.dart';
+import 'package:wyd_front/service/util/permission_service.dart';
+import 'package:wyd_front/service/util/photo_retriever_service.dart';
+import 'package:wyd_front/service/util/real_time_updates_service.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/events/events_page.dart';
 import 'package:wyd_front/view/groups/group_page.dart';
@@ -18,6 +25,27 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     selectedIndex = 0;
+
+    EventService().retrieveMultiple().then((value) {
+      if (!kIsWeb) {
+        PhotoRetrieverService().init();
+      }
+    });
+    CommunityService().retrieveCommunities();
+
+    PermissionService.requestPermissions().then((value) {
+      RealTimeUpdateService().start();
+
+      if (!kIsWeb) {
+        NotificationService().initialize();
+        PhotoRetrieverService().init();
+      }
+      
+    });
+
+    for (int i = 0; i < 10; i++) {
+      debugPrint("HOMEINIT$i");
+    }
   }
 
   @override

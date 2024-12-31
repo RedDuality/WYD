@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/service/util/notification_service.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:wyd_front/router.dart';
+import 'package:wyd_front/service/util/background_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/eventEditor/blob_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
@@ -11,13 +11,18 @@ import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
-import 'package:wyd_front/view/home_page.dart';
-import 'package:wyd_front/view/authentication/login.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:wyd_front/view/widget/loading.dart';
 import 'firebase_options.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) {
+    BackgroundService.executeTask(task, inputData);
+    return Future.value(true);
+  });
+}
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -28,9 +33,7 @@ Future main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (!kIsWeb) NotificationService().initialize();
-
-  //SharedPreferences prefs = await SharedPreferences.getInstance();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
 
   runApp(const MyApp());
 }
@@ -62,62 +65,10 @@ class MyApp extends StatelessWidget {
               ),
             ),
             locale: const Locale('it', 'IT'),
-            routerConfig: _router(authProvider),
+            routerConfig: createRouter(authProvider),
           );
         },
       ),
     );
-  }
-
-  GoRouter _router(AuthenticationProvider authProvider) {
-    return GoRouter(
-      navigatorKey: navigatorKey,
-      redirect: (context, state) {
-        if (authProvider.isLoading) return null;
-
-        final isAuthenticated = authProvider.isBackendVerified;
-        final isLoggingIn = state.matchedLocation == '/login';
-
-        if (isAuthenticated) {
-          return isLoggingIn ? '/' : null;
-        } else {
-          final uriProvider = context.read<UriProvider>();
-          String originalUri = state.uri.toString();
-          uriProvider.setUri(originalUri);
-
-          return isLoggingIn ? null : '/login';
-        }
-      },
-      routes: <GoRoute>[
-        GoRoute(
-          path: '/',
-          builder: (BuildContext context, GoRouterState state) {
-            return authProvider.isLoading
-                ? const LoadingPage()
-                : const HomePage();
-          },
-        ),
-        GoRoute(
-          path: '/login',
-          builder: (BuildContext context, GoRouterState state) {
-            return authProvider.isLoading
-                ? const LoadingPage()
-                : const LoginPage();
-          },
-        ),
-        GoRoute(
-          path: '/shared',
-          builder: (BuildContext context, GoRouterState state) {
-            String? uri = state.uri.toString();
-            final uriProvider = context.watch<UriProvider>();
-            uriProvider.setUri(uri);
-            return authProvider.isLoading
-                ? const LoadingPage()
-                : const HomePage();
-          },
-        ),
-      ],
-    );
-    // localhost:9019/#/shared?event=r2Yb5_2uMFLScnuJq0mb3w
   }
 }

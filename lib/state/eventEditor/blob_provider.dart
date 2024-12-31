@@ -43,10 +43,10 @@ class BlobProvider extends ChangeNotifier {
     return hash.isNotEmpty;
   }
 
-  void addCachedImages(List<AssetEntity> cachedNewImages,
+  void setCachedImages(List<AssetEntity> cachedNewImages,
       {required String hash}) {
     if (this.hash == hash) {
-      cachedImages.addAll(cachedNewImages);
+      cachedImages = cachedNewImages;
       notifyListeners();
     }
   }
@@ -62,7 +62,7 @@ class BlobProvider extends ChangeNotifier {
   void clearCachedImages({required String hash}) {
     if (this.hash == hash) {
       cachedImages.clear();
-      cacheHashBeenModified = true;
+      cacheHashBeenModified = false;
       notifyListeners();
     }
   }
@@ -77,7 +77,7 @@ class BlobProvider extends ChangeNotifier {
   void uploadedCachedImages(List<String> imageHashes, {required String hash}) {
     if (this.hash == hash) {
       cachedImages.clear();
-      cacheHashBeenModified = true;
+      cacheHashBeenModified = false;
       this.imageHashes = imageHashes;
       notifyListeners();
     }

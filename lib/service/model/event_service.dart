@@ -3,7 +3,6 @@ import 'package:wyd_front/model/DTO/blob_data.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
-import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/eventEditor/blob_provider.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
@@ -33,42 +32,50 @@ class EventService {
     EventProvider().addAll(events);
   }
 
-  Future<void> retrieveUpdateByHash(String eventHash) async {
-    var event = await EventAPI().retrieveFromHash(eventHash);
-
-    localUpdate(event);
+  Future<Event> create(Event event) async {
+    var createdEvent = await EventAPI().create(event);
+    EventProvider().addEvent(createdEvent);
+    return createdEvent;
   }
 
+  //rtupdate, another device created a new event
+  Future<void> retrieveNewByHash(String eventHash) async {
+    var event = await EventAPI().retrieveFromHash(eventHash);
+
+    EventProvider().addEvent(event);
+  }
+
+  //someone shared a link, have to add on the backend also
+  Future<Event> retrieveAndAddByHash(String eventHash) async {
+    var event = EventProvider().findEventByHash(eventHash);
+    if (event == null) {
+      var sharedEvent = await EventAPI().sharedWithHash(eventHash);
+      EventProvider().addEvent(sharedEvent);
+      return sharedEvent;
+    } else {
+      //should already be updated
+      return event;
+    }
+  }
+
+  //someone shared an event with group
   Future<void> retrieveSharedByHash(String eventHash) async {
     if (EventProvider().findEventByHash(eventHash) == null) {
       var event = await EventAPI().retrieveFromHash(eventHash);
-      EventProvider().add(event);
+      EventProvider().addEvent(event);
     } else {
       retrieveUpdateByHash(eventHash);
     }
   }
 
-  Future<void> retrieveNewByHash(String eventHash) async {
-    var event = await EventAPI().retrieveFromHash(eventHash);
-
-    EventProvider().add(event);
-  }
-
-  Future<Event> retrieveAndAddByHash(String eventHash) async {
-    var event = await EventAPI().sharedWithHash(eventHash);
-
-    EventProvider().add(event);
-    return event;
-  }
-
-  Future<Event> create(Event event) async {
-    var createdEvent = await EventAPI().create(event);
-    EventProvider().add(createdEvent);
-    return createdEvent;
-  }
-
   Future<void> update(Event updatedEvent) async {
     var event = await EventAPI().update(updatedEvent);
+
+    localUpdate(event);
+  }
+
+  Future<void> retrieveUpdateByHash(String eventHash) async {
+    var event = await EventAPI().retrieveFromHash(eventHash);
 
     localUpdate(event);
   }
@@ -91,10 +98,11 @@ class EventService {
     localUpdate(event);
   }
 
-  void addCachedImages(Event event, List<AssetEntity> photosDuringEvent) {
+  static void setCachedImages(
+      Event event, List<AssetEntity> photosDuringEvent) {
     event.cachedNewImages = photosDuringEvent;
     EventProvider().updateEvent(event);
-    BlobProvider().addCachedImages(event.cachedNewImages, hash: event.hash);
+    BlobProvider().setCachedImages(event.cachedNewImages, hash: event.hash);
   }
 
   void clearCachedImages(Event event) {
@@ -127,21 +135,10 @@ class EventService {
     localUploadCachedImages(event, updatedImages);
   }
 
-  Future<void> retrieveShootedPhotos(String eventHash) async {
-    var event = EventProvider().findEventByHash(eventHash);
-    if (event != null) {
-      var photosDuringEvent = await ImageService().retrieveImagesByTime(
-          event.startTime!.toUtc(), event.endTime!.toUtc());
-      if (photosDuringEvent.isNotEmpty) {
-        addCachedImages(event, photosDuringEvent);
-      }
-    }
-  }
-
   Future<void> retrieveImageUpdatesByHash(Event event) async {
-    var updatedImages = await EventAPI().retrieveImageUpdatesFromHash(event.hash);
+    var updatedImages =
+        await EventAPI().retrieveImageUpdatesFromHash(event.hash);
 
     localImageUpdate(event, updatedImages);
   }
-
 }

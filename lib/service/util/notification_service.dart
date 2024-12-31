@@ -5,9 +5,10 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  void initialize() {
+  Future<void> initialize() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
+
     final DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings();
     final InitializationSettings initializationSettings =
@@ -16,22 +17,40 @@ class NotificationService {
       iOS: initializationSettingsIOS,
     );
 
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-    flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()!
-        .requestNotificationsPermission();
+/*
+    final androidImplementation =
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation != null) {
+      final hasPermission =
+          await androidImplementation.areNotificationsEnabled();
+
+      if (hasPermission == null || !hasPermission) {
+        final permissionGranted =
+            await androidImplementation.requestNotificationsPermission();
+        if (permissionGranted! && !permissionGranted) {
+          // Handle the case where the user denies the permission
+          return;
+        }
+      }
+      
+    
+    }
+    */
+    return;
   }
 
-  void showNotification(String title, String description) async {
-    debugPrint("sentNotification");
+  static void showNotification(String title, String description) async {
+    debugPrint("SENTNOTIFICATION");
 
     var android = AndroidNotificationDetails(title, description,
         channelDescription: 'channelDescription');
     var iOS = DarwinNotificationDetails();
     var platform = NotificationDetails(android: android, iOS: iOS);
 
-    await flutterLocalNotificationsPlugin.show(0, 'Title', 'Body', platform);
+    await FlutterLocalNotificationsPlugin()
+        .show(0, title, description, platform);
   }
 }
