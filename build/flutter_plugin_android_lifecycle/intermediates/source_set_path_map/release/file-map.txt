@@ -1,0 +1,28 @@
+io.flutter.plugins.flutter_plugin_android_lifecycle-lifecycle-viewmodel-2.7.0-0 C:\Users\Giacomo\.gradle\caches\8.9\transforms\0468577f27b24a3cda6dd3df720164cd\transformed\lifecycle-viewmodel-2.7.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-annotation-experimental-1.4.0-1 C:\Users\Giacomo\.gradle\caches\8.9\transforms\3cdcdf1db28e29202b0362c8be2b1b89\transformed\jetified-annotation-experimental-1.4.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-core-1.0.0-2 C:\Users\Giacomo\.gradle\caches\8.9\transforms\4d4aad764977dec17617ade46766a44b\transformed\jetified-core-1.0.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-activity-1.8.1-3 C:\Users\Giacomo\.gradle\caches\8.9\transforms\5cc4138c4e1502b7dda49dcaab8cf284\transformed\jetified-activity-1.8.1\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-window-1.2.0-4 C:\Users\Giacomo\.gradle\caches\8.9\transforms\632d66a94cf800c20c83c0e8af3f91f0\transformed\jetified-window-1.2.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-core-runtime-2.2.0-5 C:\Users\Giacomo\.gradle\caches\8.9\transforms\6ed54b5c82f0451e3e7d6cb2cf4be59d\transformed\core-runtime-2.2.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-startup-runtime-1.1.1-6 C:\Users\Giacomo\.gradle\caches\8.9\transforms\6ed93360f218f113b98bd4a1ca515eeb\transformed\jetified-startup-runtime-1.1.1\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-lifecycle-livedata-core-2.7.0-7 C:\Users\Giacomo\.gradle\caches\8.9\transforms\6fcf14dfe630099ca7d27e26991569a1\transformed\lifecycle-livedata-core-2.7.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-lifecycle-viewmodel-savedstate-2.7.0-8 C:\Users\Giacomo\.gradle\caches\8.9\transforms\7bd391b1f1ba2cb7d2e97bbc2a52b219\transformed\jetified-lifecycle-viewmodel-savedstate-2.7.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-profileinstaller-1.3.1-9 C:\Users\Giacomo\.gradle\caches\8.9\transforms\88d1b8e1bd170ba103cc7b87124acaee\transformed\jetified-profileinstaller-1.3.1\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-window-java-1.2.0-10 C:\Users\Giacomo\.gradle\caches\8.9\transforms\90b367489f24f5a60c2ac609c89313f5\transformed\jetified-window-java-1.2.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-core-ktx-1.13.1-11 C:\Users\Giacomo\.gradle\caches\8.9\transforms\9a1af4b5d54cb8486ed662c3b2e9a6c3\transformed\jetified-core-ktx-1.13.1\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-tracing-1.2.0-12 C:\Users\Giacomo\.gradle\caches\8.9\transforms\9ca0403d0ae2149b386fb20ff393c57a\transformed\jetified-tracing-1.2.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-lifecycle-livedata-core-ktx-2.7.0-13 C:\Users\Giacomo\.gradle\caches\8.9\transforms\a26011f9f3df2a8eb125f980d13e29eb\transformed\jetified-lifecycle-livedata-core-ktx-2.7.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-savedstate-1.2.1-14 C:\Users\Giacomo\.gradle\caches\8.9\transforms\a81a69f9ae6e239e5ae34ec709024dc3\transformed\jetified-savedstate-1.2.1\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-lifecycle-livedata-2.7.0-15 C:\Users\Giacomo\.gradle\caches\8.9\transforms\c1f5c6bf4479351bcc76526dd028cef3\transformed\lifecycle-livedata-2.7.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-lifecycle-process-2.7.0-16 C:\Users\Giacomo\.gradle\caches\8.9\transforms\d180e1373aa1e15ff703b26ae1a1d756\transformed\jetified-lifecycle-process-2.7.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-lifecycle-runtime-2.7.0-17 C:\Users\Giacomo\.gradle\caches\8.9\transforms\df9fd047d1d6085d727e4b780f6dc718\transformed\lifecycle-runtime-2.7.0\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-core-1.13.1-18 C:\Users\Giacomo\.gradle\caches\8.9\transforms\e9ee84b18a2f25583c98a8371b384c4d\transformed\core-1.13.1\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-fragment-1.7.1-19 C:\Users\Giacomo\.gradle\caches\8.9\transforms\ef4b086356da96829d825109f1056e7a\transformed\fragment-1.7.1\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-main-20 C:\Users\Giacomo\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.24\android\src\main\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-release-21 C:\Users\Giacomo\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.24\android\src\release\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-pngs-22 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\build\flutter_plugin_android_lifecycle\generated\res\pngs\release
+io.flutter.plugins.flutter_plugin_android_lifecycle-resValues-23 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\build\flutter_plugin_android_lifecycle\generated\res\resValues\release
+io.flutter.plugins.flutter_plugin_android_lifecycle-rs-24 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\build\flutter_plugin_android_lifecycle\generated\res\rs\release
+io.flutter.plugins.flutter_plugin_android_lifecycle-mergeReleaseResources-25 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\build\flutter_plugin_android_lifecycle\intermediates\incremental\release\mergeReleaseResources\merged.dir
+io.flutter.plugins.flutter_plugin_android_lifecycle-mergeReleaseResources-26 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\build\flutter_plugin_android_lifecycle\intermediates\incremental\release\mergeReleaseResources\stripped.dir
+io.flutter.plugins.flutter_plugin_android_lifecycle-merged_res-27 E:\Impo\University\Magistrale\Secondo anno\SRS\WYD\build\flutter_plugin_android_lifecycle\intermediates\merged_res\release

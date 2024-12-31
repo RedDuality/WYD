@@ -1,0 +1,7 @@
+#Tue Dec 31 19:22:10 CET 2024
+base.1=E\:\\Impo\\University\\Magistrale\\Secondo anno\\SRS\\WYD\\build\\app\\intermediates\\desugar_lib_dex\\release\\classes1000.dex
+path.1=classes1000.dex
+base.0=E\:\\Impo\\University\\Magistrale\\Secondo anno\\SRS\\WYD\\build\\app\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
+renamed.1=classes2.dex
+renamed.0=classes.dex
+path.0=classes.dex

@@ -1,0 +1,18 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.flutterandies.photo_manager" >
+4
+5    <uses-sdk
+6        android:minSdkVersion="16"
+6-->C:\Users\Giacomo\AppData\Local\Pub\Cache\hosted\pub.dev\photo_manager-3.6.3\android\src\main\AndroidManifest.xml
+7        android:targetSdkVersion="16" />
+7-->C:\Users\Giacomo\AppData\Local\Pub\Cache\hosted\pub.dev\photo_manager-3.6.3\android\src\main\AndroidManifest.xml
+8
+9    <uses-permission
+9-->C:\Users\Giacomo\AppData\Local\Pub\Cache\hosted\pub.dev\photo_manager-3.6.3\android\src\main\AndroidManifest.xml:2:5-4:37
+10        android:name="android.permission.READ_EXTERNAL_STORAGE"
+10-->C:\Users\Giacomo\AppData\Local\Pub\Cache\hosted\pub.dev\photo_manager-3.6.3\android\src\main\AndroidManifest.xml:3:9-64
+11        android:maxSdkVersion="32" />
+11-->C:\Users\Giacomo\AppData\Local\Pub\Cache\hosted\pub.dev\photo_manager-3.6.3\android\src\main\AndroidManifest.xml:4:9-35
+12
+13</manifest>

@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.flutterandies.photo_manager-merged_res-27:/layout-v21/notification_action_tombstone.xml",
+        "source": "com.flutterandies.photo_manager-core-1.13.1-19:/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "com.flutterandies.photo_manager-merged_res-27:/layout-v21/notification_action.xml",
+        "source": "com.flutterandies.photo_manager-core-1.13.1-19:/layout-v21/notification_action.xml"
+    },
+    {
+        "merged": "com.flutterandies.photo_manager-merged_res-27:/layout-v21/notification_template_icon_group.xml",
+        "source": "com.flutterandies.photo_manager-core-1.13.1-19:/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "com.flutterandies.photo_manager-merged_res-27:/layout-v21/notification_template_custom_big.xml",
+        "source": "com.flutterandies.photo_manager-core-1.13.1-19:/layout-v21/notification_template_custom_big.xml"
+    }
+]
