@@ -24,6 +24,11 @@ class CommunityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setRange(List<Community> communities) {
+    _communities = communities;
+    notifyListeners();
+  }
+
   void addRange(List<Community> communities) {
     _communities.addAll(communities);
     notifyListeners();

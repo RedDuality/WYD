@@ -1,26 +1,13 @@
+import 'package:photo_manager/photo_manager.dart';
 import 'package:wyd_front/model/DTO/blob_data.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/event_api.dart';
 import 'package:wyd_front/API/user_api.dart';
-import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/state/blob_provider.dart';
-import 'package:wyd_front/state/detail_provider.dart';
+import 'package:wyd_front/state/eventEditor/blob_provider.dart';
+import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
 
 class EventService {
-  Future<void> retrieveShootedPhotos(String eventHash) async {
-    var event = EventProvider().findEventByHash(eventHash);
-    if (event != null) {
-      var photosDuringEvent = await ImageService().retrieveImagesByTime(
-          event.startTime!.toUtc(), event.endTime!.toUtc());
-      if (photosDuringEvent.isNotEmpty) {
-        event.cachedNewImages = photosDuringEvent;
-        addCachedImages(event);
-      }
-    }
-  }
-
   void initializeDetails(Event? initialEvent, DateTime? date, bool confirmed) {
     DetailProvider().initialize(initialEvent, date, confirmed);
     BlobProvider().initialize(
@@ -29,19 +16,9 @@ class EventService {
         imageHashes: initialEvent?.images);
   }
 
-  void addCachedImages(Event event) {
-    EventProvider().updateEvent(event);
-    BlobProvider().addCachedImages(event);
-  }
-
   void localUpdate(Event updatedEvent) {
     EventProvider().updateEvent(updatedEvent);
     DetailProvider().updateCurrentEvent(updatedEvent);
-  }
-
-  void localImageUpdate(Event updatedEvent) {
-    EventProvider().updateEvent(updatedEvent);
-    BlobProvider().updateImageHashes(updatedEvent.images);
   }
 
   void localConfirm(Event event, bool confirmed, {String? profileHash}) {
@@ -55,42 +32,40 @@ class EventService {
     EventProvider().addAll(events);
   }
 
-  Future<void> retrieveUpdateByHash(String eventHash) async {
-    var event = await EventAPI().retrieveFromHash(eventHash);
-
-    localUpdate(event);
+  Future<Event> create(Event event) async {
+    var createdEvent = await EventAPI().create(event);
+    EventProvider().addEvent(createdEvent);
+    return createdEvent;
   }
 
-  Future<void> retrieveImageUpdateByHash(String eventHash) async {
-    var event = await EventAPI().retrieveFromHash(eventHash);
-
-    localImageUpdate(event);
-  }
-
-  Future<void> retrieveSharedByHash(String eventHash) async {
-    if (EventProvider().findEventByHash(eventHash) == null) {
-      var event = await EventAPI().retrieveFromHash(eventHash);
-      EventProvider().add(event);
-    }
-  }
-
+  //rtupdate, another device created a new event
   Future<void> retrieveNewByHash(String eventHash) async {
     var event = await EventAPI().retrieveFromHash(eventHash);
 
-    EventProvider().add(event);
+    EventProvider().addEvent(event);
   }
 
+  //someone shared a link, have to add on the backend also
   Future<Event> retrieveAndAddByHash(String eventHash) async {
-    var event = await EventAPI().sharedWithHash(eventHash);
-
-    EventProvider().add(event);
-    return event;
+    var event = EventProvider().findEventByHash(eventHash);
+    if (event == null) {
+      var sharedEvent = await EventAPI().sharedWithHash(eventHash);
+      EventProvider().addEvent(sharedEvent);
+      return sharedEvent;
+    } else {
+      //should already be updated
+      return event;
+    }
   }
 
-  Future<Event> create(Event event) async {
-    var createdEvent = await EventAPI().create(event);
-    EventProvider().add(createdEvent);
-    return createdEvent;
+  //someone shared an event with group
+  Future<void> retrieveSharedByHash(String eventHash) async {
+    if (EventProvider().findEventByHash(eventHash) == null) {
+      var event = await EventAPI().retrieveFromHash(eventHash);
+      EventProvider().addEvent(event);
+    } else {
+      retrieveUpdateByHash(eventHash);
+    }
   }
 
   Future<void> update(Event updatedEvent) async {
@@ -99,10 +74,10 @@ class EventService {
     localUpdate(event);
   }
 
-  Future<void> uploadImages(String eventHash, List<BlobData> blobs) async {
-    var event = await EventAPI().uploadImages(eventHash, blobs);
+  Future<void> retrieveUpdateByHash(String eventHash) async {
+    var event = await EventAPI().retrieveFromHash(eventHash);
 
-    localImageUpdate(event);
+    localUpdate(event);
   }
 
   Future<void> confirm(Event event) async {
@@ -118,10 +93,52 @@ class EventService {
   }
 
   Future<void> shareToGroups(String eventHash, Set<int> groupsIds) async {
-    EventAPI().shareToGroups(eventHash, groupsIds).then((response) {
-      InformationService().showOverlaySnackBar("Evento condiviso con successo");
-    }).catchError((error) {
-      InformationService().showOverlaySnackBar(error.toString());
-    });
+    var event = await EventAPI().shareToGroups(eventHash, groupsIds);
+
+    localUpdate(event);
+  }
+
+  static void setCachedImages(
+      Event event, List<AssetEntity> photosDuringEvent) {
+    event.cachedNewImages = photosDuringEvent;
+    EventProvider().updateEvent(event);
+    BlobProvider().setCachedImages(event.cachedNewImages, hash: event.hash);
+  }
+
+  void clearCachedImages(Event event) {
+    event.cachedNewImages = [];
+    EventProvider().updateEvent(event);
+    BlobProvider().clearCachedImages(hash: event.hash);
+  }
+
+  void localImageUpdate(Event event, List<String> updatedImages) {
+    event.images = updatedImages;
+    EventProvider().updateEvent(event);
+    BlobProvider().updateImageHashes(event.images, hash: event.hash);
+  }
+
+  void localUploadCachedImages(Event event, List<String> updatedImages) {
+    event.cachedNewImages = [];
+    event.images = updatedImages;
+    EventProvider().updateEvent(event);
+    BlobProvider().initialize(
+        hash: event.hash, imageHashes: updatedImages, cachedImages: []);
+  }
+
+  Future<void> uploadImages(Event event, List<BlobData> blobs) async {
+    var updatedImages = await EventAPI().uploadImages(event.hash, blobs);
+    localImageUpdate(event, updatedImages);
+  }
+
+  Future<void> uploadCachedImages(Event event, List<BlobData> blobs) async {
+    var updatedImages = await EventAPI().uploadImages(event.hash, blobs);
+    localUploadCachedImages(event, updatedImages);
+  }
+
+  Future<void> retrieveImageUpdatesByHash(Event event) async {
+    var updatedImages =
+        await EventAPI().retrieveImageUpdatesFromHash(event.hash);
+
+    localImageUpdate(event, updatedImages);
   }
 }

@@ -1,7 +1,7 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/state/detail_provider.dart';
+import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 
 class RangeEditor extends StatelessWidget {
   final DetailProvider provider;

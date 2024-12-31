@@ -6,7 +6,7 @@ import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
 class ProfilesPage extends StatefulWidget {
-  ProfilesPage({super.key});
+  const ProfilesPage({super.key});
 
   @override
   State<ProfilesPage> createState() => _ProfilesPageState();

@@ -7,10 +7,10 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/state/detail_provider.dart';
+import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/view/widget/event/range_editor.dart';
-import 'package:wyd_front/view/widget/event/share_page.dart';
+import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
+import 'package:wyd_front/view/events/eventEditor/share_page.dart';
 
 class EventDetailEditor extends StatefulWidget {
   const EventDetailEditor({super.key});
@@ -71,6 +71,9 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                 onFieldSubmitted: (value) {
                   _updateDescription(event);
                 },
+                onEditingComplete: () {
+                  _updateDescription(event);
+                },
                 decoration: const InputDecoration(
                   hintText: 'No description',
                   contentPadding: EdgeInsets.symmetric(vertical: 4),
@@ -88,7 +91,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (!hasBeenChanged && exists) // Share
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () {
                         showCustomDialog(
                           context,
@@ -96,17 +99,18 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                               eventTitle: event.title, eventHash: event.hash!),
                         );
                       },
-                      icon: Icon(Icons.share),
-                      label: Row(
+                      child: Row(
                         children: [
-                          if (MediaQuery.of(context).size.width > 450)
-                            Text('Share', style: TextStyle(fontSize: 18)),
+                          Icon(Icons.share),
+                          MediaQuery.of(context).size.width > 450
+                              ? Text('Share', style: TextStyle(fontSize: 18))
+                              : Container(),
                         ],
                       ),
                     ),
                   const SizedBox(width: 10),
                   if (!hasBeenChanged && exists) // Send
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         String? siteUrl = dotenv.env['SITE_URL'];
                         String fullUrl = "$siteUrl#/shared?event=${event.hash}";
@@ -115,80 +119,80 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                           await Clipboard.setData(ClipboardData(text: fullUrl));
 
                           if (context.mounted) {
-                            InformationService().showInfoSnackBar(
+                            InformationService().showOverlaySnackBar(
                                 context, "Link copiato con successo");
                           }
                         } else {
                           // If running on mobile, use the share dialog
-                          await Share.share(fullUrl);
+                          await Share.share(fullUrl, subject: event.title);
                         }
                       },
-                      icon: Icon(Icons.send),
-                      label: Row(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (MediaQuery.of(context).size.width > 450)
-                            Text('Send', style: TextStyle(fontSize: 18)),
+                          Icon(Icons.send),
+                          MediaQuery.of(context).size.width > 450
+                              ? Text('Send', style: TextStyle(fontSize: 18))
+                              : SizedBox.shrink(),
                         ],
                       ),
                     ),
                   const SizedBox(width: 10),
                   if (!hasBeenChanged && exists && event.confirmed) // Decline
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         var currentEvent = event.getEventWithCurrentFields();
                         await EventService().decline(currentEvent);
                       },
-                      icon: Icon(Icons.event_busy),
-                      label: Row(
+                      child: Row(
                         children: [
-                          if (MediaQuery.of(context).size.width > 400)
-                            Text('Decline', style: TextStyle(fontSize: 18)),
+                          Icon(Icons.event_busy),
+                          MediaQuery.of(context).size.width > 400
+                              ? Text('Decline', style: TextStyle(fontSize: 18))
+                              : Container(),
                         ],
                       ),
                     ),
                   if (!hasBeenChanged && exists && !event.confirmed) // Confirm
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         var currentEvent = event.getEventWithCurrentFields();
                         await EventService().confirm(currentEvent);
                       },
-                      icon: Icon(Icons.event_available),
-                      label: Row(
+                      child: Row(
                         children: [
-                          if (MediaQuery.of(context).size.width > 300)
-                            Text('Confirm', style: TextStyle(fontSize: 18)),
+                          Icon(Icons.event_available),
+                          MediaQuery.of(context).size.width > 300
+                              ? Text('Confirm', style: TextStyle(fontSize: 18))
+                              : Container(),
                         ],
                       ),
                     ),
                   if (exists && hasBeenChanged) // Update
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         await _updateEvent(event);
                         if (context.mounted) {
-                          InformationService().showInfoSnackBar(
+                          InformationService().showOverlaySnackBar(
                               context, "Evento aggiornato con successo");
                         }
                       },
-                      icon: Icon(Icons.update),
-                      label: Row(
+                      child: Row(
                         children: [
+                          Icon(Icons.update),
                           if (MediaQuery.of(context).size.width > 200)
                             Text('Update', style: TextStyle(fontSize: 18)),
                         ],
                       ),
                     ),
                   if (!exists) // Save
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: () async {
                         await _createEvent(event);
-                        if (context.mounted) {
-                          InformationService().showInfoSnackBar(
-                              context, "Evento creato con successo");
-                        }
                       },
-                      icon: Icon(Icons.save),
-                      label: Row(
+                      child: Row(
                         children: [
+                          Icon(Icons.save),
                           if (MediaQuery.of(context).size.width > 400)
                             Text('Save', style: TextStyle(fontSize: 18)),
                         ],

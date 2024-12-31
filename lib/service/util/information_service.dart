@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/main.dart';
 
 class InformationService {
   showErrorDialog(BuildContext context, String title, String content) {
@@ -35,31 +34,49 @@ class InformationService {
     );
   }
 
-  void showOverlaySnackBar(String title) {
-    final overlay = navigatorKey.currentState?.overlay;
+  void showOverlaySnackBar(BuildContext context, String message) {
+    final overlay = Overlay.of(context);
+
     final overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 50.0,
-        left: MediaQuery.of(context).size.width * 0.1,
-        width: MediaQuery.of(context).size.width * 0.8,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(10.0),
+      builder: (context) => Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            bottom: 60.0,
+            child: Material(
+              color: Colors.transparent,
+              child: IntrinsicWidth(
+                child: IntrinsicHeight(
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            message,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-            child: Center(child: Text(title)),
           ),
-        ),
+        ],
       ),
     );
 
-    overlay?.insert(overlayEntry);
+    overlay.insert(overlayEntry);
 
-    // Remove the overlay after a duration
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 2), () {
       overlayEntry.remove();
     });
   }

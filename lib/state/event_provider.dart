@@ -1,5 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/service/util/photo_retriever_service.dart';
 
 class EventProvider extends EventController {
   // Private static instance
@@ -27,10 +28,27 @@ class EventProvider extends EventController {
         .firstOrNull;
   }
 
-  updateEvent(Event updatedEvent) {
-    var originalEvent = findEventByHash(updatedEvent.hash);
+  Event retrieveEventByHash(String eventHash) {
+    var event = findEventByHash(eventHash);
+    if (event != null) {
+      return event;
+    }
+    throw "There was an error while retrieving the event";
+  }
 
-    originalEvent != null ? update(originalEvent, updatedEvent) : add(updatedEvent);
+  updateEvent(Event updatedEvent) {
+    var originalEvent = retrieveEventByHash(updatedEvent.hash);
+
+    if (originalEvent.endTime != updatedEvent.endTime) {
+      PhotoRetrieverService().addTimer(updatedEvent);
+    }
+    update(originalEvent, updatedEvent);
+  }
+
+
+  addEvent(Event event) {
+    PhotoRetrieverService().addTimer(event);
+    super.add(event);
   }
 
   changeMode(bool privateMode) {
@@ -39,7 +57,6 @@ class EventProvider extends EventController {
   }
 
   myUpdateFilter() {
-  
     super
         .updateFilter(newFilter: (date, events) => myEventFilter(date, events));
   }
@@ -48,8 +65,8 @@ class EventProvider extends EventController {
       DateTime date, List<CalendarEventData<T>> events) {
     return events
         .whereType<Event>()
-        .where(
-            (event) => event.occursOnDate(date.toLocal()) && event.confirmed() == private)
+        .where((event) =>
+            event.occursOnDate(date.toLocal()) && event.confirmed() == private)
         .toList();
   }
 }

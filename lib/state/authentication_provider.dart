@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -51,14 +50,13 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
     _isLoading = false;
-    notifyListeners(); //scatena un cambio di route a '/'
+    notifyListeners(); //scatena un cambio di route a '/' che poi checka isBackendVerified
   }
 
   Future<void> signIn(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       await verifyBackendAuth();
-      notifyListeners();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         throw "Please insert a valid email";
@@ -85,19 +83,13 @@ class AuthenticationProvider with ChangeNotifier {
         throw "Unexpected error, please try later";
       }
     }
-
     try {
       await verifyBackendAuth();
-      notifyListeners();
     } on Exception catch (e) {
       debugPrint("Error registering: $e");
       await _auth.currentUser?.delete();
       throw "Unexpected error, please try later";
     }
-  }
-
-  Future<void> signOut() async {
-    await _auth.signOut();
   }
 
   // Method to perform backend verification
@@ -106,23 +98,21 @@ class AuthenticationProvider with ChangeNotifier {
     try {
       final idToken = await _user?.getIdToken();
       if (idToken != null) {
-        final response = await AuthAPI().verifyToken(idToken);
-
-        if (response.statusCode == 200) {
-          user = model.User.fromJson(jsonDecode(response.body));
+        user = await AuthAPI().verifyToken(idToken);
           _isBackendVerified = true;
-        } else {
-          throw "Server verification failed: ${response.statusCode}";
-        }
       } else {
-        throw "Token null";
+        throw "It was not possible to login";
       }
     } catch (e) {
-      throw "Error during server verification: ${e.toString()}";
+      throw e.toString();
     }
 
-    final userProvider = UserProvider();
-    userProvider.updateUser(user);
+    notifyListeners(); //successful,move to HomePage
+
+    UserProvider().updateUser(user);
   }
 
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
 }
