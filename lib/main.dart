@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +34,9 @@ Future main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  if(!kIsWeb) {
+    Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  }
 
   runApp(const MyApp());
 }

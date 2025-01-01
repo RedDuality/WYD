@@ -1,6 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:wyd_front/model/enum/event_role.dart';
 import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/state/user_provider.dart';
 
@@ -9,10 +10,19 @@ class Event extends CalendarEventData {
   final String hash;
   final int? groupId;
 
-
   List<String> images = [];
   List<AssetEntity> cachedNewImages = [];
   List<ProfileEvent> sharedWith = [];
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Event) return false;
+    return hash == other.hash;
+  }
+
+  @override
+  int get hashCode => hash.hashCode;
 
   Event({
     this.hash = "",
@@ -42,7 +52,6 @@ class Event extends CalendarEventData {
           endTime: endTime.toLocal(),
           endDate: endDate?.toLocal(),
         );
-
 
 /*
   Event copy(
@@ -91,16 +100,36 @@ class Event extends CalendarEventData {
     return totalShared() > 1 ? "(${totalConfirmed()}/${totalShared()}) " : "";
   }
 
-  bool confirmed() {
+  ProfileEvent _getCurrentProfileEvent() {
     String profileHash = UserProvider().getCurrentProfileHash();
-    return sharedWith.firstWhere((pe) => pe.profileHash == profileHash).confirmed;
+    return sharedWith.firstWhere((pe) => pe.profileHash == profileHash);
+  }
+
+  bool confirmed() {
+    return _getCurrentProfileEvent().confirmed;
+  }
+
+  bool isOwner() {
+    return _getCurrentProfileEvent().role == EventRole.owner;
   }
 
   void confirm(bool confirmed, {String? profHash}) {
-    String profileHash = profHash ??  UserProvider().getCurrentProfileHash();
+    String profileHash = profHash ?? UserProvider().getCurrentProfileHash();
     sharedWith
         .firstWhere((confirm) => confirm.profileHash == profileHash)
         .confirmed = confirmed;
+  }
+
+  int countMatchingProfiles(Set<String> userProfileHashes) {
+    int count = sharedWith
+        .where((profileEvent) =>
+            userProfileHashes.contains(profileEvent.profileHash))
+        .length;
+    return count;
+  }
+  
+  void removeProfile(String hash) {
+    sharedWith.removeWhere((profileEvent) => profileEvent.profileHash == hash);
   }
 
   factory Event.fromJson(Map<String, dynamic> json) {

@@ -23,6 +23,10 @@ class UserProvider extends ChangeNotifier {
     return _currentProfile!.hash;
   }
 
+  Set<String> getProfileHashes() {
+    return _user!.profiles.map((profile) => profile.hash).toSet();
+  }
+
   void updateUser(User user) {
     _user == null
         ? setUser(user)
@@ -34,7 +38,6 @@ class UserProvider extends ChangeNotifier {
 
   checkUserUpdate(user) {
     if (_user!.id == user.id) {
-      //TODO check user updates on profiles
     } else {
       setUser(user);
     }
@@ -46,7 +49,7 @@ class UserProvider extends ChangeNotifier {
         user.profiles.firstWhere((p) => p.hash == user.mainProfileHash);
   }
 
-  void setCurrentProfile(Profile profile){
+  void setCurrentProfile(Profile profile) {
     _currentProfile = profile;
     notifyListeners();
   }

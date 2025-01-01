@@ -6,6 +6,7 @@ import 'package:wyd_front/API/user_api.dart';
 import 'package:wyd_front/state/eventEditor/blob_provider.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
+import 'package:wyd_front/state/user_provider.dart';
 
 class EventService {
   void initializeDetails(Event? initialEvent, DateTime? date, bool confirmed) {
@@ -140,5 +141,23 @@ class EventService {
         await EventAPI().retrieveImageUpdatesFromHash(event.hash);
 
     localImageUpdate(event, updatedImages);
+  }
+
+  void localDelete(Event event, {String? profileHash}) {
+    var pHash = profileHash ?? UserProvider().getCurrentProfileHash();
+    event.removeProfile(pHash);
+
+    if (event.countMatchingProfiles(UserProvider().getProfileHashes()) == 0) {
+      EventProvider().remove(event);
+      DetailProvider().close();
+      BlobProvider().close();
+    } else {
+      localUpdate(event);
+    }
+  }
+
+  Future<void> delete(Event event) async {
+    await EventAPI().delete(event.hash);
+    localDelete(event);
   }
 }

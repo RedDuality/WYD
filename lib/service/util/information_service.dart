@@ -34,7 +34,7 @@ class InformationService {
     );
   }
 
-  void showOverlaySnackBar(BuildContext context, String message) {
+  void showInfoPopup(BuildContext context, String message) {
     final overlay = Overlay.of(context);
 
     final overlayEntry = OverlayEntry(

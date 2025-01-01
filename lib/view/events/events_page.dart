@@ -96,9 +96,8 @@ class _EventsPageState extends State<EventsPage> {
       if (_private)
         Builder(
           builder: (context) {
-            // Use MediaQuery to get the actual screen width
             double screenWidth = MediaQuery.of(context).size.width;
-            bool showText = screenWidth > 450; // Adjust threshold as needed
+            bool showText = screenWidth > 450;
             return showText
                 ? Container(
                     height: 40,
@@ -131,14 +130,14 @@ class _EventsPageState extends State<EventsPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.blue, // Background color of the button
+                      color: Colors.blue, 
                       borderRadius:
-                          BorderRadius.circular(8), // Optional: Rounded corners
+                          BorderRadius.circular(8), 
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.event,
-                          size: 30), // Icon inside the button
+                          size: 30),
                       onPressed: () {
                         setState(() {
                           _private = false;
@@ -152,9 +151,8 @@ class _EventsPageState extends State<EventsPage> {
       if (!_private)
         Builder(
           builder: (context) {
-            // Use MediaQuery to get the actual screen width
             double screenWidth = MediaQuery.of(context).size.width;
-            bool showText = screenWidth > 450; // Adjust threshold as needed
+            bool showText = screenWidth > 450; 
             return showText
                 ? Container(
                     height: 40,
@@ -187,14 +185,14 @@ class _EventsPageState extends State<EventsPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.blue, // Background color of the button
+                      color: Colors.blue,
                       borderRadius:
-                          BorderRadius.circular(8), // Optional: Rounded corners
+                          BorderRadius.circular(8),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.event_available,
-                          size: 30), // Icon inside the button
+                          size: 30),
                       onPressed: () {
                         setState(() {
                           _private = true;

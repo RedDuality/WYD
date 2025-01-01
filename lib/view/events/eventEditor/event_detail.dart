@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/state/eventEditor/blob_provider.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/view/events/eventEditor/event_detail_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
@@ -38,6 +39,8 @@ class EventDetailState extends State<EventDetail> {
           actions: [
             TextButton(
               onPressed: () {
+                DetailProvider().close();
+                BlobProvider().close();
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(

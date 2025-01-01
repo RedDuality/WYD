@@ -79,6 +79,9 @@ class DetailProvider extends ChangeNotifier {
   bool hasBeenChanged() {
     return changes != 0;
   }
+  bool isOwner(){
+    return originalEvent!.isOwner();
+  }
 
   void _updateType(int mod) {
     //updates type of modified field

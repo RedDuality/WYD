@@ -21,7 +21,6 @@ class RealTimeUpdateService {
   bool firstread = true;
 
   start() async {
-    
     var user = UserProvider().user;
     if (user == null) throw "User is null";
 
@@ -74,6 +73,13 @@ class RealTimeUpdateService {
         if (event != null && snapshot['phash'] != null) {
           EventService()
               .localConfirm(event, false, profileHash: snapshot['phash']);
+        }
+        break;
+      case UpdateType.deleteEvent:
+        var event = EventProvider().findEventByHash(snapshot['hash']);
+        if (event != null && snapshot['phash'] != null) {
+          EventService()
+              .localDelete(event, profileHash: snapshot['phash']);
         }
         break;
       case UpdateType.profileDetails:
