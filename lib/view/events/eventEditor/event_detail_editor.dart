@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
@@ -48,7 +48,6 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
 
   //TODO for currentprofile(done), for all my profiles, for everybody
   Future<void> _deleteEvent(DetailProvider provider) async {
-    
     Event? deleteEvent = EventProvider().findEventByHash(provider.hash!);
     if (deleteEvent != null) {
       EventService().delete(deleteEvent).then(
@@ -71,13 +70,32 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
         bool hasBeenChanged = event.hasBeenChanged();
         bool exists = event.exists();
         bool isOwner = exists && event.isOwner();
+        var isWideScreen = MediaQuery.of(context).size.width > 450;
         _descriptionController.text = event.description ?? "";
+
+        var confirmTitle = event.getEventWithCurrentFields().getConfirmTitle();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-            const Text("Dettagli"),
+            if (!isWideScreen)
+              Confirms(
+                provider: event,
+                title: confirmTitle,
+              ),
+            if (!isWideScreen) const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Dettagli"),
+                if (isWideScreen)
+                  Confirms(
+                    provider: event,
+                    title: confirmTitle,
+                  ),
+              ],
+            ),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -251,10 +269,147 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                   ],
                 ),
               ),
-            if (exists && isOwner) const SizedBox(height: 10),
           ],
         );
       },
+    );
+  }
+}
+
+class Confirms extends StatelessWidget {
+  final DetailProvider provider;
+  final String title;
+
+  const Confirms({super.key, required this.provider, required this.title});
+
+  void openListsScreen(BuildContext context, DetailProvider provider) {
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    var isWideScreen = MediaQuery.of(context).size.width > 450;
+
+    double leftPosition;
+    if (!isWideScreen) {
+      // Button is on the left side
+      leftPosition = position.dx;
+    } else {
+      // Button is on the right side
+      leftPosition = position.dx + size.width - 400;
+    }
+
+    OverlayEntry? overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        left: leftPosition,
+        top: position.dy + size.height + 4,
+        width: isWideScreen ? 400 : 250,
+        height: 300,
+        child: Material(
+          color: Colors.transparent,
+          child: ListScreen(
+            provider: provider,
+            onClose: () {
+              overlayEntry!.remove();
+            },
+          ),
+        ),
+      ),
+    );
+
+
+    final overlay = Overlay.of(context);
+    overlay.insert(overlayEntry);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => openListsScreen(context, provider),
+      child: Text("${title}Confirmed"),
+    );
+  }
+}
+
+class ListScreen extends StatelessWidget {
+  final DetailProvider provider;
+  final Function? onClose;
+
+  const ListScreen({required this.provider, this.onClose, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    List<ProfileEvent> confirmed =
+        provider.sharedWith.where((pe) => pe.confirmed == true).toList();
+    List<ProfileEvent> toBeConfirmed =
+        provider.sharedWith.where((pe) => pe.confirmed == false).toList();
+
+    return Container(
+      padding: EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 10.0,
+            spreadRadius: 5.0,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Confermati",
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
+                  ),
+                  const SizedBox(height: 10),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: confirmed.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(title: Text(confirmed[index].profileHash));
+                    },
+                  ),
+                  const Divider(),
+                  const Text(
+                    "Da confermare",
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
+                  ),
+                  const SizedBox(height: 10),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: toBeConfirmed.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                          title: Text(toBeConfirmed[index].profileHash));
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  if (onClose != null)
+                    ElevatedButton(
+                      onPressed: () {
+                        onClose!();
+                      },
+                      child: Text('Close'),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -83,7 +83,7 @@ class RealTimeUpdateService {
         }
         break;
       case UpdateType.profileDetails:
-        //_handleProfileUpdate(snapshot['id']);
+        //_handleProfileUpdate(snapshot['phash']);
         break;
       default:
         debugPrint("default notification not catch $typeIndex");
