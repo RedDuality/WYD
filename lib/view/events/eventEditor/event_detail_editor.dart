@@ -10,9 +10,12 @@ import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
+import 'package:wyd_front/view/profiles/profile_tile.dart';
+import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/share_page.dart';
+import 'package:wyd_front/view/widget/button/overlay_list_button.dart';
 
 class EventDetailEditor extends StatefulWidget {
   const EventDetailEditor({super.key});
@@ -79,9 +82,9 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!isWideScreen)
-              Confirms(
-                provider: event,
+              OverlayListButton(
                 title: confirmTitle,
+                child: Confirmed(provider: event),
               ),
             if (!isWideScreen) const SizedBox(height: 10),
             Row(
@@ -90,9 +93,9 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
               children: [
                 const Text("Dettagli"),
                 if (isWideScreen)
-                  Confirms(
-                    provider: event,
+                  OverlayListButton(
                     title: confirmTitle,
+                    child: Confirmed(provider: event),
                   ),
               ],
             ),
@@ -276,66 +279,10 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
   }
 }
 
-class Confirms extends StatelessWidget {
+class Confirmed extends StatelessWidget {
   final DetailProvider provider;
-  final String title;
 
-  const Confirms({super.key, required this.provider, required this.title});
-
-  void openListsScreen(BuildContext context, DetailProvider provider) {
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final position = renderBox.localToGlobal(Offset.zero);
-    final size = renderBox.size;
-
-    var isWideScreen = MediaQuery.of(context).size.width > 450;
-
-    double leftPosition;
-    if (!isWideScreen) {
-      // Button is on the left side
-      leftPosition = position.dx;
-    } else {
-      // Button is on the right side
-      leftPosition = position.dx + size.width - 400;
-    }
-
-    OverlayEntry? overlayEntry;
-    overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        left: leftPosition,
-        top: position.dy + size.height + 4,
-        width: isWideScreen ? 400 : 250,
-        height: 300,
-        child: Material(
-          color: Colors.transparent,
-          child: ListScreen(
-            provider: provider,
-            onClose: () {
-              overlayEntry!.remove();
-            },
-          ),
-        ),
-      ),
-    );
-
-
-    final overlay = Overlay.of(context);
-    overlay.insert(overlayEntry);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => openListsScreen(context, provider),
-      child: Text("${title}Confirmed"),
-    );
-  }
-}
-
-class ListScreen extends StatelessWidget {
-  final DetailProvider provider;
-  final Function? onClose;
-
-  const ListScreen({required this.provider, this.onClose, super.key});
+  const Confirmed({required this.provider, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -344,72 +291,46 @@ class ListScreen extends StatelessWidget {
     List<ProfileEvent> toBeConfirmed =
         provider.sharedWith.where((pe) => pe.confirmed == false).toList();
 
-    return Container(
-      padding: EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10.0,
-            spreadRadius: 5.0,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Flexible(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    "Confermati",
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey),
-                  ),
-                  const SizedBox(height: 10),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: confirmed.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(title: Text(confirmed[index].profileHash));
-                    },
-                  ),
-                  const Divider(),
-                  const Text(
-                    "Da confermare",
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey),
-                  ),
-                  const SizedBox(height: 10),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: toBeConfirmed.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                          title: Text(toBeConfirmed[index].profileHash));
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  if (onClose != null)
-                    ElevatedButton(
-                      onPressed: () {
-                        onClose!();
-                      },
-                      child: Text('Close'),
-                    ),
-                ],
-              ),
+    return ChangeNotifierProvider<ProfilesNotifier>(
+      create: (_) => ProfilesNotifier(),
+      builder: (context, child) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Confermati",
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey),
             ),
-          ),
-        ],
-      ),
+            const SizedBox(height: 10),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: confirmed.length,
+              itemBuilder: (context, index) {
+                return ProfileTile(hash: confirmed[index].profileHash);
+              },
+            ),
+            const Divider(),
+            const Text(
+              "Da confermare",
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey),
+            ),
+            const SizedBox(height: 10),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: toBeConfirmed.length,
+              itemBuilder: (context, index) {
+                return ProfileTile(hash: toBeConfirmed[index].profileHash);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
