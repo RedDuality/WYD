@@ -5,12 +5,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
+import 'package:wyd_front/state/event_provider.dart';
+import 'package:wyd_front/view/events/eventEditor/menu_profile_tile.dart';
+import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/share_page.dart';
+import 'package:wyd_front/view/widget/button/overlay_list_button.dart';
 
 class EventDetailEditor extends StatefulWidget {
   const EventDetailEditor({super.key});
@@ -44,20 +49,60 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
     await EventService().update(updatesEvent);
   }
 
+  //TODO for currentprofile(done), for all my profiles, for everybody
+  Future<void> _deleteEvent(DetailProvider provider) async {
+    Event? deleteEvent = EventProvider().findEventByHash(provider.hash!);
+    if (deleteEvent != null) {
+      EventService().delete(deleteEvent).then(
+        (value) {
+          if (mounted) Navigator.of(context).pop();
+        },
+        onError: (error) => {
+          if (mounted)
+            InformationService().showInfoPopup(
+                context, "There was an error trying to delete the event")
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<DetailProvider>(
       builder: (context, event, child) {
         bool hasBeenChanged = event.hasBeenChanged();
         bool exists = event.exists();
-
+        bool isOwner = exists && event.isOwner();
+        var isWideScreen = MediaQuery.of(context).size.width > 450;
         _descriptionController.text = event.description ?? "";
+
+        var confirmTitle = "${event.getEventWithCurrentFields().getConfirmTitle()} Confirmed";
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-            const Text("Dettagli"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Dettagli"),
+                if (exists && isWideScreen)
+                  OverlayListButton(
+                    title: confirmTitle,
+                    child: Confirmed(provider: event),
+                  ),
+              ],
+            ),
+            if (exists && !isWideScreen)
+              Column(
+                children: [
+                  OverlayListButton(
+                    title: confirmTitle,
+                    child: Confirmed(provider: event),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -85,6 +130,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
             const SizedBox(height: 10),
             RangeEditor(provider: event),
             const SizedBox(height: 10),
+            //Buttons
             Align(
               alignment: Alignment.bottomRight,
               child: Row(
@@ -119,7 +165,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                           await Clipboard.setData(ClipboardData(text: fullUrl));
 
                           if (context.mounted) {
-                            InformationService().showOverlaySnackBar(
+                            InformationService().showInfoPopup(
                                 context, "Link copiato con successo");
                           }
                         } else {
@@ -173,7 +219,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                       onPressed: () async {
                         await _updateEvent(event);
                         if (context.mounted) {
-                          InformationService().showOverlaySnackBar(
+                          InformationService().showInfoPopup(
                               context, "Evento aggiornato con successo");
                         }
                       },
@@ -193,7 +239,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                       child: Row(
                         children: [
                           Icon(Icons.save),
-                          if (MediaQuery.of(context).size.width > 400)
+                          if (MediaQuery.of(context).size.width > 200)
                             Text('Save', style: TextStyle(fontSize: 18)),
                         ],
                       ),
@@ -201,6 +247,91 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                   const SizedBox(width: 10),
                 ],
               ),
+            ),
+            const SizedBox(height: 10),
+            if (exists && isOwner)
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        _deleteEvent(event);
+                      },
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                          if (MediaQuery.of(context).size.width > 200)
+                            Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.red, fontSize: 18),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class Confirmed extends StatelessWidget {
+  final DetailProvider provider;
+
+  const Confirmed({required this.provider, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    List<ProfileEvent> confirmed =
+        provider.sharedWith.where((pe) => pe.confirmed == true).toList();
+    List<ProfileEvent> toBeConfirmed =
+        provider.sharedWith.where((pe) => pe.confirmed == false).toList();
+
+    return ChangeNotifierProvider<ProfilesNotifier>(
+      create: (_) => ProfilesNotifier(),
+      builder: (context, child) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Confermati",
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey),
+            ),
+            const SizedBox(height: 10),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: confirmed.length,
+              itemBuilder: (context, index) {
+                return MenuProfileTile(hash: confirmed[index].profileHash);
+              },
+            ),
+            const Divider(),
+            const Text(
+              "Da confermare",
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey),
+            ),
+            const SizedBox(height: 10),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: toBeConfirmed.length,
+              itemBuilder: (context, index) {
+                return MenuProfileTile(hash: toBeConfirmed[index].profileHash);
+              },
             ),
           ],
         );

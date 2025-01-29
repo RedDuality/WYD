@@ -1,128 +1,125 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:provider/provider.dart';
 import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
+import 'package:wyd_front/state/profiles_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/view/profiles/profile_tile.dart';
+import 'package:wyd_front/view/profiles/profiles_notifier.dart';
+import 'package:wyd_front/view/settings/settings_page.dart';
 
-class ProfilesPage extends StatefulWidget {
-  const ProfilesPage({super.key});
+class ProfilesPage extends StatelessWidget {
+  ProfilesPage({super.key});
 
-  @override
-  State<ProfilesPage> createState() => _ProfilesPageState();
-}
-
-class _ProfilesPageState extends State<ProfilesPage> {
-  final List<Profile> profiles = UserProvider().user!.profiles;
-  String _version = "Loading...";
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVersion();
-  }
-
-  Future<void> _loadVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _version = packageInfo.version;
-    });
-  }
+  final List<String> profileHashes =
+      UserProvider().getSecondaryProfilesHashes().toList();
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = AuthenticationProvider();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profiles'),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.settings,
+              size: 35.0,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+          SizedBox(width: 10),
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Ciao!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(
-              width: 300,
-              height: 300,
-              child: ImageService().getImage(size: ImageSize.big),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                await authProvider.signOut(); // Chiama la funzione signOut
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white, // Sfondo bianco
-                foregroundColor: Colors.black, // Testo nero
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              child: const Text('Log out'),
-            ),
-            const SizedBox(height: 10),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'I tuoi Profili:',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: profiles.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 16.0),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+      body: SingleChildScrollView(
+        child: Consumer<UserProvider>(
+          builder: (context, userProvider, child) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Ciao!',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  width: 300,
+                  height: 300,
+                  child: ImageService().getImage(size: ImageSize.big),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    AuthenticationProvider().signOut();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  child: const Text('Log out'),
+                ),
+                ChangeNotifierProvider(
+                  create: (context) => ProfilesNotifier(),
+                  child: Consumer<ProfilesProvider>(
+                    builder: (context, profilesProvider, child) {
+                      return Column(
                         children: [
-                          SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: CircleAvatar(
-                              backgroundImage:
-                                  ImageService().getImageProvider(),
-                              radius: 30,
+                          const SizedBox(height: 10),
+                          const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              'Profilo corrente:',
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                profiles[index].name,
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              Text(profiles[index].tag),
-                            ],
+                          Consumer<ProfilesNotifier>(
+                            builder: (context, profilesNotifier, child) {
+                              return ProfileTile(
+                                profileHash:
+                                    UserProvider().getCurrentProfileHash(),
+                                type: ProfileTileType.main,
+                              );
+                            },
                           ),
+                          if (profileHashes.isNotEmpty)
+                            const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text(
+                                'Altri profili:',
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          if (profileHashes.isNotEmpty)
+                            Consumer<ProfilesNotifier>(
+                              builder: (context, communityProvider, child) {
+                                return Column(
+                                  children: profileHashes.map((profileHash) {
+                                    return ProfileTile(
+                                      profileHash: profileHash,
+                                      type: ProfileTileType.main,
+                                    );
+                                  }).toList(),
+                                );
+                              },
+                            ),
                         ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            // Add the version number text box here
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Text(
-                _version,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );

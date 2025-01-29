@@ -1,72 +1,65 @@
+import 'package:flutter/material.dart';
 import 'package:wyd_front/model/enum/profile_type.dart';
 import 'package:wyd_front/model/enum/role.dart';
 
 class Profile {
-  int id;
-  String name = "";
   String hash = "";
   String tag = "";
+  String name = "";
   String? blobHash = "";
+  Color? color;
   ProfileType type;
   Role? role;
 
   Profile(
-      {this.id = 0,
-      this.name = "",
+      {this.name = "",
       this.hash = "",
       this.tag = "",
       this.blobHash = "",
+      this.color,
       this.type = ProfileType.personal,
-      this.role = Role.owner});
+      this.role = Role.viewer});
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Profile && other.hash == hash;
+  }
+
+  @override
+  int get hashCode => hash.hashCode;
 
   // Factory constructor to create a Profile from JSON
   factory Profile.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-        'id': int? id,
         'name': String? name,
         'hash': String? hash,
         'tag': String? tag,
         'blobHash': String? blobHash,
         'type': int? type,
+        'role': int? role,
+        'color': int? color,
       } =>
         Profile(
-          id: id ?? 0,
           name: name ?? "",
           hash: hash ?? "",
           tag: tag ?? "",
           blobHash: blobHash ?? "",
           type: ProfileType.values[type ?? 0],
+          color: color != null ? Color(color) : null,
+          role: role != null ? Role.values[role] : Role.viewer,
         ),
       _ => throw const FormatException('Failed to decode Profile')
     };
   }
-  factory Profile.fromUserRoleJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'profile': Map<String, dynamic> profile,
-        'role': int role,
-      } =>
-        Profile(
-          id: profile['id'] ?? 0,
-          name: profile['name'] ?? "",
-          hash: profile['hash'] ?? "",
-          tag: profile['tag'] ?? "",
-          blobHash: profile['blobHash'] ?? "",
-          type: ProfileType.values[profile['type'] ?? 0],
-          role: Role.values[role],
-        ),
-      _ => throw const FormatException('Failed to decode Profile from UserRole')
-    };
-  }
-  // Optional: toJson method if you need to convert Profile back to JSON
+
   Map<String, dynamic> toJson() {
     return {
-      'profile': {
-        'type': type.index,
-        'hash': hash,
-      },
-      'role': role?.index,
+      'hash': hash,
+      'name': name,
+      'tag': tag,
+      'color': color?.value,
     };
   }
 }

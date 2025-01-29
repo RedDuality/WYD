@@ -4,7 +4,8 @@ import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/view/profiles/profile_tile.dart';
+import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/groups/search_user_page.dart';
 
@@ -47,73 +48,60 @@ class GroupPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<CommunityProvider>(
-        builder: (context, communityProvider, child) {
-          return ListView.builder(
-            itemCount: communityProvider.communities!.length,
-            itemBuilder: (context, index) {
-              var community = communityProvider.communities![index];
-              return _buildCommunityTile(community);
-            },
-          );
-        },
+      body: ChangeNotifierProvider(
+        create: (context) => ProfilesNotifier(),
+        child: Consumer<CommunityProvider>(
+          builder: (context, communityProvider, child) {
+            return ListView.builder(
+              itemCount: communityProvider.communities!.length,
+              itemBuilder: (context, index) {
+                var community = communityProvider.communities![index];
+                return _buildCommunityTile(context, community);
+              },
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildCommunityTile(Community community) {
+  Widget _buildCommunityTile(BuildContext context, Community community) {
     switch (community.type) {
       case CommunityType.personal:
-        return _buildPersonalTile(community);
+        return ProfileTile(profileHash: community.getProfileHash());
       case CommunityType.singlegroup:
-        return _buildSingleGroupTile(community);
+        return avatarTile(title: community.name);
       case CommunityType.community:
-        return _buildMultiGroupTile(community);
+        return expansionAvatarTile(title: community.name, children: community.groups);
       default:
         return Container();
     }
   }
 
-  Widget _buildPersonalTile(Community community) {
-    final mainGroup = community.groups.first;
-    final profile = mainGroup.profiles
-        .where((p) => p.hash != UserProvider().getCurrentProfileHash())
-        .first;
+  Widget avatarTile({required String title, String? imageUrl}) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundImage: ImageService().getImageProvider(),
+        backgroundImage: ImageService().getImageProvider(imageUrl: imageUrl),
       ),
-      title: Text(profile.name),
+      title: Text(title),
     );
   }
 
-  Widget _buildSingleGroupTile(Community community) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundImage: ImageService().getImageProvider(),
-      ),
-      title: Text(community.name),
-    );
-  }
-
-  Widget _buildMultiGroupTile(Community community) {
+  Widget expansionAvatarTile({
+    required String title,
+    required Iterable children,
+    String? imageUrl,
+  }) {
     return ExpansionTile(
       leading: CircleAvatar(
-        backgroundImage: ImageService().getImageProvider(),
+        backgroundImage: ImageService().getImageProvider(imageUrl: imageUrl),
       ),
-      title: Text(community.name),
-      children: community.groups.map((group) {
+      title: Text(title),
+      children: children.map((child) {
         return Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: ImageService().getImageProvider(),
-            ),
-            title: Text(group.name),
-          ),
-        );
+            padding: const EdgeInsets.only(left: 16.0),
+            child: avatarTile(title: child.name));
       }).toList(),
     );
   }
-
 }

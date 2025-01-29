@@ -30,6 +30,7 @@ class DetailProvider extends ChangeNotifier {
   DateTime endTime = DateTime.now().add(const Duration(hours: 1));
 
   bool confirmed = false;
+  List<ProfileEvent> sharedWith = [];
 
   int changes = 0;
 
@@ -45,6 +46,15 @@ class DetailProvider extends ChangeNotifier {
         (date ?? DateTime.now()).add(const Duration(hours: 1));
 
     this.confirmed = initialEvent?.confirmed() ?? confirmed;
+
+    if (initialEvent == null) {
+      String mainProfileHash = UserProvider().getCurrentProfileHash();
+      ProfileEvent profileEvent =
+          ProfileEvent(mainProfileHash, EventRole.owner, confirmed, true);
+      sharedWith.add(profileEvent);
+    } else {
+      sharedWith = initialEvent.sharedWith;
+    }
 
     changes = 0;
 
@@ -62,6 +72,8 @@ class DetailProvider extends ChangeNotifier {
 
       confirmed = newEvent.confirmed();
 
+      sharedWith = newEvent.sharedWith;
+
       changes = 0;
 
       notifyListeners();
@@ -78,6 +90,10 @@ class DetailProvider extends ChangeNotifier {
 
   bool hasBeenChanged() {
     return changes != 0;
+  }
+
+  bool isOwner() {
+    return originalEvent!.isOwner();
   }
 
   void _updateType(int mod) {
@@ -138,12 +154,8 @@ class DetailProvider extends ChangeNotifier {
       endDate: endTime,
       title: title,
       description: description,
+      sharedWith: sharedWith,
     );
-
-    String mainProfileHash = UserProvider().getCurrentProfileHash();
-    ProfileEvent profileEvent =
-        ProfileEvent(mainProfileHash, EventRole.owner, confirmed, true);
-    event.sharedWith.add(profileEvent);
 
     return event;
   }

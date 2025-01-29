@@ -35,8 +35,6 @@ class _EventsPageState extends State<EventsPage> {
         var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
         if (eventHash != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-
-
             final event = await EventService().retrieveAndAddByHash(eventHash);
 
             EventService().initializeDetails(event, null, event.confirmed());
@@ -72,7 +70,7 @@ class _EventsPageState extends State<EventsPage> {
           Event selectedEvent = events.whereType<Event>().toList().first;
 
           EventService().initializeDetails(selectedEvent, null, widget.private);
-
+          
           showCustomDialog(context, EventDetail());
         },
         onDateLongPress: (date) {
@@ -96,9 +94,8 @@ class _EventsPageState extends State<EventsPage> {
       if (_private)
         Builder(
           builder: (context) {
-            // Use MediaQuery to get the actual screen width
             double screenWidth = MediaQuery.of(context).size.width;
-            bool showText = screenWidth > 450; // Adjust threshold as needed
+            bool showText = screenWidth > 450;
             return showText
                 ? Container(
                     height: 40,
@@ -131,14 +128,12 @@ class _EventsPageState extends State<EventsPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.blue, // Background color of the button
-                      borderRadius:
-                          BorderRadius.circular(8), // Optional: Rounded corners
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.event,
-                          size: 30), // Icon inside the button
+                      icon: const Icon(Icons.event, size: 30),
                       onPressed: () {
                         setState(() {
                           _private = false;
@@ -152,9 +147,8 @@ class _EventsPageState extends State<EventsPage> {
       if (!_private)
         Builder(
           builder: (context) {
-            // Use MediaQuery to get the actual screen width
             double screenWidth = MediaQuery.of(context).size.width;
-            bool showText = screenWidth > 450; // Adjust threshold as needed
+            bool showText = screenWidth > 450;
             return showText
                 ? Container(
                     height: 40,
@@ -187,14 +181,12 @@ class _EventsPageState extends State<EventsPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.blue, // Background color of the button
-                      borderRadius:
-                          BorderRadius.circular(8), // Optional: Rounded corners
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.event_available,
-                          size: 30), // Icon inside the button
+                      icon: const Icon(Icons.event_available, size: 30),
                       onPressed: () {
                         setState(() {
                           _private = true;

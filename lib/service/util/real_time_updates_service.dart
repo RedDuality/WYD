@@ -21,7 +21,6 @@ class RealTimeUpdateService {
   bool firstread = true;
 
   start() async {
-    
     var user = UserProvider().user;
     if (user == null) throw "User is null";
 
@@ -76,8 +75,15 @@ class RealTimeUpdateService {
               .localConfirm(event, false, profileHash: snapshot['phash']);
         }
         break;
+      case UpdateType.deleteEvent:
+        var event = EventProvider().findEventByHash(snapshot['hash']);
+        if (event != null && snapshot['phash'] != null) {
+          EventService()
+              .localDelete(event, profileHash: snapshot['phash']);
+        }
+        break;
       case UpdateType.profileDetails:
-        //_handleProfileUpdate(snapshot['id']);
+        //_handleProfileUpdate(snapshot['phash']);
         break;
       default:
         debugPrint("default notification not catch $typeIndex");

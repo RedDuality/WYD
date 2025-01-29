@@ -33,18 +33,12 @@ class _HomePageState extends State<HomePage> {
     });
     CommunityService().retrieveCommunities();
 
-    PermissionService.requestPermissions().then((value) {
-      RealTimeUpdateService().start();
-
-      if (!kIsWeb) {
+    RealTimeUpdateService().start();
+    if (!kIsWeb) {
+      PermissionService.requestPermissions().then((value) {
         NotificationService().initialize();
         PhotoRetrieverService().init();
-      }
-      
-    });
-
-    for (int i = 0; i < 10; i++) {
-      debugPrint("HOMEINIT$i");
+      });
     }
   }
 

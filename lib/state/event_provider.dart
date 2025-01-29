@@ -45,7 +45,6 @@ class EventProvider extends EventController {
     update(originalEvent, updatedEvent);
   }
 
-
   addEvent(Event event) {
     PhotoRetrieverService().addTimer(event);
     super.add(event);
@@ -69,4 +68,6 @@ class EventProvider extends EventController {
             event.occursOnDate(date.toLocal()) && event.confirmed() == private)
         .toList();
   }
+
+
 }

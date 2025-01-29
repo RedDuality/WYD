@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import 'package:wyd_front/state/eventEditor/blob_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/my_app_state.dart';
+import 'package:wyd_front/state/profiles_provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,7 +35,9 @@ Future main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  if(!kIsWeb) {
+    Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  }
 
   runApp(const MyApp());
 }
@@ -51,6 +55,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => UriProvider()),
         ChangeNotifierProvider(create: (_) => CommunityProvider()),
+        ChangeNotifierProvider(create: (_) => ProfilesProvider()),
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
       ],
       child: Consumer<AuthenticationProvider>(

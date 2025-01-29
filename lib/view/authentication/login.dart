@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/API/test_api.dart';
 import 'package:wyd_front/state/authentication_provider.dart';
 import 'package:wyd_front/view/authentication/register.dart';
 import 'package:wyd_front/view/widget/util/hover_text.dart';
+import 'package:wyd_front/view/widget/util/version_detail.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,20 +16,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String _mail = "prova@mail.com";
   String _password = "password";
-  String _version = "Loading...";
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVersion();
-  }
-
-  Future<void> _loadVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _version = packageInfo.version;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,16 +119,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 15),
               // Add the version number text box here
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Text(
-                  _version,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
+              VersionDetail(),
             ],
           ),
         ),

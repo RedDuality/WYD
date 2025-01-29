@@ -66,7 +66,6 @@ class EventAPI {
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(event));
     if (response.statusCode == 200) {
-      //TODO check decode is really needed
       Event event = Event.fromJson(jsonDecode(response.body));
       return event;
     }
