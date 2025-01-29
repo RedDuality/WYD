@@ -1,6 +1,7 @@
 
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/model/group.dart';
+import 'package:wyd_front/state/user_provider.dart';
 
 class Community {
   int id = 0;
@@ -8,6 +9,7 @@ class Community {
   String blobHash = "";
   CommunityType type = CommunityType.personal;
   List<Group> groups = [];
+  //profileHashes
 
   Community({
     this.id = -1,
@@ -16,6 +18,16 @@ class Community {
     this.type = CommunityType.personal,
     List<Group>? groups,
   }) : groups = groups ?? [];
+
+
+  getProfileHash(){
+    if(type != CommunityType.personal){
+      throw "Personal profile looked for in a non-personal community";
+    }
+    return groups.first.profileHashes
+        .where((p) => p != UserProvider().getCurrentProfileHash())
+        .first;
+  }
 
   factory Community.fromJson(Map<String, dynamic> json) {
     return switch (json) {

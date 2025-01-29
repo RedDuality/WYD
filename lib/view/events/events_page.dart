@@ -35,8 +35,6 @@ class _EventsPageState extends State<EventsPage> {
         var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
         if (eventHash != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-
-
             final event = await EventService().retrieveAndAddByHash(eventHash);
 
             EventService().initializeDetails(event, null, event.confirmed());
@@ -72,7 +70,7 @@ class _EventsPageState extends State<EventsPage> {
           Event selectedEvent = events.whereType<Event>().toList().first;
 
           EventService().initializeDetails(selectedEvent, null, widget.private);
-
+          
           showCustomDialog(context, EventDetail());
         },
         onDateLongPress: (date) {
@@ -130,14 +128,12 @@ class _EventsPageState extends State<EventsPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.blue, 
-                      borderRadius:
-                          BorderRadius.circular(8), 
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.event,
-                          size: 30),
+                      icon: const Icon(Icons.event, size: 30),
                       onPressed: () {
                         setState(() {
                           _private = false;
@@ -152,7 +148,7 @@ class _EventsPageState extends State<EventsPage> {
         Builder(
           builder: (context) {
             double screenWidth = MediaQuery.of(context).size.width;
-            bool showText = screenWidth > 450; 
+            bool showText = screenWidth > 450;
             return showText
                 ? Container(
                     height: 40,
@@ -186,13 +182,11 @@ class _EventsPageState extends State<EventsPage> {
                     height: 40,
                     decoration: BoxDecoration(
                       color: Colors.blue,
-                      borderRadius:
-                          BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.event_available,
-                          size: 30),
+                      icon: const Icon(Icons.event_available, size: 30),
                       onPressed: () {
                         setState(() {
                           _private = true;

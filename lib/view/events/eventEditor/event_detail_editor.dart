@@ -10,7 +10,7 @@ import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
-import 'package:wyd_front/view/profiles/profile_tile.dart';
+import 'package:wyd_front/view/events/eventEditor/menu_profile_tile.dart';
 import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
@@ -76,29 +76,33 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
         var isWideScreen = MediaQuery.of(context).size.width > 450;
         _descriptionController.text = event.description ?? "";
 
-        var confirmTitle = event.getEventWithCurrentFields().getConfirmTitle();
+        var confirmTitle = "${event.getEventWithCurrentFields().getConfirmTitle()} Confirmed";
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!isWideScreen)
-              OverlayListButton(
-                title: confirmTitle,
-                child: Confirmed(provider: event),
-              ),
-            if (!isWideScreen) const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text("Dettagli"),
-                if (isWideScreen)
+                if (exists && isWideScreen)
                   OverlayListButton(
                     title: confirmTitle,
                     child: Confirmed(provider: event),
                   ),
               ],
             ),
+            if (exists && !isWideScreen)
+              Column(
+                children: [
+                  OverlayListButton(
+                    title: confirmTitle,
+                    child: Confirmed(provider: event),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -126,6 +130,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
             const SizedBox(height: 10),
             RangeEditor(provider: event),
             const SizedBox(height: 10),
+            //Buttons
             Align(
               alignment: Alignment.bottomRight,
               child: Row(
@@ -309,7 +314,7 @@ class Confirmed extends StatelessWidget {
               shrinkWrap: true,
               itemCount: confirmed.length,
               itemBuilder: (context, index) {
-                return ProfileTile(hash: confirmed[index].profileHash);
+                return MenuProfileTile(hash: confirmed[index].profileHash);
               },
             ),
             const Divider(),
@@ -325,7 +330,7 @@ class Confirmed extends StatelessWidget {
               shrinkWrap: true,
               itemCount: toBeConfirmed.length,
               itemBuilder: (context, index) {
-                return ProfileTile(hash: toBeConfirmed[index].profileHash);
+                return MenuProfileTile(hash: toBeConfirmed[index].profileHash);
               },
             ),
           ],

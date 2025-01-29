@@ -65,4 +65,34 @@ class ProfileAPI {
     throw "Error while fetching the profile";
   }
 
+  Future<List<Profile>> retrieveRoles() async {
+    String url = '${functionUrl}RetrieveRoles';
+
+    var response =
+        await client.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      List<dynamic> parsedJson = json.decode(response.body);
+      List<Profile> profiles = parsedJson
+          .map((profile) => Profile.fromJson(profile as Map<String, dynamic>))
+          .toList();
+
+      return profiles;
+    }
+
+    throw "Error while fetching the profile roles";
+  }
+
+
+  Future<void> updateProfile(Profile profile) async {
+    String url = '${functionUrl}Update';
+
+    var response = await client.post(Uri.parse(url), body: jsonEncode(profile));
+
+    if (response.statusCode == 200) {
+      return;
+    }
+
+    throw "Error while updating the profile";
+  }
 }

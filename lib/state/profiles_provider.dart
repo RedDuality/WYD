@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
 
-
 class ProfilesProvider extends ChangeNotifier {
   // Private static instance
   static final ProfilesProvider _instance = ProfilesProvider._internal();
@@ -14,13 +13,18 @@ class ProfilesProvider extends ChangeNotifier {
   // Private named constructor
   ProfilesProvider._internal();
 
-  final List<Profile> _profiles = [];
+  final Set<Profile> _profiles = {};
 
-  Profile? get(String hash){
-    return _profiles.where((p)=> p.hash == hash).firstOrNull; 
+  Profile? get(String hash) {
+    return _profiles.where((p) => p.hash == hash).firstOrNull;
   }
 
-  void addAll(List<Profile> profiles){
+  List<Profile> getMultiple(Iterable<String> hashes) {
+    return _profiles.where((p) => hashes.contains(p.hash)).toList();
+  }
+
+  void addAll(List<Profile> profiles) {
     _profiles.addAll(profiles);
+    notifyListeners();
   }
 }

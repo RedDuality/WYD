@@ -2,12 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/user.dart' as model;
-import 'package:wyd_front/API/auth_api.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/service/model/user_service.dart';
 
 class AuthenticationProvider with ChangeNotifier {
-  // Make the singleton instance private and static
   static final AuthenticationProvider _instance =
       AuthenticationProvider._internal();
 
@@ -15,7 +12,15 @@ class AuthenticationProvider with ChangeNotifier {
     return _instance;
   }
 
-  // Private constructor
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? _user;
+  bool _isLoading = true;
+  bool _isBackendVerified = false;
+
+  User? get user => _user;
+  bool get isLoading => _isLoading;
+  bool get isBackendVerified => _isBackendVerified;
+
   AuthenticationProvider._internal() {
     _checkUserLoginStatus();
 
@@ -27,16 +32,6 @@ class AuthenticationProvider with ChangeNotifier {
       }
     });
   }
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  User? _user;
-  bool _isLoading = true;
-  bool _isBackendVerified = false;
-
-  // Public getters
-  User? get user => _user;
-  bool get isLoading => _isLoading;
-  bool get isBackendVerified => _isBackendVerified;
 
   Future<void> _checkUserLoginStatus() async {
     _isLoading = true;
@@ -50,7 +45,7 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
     _isLoading = false;
-    notifyListeners(); //scatena un cambio di route a '/' che poi checka isBackendVerified
+    notifyListeners(); //scatena un cambio di route verso '/' che poi checks on isBackendVerified
   }
 
   Future<void> signIn(String email, String password) async {
@@ -94,12 +89,12 @@ class AuthenticationProvider with ChangeNotifier {
 
   // Method to perform backend verification
   Future<void> verifyBackendAuth() async {
-    model.User? user;
     try {
       final idToken = await _user?.getIdToken();
       if (idToken != null) {
-        user = await AuthAPI().verifyToken(idToken);
-          _isBackendVerified = true;
+        await UserService()
+            .verifyToken(idToken); //sets user and profiles if successful
+        _isBackendVerified = true;
       } else {
         throw "It was not possible to login";
       }
@@ -107,9 +102,7 @@ class AuthenticationProvider with ChangeNotifier {
       throw e.toString();
     }
 
-    notifyListeners(); //successful,move to HomePage
-
-    UserProvider().updateUser(user);
+    notifyListeners(); //successful, move to HomePage
   }
 
   Future<void> signOut() async {

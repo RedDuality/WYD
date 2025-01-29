@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/profile_service.dart';
@@ -7,58 +5,26 @@ import 'package:wyd_front/state/profiles_provider.dart';
 
 class ProfilesNotifier extends ChangeNotifier {
   final Map<String, ProfileNotifier> _notifiers = {};
-  final Set<String> _profileQueue = {};
-  Timer? _timer;
 
-  ProfileNotifier getNotifier(String hash) {
-    var notifier = _notifiers.putIfAbsent(hash, () => ProfileNotifier());
-    requestProfile(hash);
+  ProfileNotifier getNotifier(String profileHash) {
+    var notifier = _notifiers.putIfAbsent(profileHash, () => ProfileNotifier());
+    _retrieveProfile(profileHash, notifier);
     return notifier;
   }
 
-  void requestProfile(String hash) {
+  void updateNotifiers(Iterable<Profile> profiles) {
+    for (var profile in profiles) {
+      _notifiers[profile.hash]?.setProfile(profile);
+    }
+  }
+
+  void _retrieveProfile(String hash, ProfileNotifier notifier) {
     var profile = ProfilesProvider().get(hash);
-    if (profile == null) {
-      _profileQueue.add(hash);
-      _startTimer();
+    if (profile != null) {
+      notifier.setProfile(profile);
     } else {
-      _notifiers[hash]?.setProfile(profile);
+      ProfileService().retrieveProfile(hash, this);
     }
-  }
-
-  void _startTimer() {
-    if (_timer == null || !_timer!.isActive) {
-      _timer = Timer.periodic(Duration(milliseconds: 300), (timer) {
-        _fetchProfilesInBulk();
-      });
-    }
-  }
-
-  void _stopTimer() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  Future<void> _fetchProfilesInBulk() async {
-    if (_profileQueue.isNotEmpty) {
-      ProfileService().retrieveProfiles(_profileQueue.toList()).then(
-        (profiles) {
-          for (var profile in profiles) {
-            _notifiers[profile.hash]?.setProfile(profile);
-          }
-        },
-      );
-
-      _profileQueue.clear();
-    } else {
-      _stopTimer();
-    }
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 }
 

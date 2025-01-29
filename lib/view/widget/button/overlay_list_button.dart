@@ -8,18 +8,23 @@ class OverlayListButton extends StatefulWidget {
       {super.key, required this.child, required this.title});
 
   @override
-  _OverlayListButtonState createState() => _OverlayListButtonState();
+  OverlayListButtonState createState() => OverlayListButtonState();
 }
 
-class _OverlayListButtonState extends State<OverlayListButton> {
+class OverlayListButtonState extends State<OverlayListButton> {
   OverlayEntry? _overlayEntry;
   bool _isOverlayVisible = false;
+    final GlobalKey _overlayKey = GlobalKey();
+
+  void _closeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    _isOverlayVisible = false;
+  }
 
   void _toggleOverlay(BuildContext context) {
     if (_isOverlayVisible) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-      _isOverlayVisible = false;
+      _closeOverlay();
     } else {
       _overlayEntry = _createOverlayEntry(context);
       Overlay.of(context).insert(_overlayEntry!);
@@ -27,11 +32,18 @@ class _OverlayListButtonState extends State<OverlayListButton> {
     }
   }
 
+  void _updateOverlayPosition(BuildContext context) {
+    if (_isOverlayVisible) {
+      _overlayEntry?.remove();
+      _overlayEntry = _createOverlayEntry(context);
+      Overlay.of(context).insert(_overlayEntry!);
+    }
+  }
+
   OverlayEntry _createOverlayEntry(BuildContext context) {
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
-    
 
     var isWideScreen = MediaQuery.of(context).size.width > 450;
     double width = isWideScreen ? 300 : 250;
@@ -46,31 +58,49 @@ class _OverlayListButtonState extends State<OverlayListButton> {
     }
 
     return OverlayEntry(
-      builder: (context) => Positioned(
-        left: leftPosition,
-        top: position.dy + size.height + 4,
-        width: width,
-        height: 300,
-        child: Material(
-          color: Colors.transparent,
-          child: ListScreen(
-            child: widget.child,
-            onClose: () {
-              _overlayEntry?.remove();
-              _overlayEntry = null;
-              _isOverlayVisible = false;
-            },
+      builder: (context) => Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              //closes on tap outside
+              onTap: () {
+                _closeOverlay();
+              },
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
           ),
-        ),
+          Positioned(
+            left: leftPosition,
+            top: position.dy + size.height + 4,
+            width: width,
+            height: 300,
+            child: Material(
+              color: Colors.transparent,
+              child: ListScreen(
+                key: _overlayKey,
+                child: widget.child,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => setState(() => _toggleOverlay(context)),
-      child: Text("${widget.title}Confirmed"),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _updateOverlayPosition(context);
+        });
+        return GestureDetector(
+          onTap: () => setState(() => _toggleOverlay(context)),
+          child: Text(widget.title),
+        );
+      },
     );
   }
 }
@@ -91,7 +121,7 @@ class ListScreen extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
-            blurRadius: 5.0,
+            blurRadius: 4.0,
             spreadRadius: 2.0,
           ),
         ],

@@ -1,33 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/model/user.dart';
 
 class UserProvider extends ChangeNotifier {
-  // Private static instance
+
   static final UserProvider _instance = UserProvider._internal();
 
-  // Factory constructor returns the singleton instance
   factory UserProvider() {
     return _instance;
   }
 
-  // Private named constructor
   UserProvider._internal();
 
   User? _user;
-  Profile? _currentProfile;
 
   User? get user => _user;
 
   String getCurrentProfileHash() {
-    return _currentProfile!.hash;
+    return _user!.currentProfileHash;
+  }
+
+  Set<String> getSecondaryProfilesHashes(){
+    var profiles = getProfileHashes();
+    profiles.remove(getCurrentProfileHash());
+    return profiles;
   }
 
   Set<String> getProfileHashes() {
-    return _user!.profiles.map((profile) => profile.hash).toSet();
+    return _user!.profileHashes;
   }
 
-  void updateUser(User user) {
+  Future<void> updateUser(User user) async {
     _user == null
         ? setUser(user)
         : //
@@ -37,7 +39,7 @@ class UserProvider extends ChangeNotifier {
   }
 
   checkUserUpdate(user) {
-    if (_user!.id == user.id) {
+    if (_user!.hash == user.hash) {
     } else {
       setUser(user);
     }
@@ -45,12 +47,10 @@ class UserProvider extends ChangeNotifier {
 
   void setUser(User user) {
     _user = user;
-    _currentProfile =
-        user.profiles.firstWhere((p) => p.hash == user.mainProfileHash);
   }
 
-  void setCurrentProfile(Profile profile) {
-    _currentProfile = profile;
+  void setCurrentProfile(String profileHash) {
+    _user!.currentProfileHash = profileHash;
     notifyListeners();
   }
 }
