@@ -42,7 +42,7 @@ class PhotoRetrieverService {
       album =
           albums.firstWhere((album) => album.name.toLowerCase() == "camera");
     } catch (e) {
-      debugPrint("No Camera album was found");
+      debugPrint("No \"Camera\" album was found or no photos where taken during this event ");
       return [];
     }
 
@@ -58,25 +58,6 @@ class PhotoRetrieverService {
       var photosDuringEvent = await retrieveImagesByTime(
           event.startTime!.toUtc(), event.endTime!.toUtc());
       if (photosDuringEvent.isNotEmpty) {
-        EventService.setCachedImages(event, photosDuringEvent);
-      }
-    }
-  }
-
-  Future<void> testRetrieveShootedPhotos(String eventHash) async {
-    var event = EventProvider().findEventByHash(eventHash);
-    debugPrint("PHOTOS ${(event != null)}");
-    if (event != null) {
-      /*var photosDuringEvent = await ImageService().retrieveImagesByTime(
-          event.startTime!.toUtc(), event.endTime!.toUtc());
-      */
-      List<AssetEntity> photosDuringEvent =
-          await PhotoRetrieverService.retrieveImagesByTime(
-              DateTime.now().subtract(Duration(days: 1)), DateTime.now());
-
-      debugPrint("PHOTOS ${photosDuringEvent.length.toString()}");
-      if (photosDuringEvent.isNotEmpty) {
-        debugPrint(photosDuringEvent.length.toString());
         EventService.setCachedImages(event, photosDuringEvent);
       }
     }

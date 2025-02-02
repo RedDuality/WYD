@@ -96,14 +96,13 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
             if (exists && !isWideScreen)
               Column(
                 children: [
+                  const SizedBox(height: 4),
                   OverlayListButton(
                     title: confirmTitle,
                     child: Confirmed(provider: event),
                   ),
-                  const SizedBox(height: 10),
                 ],
               ),
-            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
@@ -248,7 +247,6 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
             if (exists && isOwner)
               Align(
                 alignment: Alignment.bottomRight,
@@ -273,7 +271,6 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
                   ],
                 ),
               ),
@@ -309,7 +306,7 @@ class Confirmed extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.grey),
             ),
-            const SizedBox(height: 10),
+            
             ListView.builder(
               shrinkWrap: true,
               itemCount: confirmed.length,
@@ -317,7 +314,7 @@ class Confirmed extends StatelessWidget {
                 return MenuProfileTile(hash: confirmed[index].profileHash);
               },
             ),
-            const Divider(),
+            //const Divider(),
             const Text(
               "Da confermare",
               style: TextStyle(
@@ -325,7 +322,6 @@ class Confirmed extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.grey),
             ),
-            const SizedBox(height: 10),
             ListView.builder(
               shrinkWrap: true,
               itemCount: toBeConfirmed.length,

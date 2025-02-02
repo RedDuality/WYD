@@ -14,7 +14,7 @@ class OverlayListButton extends StatefulWidget {
 class OverlayListButtonState extends State<OverlayListButton> {
   OverlayEntry? _overlayEntry;
   bool _isOverlayVisible = false;
-    final GlobalKey _overlayKey = GlobalKey();
+  final GlobalKey _overlayKey = GlobalKey();
 
   void _closeOverlay() {
     _overlayEntry?.remove();
@@ -114,7 +114,7 @@ class ListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(5.0),
+      padding: EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.0),
@@ -135,7 +135,7 @@ class ListScreen extends StatelessWidget {
               },
               child: Text('Close'),
             ),
-          SizedBox(height: 10),
+          if (onClose != null) SizedBox(height: 10),
           Flexible(
             child: SingleChildScrollView(
               child: Column(

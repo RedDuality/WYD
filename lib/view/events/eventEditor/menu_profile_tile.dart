@@ -6,7 +6,7 @@ import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 class MenuProfileTile extends StatelessWidget {
   final String hash;
   final Alignment alignment;
-  final double height;
+  final double imageHeight;
   final double? imageWidth;
 
   //final String title;
@@ -18,7 +18,7 @@ class MenuProfileTile extends StatelessWidget {
     super.key,
     required this.hash,
     this.alignment = Alignment.centerLeft,
-    this.height = 40,
+    this.imageHeight = 30,
     this.imageWidth,
     this.titleFontSize = 18,
     this.subtitleFontSize = 14,
@@ -38,21 +38,21 @@ class MenuProfileTile extends StatelessWidget {
           } else {
             return Padding(
               padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                  const EdgeInsets.symmetric(vertical: 0.0, horizontal: 7.0),
               child: Align(
                 alignment: alignment,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
-                      width: height,
-                      height: imageWidth ?? height,
+                      height: imageHeight,
+                      width: imageWidth ?? imageHeight,
                       child: CircleAvatar(
                         backgroundImage: ImageService().getImageProvider(),
-                        radius: 30,
+                        radius: imageHeight,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 4),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -61,12 +61,13 @@ class MenuProfileTile extends StatelessWidget {
                           style: TextStyle(
                               fontSize: titleFontSize,
                               fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           notifier.profile!.tag,
                           style: TextStyle(
-                              fontSize: subtitleFontSize,
-                              fontWeight: FontWeight.bold),
+                              color: Colors.grey, fontSize: subtitleFontSize),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
