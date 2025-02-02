@@ -32,7 +32,8 @@ release.bat
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-build/app/
+build/*
+!build/web/
 
 # Symbolication related
 app.*.symbols
