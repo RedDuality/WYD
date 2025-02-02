@@ -10,6 +10,7 @@
 .svn/
 migrate_working_dir/
 release.bat
+
 .env
 
 # IntelliJ related
@@ -31,6 +32,7 @@ release.bat
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+build/app/
 
 # Symbolication related
 app.*.symbols
