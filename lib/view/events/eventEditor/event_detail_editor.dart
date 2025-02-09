@@ -77,6 +77,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
         _descriptionController.text = event.description ?? "";
 
         var confirmTitle = "${event.getEventWithCurrentFields().getConfirmTitle()} Confirmed";
+        var shared = event.sharedWith.length > 1;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,14 +87,14 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text("Dettagli"),
-                if (exists && isWideScreen)
+                if (exists && isWideScreen && shared)
                   OverlayListButton(
                     title: confirmTitle,
                     child: Confirmed(provider: event),
                   ),
               ],
             ),
-            if (exists && !isWideScreen)
+            if (exists && !isWideScreen && shared)
               Column(
                 children: [
                   const SizedBox(height: 4),

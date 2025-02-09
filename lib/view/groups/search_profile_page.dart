@@ -5,14 +5,14 @@ import 'package:wyd_front/model/DTO/create_community_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/community_service.dart';
 import 'package:wyd_front/service/model/profile_service.dart';
-class SearchUserPage extends StatefulWidget {
-  const SearchUserPage({super.key});
+class SearchProfilePage extends StatefulWidget {
+  const SearchProfilePage({super.key});
 
   @override
-  State<SearchUserPage> createState() => _SearchUserPageState();
+  State<SearchProfilePage> createState() => _SearchProfilePageState();
 }
 
-class _SearchUserPageState extends State<SearchUserPage> {
+class _SearchProfilePageState extends State<SearchProfilePage> {
   List<Profile> _filteredUsers = [];
   bool _isLoading = false;
   Timer? _debounce;
@@ -75,7 +75,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
             Navigator.pop(context);
           },
         ),
-        title: const Text("Search User"),
+        title: const Text("Search Profile"),
       ),
       body: Column(
         children: <Widget>[
@@ -83,7 +83,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Search User',
+                labelText: 'Search Profile',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {

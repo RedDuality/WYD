@@ -7,7 +7,7 @@ import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 import 'package:wyd_front/view/widget/header.dart';
-import 'package:wyd_front/view/groups/search_user_page.dart';
+import 'package:wyd_front/view/groups/search_profile_page.dart';
 
 class GroupPage extends StatelessWidget {
   const GroupPage({super.key});
@@ -26,7 +26,7 @@ class GroupPage extends StatelessWidget {
                 context,
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                      const SearchUserPage(),
+                      const SearchProfilePage(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     const begin = Offset(1.0, 0.0); // Start from right
