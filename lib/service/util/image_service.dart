@@ -8,29 +8,61 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:wyd_front/model/DTO/blob_data.dart';
+import 'package:image/image.dart' as img;
 
 enum ImageSize { mini, midi, big }
 
 class ImageService {
 
 
-  Future<BlobData?> _compressImage(Uint8List imageData) async {
-    if (imageData.isNotEmpty) {
-      try {
-        // Compress the image data
-        final compressedImageData = await FlutterImageCompress.compressWithList(
-            imageData,
-            minWidth: 403,
-            quality: 85,
-            format: CompressFormat.jpeg);
-
-        return BlobData(data: compressedImageData, mimeType: "image/jpeg");
-      } catch (e) {
-        debugPrint(e.toString());
+Future<BlobData?> _compressImage(Uint8List imageData) async {
+  if (imageData.isNotEmpty) {
+    try {
+      // Attempt to decode the image to determine the format
+      final image = img.decodeImage(imageData);
+      
+      if (image == null) {
+        throw Exception('Failed to decode image');
       }
+
+      // Compress the image data
+      final compressedImageData = await FlutterImageCompress.compressWithList(
+        imageData,
+        minWidth: 403,
+        quality: 85,
+        format: CompressFormat.jpeg, // Default to jpeg compression
+      );
+
+      // Dynamically determine the MIME type
+      String mimeType = "image/jpeg"; // Default mimeType
+      if (image.hasAlpha) {
+        mimeType = "image/png"; // If image has alpha channel, use PNG
+      }
+
+      return BlobData(data: compressedImageData, mimeType: mimeType);
+    } catch (e) {
+      debugPrint("Compression failed: $e");
+      //TODO check this, was failing on firefox
+
+      // If compression fails, return original image with proper MIME type
+      String mimeType = "image/jpeg"; // Default mimeType
+      try {
+        final image = img.decodeImage(imageData);
+        if (image != null) {
+          if (image.hasAlpha) {
+            mimeType = "image/png"; // If image has alpha channel, use PNG
+          }
+        }
+      } catch (e) {
+        // Handle case where decoding also fails
+        debugPrint("Failed to decode image: $e");
+      }
+
+      return BlobData(data: imageData, mimeType: mimeType);
     }
-    return null;
   }
+  return null;
+}
 
   Future<List<BlobData>> pickImages() async {
     final ImagePicker picker = ImagePicker();

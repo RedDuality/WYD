@@ -56,7 +56,7 @@ class GalleryEditor extends StatelessWidget {
                             children: [
                               Icon(Icons.search),
                               MediaQuery.of(context).size.width > 200
-                                  ? const Text("Cerca Immagini",
+                                  ? const Text("(Test) Cerca foto scattate",
                                       style: TextStyle(fontSize: 18))
                                   : Container(),
                             ],

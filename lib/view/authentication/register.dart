@@ -15,7 +15,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   String _mail = "";
   String _password = "";
-  bool _isFormValid = false; // Variabile di stato per la validità del form
+  bool _isFormValid = false;
 
   final _registerKey = GlobalKey<FormState>();
 
@@ -46,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
         children: <Widget>[
           Form(
             key: _registerKey,
-            onChanged: updateFormValidity, // Chiama questa funzione ogni volta che il form cambia
+            onChanged: updateFormValidity,
             child: Column(
               children: <Widget>[
                 Flexible(
