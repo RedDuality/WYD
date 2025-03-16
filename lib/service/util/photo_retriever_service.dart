@@ -95,7 +95,7 @@ class PhotoRetrieverService {
   Future<void> timerCallback(Event event) async {
     //endTime has not been changed
     if (event.endTime!.difference(DateTime.now()).inMinutes <= 3) {
-      await PhotoRetrieverService().retrieveShootedPhotos(event.hash);
+      await retrieveShootedPhotos(event.hash);
       _saveDateTime();
     }
   }
