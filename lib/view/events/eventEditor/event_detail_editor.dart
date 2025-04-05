@@ -76,7 +76,8 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
         var isWideScreen = MediaQuery.of(context).size.width > 450;
         _descriptionController.text = event.description ?? "";
 
-        var confirmTitle = "${event.getEventWithCurrentFields().getConfirmTitle()} Confirmed";
+        var confirmTitle =
+            "${event.getEventWithCurrentFields().getConfirmTitle()} Confirmed";
         var shared = event.sharedWith.length > 1;
 
         return Column(
@@ -208,7 +209,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                       child: Row(
                         children: [
                           Icon(Icons.event_available),
-                          MediaQuery.of(context).size.width > 300
+                          MediaQuery.of(context).size.width > 400
                               ? Text('Confirm', style: TextStyle(fontSize: 18))
                               : Container(),
                         ],
@@ -226,7 +227,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                       child: Row(
                         children: [
                           Icon(Icons.update),
-                          if (MediaQuery.of(context).size.width > 200)
+                          if (MediaQuery.of(context).size.width > 400)
                             Text('Update', style: TextStyle(fontSize: 18)),
                         ],
                       ),
@@ -239,15 +240,15 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                       child: Row(
                         children: [
                           Icon(Icons.save),
-                          if (MediaQuery.of(context).size.width > 200)
+                          if (MediaQuery.of(context).size.width > 400)
                             Text('Save', style: TextStyle(fontSize: 18)),
                         ],
                       ),
                     ),
-                  const SizedBox(width: 10),
                 ],
               ),
             ),
+            const SizedBox(height: 10),
             if (exists && isOwner)
               Align(
                 alignment: Alignment.bottomRight,
@@ -307,7 +308,7 @@ class Confirmed extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.grey),
             ),
-            
+
             ListView.builder(
               shrinkWrap: true,
               itemCount: confirmed.length,
