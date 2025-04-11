@@ -1,41 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/view/profiles/main_profile_tile.dart';
-import 'package:wyd_front/view/profiles/profiles_notifier.dart';
-import 'package:wyd_front/view/profiles/view_profile_tile.dart';
+import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/service/model/profile_service.dart';
+import 'package:wyd_front/state/profiles_provider.dart';
+import 'package:wyd_front/view/profiles/tiles/header_profile_tile.dart';
+import 'package:wyd_front/view/profiles/tiles/main_profile_tile.dart';
+import 'package:wyd_front/view/profiles/tiles/menu_profile_tile.dart';
+import 'package:wyd_front/view/profiles/tiles/view_profile_tile.dart';
 
-enum ProfileTileType { main, selection, view }
+enum ProfileTileType { main, view, menu, header }
 
 class ProfileTile extends StatelessWidget {
   final String profileHash;
-
-  final ProfileTileType type;
+  final ProfileTileType? type;
+  final bool fetchDataFromServer;
 
   const ProfileTile({
     super.key,
     required this.profileHash,
-    this.type = ProfileTileType.view,
+    required this.type,
+    this.fetchDataFromServer = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProfilesNotifier>(context);
-    var notifier = provider.getNotifier(profileHash);
-
-    return ChangeNotifierProvider.value(
-      value: notifier,
-      child: Consumer<ProfileNotifier>(
-        builder: (context, notifier, child) {
-          switch (type) {
-            case ProfileTileType.main:
-              return MainProfileTile(profile: notifier.profile);
-            case ProfileTileType.view:
-              return ViewProfileTile(profile: notifier.profile);
-            default:
-              return ViewProfileTile(profile: notifier.profile);
-          }
-        },
-      ),
+    final profile = context.select<ProfilesProvider, Profile?>(
+      (provider) => provider.get(profileHash),
     );
+    if (fetchDataFromServer) {
+      ProfileService().synchProfile(profile, profileHash);
+    }
+    switch (type) {
+      case ProfileTileType.main:
+        return MainProfileTile(profile: profile);
+      case ProfileTileType.view:
+        return ViewProfileTile(profile: profile);
+      case ProfileTileType.menu:
+        return MenuProfileTile(profile: profile);
+      case ProfileTileType.header:
+        return HeaderProfileTile(profile: profile);
+      default:
+        return ViewProfileTile(profile: profile);
+    }
   }
 }

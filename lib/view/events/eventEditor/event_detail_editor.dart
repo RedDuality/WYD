@@ -10,8 +10,7 @@ import 'package:wyd_front/service/model/event_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/eventEditor/detail_provider.dart';
 import 'package:wyd_front/state/event_provider.dart';
-import 'package:wyd_front/view/events/eventEditor/menu_profile_tile.dart';
-import 'package:wyd_front/view/profiles/profiles_notifier.dart';
+import 'package:wyd_front/view/profiles/profile_tile.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/share_page.dart';
@@ -128,9 +127,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
             RangeEditor(provider: event),
-            const SizedBox(height: 10),
             //Buttons
             Align(
               alignment: Alignment.bottomRight,
@@ -248,7 +245,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 5),
             if (exists && isOwner)
               Align(
                 alignment: Alignment.bottomRight,
@@ -294,46 +291,41 @@ class Confirmed extends StatelessWidget {
         provider.sharedWith.where((pe) => pe.confirmed == true).toList();
     List<ProfileEvent> toBeConfirmed =
         provider.sharedWith.where((pe) => pe.confirmed == false).toList();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          "Confermati",
+          style: TextStyle(
+              fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+        ),
 
-    return ChangeNotifierProvider<ProfilesNotifier>(
-      create: (_) => ProfilesNotifier(),
-      builder: (context, child) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "Confermati",
-              style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey),
-            ),
-
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: confirmed.length,
-              itemBuilder: (context, index) {
-                return MenuProfileTile(hash: confirmed[index].profileHash);
-              },
-            ),
-            //const Divider(),
-            const Text(
-              "Da confermare",
-              style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey),
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: toBeConfirmed.length,
-              itemBuilder: (context, index) {
-                return MenuProfileTile(hash: toBeConfirmed[index].profileHash);
-              },
-            ),
-          ],
-        );
-      },
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: confirmed.length,
+          itemBuilder: (context, index) {
+            return ProfileTile(
+                profileHash: confirmed[index].profileHash,
+                type: ProfileTileType.menu);
+          },
+        ),
+        //const Divider(),
+        const Text(
+          "Da confermare",
+          style: TextStyle(
+              fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: toBeConfirmed.length,
+          itemBuilder: (context, index) {
+            return ProfileTile(
+              profileHash: toBeConfirmed[index].profileHash,
+              type: ProfileTileType.menu,
+            );
+          },
+        ),
+      ],
     );
   }
 }

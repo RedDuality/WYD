@@ -10,20 +10,43 @@ class Profile {
   Color? color;
   ProfileType type;
   Role? role;
+  DateTime lastUpdatedTime;
 
-  Profile(
-      {this.name = "",
-      this.hash = "",
-      this.tag = "",
-      this.blobHash = "",
-      this.color,
-      this.type = ProfileType.personal,
-      this.role = Role.viewer});
+  Profile({
+    this.name = "",
+    this.hash = "",
+    this.tag = "",
+    this.blobHash = "",
+    this.color,
+    this.type = ProfileType.personal,
+    this.role = Role.viewer,
+  }) : lastUpdatedTime = DateTime.now();
+
+  Profile copyWith({
+    String? name,
+    String? tag,
+    String? blobHash,
+    Color? color,
+    ProfileType? type,
+    Role? role,
+    DateTime? lastUpdatedTime,
+  }) {
+    return Profile(
+        hash: hash,
+        name: name ?? this.name,
+        tag: tag ?? this.tag,
+        blobHash: blobHash ?? this.blobHash,
+        color: color ?? this.color,
+        type: type ?? this.type,
+        role: role ?? this.role);
+  }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is Profile && other.hash == hash;
+    return other is Profile &&
+        other.hash == hash &&
+        other.lastUpdatedTime == lastUpdatedTime;
   }
 
   @override
@@ -42,14 +65,13 @@ class Profile {
         'color': int? color,
       } =>
         Profile(
-          name: name ?? "",
-          hash: hash ?? "",
-          tag: tag ?? "",
-          blobHash: blobHash ?? "",
-          type: ProfileType.values[type ?? 0],
-          color: color != null ? Color(color) : null,
-          role: role != null ? Role.values[role] : Role.viewer,
-        ),
+            name: name ?? "",
+            hash: hash ?? "",
+            tag: tag ?? "",
+            blobHash: blobHash ?? "",
+            type: ProfileType.values[type ?? 0],
+            color: color != null ? Color(color) : null,
+            role: role != null ? Role.values[role] : Role.viewer),
       _ => throw const FormatException('Failed to decode Profile')
     };
   }

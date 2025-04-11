@@ -5,7 +5,6 @@ import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
-import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/groups/search_profile_page.dart';
 
@@ -48,19 +47,16 @@ class GroupPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ChangeNotifierProvider(
-        create: (context) => ProfilesNotifier(),
-        child: Consumer<CommunityProvider>(
-          builder: (context, communityProvider, child) {
-            return ListView.builder(
-              itemCount: communityProvider.communities!.length,
-              itemBuilder: (context, index) {
-                var community = communityProvider.communities![index];
-                return _buildCommunityTile(context, community);
-              },
-            );
-          },
-        ),
+      body: Consumer<CommunityProvider>(
+        builder: (context, communityProvider, child) {
+          return ListView.builder(
+            itemCount: communityProvider.communities!.length,
+            itemBuilder: (context, index) {
+              var community = communityProvider.communities![index];
+              return _buildCommunityTile(context, community);
+            },
+          );
+        },
       ),
     );
   }
@@ -68,11 +64,14 @@ class GroupPage extends StatelessWidget {
   Widget _buildCommunityTile(BuildContext context, Community community) {
     switch (community.type) {
       case CommunityType.personal:
-        return ProfileTile(profileHash: community.getProfileHash());
+        return ProfileTile(
+            profileHash: community.getProfileHash(),
+            type: ProfileTileType.view);
       case CommunityType.singlegroup:
         return avatarTile(title: community.name);
       case CommunityType.community:
-        return expansionAvatarTile(title: community.name, children: community.groups);
+        return expansionAvatarTile(
+            title: community.name, children: community.groups);
       default:
         return Container();
     }

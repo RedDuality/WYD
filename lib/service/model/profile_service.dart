@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:wyd_front/API/profile_api.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/state/profiles_provider.dart';
-import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 
 class ProfileService {
   ProfileService._privateConstructor();
@@ -13,13 +12,12 @@ class ProfileService {
     return _instance;
   }
 
-  final Set<String> _profileQueue = {};
-  final Set<ProfilesNotifier?> _containers = {};
+  final Set<String> queue = {};
   Timer? _timer;
 
   void _startTimer(Function fun) {
     if (_timer == null || !_timer!.isActive) {
-      _timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+      _timer = Timer.periodic(Duration(milliseconds: 33), (timer) {
         fun();
       });
     }
@@ -30,43 +28,31 @@ class ProfileService {
     _timer = null;
   }
 
-  void _localUpdate(Iterable<Profile> profiles) {
-    ProfilesProvider().addAll(profiles.toList());
-    for (var container in _containers) {
-      container?.updateNotifiers(profiles);
-    }
-  }
-
   Future<List<Profile>?> searchByTag(String searchTag) async {
     return ProfileAPI().searchByTag(searchTag);
   }
 
-  Future<List<Profile>> retrieveProfiles(Set<String> hashes) async {
-    final profiles = await ProfileAPI().retrieveFromHashes(hashes.toList());
-    ProfilesProvider().addAll(profiles);
-    return profiles;
-  }
-
   Future<void> updateProfile(Profile profile) async {
     await ProfileAPI().updateProfile(profile);
-    _localUpdate([profile]);
-        
+    ProfilesProvider().addAll([profile]);
   }
 
-  _getProfiles() async {
-    if (_profileQueue.isNotEmpty) {
-      var profiles = await ProfileService().retrieveProfiles(_profileQueue);
-      _localUpdate(profiles);
-
-      _profileQueue.clear();
+  _retrieveProfiles() async {
+    if (queue.isNotEmpty) {
+      var request = ProfileAPI().retrieveFromHashes(queue.toList());
+      queue.clear();
+      final profiles = await request;
+      ProfilesProvider().addAll(profiles);
     } else {
       _stopTimer();
     }
   }
 
-  void retrieveProfile(String hash, ProfilesNotifier container) {
-    _containers.add(container);
-    _profileQueue.add(hash);
-    _startTimer(_getProfiles);
+  synchProfile(Profile? profile, String hash) {
+    var anHourAgo = DateTime.now().subtract(Duration(hours: 1));
+    if (profile == null || profile.lastUpdatedTime.isBefore(anHourAgo)) {
+      queue.add(hash);
+      _startTimer(_retrieveProfiles);
+    }
   }
 }

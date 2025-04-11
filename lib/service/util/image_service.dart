@@ -13,56 +13,54 @@ import 'package:image/image.dart' as img;
 enum ImageSize { mini, midi, big }
 
 class ImageService {
-
-
-Future<BlobData?> _compressImage(Uint8List imageData) async {
-  if (imageData.isNotEmpty) {
-    try {
-      // Attempt to decode the image to determine the format
-      final image = img.decodeImage(imageData);
-      
-      if (image == null) {
-        throw Exception('Failed to decode image');
-      }
-
-      // Compress the image data
-      final compressedImageData = await FlutterImageCompress.compressWithList(
-        imageData,
-        minWidth: 403,
-        quality: 85,
-        format: CompressFormat.jpeg, // Default to jpeg compression
-      );
-
-      // Dynamically determine the MIME type
-      String mimeType = "image/jpeg"; // Default mimeType
-      if (image.hasAlpha) {
-        mimeType = "image/png"; // If image has alpha channel, use PNG
-      }
-
-      return BlobData(data: compressedImageData, mimeType: mimeType);
-    } catch (e) {
-      debugPrint("Compression failed: $e");
-      //TODO check this, was failing on firefox
-
-      // If compression fails, return original image with proper MIME type
-      String mimeType = "image/jpeg"; // Default mimeType
+  Future<BlobData?> _compressImage(Uint8List imageData) async {
+    if (imageData.isNotEmpty) {
       try {
+        // Attempt to decode the image to determine the format
         final image = img.decodeImage(imageData);
-        if (image != null) {
-          if (image.hasAlpha) {
-            mimeType = "image/png"; // If image has alpha channel, use PNG
-          }
-        }
-      } catch (e) {
-        // Handle case where decoding also fails
-        debugPrint("Failed to decode image: $e");
-      }
 
-      return BlobData(data: imageData, mimeType: mimeType);
+        if (image == null) {
+          throw Exception('Failed to decode image');
+        }
+
+        // Compress the image data
+        final compressedImageData = await FlutterImageCompress.compressWithList(
+          imageData,
+          minWidth: 403,
+          quality: 85,
+          format: CompressFormat.jpeg, // Default to jpeg compression
+        );
+
+        // Dynamically determine the MIME type
+        String mimeType = "image/jpeg"; // Default mimeType
+        if (image.hasAlpha) {
+          mimeType = "image/png"; // If image has alpha channel, use PNG
+        }
+
+        return BlobData(data: compressedImageData, mimeType: mimeType);
+      } catch (e) {
+        debugPrint("Compression failed: $e");
+        //TODO check this, was failing on firefox
+
+        // If compression fails, return original image with proper MIME type
+        String mimeType = "image/jpeg"; // Default mimeType
+        try {
+          final image = img.decodeImage(imageData);
+          if (image != null) {
+            if (image.hasAlpha) {
+              mimeType = "image/png"; // If image has alpha channel, use PNG
+            }
+          }
+        } catch (e) {
+          // Handle case where decoding also fails
+          debugPrint("Failed to decode image: $e");
+        }
+
+        return BlobData(data: imageData, mimeType: mimeType);
+      }
     }
+    return null;
   }
-  return null;
-}
 
   Future<List<BlobData>> pickImages() async {
     final ImagePicker picker = ImagePicker();
@@ -119,10 +117,8 @@ Future<BlobData?> _compressImage(Uint8List imageData) async {
     return compressedImages;
   }
 
-
-
   bool _isValid(String? url) {
-    return url != null && Uri.parse(url).hasAbsolutePath;
+    return url != null && Uri.parse(url).hasAbsolutePath && !url.endsWith('/');
   }
 
   String _getSizeUrl(String? url, size) {
@@ -181,6 +177,13 @@ Future<BlobData?> _compressImage(Uint8List imageData) async {
   ImageProvider getEventImage(String eventHash, String blobHash) {
     String? blobUrl = '${dotenv.env['BLOB_URL']}';
     final url = '$blobUrl${eventHash.toLowerCase()}/${blobHash.toLowerCase()}';
+    return getImageProvider(imageUrl: url);
+  }
+
+  ImageProvider getProfileImage(String profileHash, String blobHash) {
+    String? blobUrl = '${dotenv.env['BLOB_URL']}';
+    final url =
+        '$blobUrl"p"${profileHash.toLowerCase()}/${blobHash.toLowerCase()}';
     return getImageProvider(imageUrl: url);
   }
 

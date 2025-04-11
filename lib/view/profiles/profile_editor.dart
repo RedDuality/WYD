@@ -19,6 +19,7 @@ class ProfileEditorState extends State<ProfileEditor> {
   late TextEditingController tagController;
   final _formKey = GlobalKey<FormState>();
   bool changed = false;
+  bool colorChanged = false;
 
   @override
   void initState() {
@@ -34,6 +35,11 @@ class ProfileEditorState extends State<ProfileEditor> {
     nameController.dispose();
     tagController.dispose();
     super.dispose();
+  }
+
+  void update(Profile updatedProfile) async {
+    await ProfileService().updateProfile(updatedProfile);
+    if (colorChanged) EventProvider().myUpdateFilter();
   }
 
   @override
@@ -54,7 +60,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                     borderRadius: BorderRadius.circular(15.0),
                     side: BorderSide(
                       color: _selectedColor,
-                      width: 3.0,
+                      width: 3.5,
                     ),
                   ),
                   child:
@@ -123,23 +129,24 @@ class ProfileEditorState extends State<ProfileEditor> {
                   onColorSelected: (color) {
                     setState(() {
                       _selectedColor = color;
-                      changed = true;
+                      colorChanged = color != widget.profile.color;
                     });
                   },
                 ),
                 SizedBox(height: 25),
                 SizedBox(
                   height: 50,
-                  child: changed
+                  child: changed || colorChanged
                       ? ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              widget.profile.color = _selectedColor;
-                              widget.profile.name = nameController.text;
-                              widget.profile.tag = tagController.text;
-                              ProfileService().updateProfile(widget.profile);
-                              EventProvider().myUpdateFilter();
+                              final updatedProfile = widget.profile.copyWith(
+                                name: nameController.text,
+                                tag: tagController.text,
+                                color: _selectedColor,
+                              );
                               Navigator.pop(context);
+                              update(updatedProfile);
                             }
                           },
                           child: Text("Save"))
@@ -194,7 +201,6 @@ class _ColorSelectorState extends State<ColorSelector> {
       children: colors.map((color) {
         return GestureDetector(
           onTap: () {
-            debugPrint("selected $color");
             setState(() {
               selectedColor = color;
             });
@@ -206,16 +212,27 @@ class _ColorSelectorState extends State<ColorSelector> {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: selectedColor == color ? Colors.black : Colors.white,
+              color: selectedColor == color
+                  ? Colors.black
+                  : Colors.white, // outer ring
             ),
-            child: Container(
-              margin: EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2,
+            child: Center(
+              child: Container(
+                width: 45,
+                height: 45,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white, // middle ring
+                ),
+                child: Center(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color, // inner color
+                    ),
+                  ),
                 ),
               ),
             ),
