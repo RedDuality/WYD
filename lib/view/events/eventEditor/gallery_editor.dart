@@ -40,30 +40,37 @@ class GalleryEditor extends StatelessWidget {
                   const Divider(
                     color: Colors.grey,
                     thickness: 0.5,
+                    height: 20,
                   ),
-                if (!kIsWeb)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            PhotoRetrieverService()
-                                .retrieveShootedPhotos(imageProvider.hash);
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.search),
-                              MediaQuery.of(context).size.width > 200
-                                  ? const Text("(Test) Cerca foto scattate",
-                                      style: TextStyle(fontSize: 18))
-                                  : Container(),
-                            ],
-                          ),
+                if (!kIsWeb )
+                  Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                PhotoRetrieverService()
+                                    .retrieveShootedPhotos(imageProvider.hash);
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.search),
+                                  //TODO: show only if after the event
+                                  MediaQuery.of(context).size.width > 200
+                                      ? const Text("(Test) Cerca foto scattate",
+                                          style: TextStyle(fontSize: 18))
+                                      : Container(),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 10),
+                    ],
                   ),
 
                 if (imageProvider.cachedImages.isNotEmpty ||
@@ -72,9 +79,7 @@ class GalleryEditor extends StatelessWidget {
                     children: [
                       Text('These are the images you took during this event:',
                           style: TextStyle(fontSize: 18)),
-                      SizedBox(
-                        height: 8,
-                      ),
+                      SizedBox(height: 10),
                       LayoutBuilder(
                         builder: (context, constraints) {
                           var itemWidth = _getWidth(constraints.maxWidth, 303,
@@ -98,9 +103,7 @@ class GalleryEditor extends StatelessWidget {
                           );
                         },
                       ),
-                      SizedBox(
-                        height: 8,
-                      ),
+                      SizedBox(height: 10),
                       Align(
                         alignment: Alignment.centerRight,
                         child: Row(
@@ -131,22 +134,17 @@ class GalleryEditor extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 8,
-                      ),
                       const Divider(
                         color: Colors.grey,
                         thickness: 0.5,
+                        height: 20,
                       ),
                     ],
                   ),
-                //Old Images
+                //Already saved images
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 8,
-                    ),
                     //uploadImages
                     Align(
                       alignment: Alignment.centerRight,
@@ -175,8 +173,8 @@ class GalleryEditor extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
-
+                    SizedBox(height: 10),
+                    //loadImages
                     LayoutBuilder(
                       builder: (context, constraints) {
                         var itemWidth = _getWidth(constraints.maxWidth, 303,

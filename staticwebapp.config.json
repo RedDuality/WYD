@@ -1,6 +1,8 @@
 {
   "globalHeaders": {
-    "X-Frame-Options": "DENY"
+    "X-Frame-Options": "DENY",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
   },
   "navigationFallback": {
     "rewrite": "/index.html"

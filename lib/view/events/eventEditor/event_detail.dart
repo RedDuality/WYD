@@ -21,10 +21,6 @@ class EventDetailState extends State<EventDetail> {
     super.dispose();
   }
 
-  void _updateTitle(DetailProvider provider) {
-    provider.updateTitle(_titleController.text);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,14 +50,19 @@ class EventDetailState extends State<EventDetail> {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: EdgeInsets.zero, // Remove default padding
+              titlePadding: EdgeInsets.zero,
               title: Container(
                 alignment: Alignment.bottomLeft,
                 padding: const EdgeInsets.only(
-                    left: 16.0, bottom: 8.0), // Adjust left and bottom padding
+                    left: 16.0, bottom: 8.0),
                 child: Consumer<DetailProvider>(
                     builder: (context, provider, child) {
-                  _titleController.text = provider.title;
+                  if (_titleController.text != provider.title) {
+                    _titleController.text = provider.title;
+                    _titleController.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _titleController.text.length),
+                    );
+                  }
                   return TextFormField(
                     controller: _titleController,
                     decoration: InputDecoration(
@@ -75,14 +76,20 @@ class EventDetailState extends State<EventDetail> {
                       color: Colors.white,
                       fontSize: 20.0,
                     ),
+                    onChanged: (value) {
+                      provider.updateTitle(_titleController.text);
+                    },
                     onEditingComplete: () {
-                      _updateTitle(provider);
+                      provider.updateTitle(_titleController.text,
+                          finished: true);
                     },
                     onFieldSubmitted: (value) {
-                      _updateTitle(provider);
+                      provider.updateTitle(_titleController.text,
+                          finished: true);
                     },
                     onTapOutside: (event) {
-                      _updateTitle(provider);
+                      provider.updateTitle(_titleController.text,
+                          finished: true);
                       FocusManager.instance.primaryFocus?.unfocus();
                     },
                   );
@@ -97,13 +104,13 @@ class EventDetailState extends State<EventDetail> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0 ),
+              padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
               child: EventDetailEditor(),
             ),
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0 ),
+              padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
               child: GalleryEditor(),
             ),
           ),

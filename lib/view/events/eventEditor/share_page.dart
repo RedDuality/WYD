@@ -3,11 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/model/group.dart';
+import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/event_service.dart';
+import 'package:wyd_front/service/model/profile_service.dart';
 import 'package:wyd_front/service/util/image_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
+import 'package:wyd_front/state/profiles_provider.dart';
 import 'package:wyd_front/state/user_provider.dart';
-import 'package:wyd_front/view/profiles/profiles_notifier.dart';
 
 class SharePage extends StatefulWidget {
   final String eventTitle;
@@ -22,61 +24,70 @@ class SharePage extends StatefulWidget {
 
 class _SharePageState extends State<SharePage> {
   Set<int> selectedGroups = {};
+  String currentProfileHash = UserProvider().getCurrentProfileHash();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-          child: Row(
-            children: [
-              Expanded(child: Text(widget.eventTitle)),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Annulla'),
-              ),
-            ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 3, 8, 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.eventTitle,
+                    style: TextStyle(
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Annulla'),
+                ),
+              ],
+            ),
           ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: ChangeNotifierProvider<ProfilesNotifier>(
-              create: (_) => ProfilesNotifier(),
+          Expanded(
+            child: SingleChildScrollView(
               child: Consumer<CommunityProvider>(
                 builder: (context, communityProvider, child) {
                   return Column(
                     children: communityProvider.communities!
-                        .map((community) => _buildCommunityTile(context, community))
+                        .map((community) =>
+                            _buildCommunityTile(context, community))
                         .toList(),
                   );
                 },
               ),
             ),
           ),
-        ),
-        if (selectedGroups.isNotEmpty)
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextButton(
-                  onPressed: () async {
-                    EventService()
-                        .shareToGroups(widget.eventHash, selectedGroups);
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Condividi'),
-                )
-              ],
+          if (selectedGroups.isNotEmpty)
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      EventService()
+                          .shareToGroups(widget.eventHash, selectedGroups);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Condividi'),
+                  )
+                ],
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -93,29 +104,25 @@ class _SharePageState extends State<SharePage> {
     }
   }
 
-  Widget _buildPersonalCommunityTile(BuildContext context, Community community) {
+  Widget _buildPersonalCommunityTile(
+      BuildContext context, Community community) {
     final mainGroup = community.groups.first;
-    final profileHash = mainGroup.profileHashes
-        .where((p) => p != UserProvider().getCurrentProfileHash())
-        .first;
+    final profileHash =
+        mainGroup.profileHashes.where((p) => p != currentProfileHash).first;
 
-    final provider = Provider.of<ProfilesNotifier>(context);
-    var notifier = provider.getNotifier(profileHash);
-
-    return ChangeNotifierProvider.value(
-      value: notifier,
-      child: Consumer<ProfileNotifier>(builder: (context, notifier, child) {
-        if (notifier.profile == null) {
-          return ListTile(title: Text('Loading...'));
-        } else {
-          return ListTile(
-              leading: CircleAvatar(
-                  backgroundImage: ImageService().getImageProvider()),
-              title: Text(notifier.profile!.name),
-              trailing: _groupCheckBox(mainGroup));
-        }
-      }),
+    final profile = context.select<ProfilesProvider, Profile?>(
+      (provider) => provider.get(profileHash),
     );
+    ProfileService().synchProfile(profile, profileHash);
+    if (profile == null) {
+      return ListTile(title: Text('Loading...'));
+    } else {
+      return ListTile(
+          leading:
+              CircleAvatar(backgroundImage: ImageService().getImageProvider()),
+          title: Text(profile.name),
+          trailing: _groupCheckBox(mainGroup));
+    }
   }
 
   Widget _buildSingleGroupCommunityTile(Community community) {

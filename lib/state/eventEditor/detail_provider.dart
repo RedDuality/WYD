@@ -125,8 +125,12 @@ class DetailProvider extends ChangeNotifier {
     }
   }
 
-  void updateTitle(String newTitle) {
-    title = newTitle;
+  void updateTitle(String newTitle, {bool finished = false}) {
+    if (finished && newTitle.isEmpty) {
+      title = originalEvent!.title;
+    } else {
+      title = newTitle;
+    }
     _updateType(titleMod);
     notifyListeners();
   }

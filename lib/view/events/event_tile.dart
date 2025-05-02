@@ -20,6 +20,25 @@ class EventTile<T> extends StatelessWidget {
   final DateTime startDuration;
   final DateTime endDuration;
 
+  List<Color> getProfileColors(Event event) {
+    var profileHashes = event.sharedWith
+        .map((e) => e.profileHash)
+        .toSet();
+    List<String> ownedProfiles = profileHashes
+        .intersection(UserProvider().getSecondaryProfilesHashes()).toList();
+    String currentProfileHash = UserProvider().getCurrentProfileHash();
+    if(profileHashes.intersection({currentProfileHash}).isNotEmpty) {
+      ownedProfiles.insertAll(0, [currentProfileHash, currentProfileHash]);
+    }
+
+    final provider = ProfilesProvider();
+
+    return ownedProfiles.map((hash) {
+      final profile = provider.get(hash);
+      return profile?.color ?? Colors.purple;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (events.isNotEmpty) {
@@ -32,13 +51,11 @@ class EventTile<T> extends StatelessWidget {
             title: "${event.getConfirmTitle()}${event.title}",
             totalEvents: events.length,
             description: event.description,
-            padding: const EdgeInsets.fromLTRB(3.0, 0.0, 3.0, 3.0),
+            padding: const EdgeInsets.fromLTRB(2.0, 0.0, 3.0, 3.0),
             margin: const EdgeInsets.all(1.5),
             backgroundColor: event.color,
-            sideBarColor: ProfilesProvider()
-                    .get(UserProvider().getCurrentProfileHash())
-                    ?.color ??
-                Colors.blue,
+            sideBarColors: getProfileColors(event),
+            sideBarWidth: 4,
             titleStyle: event.titleStyle,
             descriptionStyle: event.descriptionStyle,
           ),

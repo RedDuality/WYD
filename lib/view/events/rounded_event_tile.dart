@@ -20,7 +20,9 @@ class RoundedEventTile extends StatelessWidget {
 
   final TextStyle? descriptionStyle;
 
-  final Color sideBarColor;
+  final List<Color> sideBarColors;
+
+  final double sideBarWidth;
 
   const RoundedEventTile({
     super.key,
@@ -31,7 +33,8 @@ class RoundedEventTile extends StatelessWidget {
     this.borderRadius = BorderRadius.zero,
     this.totalEvents = 1,
     this.backgroundColor = Colors.blue,
-    this.sideBarColor = Colors.blue,
+    this.sideBarColors = const [Colors.blue],
+    this.sideBarWidth = 4,
     this.titleStyle,
     this.descriptionStyle,
   });
@@ -47,9 +50,17 @@ class RoundedEventTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 5.0,
-              color: sideBarColor,
+            SizedBox(
+              width: sideBarWidth,
+              child: Column(
+                children: sideBarColors.map((color) {
+                  return Expanded(
+                    child: Container(
+                      color: color,
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
             Expanded(
               child: Padding(
@@ -64,13 +75,14 @@ class RoundedEventTile extends StatelessWidget {
                           title,
                           style: titleStyle ??
                               TextStyle(
-                                fontSize: 20,
+                                fontSize: 16,
                                 color: backgroundColor.accent,
                               ),
                           softWrap: true,
                           overflow: TextOverflow.fade,
                         ),
                       ),
+                    /*
                     if (description?.isNotEmpty ?? false)
                       Expanded(
                         child: Padding(
@@ -79,19 +91,20 @@ class RoundedEventTile extends StatelessWidget {
                             description!,
                             style: descriptionStyle ??
                                 TextStyle(
-                                  fontSize: 17,
+                                  fontSize:12,
                                   color: backgroundColor.accent.withAlpha(200),
                                 ),
                           ),
                         ),
-                      ),
+                      ),*/
                     if (totalEvents > 1)
                       Expanded(
                         child: Text(
                           "+${totalEvents - 1} more",
                           style: (descriptionStyle ??
                                   TextStyle(
-                                    color: backgroundColor.accent.withAlpha(200),
+                                    color:
+                                        backgroundColor.accent.withAlpha(200),
                                   ))
                               .copyWith(fontSize: 17),
                         ),

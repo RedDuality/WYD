@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/view/profiles/profile_tile.dart';
 import 'package:wyd_front/view/profiles/profiles_page.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
@@ -16,7 +18,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: actions!, // Display all actions in the Row on the left
+                  children: actions!,
                 ),
               ),
             )
@@ -30,13 +32,10 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
               MaterialPageRoute(builder: (context) => ProfilesPage()),
             );
           },
-          child: const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: AssetImage(
-                  'assets/images/logoimage_mini.png'),
-              radius: 20,
-            ),
+          child: ProfileTile(
+            profileHash: UserProvider().getCurrentProfileHash(),
+            type: ProfileTileType.header,
+            fetchDataFromServer: false,
           ),
         ),
       ],
