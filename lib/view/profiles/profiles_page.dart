@@ -50,7 +50,7 @@ class ProfilesPage extends StatelessWidget {
                 SizedBox(
                   width: 300,
                   height: 300,
-                  child: ImageService().getImage(size: ImageSize.big),
+                  child: ImageService.getImage(size: ImageSize.big),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(

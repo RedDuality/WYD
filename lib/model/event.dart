@@ -7,7 +7,7 @@ import 'package:wyd_front/state/user_provider.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
-  final String hash;
+  final String eventHash;
   final int? groupId;
 
   List<String> images = [];
@@ -18,14 +18,14 @@ class Event extends CalendarEventData {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Event) return false;
-    return hash == other.hash;
+    return eventHash == other.eventHash;
   }
 
   @override
-  int get hashCode => hash.hashCode;
+  int get hashCode => eventHash.hashCode;
 
   Event({
-    this.hash = "",
+    this.eventHash = "",
     required DateTime date,
     required DateTime startTime,
     required DateTime endTime,
@@ -135,7 +135,7 @@ class Event extends CalendarEventData {
   factory Event.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       _ => Event(
-          hash: json['hash'] as String? ?? "",
+          eventHash: json['hash'] as String? ?? "",
           date: DateTime.parse(json['startTime'] as String),
           startTime: DateTime.parse(json['startTime'] as String),
           endTime: DateTime.parse(json['endTime'] as String),
@@ -162,7 +162,7 @@ class Event extends CalendarEventData {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'hash': hash,
+      'hash': eventHash,
       'title': title,
       if (description != null) 'description': description,
       'startTime': startTime!.toUtc().toIso8601String(),

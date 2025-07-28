@@ -47,38 +47,38 @@ class RealTimeUpdateService {
     var typeIndex = snapshot['type'];
     switch (UpdateType.values[typeIndex]) {
       case UpdateType.newEvent:
-        EventService().retrieveNewByHash(snapshot['hash']);
+        EventService.retrieveNewByHash(snapshot['hash']);
         break;
       case UpdateType.shareEvent:
-        EventService().retrieveSharedByHash(snapshot['hash']);
+        EventService.retrieveSharedByHash(snapshot['hash']);
         break;
       case UpdateType.updateEvent:
-        EventService().retrieveUpdateByHash(snapshot['hash']);
+        EventService.retrieveUpdateByHash(snapshot['hash']);
         break;
       case UpdateType.updatePhotos:
         var event = EventProvider().findEventByHash(snapshot['hash']);
         if (event != null) {
-          EventService().retrieveImageUpdatesByHash(event);
+          EventService.retrieveImageUpdatesByHash(event);
         }
         break;
       case UpdateType.confirmEvent:
         var event = EventProvider().findEventByHash(snapshot['hash']);
         if (event != null && snapshot['phash'] != null) {
-          EventService()
+          EventService
               .localConfirm(event, true, profileHash: snapshot['phash']);
         }
         break;
       case UpdateType.declineEvent:
         var event = EventProvider().findEventByHash(snapshot['hash']);
         if (event != null && snapshot['phash'] != null) {
-          EventService()
+          EventService
               .localConfirm(event, false, profileHash: snapshot['phash']);
         }
         break;
       case UpdateType.deleteEvent:
         var event = EventProvider().findEventByHash(snapshot['hash']);
         if (event != null && snapshot['phash'] != null) {
-          EventService()
+          EventService
               .localDelete(event, profileHash: snapshot['phash']);
         }
         break;

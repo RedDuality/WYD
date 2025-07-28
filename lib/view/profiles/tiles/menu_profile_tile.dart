@@ -39,7 +39,7 @@ class MenuProfileTile extends StatelessWidget {
                 height: imageHeight,
                 width: imageWidth ?? imageHeight,
                 child: CircleAvatar(
-                  backgroundImage: ImageService().getImageProvider(),
+                  backgroundImage: ImageService.getImageProvider(),
                   radius: imageHeight,
                 ),
               ),

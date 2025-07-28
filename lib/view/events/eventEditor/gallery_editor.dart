@@ -18,9 +18,7 @@ class GalleryEditor extends StatelessWidget {
                 : maxWidth /
                     (divider == 0
                         ? 1
-                        : (elementcount != 0 && elementcount < divider
-                            ? elementcount
-                            : divider)))
+                        : (elementcount != 0 && elementcount < divider ? elementcount : divider)))
             .floor()
             .toDouble() -
         8; //compensate for card border
@@ -52,8 +50,8 @@ class GalleryEditor extends StatelessWidget {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
-                                PhotoRetrieverService()
-                                    .retrieveShootedPhotos(imageProvider.hash);
+                                PhotoRetrieverService
+                                    .retrieveShootedPhotos(imageProvider.eventHash);
                               },
                               child: Row(
                                 children: [
@@ -92,11 +90,10 @@ class GalleryEditor extends StatelessWidget {
 
                                 return ImageDisplay(
                                   maxWidth: itemWidth,
-                                  image: ImageService()
+                                  image: ImageService
                                       .getImageFromAssetEntity(image),
                                   onDelete: () =>
-                                      imageProvider.removeCachedImage(
-                                          hash: imageProvider.hash, image),
+                                      imageProvider.removeCachedImage(image),
                                 );
                               }),
                             ),
@@ -111,15 +108,15 @@ class GalleryEditor extends StatelessWidget {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
-                                var cachedImages = await ImageService()
+                                var cachedImages = await ImageService
                                     .dataFromAssetEntities(
                                         imageProvider.cachedImages);
                                 var event = EventProvider()
-                                    .retrieveEventByHash(imageProvider.hash);
+                                    .retrieveEventByHash(imageProvider.eventHash);
                                 cachedImages.isNotEmpty
-                                    ? await EventService()
-                                        .uploadCachedImages(event, cachedImages)
-                                    : EventService().clearCachedImages(event);
+                                    ? await EventService
+                                        .uploadCachedImages(event.eventHash, cachedImages)
+                                    : EventService.clearCachedImages(event.eventHash);
                               },
                               child: Row(
                                 children: [
@@ -153,12 +150,12 @@ class GalleryEditor extends StatelessWidget {
                         children: [
                           ElevatedButton.icon(
                             onPressed: () async {
-                              var images = await ImageService().pickImages();
+                              var images = await ImageService.pickImages();
                               if (images.isNotEmpty) {
                                 var event = EventProvider()
-                                    .retrieveEventByHash(imageProvider.hash);
-                                await EventService()
-                                    .uploadImages(event, images);
+                                    .retrieveEventByHash(imageProvider.eventHash);
+                                await EventService
+                                    .uploadImages(event.eventHash, images);
                               }
                             },
                             icon: Icon(Icons.upload),
@@ -186,8 +183,8 @@ class GalleryEditor extends StatelessWidget {
                                 imageProvider.imageHashes.map((imageHash) {
                               return ImageDisplay(
                                 maxWidth: itemWidth,
-                                image: ImageService().getEventImage(
-                                    imageProvider.hash, imageHash),
+                                image: ImageService.getEventImage(
+                                    imageProvider.eventHash, imageHash),
                               );
                             }).toList(),
                           ),

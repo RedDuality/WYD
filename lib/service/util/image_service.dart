@@ -13,7 +13,7 @@ import 'package:image/image.dart' as img;
 enum ImageSize { mini, midi, big }
 
 class ImageService {
-  Future<BlobData?> _compressImage(Uint8List imageData) async {
+  static Future<BlobData?> _compressImage(Uint8List imageData) async {
     if (imageData.isNotEmpty) {
       try {
         // Attempt to decode the image to determine the format
@@ -26,9 +26,7 @@ class ImageService {
         // Compress the image data
         final compressedImageData = await FlutterImageCompress.compressWithList(
           imageData,
-          minWidth: 403,
           quality: 85,
-          format: CompressFormat.jpeg, // Default to jpeg compression
         );
 
         // Dynamically determine the MIME type
@@ -62,28 +60,15 @@ class ImageService {
     return null;
   }
 
-  Future<List<BlobData>> pickImages() async {
+  static Future<List<XFile>> pickImageReferencesForWeb() async {
     final ImagePicker picker = ImagePicker();
-    var files = await picker.pickMultiImage();
-    List<BlobData> compressedImages = [];
-    if (files.isNotEmpty) {
-      for (XFile image in files) {
-        final Uint8List imageData = await image.readAsBytes();
-        BlobData? data = await _compressImage(imageData);
-        if (data != null) {
-          compressedImages.add(data);
-        }
-      }
-    }
-    return compressedImages;
+    final List<XFile>? pickedFiles = await picker.pickMultiImage();
+    return pickedFiles ?? [];
   }
 
-/*
-  ImageProvider getImageFromXFile(XFile file) {
-    return NetworkImage(file.path);
-  }
+  static Future<List<BlobData>> pickImages() async {
+    var files = await pickImageReferencesForWeb();
 
-  Future<List<BlobData>> dataFromXFile(List<XFile> files) async {
     List<BlobData> compressedImages = [];
     for (XFile image in files) {
       final Uint8List imageData = await image.readAsBytes();
@@ -94,14 +79,12 @@ class ImageService {
     }
     return compressedImages;
   }
-*/
 
-  ImageProvider<Object> getImageFromAssetEntity(AssetEntity entity) {
+  static ImageProvider<Object> getImageFromAssetEntity(AssetEntity entity) {
     return AssetEntityImageProvider(entity);
   }
 
-  Future<List<BlobData>> dataFromAssetEntities(
-      List<AssetEntity> entities) async {
+  static Future<List<BlobData>> dataFromAssetEntities(List<AssetEntity> entities) async {
     List<BlobData> compressedImages = [];
     for (AssetEntity asset in entities) {
       final Uint8List? data = await asset.originBytes;
@@ -117,11 +100,11 @@ class ImageService {
     return compressedImages;
   }
 
-  bool _isValid(String? url) {
+  static bool _isValid(String? url) {
     return url != null && Uri.parse(url).hasAbsolutePath && !url.endsWith('/');
   }
 
-  String _getSizeUrl(String? url, size) {
+  static String _getSizeUrl(String? url, size) {
     if (url == null || url.isEmpty) {
       return 'assets/images/logoimage.png'; // Return asset path for placeholder
     }
@@ -150,22 +133,22 @@ class ImageService {
     }
   }
 
-  Map<String, String> _getHeaders() {
+  static Map<String, String> _getHeaders() {
     return {HttpHeaders.accessControlAllowOriginHeader: "*"};
   }
 
-  Image _wydLogo(ImageSize size) {
+  static Image _wydLogo(ImageSize size) {
     return Image.asset(
       _getSizeUrl('assets/images/logoimage.png', size),
       fit: BoxFit.cover,
     );
   }
 
-  Text _failedToLoadImage() {
+  static Text _failedToLoadImage() {
     return Text('Failed to load image');
   }
 
-  ImageProvider getImageProvider(
+  static ImageProvider getImageProvider(
       {String? imageUrl, ImageSize size = ImageSize.big, Widget? onError}) {
     if (_isValid(imageUrl)) {
       return NetworkImage(_getSizeUrl(imageUrl, size), headers: _getHeaders());
@@ -174,41 +157,36 @@ class ImageService {
     }
   }
 
-  ImageProvider getEventImage(String eventHash, String blobHash) {
+  static ImageProvider getEventImage(String eventHash, String blobHash) {
     String? blobUrl = '${dotenv.env['BLOB_URL']}';
     final url = '$blobUrl${eventHash.toLowerCase()}/${blobHash.toLowerCase()}';
     return getImageProvider(imageUrl: url);
   }
 
-  ImageProvider getProfileImage(String profileHash, String blobHash) {
+  static ImageProvider getProfileImage(String profileHash, String blobHash) {
     String? blobUrl = '${dotenv.env['BLOB_URL']}';
-    final url =
-        '$blobUrl"p"${profileHash.toLowerCase()}/${blobHash.toLowerCase()}';
+    final url = '$blobUrl"p"${profileHash.toLowerCase()}/${blobHash.toLowerCase()}';
     return getImageProvider(imageUrl: url);
   }
 
-  Image getImage(
-      {String? imageUrl, ImageSize size = ImageSize.big, Widget? onError}) {
+  static Image getImage({String? imageUrl, ImageSize size = ImageSize.big, Widget? onError}) {
     if (_isValid(imageUrl)) {
       return Image.network(
         _getSizeUrl(imageUrl, size),
         fit: BoxFit.cover,
         scale: 2,
         headers: _getHeaders(),
-        loadingBuilder: (BuildContext context, Widget child,
-            ImageChunkEvent? loadingProgress) {
+        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
           if (loadingProgress == null) return child;
           return Center(
             child: CircularProgressIndicator(
               value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
+                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
                   : null,
             ),
           );
         },
-        errorBuilder:
-            (BuildContext context, Object exception, StackTrace? stackTrace) {
+        errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
           return onError ?? _failedToLoadImage();
         },
       );

@@ -80,7 +80,7 @@ class GroupPage extends StatelessWidget {
   Widget avatarTile({required String title, String? imageUrl}) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundImage: ImageService().getImageProvider(imageUrl: imageUrl),
+        backgroundImage: ImageService.getImageProvider(imageUrl: imageUrl),
       ),
       title: Text(title),
     );
@@ -93,7 +93,7 @@ class GroupPage extends StatelessWidget {
   }) {
     return ExpansionTile(
       leading: CircleAvatar(
-        backgroundImage: ImageService().getImageProvider(imageUrl: imageUrl),
+        backgroundImage: ImageService.getImageProvider(imageUrl: imageUrl),
       ),
       title: Text(title),
       children: children.map((child) {

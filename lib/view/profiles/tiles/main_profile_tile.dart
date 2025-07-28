@@ -56,7 +56,7 @@ class MainProfileTile extends StatelessWidget {
                             ),
                           ),
                           child: CircleAvatar(
-                            backgroundImage: ImageService().getImageProvider(),
+                            backgroundImage: ImageService.getImageProvider(),
                             radius: 40,
                           ),
                         ),
@@ -85,7 +85,7 @@ class MainProfileTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              if (exists) actions(profile!.hash),
+              if (exists) actions(profile!.eventHash),
             ],
           ),
         ),

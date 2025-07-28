@@ -10,8 +10,7 @@ import 'package:wyd_front/service/util/permission_service.dart';
 import 'package:wyd_front/state/event_provider.dart';
 
 class PhotoRetrieverService {
-  static Future<List<AssetEntity>> retrieveImagesByTime(
-      DateTime? start, DateTime? end) async {
+  static Future<List<AssetEntity>> retrieveImagesByTime(DateTime? start, DateTime? end) async {
     // Request permissions to access photos before proceeding
     await PermissionService.requestGalleryPermissions();
 
@@ -25,9 +24,7 @@ class PhotoRetrieverService {
         min: start,
         max: end,
       ),
-      orders: [
-        OrderOption(type: OrderOptionType.createDate, asc: false)
-      ], // Order by creation date descending
+      orders: [OrderOption(type: OrderOptionType.createDate, asc: false)],
     );
 
     // Get the list of media albums
@@ -39,8 +36,7 @@ class PhotoRetrieverService {
     // Filter the list to find the main camera folder
     AssetPathEntity? album;
     try {
-      album =
-          albums.firstWhere((album) => album.name.toLowerCase() == "camera");
+      album = albums.firstWhere((album) => album.name.toLowerCase() == "camera");
     } catch (e) {
       debugPrint("No \"Camera\" album was found or no photos where taken during this event ");
       return [];
@@ -52,11 +48,11 @@ class PhotoRetrieverService {
     );
   }
 
-  Future<void> retrieveShootedPhotos(String eventHash) async {
+  static Future<void> retrieveShootedPhotos(String eventHash) async {
     var event = EventProvider().findEventByHash(eventHash);
     if (event != null) {
-      var photosDuringEvent = await retrieveImagesByTime(
-          event.startTime!.toUtc(), event.endTime!.toUtc());
+      var photosDuringEvent =
+          await retrieveImagesByTime(event.startTime!.toUtc(), event.endTime!.toUtc());
       if (photosDuringEvent.isNotEmpty) {
         EventService.setCachedImages(event, photosDuringEvent);
       }
@@ -64,7 +60,7 @@ class PhotoRetrieverService {
   }
 
   // Save DateTime to SharedPreferences
-  Future<void> _saveDateTime({DateTime? time}) async {
+  static Future<void> _saveDateTime({DateTime? time}) async {
     time = time ?? DateTime.now();
     final prefs = await SharedPreferences.getInstance();
 
@@ -72,7 +68,7 @@ class PhotoRetrieverService {
   }
 
   // Load DateTime from SharedPreferences
-  Future<DateTime> _loadLastCheckedTime() async {
+  static Future<DateTime> _loadLastCheckedTime() async {
     final prefs = await SharedPreferences.getInstance();
     final dateTimeString = prefs.getString('savedDateTime');
     if (dateTimeString != null) {
@@ -85,38 +81,36 @@ class PhotoRetrieverService {
     return DateTime.now().toLocal();
   }
 
-  void addTimer(Event event) {
+  static Future<void> timerCallback(Event event) async {
+    //endTime has not been changed
+    if (event.endTime!.difference(DateTime.now()).inMinutes <= 3) {
+      await retrieveShootedPhotos(event.eventHash);
+      _saveDateTime();
+    }
+  }
+
+  static void addTimer(Event event) {
     var endTime = event.endTime!.add(Duration(minutes: 1));
     Timer(endTime.difference(DateTime.now()), () async {
       await timerCallback(event);
     });
   }
 
-  Future<void> timerCallback(Event event) async {
-    //endTime has not been changed
-    if (event.endTime!.difference(DateTime.now()).inMinutes <= 3) {
-      await retrieveShootedPhotos(event.hash);
-      _saveDateTime();
-    }
-  }
-
-  void init() async {
+  static void init() async {
     DateTime lastCheckedTime = await _loadLastCheckedTime();
     var now = DateTime.now();
 
-    //including the ones that ends now
-    var eventsNotChecked = EventProvider().allEvents.whereType<Event>().where(
-        (event) =>
-            !event.endTime!.isAfter(now) &&
-            event.endTime!.isAfter(lastCheckedTime));
-
-    var eventsToCheckInTheFuture = EventProvider()
+    //including the ones that ends right now
+    var eventsNotChecked = EventProvider()
         .allEvents
         .whereType<Event>()
-        .where((event) => event.endTime!.isAfter(now));
+        .where((event) => !event.endTime!.isAfter(now) && event.endTime!.isAfter(lastCheckedTime));
+
+    var eventsToCheckInTheFuture =
+        EventProvider().allEvents.whereType<Event>().where((event) => event.endTime!.isAfter(now));
 
     for (Event event in eventsNotChecked) {
-      PhotoRetrieverService().retrieveShootedPhotos(event.hash);
+      retrieveShootedPhotos(event.eventHash);
     }
 
     for (Event event in eventsToCheckInTheFuture) {

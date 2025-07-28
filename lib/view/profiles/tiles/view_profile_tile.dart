@@ -12,13 +12,13 @@ class ViewProfileTile extends StatelessWidget {
     if (profile == null) {
       return ListTile(
           leading: CircleAvatar(
-            backgroundImage: ImageService().getImageProvider(),
+            backgroundImage: ImageService.getImageProvider(),
           ),
           title: Text('Loading...'));
     } else {
       return ListTile(
         leading: CircleAvatar(
-          backgroundImage: ImageService().getProfileImage(profile!.hash, profile!.blobHash!),
+          backgroundImage: ImageService.getProfileImage(profile!.eventHash, profile!.blobHash!),
         ),
         title: Text(profile!.name),
       );

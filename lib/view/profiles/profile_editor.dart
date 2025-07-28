@@ -25,7 +25,7 @@ class ProfileEditorState extends State<ProfileEditor> {
   void initState() {
     super.initState();
     _selectedColor = widget.profile.color ?? Colors.green;
-    profileImage = ImageService().getImage(size: ImageSize.big);
+    profileImage = ImageService.getImage(size: ImageSize.big);
     nameController = TextEditingController(text: widget.profile.name);
     tagController = TextEditingController(text: widget.profile.tag);
   }

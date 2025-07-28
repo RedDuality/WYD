@@ -1,33 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+//helper class to the eventDetail component
 class BlobProvider extends ChangeNotifier {
-  // Private static instance variable
   static final BlobProvider _instance = BlobProvider._internal();
 
-  // Private constructor
   BlobProvider._internal();
 
-  // Public factory method to provide access to the instance
   factory BlobProvider() {
     return _instance;
   }
 
-  String hash = "";
+  //current shown event
+  String eventHash = "";
 
   List<String> imageHashes = [];
 
   List<AssetEntity> cachedImages = [];
 
+  //if last image has been deleted
   bool cacheHashBeenModified = false;
 
-  void initialize(
-      {String? hash,
-      List<String>? imageHashes,
-      List<AssetEntity>? cachedImages}) {
+  void initialize({String? hash, List<String>? imageHashes, List<AssetEntity>? cachedImages}) {
     cacheHashBeenModified = false;
 
-    this.hash = hash ?? "";
+    eventHash = hash ?? "";
     this.imageHashes = imageHashes ?? [];
     this.cachedImages = cachedImages ?? [];
 
@@ -36,50 +33,40 @@ class BlobProvider extends ChangeNotifier {
 
   void close() {
     cachedImages.clear();
-    hash = "";
+    imageHashes.clear();
+    eventHash = "";
+    cacheHashBeenModified = false;
   }
 
   bool exists() {
-    return hash.isNotEmpty;
+    return eventHash.isNotEmpty;
   }
 
-  void setCachedImages(List<AssetEntity> cachedNewImages,
-      {required String hash}) {
-    if (this.hash == hash) {
-      cachedImages = cachedNewImages;
-      notifyListeners();
-    }
+  bool isCurrentEvent(String eventHash) {
+    return this.eventHash == eventHash;
   }
 
-  void removeCachedImage(AssetEntity image, {required String hash}) {
-    if (this.hash == hash) {
-      cacheHashBeenModified = true;
-      cachedImages.remove(image);
-      notifyListeners();
-    }
+  void updateImageHashes(List<String> imageHashes) {
+    this.imageHashes = imageHashes;
+    notifyListeners();
   }
 
-  void clearCachedImages({required String hash}) {
-    if (this.hash == hash) {
-      cachedImages.clear();
-      cacheHashBeenModified = false;
-      notifyListeners();
-    }
+
+  void setCachedImages(List<AssetEntity> cachedNewImages) {
+    cacheHashBeenModified = true;
+    cachedImages = cachedNewImages;
+    notifyListeners();
   }
 
-  void updateImageHashes(List<String> imageHashes, {required String hash}) {
-    if (this.hash == hash) {
-      this.imageHashes = imageHashes;
-      notifyListeners();
-    }
+  void removeCachedImage(AssetEntity image) {
+    cacheHashBeenModified = true;
+    cachedImages.remove(image);
+    notifyListeners();
   }
 
-  void uploadedCachedImages(List<String> imageHashes, {required String hash}) {
-    if (this.hash == hash) {
-      cachedImages.clear();
-      cacheHashBeenModified = false;
-      this.imageHashes = imageHashes;
-      notifyListeners();
-    }
+  void clearCachedImages() {
+    cachedImages.clear();
+    cacheHashBeenModified = false;
+    notifyListeners();
   }
 }

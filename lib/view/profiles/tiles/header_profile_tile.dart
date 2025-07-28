@@ -30,7 +30,7 @@ class HeaderProfileTile extends StatelessWidget {
           ),
         ),
         child: CircleAvatar(
-          backgroundImage: ImageService().getImageProvider(),
+          backgroundImage: ImageService.getImageProvider(),
           radius: circleSize,
         ),
       ),

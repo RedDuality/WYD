@@ -26,9 +26,10 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     selectedIndex = 0;
 
-    EventService().retrieveMultiple().then((value) {
+    //TODO check the double photo retriever init
+    EventService.retrieveMultiple().then((value) {
       if (!kIsWeb) {
-        PhotoRetrieverService().init();
+        PhotoRetrieverService.init();
       }
     });
     CommunityService().retrieveCommunities();
@@ -37,7 +38,7 @@ class _HomePageState extends State<HomePage> {
     if (!kIsWeb) {
       PermissionService.requestPermissions().then((value) {
         NotificationService().initialize();
-        PhotoRetrieverService().init();
+        PhotoRetrieverService.init();
       });
     }
   }

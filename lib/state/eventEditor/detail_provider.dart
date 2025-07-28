@@ -36,7 +36,7 @@ class DetailProvider extends ChangeNotifier {
 
   void initialize(Event? initialEvent, DateTime? date, bool confirmed) {
     originalEvent = initialEvent;
-    hash = initialEvent?.hash;
+    hash = initialEvent?.eventHash;
 
     title = initialEvent?.title ?? "Evento senza nome";
     description = initialEvent?.description;
@@ -62,7 +62,7 @@ class DetailProvider extends ChangeNotifier {
   }
 
   void updateCurrentEvent(Event newEvent) {
-    if (hash == newEvent.hash) {
+    if (hash == newEvent.eventHash) {
       originalEvent = newEvent;
       startTime = newEvent.startTime!;
       endTime = newEvent.endTime!;
@@ -151,7 +151,7 @@ class DetailProvider extends ChangeNotifier {
 
   Event getEventWithCurrentFields() {
     Event event = Event(
-      hash: hash ?? "",
+      eventHash: hash ?? "",
       date: startTime,
       startTime: startTime,
       endTime: endTime,

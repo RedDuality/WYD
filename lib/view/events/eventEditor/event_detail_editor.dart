@@ -38,21 +38,21 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
 
   Future<void> _createEvent(DetailProvider provider) async {
     Event createEvent = provider.getEventWithCurrentFields();
-    Event newEvent = await EventService().create(createEvent);
-    EventService().initializeDetails(newEvent, null, newEvent.confirmed());
+    Event newEvent = await EventService.create(createEvent);
+    EventService.initializeDetails(newEvent, null, newEvent.confirmed());
   }
 
   Future<void> _updateEvent(DetailProvider provider) async {
     Event updatesEvent = provider.getEventWithCurrentFields();
 
-    await EventService().update(updatesEvent);
+    await EventService.update(updatesEvent);
   }
 
   //TODO for currentprofile(done), for all my profiles, for everybody
   Future<void> _deleteEvent(DetailProvider provider) async {
     Event? deleteEvent = EventProvider().findEventByHash(provider.hash!);
     if (deleteEvent != null) {
-      EventService().delete(deleteEvent).then(
+      EventService.delete(deleteEvent).then(
         (value) {
           if (mounted) Navigator.of(context).pop();
         },
@@ -186,7 +186,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                     ElevatedButton(
                       onPressed: () async {
                         var currentEvent = event.getEventWithCurrentFields();
-                        await EventService().decline(currentEvent);
+                        await EventService.decline(currentEvent);
                       },
                       child: Row(
                         children: [
@@ -201,7 +201,7 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                     ElevatedButton(
                       onPressed: () async {
                         var currentEvent = event.getEventWithCurrentFields();
-                        await EventService().confirm(currentEvent);
+                        await EventService.confirm(currentEvent);
                       },
                       child: Row(
                         children: [

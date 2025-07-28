@@ -35,9 +35,9 @@ class _EventsPageState extends State<EventsPage> {
         var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
         if (eventHash != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-            final event = await EventService().retrieveAndAddByHash(eventHash);
+            final event = await EventService.retrieveAndAddByHash(eventHash);
 
-            EventService().initializeDetails(event, null, event.confirmed());
+            EventService.initializeDetails(event, null, event.confirmed());
             if (context.mounted) {
               showCustomDialog(context, EventDetail());
             }
@@ -69,12 +69,12 @@ class _EventsPageState extends State<EventsPage> {
         onEventTap: (events, date) {
           Event selectedEvent = events.whereType<Event>().toList().first;
 
-          EventService().initializeDetails(selectedEvent, null, widget.private);
+          EventService.initializeDetails(selectedEvent, null, widget.private);
           
           showCustomDialog(context, EventDetail());
         },
         onDateLongPress: (date) {
-          EventService().initializeDetails(null, date, widget.private);
+          EventService.initializeDetails(null, date, widget.private);
 
           showCustomDialog(context, EventDetail());
         },

@@ -77,7 +77,7 @@ class _SharePageState extends State<SharePage> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      EventService()
+                      EventService
                           .shareToGroups(widget.eventHash, selectedGroups);
                       Navigator.of(context).pop();
                     },
@@ -119,7 +119,7 @@ class _SharePageState extends State<SharePage> {
     } else {
       return ListTile(
           leading:
-              CircleAvatar(backgroundImage: ImageService().getImageProvider()),
+              CircleAvatar(backgroundImage: ImageService.getImageProvider()),
           title: Text(profile.name),
           trailing: _groupCheckBox(mainGroup));
     }
@@ -129,7 +129,7 @@ class _SharePageState extends State<SharePage> {
     final group = community.groups.first;
     return ListTile(
         leading: CircleAvatar(
-          backgroundImage: ImageService().getImageProvider(),
+          backgroundImage: ImageService.getImageProvider(),
         ),
         title: Text(community.name),
         trailing: _groupCheckBox(group));
@@ -137,14 +137,14 @@ class _SharePageState extends State<SharePage> {
 
   Widget _buildMultiGroupCommunityTile(Community community) {
     return ExpansionTile(
-      leading: CircleAvatar(backgroundImage: ImageService().getImageProvider()),
+      leading: CircleAvatar(backgroundImage: ImageService.getImageProvider()),
       title: Text(community.name),
       children: community.groups.map((group) {
         return Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: ListTile(
                 leading: CircleAvatar(
-                    backgroundImage: ImageService().getImageProvider()),
+                    backgroundImage: ImageService.getImageProvider()),
                 title: Text(group.name),
                 trailing: _groupCheckBox(group)));
       }).toList(),

@@ -24,7 +24,7 @@ class EventProvider extends EventController {
   Event? findEventByHash(String eventHash) {
     return allEvents
         .whereType<Event>()
-        .where((e) => e.hash == eventHash)
+        .where((e) => e.eventHash == eventHash)
         .firstOrNull;
   }
 
@@ -37,16 +37,16 @@ class EventProvider extends EventController {
   }
 
   updateEvent(Event updatedEvent) {
-    var originalEvent = retrieveEventByHash(updatedEvent.hash);
+    var originalEvent = retrieveEventByHash(updatedEvent.eventHash);
 
     if (originalEvent.endTime != updatedEvent.endTime) {
-      PhotoRetrieverService().addTimer(updatedEvent);
+      PhotoRetrieverService.addTimer(updatedEvent);
     }
     update(originalEvent, updatedEvent);
   }
 
   addEvent(Event event) {
-    PhotoRetrieverService().addTimer(event);
+    PhotoRetrieverService.addTimer(event);
     super.add(event);
   }
 

@@ -11,7 +11,7 @@ class AddEventButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: () {
-        EventService().initializeDetails(null, null, confirmed);
+        EventService.initializeDetails(null, null, confirmed);
         showCustomDialog(context, EventDetail());
       },
       label: const Text('Aggiungi Evento'),

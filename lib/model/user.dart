@@ -16,7 +16,7 @@ class User {
   User.fromDto(RetrieveUserDto dto){
     hash = dto.hash;
     currentProfileHash = dto.currentProfileHash;
-    profileHashes = dto.profiles.map((profile) => profile.hash).toSet();
+    profileHashes = dto.profiles.map((profile) => profile.eventHash).toSet();
   }
 
 }
