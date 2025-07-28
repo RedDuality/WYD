@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:share_plus/share_plus.dart';
 
 //helper class to the eventDetail component
 class BlobProvider extends ChangeNotifier {
@@ -18,6 +19,10 @@ class BlobProvider extends ChangeNotifier {
 
   List<AssetEntity> cachedImages = [];
 
+  List<XFile> cachedFiles = [];
+
+  List<XFile> uploadedFiles = [];
+
   //if last image has been deleted
   bool cacheHashBeenModified = false;
 
@@ -34,6 +39,7 @@ class BlobProvider extends ChangeNotifier {
   void close() {
     cachedImages.clear();
     imageHashes.clear();
+    cachedFiles.clear();
     eventHash = "";
     cacheHashBeenModified = false;
   }
@@ -44,6 +50,21 @@ class BlobProvider extends ChangeNotifier {
 
   bool isCurrentEvent(String eventHash) {
     return this.eventHash == eventHash;
+  }
+
+  void setCachedFiles(List<XFile> files) {
+    cachedFiles = files;
+    notifyListeners();
+  }
+
+  void removeCachedFile(XFile file){
+    cachedFiles.remove(file);
+    notifyListeners();
+  }
+
+  void addUploadedFiles(List<XFile> files){
+    uploadedFiles = files;
+    notifyListeners();
   }
 
   void updateImageHashes(List<String> imageHashes) {

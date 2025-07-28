@@ -34,7 +34,7 @@ Future main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if(!kIsWeb) {
+  if (!kIsWeb) {
     Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   }
 
@@ -69,6 +69,7 @@ class MyApp extends StatelessWidget {
             ),
             locale: const Locale('it', 'IT'),
             routerConfig: createRouter(authProvider),
+            debugShowCheckedModeBanner: false,
           );
         },
       ),

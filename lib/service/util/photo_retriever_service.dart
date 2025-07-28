@@ -48,6 +48,41 @@ class PhotoRetrieverService {
     );
   }
 
+  static Future<List<AssetEntity>> retrieveImagesByFolder(
+    String folderName, {
+    RequestType requestType = RequestType.image,
+  }) async {
+    // Request permissions to access photos before proceeding
+    await PermissionService.requestGalleryPermissions();
+
+    if (folderName.isEmpty) {
+      throw ArgumentError("Folder name cannot be empty.");
+    }
+
+    // Get the list of all media albums
+    final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
+      type: requestType, // Specify the type of media to retrieve
+    );
+
+    // Find the album that matches the given folder name (case-insensitive)
+    AssetPathEntity? targetAlbum;
+    try {
+      targetAlbum = albums.firstWhere(
+        (album) => album.name.toLowerCase() == folderName.toLowerCase(),
+      );
+    } catch (e) {
+      debugPrint("No album found with the name \"$folderName\". Error: $e");
+      return []; // Return an empty list if the folder is not found
+    }
+
+    // Retrieve all assets from the found album
+    // We fetch all assets by setting size to the total asset count
+    return await targetAlbum.getAssetListPaged(
+      page: 0,
+      size: await targetAlbum.assetCountAsync,
+    );
+  }
+
   static Future<void> retrieveShootedPhotos(String eventHash) async {
     var event = EventProvider().findEventByHash(eventHash);
     if (event != null) {

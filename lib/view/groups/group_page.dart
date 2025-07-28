@@ -83,6 +83,37 @@ class GroupPage extends StatelessWidget {
         backgroundImage: ImageService.getImageProvider(imageUrl: imageUrl),
       ),
       title: Text(title),
+      trailing: PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert),
+        onSelected: (String result) {
+          // Handle the selected option
+          switch (result) {
+            case 'option1':
+              //print('Option 1 selected for: $title');
+              break;
+            case 'option2':
+              //print('Option 2 selected for: $title');
+              break;
+            case 'delete':
+              //print('Delete selected for: $title');
+              break;
+          }
+        },
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          const PopupMenuItem<String>(
+            value: 'option1',
+            child: Text('Aggiungi un profilo'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'option2',
+            child: Text('Condividi un evento'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'delete',
+            child: Text('Esci dal Gruppo'),
+          ),
+        ],
+      ),
     );
   }
 
