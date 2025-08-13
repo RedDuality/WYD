@@ -6,25 +6,30 @@ class Profile {
   String eventHash = "";
   String tag = "";
   String name = "";
+  bool mainProfile = false;
   String? blobHash = "";
   Color? color;
-  ProfileType type;
+  //ProfileType type;
   Role? role;
   DateTime lastUpdatedTime;
+
+//TODO mettere il default profile
 
   Profile({
     this.name = "",
     this.eventHash = "",
     this.tag = "",
+    this.mainProfile = false,
     this.blobHash = "",
     this.color,
-    this.type = ProfileType.personal,
+    //this.type = ProfileType.personal,
     this.role = Role.viewer,
   }) : lastUpdatedTime = DateTime.now();
 
   Profile copyWith({
     String? name,
     String? tag,
+    bool? mainProfile,
     String? blobHash,
     Color? color,
     ProfileType? type,
@@ -35,9 +40,10 @@ class Profile {
         eventHash: eventHash,
         name: name ?? this.name,
         tag: tag ?? this.tag,
+        mainProfile: mainProfile ?? this.mainProfile,
         blobHash: blobHash ?? this.blobHash,
         color: color ?? this.color,
-        type: type ?? this.type,
+        //type: type ?? this.type,
         role: role ?? this.role);
   }
 
@@ -56,20 +62,22 @@ class Profile {
   factory Profile.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-        'name': String? name,
         'hash': String? hash,
         'tag': String? tag,
+        'name': String? name,
+        'mainProfile': bool? mainProfile,
         'blobHash': String? blobHash,
-        'type': int? type,
+        //'type': int? type,
         'role': int? role,
         'color': int? color,
       } =>
         Profile(
-            name: name ?? "",
-            eventHash: hash ?? "",
+            hash: hash ?? "",
             tag: tag ?? "",
+            name: name ?? "",
+            mainProfile: mainProfile ?? false,
             blobHash: blobHash ?? "",
-            type: ProfileType.values[type ?? 0],
+            //type: ProfileType.values[type ?? 0],
             color: color != null ? Color(color) : null,
             role: role != null ? Role.values[role] : Role.viewer),
       _ => throw const FormatException('Failed to decode Profile')
@@ -81,7 +89,7 @@ class Profile {
       'hash': eventHash,
       'name': name,
       'tag': tag,
-      'color': color?.value,
+      'color': color?.toARGB32(),
     };
   }
 }

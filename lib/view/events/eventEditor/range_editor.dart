@@ -7,7 +7,7 @@ class RangeEditor extends StatelessWidget {
   final DetailProvider provider;
   const RangeEditor({super.key, required this.provider});
 
-  Future<DateTime?> selectDate(context, initialDate) async {
+  Future<DateTime?> selectDate(BuildContext context, initialDate) async {
     return await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -16,7 +16,7 @@ class RangeEditor extends StatelessWidget {
     );
   }
 
-  Future<DateTime?> selectTime(context, initialDate) async {
+  Future<DateTime?> selectTime(BuildContext context, initialDate) async {
     var initialTime = TimeOfDay.fromDateTime(initialDate);
     final TimeOfDay? picked =
         await showTimePicker(context: context, initialTime: initialTime);

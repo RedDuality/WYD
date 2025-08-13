@@ -99,8 +99,6 @@ class _SharePageState extends State<SharePage> {
         return _buildSingleGroupCommunityTile(community);
       case CommunityType.community:
         return _buildMultiGroupCommunityTile(community);
-      default:
-        return Container();
     }
   }
 

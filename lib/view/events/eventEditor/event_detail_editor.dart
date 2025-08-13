@@ -168,7 +168,8 @@ class _EventDetailEditorState extends State<EventDetailEditor> {
                           }
                         } else {
                           // If running on mobile, use the share dialog
-                          await Share.share(fullUrl, subject: event.title);
+                          final result = await SharePlus.instance.share(
+                              ShareParams(text: fullUrl, subject: event.title));
                         }
                       },
                       child: Row(

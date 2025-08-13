@@ -20,7 +20,7 @@ class RealTimeUpdateService {
 
   bool firstread = true;
 
-  start() async {
+  Future<void> start() async {
     var user = UserProvider().user;
     if (user == null) throw "User is null";
 
@@ -43,7 +43,7 @@ class RealTimeUpdateService {
     });
   }
 
-  void handleUpdate(var snapshot) {
+  void handleUpdate(QueryDocumentSnapshot<Map<String, dynamic>> snapshot) {
     var typeIndex = snapshot['type'];
     switch (UpdateType.values[typeIndex]) {
       case UpdateType.newEvent:
