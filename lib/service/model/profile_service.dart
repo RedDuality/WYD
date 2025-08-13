@@ -37,7 +37,7 @@ class ProfileService {
     ProfilesProvider().addAll([profile]);
   }
 
-  _retrieveProfiles() async {
+  Future<void> _retrieveProfiles() async {
     if (queue.isNotEmpty) {
       var request = ProfileAPI().retrieveFromHashes(queue.toList());
       queue.clear();
@@ -48,7 +48,7 @@ class ProfileService {
     }
   }
 
-  synchProfile(Profile? profile, String hash) {
+  void synchProfile(Profile? profile, String hash) {
     var anHourAgo = DateTime.now().subtract(Duration(hours: 1));
     if (profile == null || profile.lastUpdatedTime.isBefore(anHourAgo)) {
       queue.add(hash);

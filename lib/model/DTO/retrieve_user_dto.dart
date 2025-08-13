@@ -16,12 +16,11 @@ class RetrieveUserDto {
     return switch (json) {
       {
         'hash': String? hash,
-        'mainProfileHash': String? mainProfileHash,
         'profiles': List<dynamic>? profiles,
       } =>
         RetrieveUserDto(
           hash: hash ?? "",
-          currentProfileHash: mainProfileHash ?? "",
+          currentProfileHash: "",
           profiles: profiles != null
               ? profiles.map((profile) {
                   return Profile.fromJson(profile as Map<String, dynamic>);

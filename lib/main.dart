@@ -35,7 +35,7 @@ Future main() async {
   );
 
   if(!kIsWeb) {
-    Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    Workmanager().initialize(callbackDispatcher);
   }
 
   runApp(const MyApp());

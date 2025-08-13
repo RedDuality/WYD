@@ -29,7 +29,7 @@ class _EventsPageState extends State<EventsPage> {
     EventProvider(initialPrivate: _private);
   }
 
-  checkAndShowLinkEvent(BuildContext context) {
+  void checkAndShowLinkEvent(BuildContext context) {
     if (!widget.private) {
       if (!_dialogShown) {
         var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];

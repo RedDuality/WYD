@@ -20,7 +20,7 @@ class Community {
   }) : groups = groups ?? [];
 
 
-  getProfileHash(){
+  String getProfileHash(){
     if(type != CommunityType.personal){
       throw "Personal profile looked for in a non-personal community";
     }

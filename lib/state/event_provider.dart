@@ -36,7 +36,7 @@ class EventProvider extends EventController {
     throw "There was an error while retrieving the event";
   }
 
-  updateEvent(Event updatedEvent) {
+  void updateEvent(Event updatedEvent) {
     var originalEvent = retrieveEventByHash(updatedEvent.hash);
 
     if (originalEvent.endTime != updatedEvent.endTime) {
@@ -45,17 +45,17 @@ class EventProvider extends EventController {
     update(originalEvent, updatedEvent);
   }
 
-  addEvent(Event event) {
+  void addEvent(Event event) {
     PhotoRetrieverService().addTimer(event);
     super.add(event);
   }
 
-  changeMode(bool privateMode) {
+  void changeMode(bool privateMode) {
     private = privateMode;
     myUpdateFilter();
   }
 
-  myUpdateFilter() {
+  void myUpdateFilter() {
     super
         .updateFilter(newFilter: (date, events) => myEventFilter(date, events));
   }
