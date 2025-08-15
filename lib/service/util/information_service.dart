@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class InformationService {
-  showErrorDialog(BuildContext context, String title, String content) {
+  Future showErrorDialog(BuildContext context, String title, String content) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -18,15 +18,15 @@ class InformationService {
         });
   }
 
-  showErrorSnackBar(BuildContext context, String title) {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showErrorSnackBar(BuildContext context, String title) {
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          backgroundColor: Colors.red.withOpacity(0.5),
+          backgroundColor: Colors.red.withAlpha((255 * 0.5).round()),
           content: Center(child: Text(title))),
     );
   }
 
-  showInfoSnackBar(BuildContext context, String title) {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showInfoSnackBar(BuildContext context, String title) {
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -51,7 +51,7 @@ class InformationService {
                     padding:
                         EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
+                      color: Colors.black.withAlpha((255 * 0.7).round()),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Row(

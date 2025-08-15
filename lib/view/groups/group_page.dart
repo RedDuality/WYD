@@ -72,8 +72,6 @@ class GroupPage extends StatelessWidget {
       case CommunityType.community:
         return expansionAvatarTile(
             title: community.name, children: community.groups);
-      default:
-        return Container();
     }
   }
 

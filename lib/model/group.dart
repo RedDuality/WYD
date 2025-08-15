@@ -48,7 +48,7 @@ class Group {
       'id': id,
       'name': name,
       'hash': hash,
-      'color': color.value,
+      'color': color.toARGB32(),
       'trusted': trusted,
       'generalForCommunity': generalForCommunity,
       'profileHashes': profileHashes,

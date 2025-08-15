@@ -38,7 +38,7 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  checkUserUpdate(user) {
+  void checkUserUpdate(User user) {
     if (_user!.hash == user.hash) {
     } else {
       setUser(user);
