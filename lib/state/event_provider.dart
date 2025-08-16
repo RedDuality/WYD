@@ -37,7 +37,7 @@ class EventProvider extends EventController {
   }
 
   void updateEvent(Event updatedEvent) {
-    var originalEvent = retrieveEventByHash(updatedEvent.hash);
+    var originalEvent = retrieveEventByHash(updatedEvent.eventHash);
 
     if (originalEvent.endTime != updatedEvent.endTime) {
       PhotoRetrieverService.addTimer(updatedEvent);
@@ -46,7 +46,7 @@ class EventProvider extends EventController {
   }
 
   void addEvent(Event event) {
-    PhotoRetrieverService().addTimer(event);
+    PhotoRetrieverService.addTimer(event);
     super.add(event);
   }
 

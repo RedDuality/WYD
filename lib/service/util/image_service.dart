@@ -62,8 +62,8 @@ class ImageService {
 
   static Future<List<XFile>> pickImageReferencesForWeb() async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile>? pickedFiles = await picker.pickMultiImage();
-    return pickedFiles ?? [];
+    final List<XFile> pickedFiles = await picker.pickMultiImage();
+    return pickedFiles;
   }
 
   static Future<List<BlobData>> pickImages() async {

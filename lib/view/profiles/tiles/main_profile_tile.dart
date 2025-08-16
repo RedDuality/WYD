@@ -85,7 +85,7 @@ class MainProfileTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              if (exists) actions(profile!.eventHash),
+              if (exists) actions(profile!.hash),
             ],
           ),
         ),

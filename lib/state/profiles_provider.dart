@@ -16,7 +16,7 @@ class ProfilesProvider extends ChangeNotifier {
 
   void addAll(List<Profile> profiles) {
     for (final profile in profiles) {
-      _profiles[profile.eventHash] = profile;
+      _profiles[profile.hash] = profile;
     }
     notifyListeners();
   }

@@ -51,7 +51,7 @@ class _SearchProfilePageState extends State<SearchProfilePage> {
                 icon: const Icon(Icons.add),
                 label: const Text("Add"),
                 onPressed: () {
-                  CreateCommunityDto community = CreateCommunityDto(hashes: [value.eventHash]);
+                  CreateCommunityDto community = CreateCommunityDto(hashes: [value.hash]);
 
                   CommunityService().create(community);
                 },

@@ -3,7 +3,7 @@ import 'package:wyd_front/model/enum/profile_type.dart';
 import 'package:wyd_front/model/enum/role.dart';
 
 class Profile {
-  String eventHash = "";
+  String hash = "";
   String tag = "";
   String name = "";
   bool mainProfile = false;
@@ -17,7 +17,7 @@ class Profile {
 
   Profile({
     this.name = "",
-    this.eventHash = "",
+    this.hash = "",
     this.tag = "",
     this.mainProfile = false,
     this.blobHash = "",
@@ -37,7 +37,7 @@ class Profile {
     DateTime? lastUpdatedTime,
   }) {
     return Profile(
-        eventHash: eventHash,
+        hash: hash,
         name: name ?? this.name,
         tag: tag ?? this.tag,
         mainProfile: mainProfile ?? this.mainProfile,
@@ -51,12 +51,12 @@ class Profile {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is Profile &&
-        other.eventHash == eventHash &&
+        other.hash == hash &&
         other.lastUpdatedTime == lastUpdatedTime;
   }
 
   @override
-  int get hashCode => eventHash.hashCode;
+  int get hashCode => hash.hashCode;
 
   // Factory constructor to create a Profile from JSON
   factory Profile.fromJson(Map<String, dynamic> json) {
@@ -86,7 +86,7 @@ class Profile {
 
   Map<String, dynamic> toJson() {
     return {
-      'hash': eventHash,
+      'hash': hash,
       'name': name,
       'tag': tag,
       'color': color?.toARGB32(),
