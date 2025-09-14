@@ -29,12 +29,16 @@ class ProfileEventsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void remove(String eventHash) {
+    _profileEvents.remove(eventHash);
+  }
+
   void setSingle(String eventHash, ProfileEvent profileHash) {
     _profileEvents[eventHash]!.add(profileHash);
   }
 
-  void remove(String eventHash) {
-    _profileEvents.remove(eventHash);
+  void removeSingle(String eventHash, String profileHash) {
+    _profileEvents[eventHash]!.removeWhere((pe) => pe.profileHash == profileHash);
   }
 
   void confirm(String eventHash, String profileHash) {

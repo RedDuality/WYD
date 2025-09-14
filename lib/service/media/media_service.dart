@@ -4,7 +4,6 @@ import 'package:wyd_front/model/blob_data.dart';
 import 'package:wyd_front/model/enum/media_type.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/media.dart';
-import 'package:wyd_front/service/event/event_details_service.dart';
 import 'package:wyd_front/service/media/media_upload_service.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
 
@@ -20,14 +19,7 @@ class MediaService {
     var details = EventDetailsProvider().get(event.eventHash);
 
     if (details != null) {
-      //details.totalImages = ;
-
-      details.validUntil = null;
-
-      //clear the cache
-      details.media = {};
-
-      EventDetailsService.update(event.eventHash, details);
+      EventDetailsProvider().invalidateMediaCache(event.eventHash);
     }
   }
 

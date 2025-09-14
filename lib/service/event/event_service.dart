@@ -4,7 +4,6 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/model/profile_event.dart';
-import 'package:wyd_front/service/event/event_details_service.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
@@ -17,7 +16,7 @@ class EventService {
     EventProvider().updateEvent(updatedEvent);
 
     if (details != null) {
-      EventDetailsService.update(updatedEvent.eventHash, details);
+      EventDetailsProvider().update(updatedEvent.eventHash, details);
     }
 
     EventViewProvider().updateCurrentEvent(updatedEvent);
@@ -38,7 +37,7 @@ class EventService {
   static Event addEvent(RetrieveEventResponseDto dto) {
     var event = Event.fromDto(dto);
     if (dto.details != null) {
-      EventDetailsService.updateFromFetched(event.eventHash, dto.details!);
+      EventDetailsProvider().update(event.eventHash, dto.details!);
     }
 
     if (dto.sharedWith != null) {

@@ -15,19 +15,23 @@ class EventDetailsProvider extends ChangeNotifier {
 
   EventDetails? get(String eventHash) => _eventDetails[eventHash];
 
-  void set(String eventHash, EventDetails details) {
-    _eventDetails[eventHash] = details;
-
+  void create(String eventHash, EventDetails details) {
+    _eventDetails[eventHash] != null ? throw "details alredy exists" : _eventDetails[eventHash] = details;
     notifyListeners();
   }
 
-  void addMedia(String eventHash, Set<Media> media, {DateTime? validUntil}) {
-    var details = _eventDetails[eventHash]!;
-    if (details.media.isEmpty) {
-      details.validUntil = validUntil!;
+  void update(String eventHash, EventDetails details) {
+    if (_eventDetails[eventHash] == null || _eventDetails[eventHash]!.updatedAt != details.updatedAt) {
+      _eventDetails[eventHash] = details;
+      notifyListeners();
     }
-    details.media.addAll(media);
-    details.totalImages += media.length;
+  }
+
+  void addMedia(String eventHash, Set<Media> media, {DateTime? validUntil}) {
+    if (_eventDetails[eventHash]!.media.isEmpty) {
+      _eventDetails[eventHash]!.validUntil = validUntil!;
+    }
+    _eventDetails[eventHash]!.media.addAll(media);
     notifyListeners();
   }
 

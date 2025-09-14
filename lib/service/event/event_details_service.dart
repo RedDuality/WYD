@@ -8,18 +8,10 @@ class EventDetailsService {
 
   static EventDetails _createDetails(String eventHash) {
     var details = EventDetails(hash: "created", totalImages: 0);
-    EventDetailsProvider().set(eventHash, details);
+    EventDetailsProvider().create(eventHash, details);
     return details;
   }
 
-  static void updateFromFetched(String eventHash, EventDetails details) {
-    details.lastFetchedTime = DateTime.now();
-    update(eventHash, details);
-  }
-
-  static void update(String eventHash, EventDetails details) {
-    EventDetailsProvider().set(eventHash, details);
-  }
 
   static void addImages(String eventHash, int added) {
     EventDetailsProvider().get(eventHash)!.totalImages += added;
@@ -27,14 +19,18 @@ class EventDetailsService {
 
   static void retrieveMedia(String eventHash, {int? start, int? end}) {
     var details = EventDetailsProvider().get(eventHash);
-    if (details != null && details.totalImages > 0) {
+
+    if (details != null &&
+        details.totalImages > 0 &&
+        (details.validUntil == null || details.validUntil!.isBefore(DateTime.now()))) {
       var pageSize = 1000;
       var pageNumber = 1;
 
       var requestPageNumber = details.totalImages > pageSize ? pageNumber : null;
       var requestPageSize = requestPageNumber != null ? pageSize : null;
 
-      MediaService.retrieveEventMediaWithPagination(eventHash, pageNumber: requestPageNumber, pageSize: requestPageSize);
+      MediaService.retrieveEventMediaWithPagination(eventHash,
+          pageNumber: requestPageNumber, pageSize: requestPageSize);
     }
   }
 }

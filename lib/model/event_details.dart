@@ -4,8 +4,8 @@ class EventDetails {
   String hash = "";
   String? description = "";
   int totalImages = 0;
+  DateTime? updatedAt;
   DateTime? validUntil;
-  DateTime? lastFetchedTime;
 
   Set<Media> media = {};
 
@@ -13,6 +13,7 @@ class EventDetails {
     required this.hash,
     this.description,
     required this.totalImages,
+    this.updatedAt,
   });
 
   // Factory constructor to create a Profile from JSON
@@ -21,6 +22,7 @@ class EventDetails {
       hash: json['hash'] as String,
       description: json['description'] as String?,
       totalImages: json['totalImages'] as int,
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
 

@@ -111,7 +111,6 @@ class Event extends CalendarEventData {
     return _getCurrentProfileEvent().role == EventRole.owner;
   }
 
-  
   Set<String> profilesThatConfirmed() {
     var myprofiles = UserProvider().getProfileHashes().toSet();
     var eventProfiles = ProfileEventsProvider().get(eventHash);
@@ -134,16 +133,16 @@ class Event extends CalendarEventData {
     ProfileEventsProvider().dismiss(eventHash, profileHash);
   }
 
+  // for delete
+  void removeProfile(String profileHash) {
+    ProfileEventsProvider().removeSingle(eventHash, profileHash);
+  }
+
   //for delete
   int countMatchingProfiles(Set<String> userProfileHashes) {
     var myprofiles = UserProvider().getProfileHashes().toSet();
     var eventProfiles = ProfileEventsProvider().get(eventHash);
-    var result = eventProfiles
-        .where((profileEvent) => myprofiles.contains(profileEvent.profileHash)).length;
+    var result = eventProfiles.where((profileEvent) => myprofiles.contains(profileEvent.profileHash)).length;
     return result;
-  }
-
-  void removeProfile(String hash) {
-    //sharedWith.removeWhere((profileEvent) => profileEvent.profileHash == hash);
   }
 }
