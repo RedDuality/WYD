@@ -1,7 +1,7 @@
 
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/model/group.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 
 class Community {
   int id = 0;

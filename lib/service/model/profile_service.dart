@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:wyd_front/API/profile_api.dart';
+import 'package:wyd_front/API/Profile/profile_api.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/state/profiles_provider.dart';
+import 'package:wyd_front/state/profile/profiles_provider.dart';
 
 class ProfileService {
   ProfileService._privateConstructor();
@@ -37,7 +37,7 @@ class ProfileService {
     ProfilesProvider().addAll([profile]);
   }
 
-  Future<void> _retrieveProfiles() async {
+  Future<void> _fetchProfiles() async {
     if (queue.isNotEmpty) {
       var request = ProfileAPI().retrieveFromHashes(queue.toList());
       queue.clear();
@@ -48,11 +48,11 @@ class ProfileService {
     }
   }
 
-  void synchProfile(Profile? profile, String hash) {
+  void retrieveOrSynchProfile(Profile? profile, String hash) {
     var anHourAgo = DateTime.now().subtract(Duration(hours: 1));
     if (profile == null || profile.lastUpdatedTime.isBefore(anHourAgo)) {
       queue.add(hash);
-      _startTimer(_retrieveProfiles);
+      _startTimer(_fetchProfiles);
     }
   }
 }

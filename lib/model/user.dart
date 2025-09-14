@@ -1,6 +1,5 @@
-
-
-import 'package:wyd_front/model/DTO/retrieve_user_dto.dart';
+import 'package:wyd_front/API/User/retrieve_user_dto.dart';
+import 'package:wyd_front/model/enum/role.dart';
 
 class User {
   String hash = "";
@@ -13,10 +12,13 @@ class User {
     Set<String>? profileHashes,
   }) : profileHashes = profileHashes ?? {};
 
-  User.fromDto(RetrieveUserDto dto){
+  User.fromDto(RetrieveUserDto dto) {
     hash = dto.hash;
-    currentProfileHash = dto.currentProfileHash;
     profileHashes = dto.profiles.map((profile) => profile.hash).toSet();
+    currentProfileHash =
+        dto.profiles.firstWhere(
+          (profile) => profile.mainProfile == true,
+          orElse: () => dto.profiles.firstWhere((profile) => profile.role == Role.owner,),
+        ).hash;
   }
-
 }

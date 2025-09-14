@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/service/model/community_service.dart';
-import 'package:wyd_front/service/model/event_service.dart';
+import 'package:wyd_front/service/event/event_service.dart';
 import 'package:wyd_front/service/util/notification_service.dart';
 import 'package:wyd_front/service/util/permission_service.dart';
-import 'package:wyd_front/service/util/photo_retriever_service.dart';
+import 'package:wyd_front/service/media/media_auto_select_service.dart';
 import 'package:wyd_front/service/util/real_time_updates_service.dart';
 import 'package:wyd_front/state/uri_provider.dart';
 import 'package:wyd_front/view/events/events_page.dart';
@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
     //TODO check the double photo retriever init
     EventService.retrieveMultiple().then((value) {
       if (!kIsWeb) {
-        PhotoRetrieverService.init();
+        MediaAutoSelectService.init();
       }
     });
     CommunityService().retrieveCommunities();
@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
     if (!kIsWeb) {
       PermissionService.requestPermissions().then((value) {
         NotificationService().initialize();
-        PhotoRetrieverService.init();
+        MediaAutoSelectService.init();
       });
     }
   }

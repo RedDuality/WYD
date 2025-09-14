@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/profile_service.dart';
-import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/state/event_provider.dart';
+import 'package:wyd_front/service/media/image_provider_service.dart';
+import 'package:wyd_front/state/event/event_provider.dart';
 
 class ProfileEditor extends StatefulWidget {
   final Profile profile;
@@ -25,7 +25,7 @@ class ProfileEditorState extends State<ProfileEditor> {
   void initState() {
     super.initState();
     _selectedColor = widget.profile.color ?? Colors.green;
-    profileImage = ImageService.getImage(size: ImageSize.big);
+    profileImage = ImageProviderService.getImage(size: ImageSize.big);
     nameController = TextEditingController(text: widget.profile.name);
     tagController = TextEditingController(text: widget.profile.tag);
   }

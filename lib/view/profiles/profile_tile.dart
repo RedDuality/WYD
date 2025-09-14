@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/profile_service.dart';
-import 'package:wyd_front/state/profiles_provider.dart';
+import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/view/profiles/tiles/header_profile_tile.dart';
 import 'package:wyd_front/view/profiles/tiles/main_profile_tile.dart';
 import 'package:wyd_front/view/profiles/tiles/menu_profile_tile.dart';
@@ -24,11 +24,12 @@ class ProfileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Listens for changes to a specific profile and rebuilds only when that profile is updated.
     final profile = context.select<ProfilesProvider, Profile?>(
       (provider) => provider.get(profileHash),
     );
     if (fetchDataFromServer) {
-      ProfileService().synchProfile(profile, profileHash);
+      ProfileService().retrieveOrSynchProfile(profile, profileHash);
     }
     switch (type) {
       case ProfileTileType.main:

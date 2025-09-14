@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/util/image_service.dart';
+import 'package:wyd_front/service/media/image_provider_service.dart';
 
 class MenuProfileTile extends StatelessWidget {
   final Profile? profile;
@@ -39,7 +39,7 @@ class MenuProfileTile extends StatelessWidget {
                 height: imageHeight,
                 width: imageWidth ?? imageHeight,
                 child: CircleAvatar(
-                  backgroundImage: ImageService.getImageProvider(),
+                  backgroundImage: ImageProviderService.getImageProvider(),
                   radius: imageHeight,
                 ),
               ),

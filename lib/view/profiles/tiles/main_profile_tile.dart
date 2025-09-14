@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/service/media/image_provider_service.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:wyd_front/view/profiles/profile_editor.dart';
 import 'package:wyd_front/view/widget/view/custom_page.dart';
 
@@ -56,7 +56,7 @@ class MainProfileTile extends StatelessWidget {
                             ),
                           ),
                           child: CircleAvatar(
-                            backgroundImage: ImageService.getImageProvider(),
+                            backgroundImage: ImageProviderService.getImageProvider(),
                             radius: 40,
                           ),
                         ),

@@ -1,11 +1,12 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/service/model/event_service.dart';
-import 'package:wyd_front/state/event_provider.dart';
+import 'package:wyd_front/service/event/event_service.dart';
+import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/state/event/event_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/event_tile.dart';
-import 'package:wyd_front/view/events/eventEditor/event_detail.dart';
+import 'package:wyd_front/view/events/eventEditor/event_view.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/widget/util/add_event_button.dart';
 
@@ -37,9 +38,9 @@ class _EventsPageState extends State<EventsPage> {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final event = await EventService.retrieveAndAddByHash(eventHash);
 
-            EventService.initializeDetails(event, null, event.confirmed());
+            EventViewService.initialize(event, null, event.currentConfirmed());
             if (context.mounted) {
-              showCustomDialog(context, EventDetail());
+              showCustomDialog(context, EventView(eventHash: event.eventHash,));
             }
           });
           _dialogShown = true;
@@ -69,14 +70,14 @@ class _EventsPageState extends State<EventsPage> {
         onEventTap: (events, date) {
           Event selectedEvent = events.whereType<Event>().toList().first;
 
-          EventService.initializeDetails(selectedEvent, null, widget.private);
+          EventViewService.initialize(selectedEvent, null, widget.private);
           
-          showCustomDialog(context, EventDetail());
+          showCustomDialog(context, EventView(eventHash: selectedEvent.eventHash,));
         },
         onDateLongPress: (date) {
-          EventService.initializeDetails(null, date, widget.private);
+          EventViewService.initialize(null, date, widget.private);
 
-          showCustomDialog(context, EventDetail());
+          showCustomDialog(context, EventView());
         },
         minuteSlotSize: MinuteSlotSize.minutes15,
         keepScrollOffset: true,

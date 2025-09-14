@@ -5,13 +5,15 @@ import 'package:provider/provider.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
-import 'package:wyd_front/state/authentication_provider.dart';
-import 'package:wyd_front/state/eventEditor/blob_provider.dart';
+import 'package:wyd_front/state/event/event_details_provider.dart';
+import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
+import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
-import 'package:wyd_front/state/eventEditor/detail_provider.dart';
-import 'package:wyd_front/state/profiles_provider.dart';
+import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
+import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/state/uri_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -34,7 +36,7 @@ Future main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if(!kIsWeb) {
+  if (!kIsWeb) {
     Workmanager().initialize(callbackDispatcher);
   }
 
@@ -48,13 +50,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => DetailProvider()),
-        ChangeNotifierProvider(create: (_) => BlobProvider()),
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => ProfilesProvider()),
+        ChangeNotifierProvider(create: (_) => EventProvider()),
+        ChangeNotifierProvider(create: (_) => EventViewProvider()),
+        ChangeNotifierProvider(create: (_) => EventDetailsProvider()),
+        ChangeNotifierProvider(create: (_) => CachedMediaProvider()),
         ChangeNotifierProvider(create: (_) => UriProvider()),
         ChangeNotifierProvider(create: (_) => CommunityProvider()),
-        ChangeNotifierProvider(create: (_) => ProfilesProvider()),
-        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {

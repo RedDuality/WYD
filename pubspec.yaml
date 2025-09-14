@@ -50,7 +50,6 @@ dependencies:
   email_validator: ^3.0.0
   calendar_view: ^1.2.0
   firebase_messaging: ^16.0.0
-  image_picker: ^1.1.2
   path: ^1.9.0
   mime: ^2.0.0
   flutter_image_compress: ^2.3.0
@@ -63,6 +62,9 @@ dependencies:
   workmanager: ^0.9.0+2
   flutter_local_notifications: ^19.4.0
   image: ^4.5.3
+  file_picker: ^10.3.2
+  uuid: ^4.5.1
+  cached_network_image: ^3.4.1
 
 
 dev_dependencies:

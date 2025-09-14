@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/API/test_api.dart';
-import 'package:wyd_front/state/authentication_provider.dart';
+import 'package:wyd_front/API/Test/test_api.dart';
+import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/view/authentication/register.dart';
 import 'package:wyd_front/view/widget/util/hover_text.dart';
 import 'package:wyd_front/view/widget/util/version_detail.dart';

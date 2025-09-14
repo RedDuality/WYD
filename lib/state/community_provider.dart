@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/community.dart';
 
 class CommunityProvider extends ChangeNotifier {
-  // Private static instance
   static final CommunityProvider _instance = CommunityProvider._internal();
 
-  // Factory constructor returns the singleton instance
   factory CommunityProvider() {
     return _instance;
   }
 
   List<Community> _communities = [];
 
-  // Private named constructor
   CommunityProvider._internal() {
     _communities = [];
   }

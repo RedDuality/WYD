@@ -1,7 +1,7 @@
-import 'package:wyd_front/API/community_api.dart';
-import 'package:wyd_front/model/DTO/create_community_dto.dart';
+import 'package:wyd_front/API/Community/community_api.dart';
+import 'package:wyd_front/API/Community/create_community_dto.dart';
 import 'package:wyd_front/state/community_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 
 class CommunityService {
 

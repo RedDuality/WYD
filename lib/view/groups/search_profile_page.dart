@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/DTO/create_community_dto.dart';
+import 'package:wyd_front/API/Community/create_community_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/community_service.dart';
 import 'package:wyd_front/service/model/profile_service.dart';

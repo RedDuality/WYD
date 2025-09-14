@@ -1,18 +1,17 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
+import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/model/enum/event_role.dart';
 import 'package:wyd_front/model/profile_event.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/state/event/profile_events_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
   final String eventHash;
-  final int? groupId;
-
-  List<String> images = [];
-  List<AssetEntity> cachedNewImages = [];
-  List<ProfileEvent> sharedWith = [];
+  int totalConfirmed;
+  int totalProfiles;
+  bool hasCachedMedia = false;
 
   @override
   bool operator ==(Object other) {
@@ -26,7 +25,9 @@ class Event extends CalendarEventData {
 
   Event({
     this.eventHash = "",
-    required DateTime date,
+    required this.totalConfirmed,
+    required this.totalProfiles,
+    DateTime? date,
     required DateTime startTime,
     required DateTime endTime,
     DateTime? endDate,
@@ -34,24 +35,28 @@ class Event extends CalendarEventData {
     super.description,
     super.color = Colors.green, // Default color
     super.descriptionStyle,
-    TextStyle super.titleStyle = const TextStyle(
+    super.titleStyle = const TextStyle(
       color: Colors.white,
       fontSize: 12.0,
       overflow: TextOverflow.clip,
     ),
-    this.groupId,
-    List<String>? images,
-    List<AssetEntity>? newFiles,
-    List<ProfileEvent>? sharedWith,
-  })  : sharedWith = sharedWith ?? [],
-        cachedNewImages = newFiles ?? [],
-        images = images ?? [],
-        super(
-          date: date.toLocal(),
+  }) : super(
+          date: date ?? startTime.toLocal(),
           startTime: startTime.toLocal(),
           endTime: endTime.toLocal(),
           endDate: endDate?.toLocal(),
         );
+
+  factory Event.fromDto(RetrieveEventResponseDto dto) {
+    return Event(
+      eventHash: dto.hash,
+      title: dto.title,
+      startTime: dto.startTime,
+      endTime: dto.endTime,
+      totalProfiles: dto.totalProfiles,
+      totalConfirmed: dto.totalConfirmed,
+    );
+  }
 
 /*
   Event copy(
@@ -88,24 +93,17 @@ class Event extends CalendarEventData {
   }
   */
 
-  int totalShared() {
-    return sharedWith.length;
-  }
-
-  int totalConfirmed() {
-    return sharedWith.where((pe) => pe.confirmed == true).length;
-  }
-
   String getConfirmTitle() {
-    return totalShared() > 1 ? "(${totalConfirmed()}/${totalShared()}) " : "";
+    return totalProfiles > 1 ? "($totalConfirmed/$totalProfiles) " : "";
   }
 
   ProfileEvent _getCurrentProfileEvent() {
     String profileHash = UserProvider().getCurrentProfileHash();
-    return sharedWith.firstWhere((pe) => pe.profileHash == profileHash);
+    return ProfileEventsProvider().getSingle(eventHash, profileHash);
+    //TODO return sharedWith.firstWhere((pe) => pe.profileHash == profileHash);
   }
 
-  bool confirmed() {
+  bool currentConfirmed() {
     return _getCurrentProfileEvent().confirmed;
   }
 
@@ -113,64 +111,39 @@ class Event extends CalendarEventData {
     return _getCurrentProfileEvent().role == EventRole.owner;
   }
 
-  void confirm(bool confirmed, {String? profHash}) {
-    String profileHash = profHash ?? UserProvider().getCurrentProfileHash();
-    sharedWith
-        .firstWhere((confirm) => confirm.profileHash == profileHash)
-        .confirmed = confirmed;
-  }
-
-  int countMatchingProfiles(Set<String> userProfileHashes) {
-    int count = sharedWith
-        .where((profileEvent) =>
-            userProfileHashes.contains(profileEvent.profileHash))
-        .length;
-    return count;
-  }
   
+  Set<String> profilesThatConfirmed() {
+    var myprofiles = UserProvider().getProfileHashes().toSet();
+    var eventProfiles = ProfileEventsProvider().get(eventHash);
+    var result = eventProfiles
+        .where((profileEvent) => profileEvent.confirmed && myprofiles.contains(profileEvent.profileHash))
+        .map((profileEvent) => profileEvent.profileHash)
+        .toSet();
+    return result;
+  }
+
+  void confirm({String? profHash}) {
+    String profileHash = profHash ?? UserProvider().getCurrentProfileHash();
+    totalConfirmed += 1;
+    ProfileEventsProvider().confirm(eventHash, profileHash);
+  }
+
+  void dismiss({String? profHash}) {
+    String profileHash = profHash ?? UserProvider().getCurrentProfileHash();
+    totalConfirmed -= 1;
+    ProfileEventsProvider().dismiss(eventHash, profileHash);
+  }
+
+  //for delete
+  int countMatchingProfiles(Set<String> userProfileHashes) {
+    var myprofiles = UserProvider().getProfileHashes().toSet();
+    var eventProfiles = ProfileEventsProvider().get(eventHash);
+    var result = eventProfiles
+        .where((profileEvent) => myprofiles.contains(profileEvent.profileHash)).length;
+    return result;
+  }
+
   void removeProfile(String hash) {
-    sharedWith.removeWhere((profileEvent) => profileEvent.profileHash == hash);
-  }
-
-  factory Event.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      _ => Event(
-          eventHash: json['hash'] as String? ?? "",
-          date: DateTime.parse(json['startTime'] as String),
-          startTime: DateTime.parse(json['startTime'] as String),
-          endTime: DateTime.parse(json['endTime'] as String),
-          endDate: DateTime.parse(json['endTime'] as String),
-          title: json['title'] as String? ?? "",
-          description: json['description'] as String? ?? "",
-          // Handle color parsing safely with a fallback
-          color: json['color'] != null
-              ? Color(int.parse(json['color'] as String))
-              : Colors.green,
-          groupId: json['groupId'] as int? ?? -1,
-          images: json['blobHashes'] != null
-              ? json['blobHashes'].cast<String>().toList()
-              : <String>[],
-          sharedWith: (json['profileEvents'] as List<dynamic>?)
-                  ?.map(
-                      (pe) => ProfileEvent.fromJson(pe as Map<String, dynamic>))
-                  .toList() ??
-              <ProfileEvent>[],
-        )
-    };
-  }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      'hash': eventHash,
-      'title': title,
-      if (description != null) 'description': description,
-      'startTime': startTime!.toUtc().toIso8601String(),
-      'endTime': endTime!.toUtc().toIso8601String(),
-      //'color': color.value,
-      //if (groupId != null) 'groupId': groupId,
-      'blobHashes': images,
-      'profileEvents': sharedWith.map((share) => share.toJson()).toList(),
-    };
+    //sharedWith.removeWhere((profileEvent) => profileEvent.profileHash == hash);
   }
 }

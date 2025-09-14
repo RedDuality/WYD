@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/util/image_service.dart';
+import 'package:wyd_front/service/media/image_provider_service.dart';
 
 class ViewProfileTile extends StatelessWidget {
   final Profile? profile;
@@ -12,13 +12,13 @@ class ViewProfileTile extends StatelessWidget {
     if (profile == null) {
       return ListTile(
           leading: CircleAvatar(
-            backgroundImage: ImageService.getImageProvider(),
+            backgroundImage: ImageProviderService.getImageProvider(),
           ),
           title: Text('Loading...'));
     } else {
       return ListTile(
         leading: CircleAvatar(
-          backgroundImage: ImageService.getProfileImage(profile!.hash, profile!.blobHash!),
+          backgroundImage: ImageProviderService.getProfileImage(profile!.hash, profile!.blobHash!),
         ),
         title: Text(profile!.name),
       );

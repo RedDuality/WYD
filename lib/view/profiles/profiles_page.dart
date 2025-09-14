@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/service/util/image_service.dart';
-import 'package:wyd_front/state/authentication_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/service/media/image_provider_service.dart';
+import 'package:wyd_front/state/user/authentication_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 import 'package:wyd_front/view/settings/settings_page.dart';
 
@@ -50,7 +50,7 @@ class ProfilesPage extends StatelessWidget {
                 SizedBox(
                   width: 300,
                   height: 300,
-                  child: ImageService.getImage(size: ImageSize.big),
+                  child: ImageProviderService.getImage(size: ImageSize.big),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(

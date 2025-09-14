@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/enum/update_type.dart';
-import 'package:wyd_front/service/model/event_service.dart';
-import 'package:wyd_front/state/event_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/service/media/media_service.dart';
+import 'package:wyd_front/service/event/event_service.dart';
+import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 
 class RealTimeUpdateService {
   static final RealTimeUpdateService _instance =
@@ -47,7 +49,7 @@ class RealTimeUpdateService {
     var typeIndex = snapshot['type'];
     switch (UpdateType.values[typeIndex]) {
       case UpdateType.newEvent:
-        EventService.retrieveNewByHash(snapshot['hash']);
+        EventService.retrieveByHash(snapshot['hash']);
         break;
       case UpdateType.shareEvent:
         EventService.retrieveSharedByHash(snapshot['hash']);
@@ -58,20 +60,20 @@ class RealTimeUpdateService {
       case UpdateType.updatePhotos:
         var event = EventProvider().findEventByHash(snapshot['hash']);
         if (event != null) {
-          EventService.retrieveImageUpdatesByHash(event);
+          MediaService.retrieveImageUpdatesByHash(event);
         }
         break;
       case UpdateType.confirmEvent:
         var event = EventProvider().findEventByHash(snapshot['hash']);
         if (event != null && snapshot['phash'] != null) {
-          EventService
+          EventViewService
               .localConfirm(event, true, profileHash: snapshot['phash']);
         }
         break;
       case UpdateType.declineEvent:
         var event = EventProvider().findEventByHash(snapshot['hash']);
         if (event != null && snapshot['phash'] != null) {
-          EventService
+          EventViewService
               .localConfirm(event, false, profileHash: snapshot['phash']);
         }
         break;
