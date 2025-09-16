@@ -14,7 +14,7 @@ import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class MediaAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}Media/';
+  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Media/';
 
   final InterceptedClient client;
 

@@ -10,7 +10,7 @@ import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class EventAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}Event/';
+  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Event/';
 
   final InterceptedClient client;
 

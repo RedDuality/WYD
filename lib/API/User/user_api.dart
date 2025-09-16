@@ -8,7 +8,7 @@ import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class UserAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}User/';
+  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/User/';
 
   final InterceptedClient client;
 

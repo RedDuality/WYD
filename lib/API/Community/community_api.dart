@@ -9,7 +9,7 @@ import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class CommunityAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}Community/';
+  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Community/';
 
   final InterceptedClient client;
 

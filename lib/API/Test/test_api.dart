@@ -4,7 +4,7 @@ import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class TestAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}';
+  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/';
 
   Client client = InterceptedClient.build(interceptors: [RequestInterceptor(),]);
 
