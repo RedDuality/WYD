@@ -1,4 +1,4 @@
-import 'package:wyd_front/API/User/retrieve_user_dto.dart';
+import 'package:wyd_front/API/User/retrieve_user_response_dto.dart';
 import 'package:wyd_front/model/enum/role.dart';
 
 class User {
@@ -12,7 +12,7 @@ class User {
     Set<String>? profileHashes,
   }) : profileHashes = profileHashes ?? {};
 
-  User.fromDto(RetrieveUserDto dto) {
+  User.fromDto(RetrieveUserResponseDto dto) {
     hash = dto.hash;
     profileHashes = dto.profiles.map((profile) => profile.hash).toSet();
     currentProfileHash =

@@ -1,24 +1,24 @@
 import 'package:wyd_front/model/profile.dart';
 
-class RetrieveUserDto {
+class RetrieveUserResponseDto {
   String hash = "";
   String currentProfileHash = "";
   //Accounts
   List<Profile> profiles = [];
 
-  RetrieveUserDto({
+  RetrieveUserResponseDto({
     this.hash = "",
     this.currentProfileHash = "",
     List<Profile>? profiles,
   }) : profiles = profiles ?? [];
 
-  factory RetrieveUserDto.fromJson(Map<String, dynamic> json) {
+  factory RetrieveUserResponseDto.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
         'hash': String? hash,
         'profiles': List<dynamic>? profiles,
       } =>
-        RetrieveUserDto(
+        RetrieveUserResponseDto(
           hash: hash ?? "",
           currentProfileHash: "",
           profiles: profiles != null

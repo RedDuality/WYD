@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
     });
     CommunityService().retrieveCommunities();
 
-    RealTimeUpdateService().start();
+    RealTimeUpdateService().initialize();
     if (!kIsWeb) {
       PermissionService.requestPermissions().then((value) {
         NotificationService().initialize();
