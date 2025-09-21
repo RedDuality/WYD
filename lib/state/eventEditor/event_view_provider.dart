@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
@@ -147,11 +148,24 @@ class EventViewProvider extends ChangeNotifier {
         startTime: startTime,
         endTime: endTime,
         endDate: endTime,
+        updatedAt: DateTime.now(),
         title: title,
         description: description,
         totalConfirmed: totalConfirmed,
         totalProfiles: totalProfiles);
 
     return event;
+  }
+
+  UpdateEventRequestDto? getUpdateDto() {
+    if (!hasBeenChanged()) return null;
+    UpdateEventRequestDto updateDto = UpdateEventRequestDto(
+      eventHash: hash!,
+      title: title != originalEvent!.title ? title : null,
+      description: description != originalEvent!.description ? description : null,
+      startTime: startTime != originalEvent!.startTime ? startTime : null,
+      endTime: endTime != originalEvent!.endTime ? endTime : null,
+    );
+    return updateDto;
   }
 }

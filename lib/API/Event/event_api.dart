@@ -4,8 +4,8 @@ import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
+import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
-import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
@@ -36,8 +36,8 @@ class EventAPI {
     throw "There was an error while fetching events";
   }
 
-  Future<RetrieveEventResponseDto> retrieveFromHash(String eventHash) async {
-    String url = '${functionUrl}Retrieve';
+  Future<RetrieveEventResponseDto> retrieveEssentialsFromHash(String eventHash) async {
+    String url = '${functionUrl}RetrieveEssentials';
 
     var response = await client.get(Uri.parse('$url/$eventHash'));
 
@@ -47,6 +47,19 @@ class EventAPI {
     }
 
     throw "Error while fetching the event";
+  }
+
+  Future<RetrieveEventResponseDto> retrieveDetailsFromHash(String eventHash) async {
+    String url = '${functionUrl}RetrieveDetails';
+
+    var response = await client.get(Uri.parse('$url/$eventHash'));
+
+    if (response.statusCode == 200) {
+      var dto = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
+      return dto;
+    }
+
+    throw "Error while fetching the event with its details";
   }
 
   //automatically add the event
@@ -76,16 +89,17 @@ class EventAPI {
     }
   }
 
-  Future<RetrieveEventResponseDto> update(Event event) async {
+  Future<RetrieveEventResponseDto> update(UpdateEventRequestDto updateDto) async {
     String url = '${functionUrl}Update';
 
-    var response = await client.post(Uri.parse(url), body: jsonEncode(event));
+    var response = await client.post(Uri.parse(url), body: jsonEncode(updateDto));
     if (response.statusCode == 200) {
       RetrieveEventResponseDto event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
       return event;
     }
     throw "Error while updating the event";
   }
+
 /*
   Future<List<Media>> retrieveImageUpdatesFromHash(String eventHash) async {
     String url = '${functionUrl}Retrieve';
@@ -100,26 +114,28 @@ class EventAPI {
     throw "Error while fetching the event";
   }
 */
-  Future<void> confirm(String eventHash) async {
+  Future<RetrieveEventResponseDto> confirm(String eventHash) async {
     String url = '${functionUrl}Confirm';
 
     var response = await client.get(
       Uri.parse('$url/$eventHash'),
     );
     if (response.statusCode == 200) {
-      return;
+      RetrieveEventResponseDto event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
+      return event;
     }
     throw "It was not possible to confirm the event";
   }
 
-  Future<void> decline(String eventHash) async {
+  Future<RetrieveEventResponseDto> decline(String eventHash) async {
     String url = '${functionUrl}Decline';
 
     var response = await client.get(
       Uri.parse('$url/$eventHash'),
     );
     if (response.statusCode == 200) {
-      return;
+      RetrieveEventResponseDto event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
+      return event;
     }
     throw "It was not possible to decline the event";
   }

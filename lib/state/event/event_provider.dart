@@ -28,15 +28,15 @@ class EventProvider extends EventController {
   void addEvent(Event event) {
     var originalEvent = findEventByHash(event.eventHash);
 
-    if (originalEvent.endTime != updatedEvent.endTime) {
-      MediaAutoSelectService.addTimer(updatedEvent);
+    if (originalEvent != null && event.updatedAt.isAfter(originalEvent.updatedAt)) {
+      if (originalEvent.endTime != event.endTime) {
+        MediaAutoSelectService.addTimer(event);
+      }
+      super.update(originalEvent, event);
+    } else {
+      MediaAutoSelectService.addTimer(event);
+      super.add(event);
     }
-    super.update(originalEvent, updatedEvent);
-  }
-
-  void addEvent(Event event) {
-    MediaAutoSelectService.addTimer(event);
-    super.add(event);
   }
 
   void changeMode(bool privateMode) {
@@ -44,9 +44,9 @@ class EventProvider extends EventController {
     myUpdateFilter();
   }
 
+// triggers a view update
   void myUpdateFilter() {
-    super
-        .updateFilter(newFilter: (date, events) => myEventFilter(date, events));
+    super.updateFilter(newFilter: (date, events) => myEventFilter(date, events));
   }
 
   List<Event> myEventFilter<T extends Object?>(DateTime date, List<CalendarEventData<T>> events) {
@@ -59,7 +59,7 @@ class EventProvider extends EventController {
         .toList();
   }
 
-  void setHasCachedMedia(String eventHash, bool hasCachedMedia){
+  void setHasCachedMedia(String eventHash, bool hasCachedMedia) {
     Event event = EventProvider().findEventByHash(eventHash)!;
     event.hasCachedMedia = hasCachedMedia;
     addEvent(event);

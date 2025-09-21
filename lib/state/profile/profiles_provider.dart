@@ -21,14 +21,14 @@ class ProfilesProvider extends ChangeNotifier {
 
   void addAll(List<Profile> profiles) {
     for (final profile in profiles) {
-      _profiles[profile.hash] = profile;
+      _profiles[profile.eventHash] = profile;
     }
     notifyListeners();
   }
 
   List<Profile> getMyProfiles() {
     var profileHashes = UserProvider().getProfileHashes();
-    return _profiles.values.where((element) => profileHashes.contains(element.hash)).toList();
+    return _profiles.values.where((element) => profileHashes.contains(element.eventHash)).toList();
   }
   
 }
