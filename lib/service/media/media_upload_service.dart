@@ -55,7 +55,7 @@ class MediaUploadService {
     if (media.url != null) {
       try {
         await MediaAPI().uploadToUrl(data, media.url!, mimeType);
-        return Media(hash: media.id!, name: media.name!, extension: media.extension!, visibility: media.visibility!);
+        return Media(eventHash: media.id!, name: media.name!, extension: media.extension!, visibility: media.visibility!);
       } catch (e) {
         debugPrint('Upload failed, Error: $e');
       }

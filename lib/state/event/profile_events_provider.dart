@@ -18,7 +18,7 @@ class ProfileEventsProvider extends ChangeNotifier {
   ProfileEvent getSingle(String eventHash, String profileHash) =>
       get(eventHash).firstWhere((pe) => pe.profileHash == profileHash);
 
-  void add(String eventId, List<ProfileEvent> newProfileEvents) {
+  void add(String eventId, Set<ProfileEvent> newProfileEvents) {
     // Get the existing Set or create a new one
     final existingEventsSet = _profileEvents[eventId] ?? <ProfileEvent>{};
 

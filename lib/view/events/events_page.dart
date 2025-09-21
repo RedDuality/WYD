@@ -27,7 +27,17 @@ class _EventsPageState extends State<EventsPage> {
   void initState() {
     super.initState();
     _private = widget.private;
+
     EventProvider(initialPrivate: _private);
+
+    _retrieveCurrentViewEvent();
+  }
+
+  void _retrieveCurrentViewEvent(){
+    final DateTime initialDay = DateTime.now().firstDayOfWeek(start: WeekDays.monday).withoutTime;
+    final endOfTheWeek = initialDay.add(const Duration(days: 7));
+
+    EventService.retrieveMultiple(initialDay, endOfTheWeek);
   }
 
   void checkAndShowLinkEvent(BuildContext context) {
@@ -40,7 +50,11 @@ class _EventsPageState extends State<EventsPage> {
 
             EventViewService.initialize(event, null, event.currentConfirmed());
             if (context.mounted) {
-              showCustomDialog(context, EventView(eventHash: event.eventHash,));
+              showCustomDialog(
+                  context,
+                  EventView(
+                    eventHash: event.eventHash,
+                  ));
             }
           });
           _dialogShown = true;
@@ -71,16 +85,25 @@ class _EventsPageState extends State<EventsPage> {
           Event selectedEvent = events.whereType<Event>().toList().first;
 
           EventViewService.initialize(selectedEvent, null, widget.private);
-          
-          showCustomDialog(context, EventView(eventHash: selectedEvent.eventHash,));
+
+          showCustomDialog(
+              context,
+              EventView(
+                eventHash: selectedEvent.eventHash,
+              ));
         },
         onDateLongPress: (date) {
           EventViewService.initialize(null, date, widget.private);
 
           showCustomDialog(context, EventView());
         },
+        startDay: WeekDays.monday,
         minuteSlotSize: MinuteSlotSize.minutes15,
         keepScrollOffset: true,
+        onPageChange: (date, page) {
+          var endDate = date.add(const Duration(days: 7));
+          EventService.retrieveMultiple(date, endDate);
+        },
       ),
       floatingActionButton: AddEventButton(
         confirmed: widget.private,
@@ -111,13 +134,11 @@ class _EventsPageState extends State<EventsPage> {
                           EventProvider().changeMode(_private);
                         });
                       },
-                      icon: const Icon(Icons.event,
-                          size: 30, color: Colors.white),
+                      icon: const Icon(Icons.event, size: 30, color: Colors.white),
                       label: showText
                           ? const Text(
                               'Eventi',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
+                              style: TextStyle(fontSize: 20, color: Colors.white),
                             )
                           : const SizedBox.shrink(),
                       style: TextButton.styleFrom(
@@ -164,13 +185,11 @@ class _EventsPageState extends State<EventsPage> {
                           EventProvider().changeMode(_private);
                         });
                       },
-                      icon: const Icon(Icons.event_available,
-                          size: 30, color: Colors.white),
+                      icon: const Icon(Icons.event_available, size: 30, color: Colors.white),
                       label: showText
                           ? const Text(
                               'Agenda',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
+                              style: TextStyle(fontSize: 20, color: Colors.white),
                             )
                           : const SizedBox.shrink(),
                       style: TextButton.styleFrom(

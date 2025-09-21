@@ -45,7 +45,7 @@ class MediaService {
 
   Media getWydLogo() {
     return Media(
-      hash: "",
+      eventHash: "",
     );
   }
 }

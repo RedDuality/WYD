@@ -18,7 +18,7 @@ class ViewProfileTile extends StatelessWidget {
     } else {
       return ListTile(
         leading: CircleAvatar(
-          backgroundImage: ImageProviderService.getProfileImage(profile!.hash, profile!.blobHash!),
+          backgroundImage: ImageProviderService.getProfileImage(profile!.eventHash, profile!.blobHash!),
         ),
         title: Text(profile!.name),
       );

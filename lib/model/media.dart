@@ -3,7 +3,7 @@ import 'package:wyd_front/API/Media/media_read_response_dto.dart';
 import 'enum/media_visibility.dart';
 
 class Media {
-  String hash;
+  String eventHash;
   String? extension;
   String? name;
   DateTime? creationDate;
@@ -16,14 +16,14 @@ class Media {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is Media && other.hash == hash;
+    return other is Media && other.eventHash == eventHash;
   }
 
   @override
-  int get hashCode => hash.hashCode;
+  int get hashCode => eventHash.hashCode;
 
   Media({
-    required this.hash,
+    required this.eventHash,
     this.extension,
     this.name,
     this.creationDate,
@@ -35,7 +35,7 @@ class Media {
 
   factory Media.fromDto(MediaReadResponseDto dto) {
     return Media(
-      hash: dto.hash,
+      eventHash: dto.hash,
       extension: dto.extension!,
       name: dto.name!,
       creationDate: dto.creationDate!,

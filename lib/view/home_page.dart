@@ -2,12 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/service/model/community_service.dart';
-import 'package:wyd_front/service/event/event_service.dart';
 import 'package:wyd_front/service/util/notification_service.dart';
 import 'package:wyd_front/service/util/permission_service.dart';
 import 'package:wyd_front/service/media/media_auto_select_service.dart';
 import 'package:wyd_front/service/util/real_time_updates_service.dart';
-import 'package:wyd_front/state/uri_provider.dart';
+import 'package:wyd_front/state/util/uri_provider.dart';
 import 'package:wyd_front/view/events/events_page.dart';
 import 'package:wyd_front/view/groups/group_page.dart';
 
@@ -27,11 +26,12 @@ class _HomePageState extends State<HomePage> {
     selectedIndex = 0;
 
     //TODO check the double photo retriever init
+    /*
     EventService.retrieveMultiple().then((value) {
       if (!kIsWeb) {
         MediaAutoSelectService.init();
       }
-    });
+    });*/
     CommunityService().retrieveCommunities();
 
     RealTimeUpdateService().initialize();

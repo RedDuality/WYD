@@ -14,26 +14,19 @@ class EventProvider extends EventController {
 
   // Private named constructor
   EventProvider._internal({required bool initialPrivate})
-      : private = initialPrivate,
+      : confirmedView = initialPrivate,
         super(
           eventFilter: (date, events) => _instance!.myEventFilter(date, events),
         );
 
-  bool private;
+  bool confirmedView;
 
   Event? findEventByHash(String eventHash) {
-    return allEvents
-        .whereType<Event>()
-        .where((e) => e.eventHash == eventHash)
-        .firstOrNull;
+    return allEvents.whereType<Event>().where((e) => e.eventHash == eventHash).firstOrNull;
   }
 
-  Event retrieveEventByHash(String eventHash) {
-    return findEventByHash(eventHash)!;
-  }
-
-  void updateEvent(Event updatedEvent) {
-    var originalEvent = retrieveEventByHash(updatedEvent.eventHash);
+  void addEvent(Event event) {
+    var originalEvent = findEventByHash(event.eventHash);
 
     if (originalEvent.endTime != updatedEvent.endTime) {
       MediaAutoSelectService.addTimer(updatedEvent);
@@ -47,7 +40,7 @@ class EventProvider extends EventController {
   }
 
   void changeMode(bool privateMode) {
-    private = privateMode;
+    confirmedView = privateMode;
     myUpdateFilter();
   }
 
@@ -56,18 +49,19 @@ class EventProvider extends EventController {
         .updateFilter(newFilter: (date, events) => myEventFilter(date, events));
   }
 
-  List<Event> myEventFilter<T extends Object?>(
-      DateTime date, List<CalendarEventData<T>> events) {
+  List<Event> myEventFilter<T extends Object?>(DateTime date, List<CalendarEventData<T>> events) {
     return events
         .whereType<Event>()
         .where((event) =>
-            event.occursOnDate(date.toLocal()) && event.currentConfirmed() == private)
+            event.occursOnDate(date.toLocal()) &&
+            event.currentConfirmed() == confirmedView &&
+            (confirmedView || event.endDate.isAfter(DateTime.now())))
         .toList();
   }
 
   void setHasCachedMedia(String eventHash, bool hasCachedMedia){
     Event event = EventProvider().findEventByHash(eventHash)!;
     event.hasCachedMedia = hasCachedMedia;
-    updateEvent(event);
+    addEvent(event);
   }
 }
