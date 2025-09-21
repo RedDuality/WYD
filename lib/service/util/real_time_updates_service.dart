@@ -35,6 +35,7 @@ class RealTimeUpdateService {
     // Request user permissions for notifications
     await FirebaseMessaging.instance.requestPermission();
 
+    // (if !kisWeb) FCM token retrieval is independent of notification permissions
     final fcmToken = await FirebaseMessaging.instance.getToken();
     if (fcmToken != null) {
       var requestDto = StoreFcmTokenRequestDto(
@@ -44,7 +45,6 @@ class RealTimeUpdateService {
       );
 
       await UserAPI().storeFCMToken(requestDto);
-      debugPrint("FCM Token stored successfully: $fcmToken");
     }
   }
 
@@ -97,52 +97,65 @@ class RealTimeUpdateService {
         debugPrint('Message notification body: ${message.notification!.body}');
         debugPrint('Message notification body: ${message.notification!}');
       }
-      //handleUpdate(message.data);
+      handleUpdate(message.data);
     });
   }
 
-  void handleUpdate(var snapshot) {
-    var typeIndex = snapshot['type'];
-    switch (UpdateType.values[typeIndex]) {
-      case UpdateType.newEvent:
-        EventService.retrieveByHash(snapshot['hash']);
+  void handleUpdate(Map<String, dynamic> data) {
+    var updateType = _findUpdateType(data['type']);
+
+    switch (updateType) {
+      case UpdateType.createEvent:
+        EventService.retrieveEssentialByHash(data['hash']);
         break;
       case UpdateType.shareEvent:
-        EventService.retrieveSharedByHash(snapshot['hash']);
+        EventService.retrieveSharedByHash(data['hash']);
         break;
-      case UpdateType.updateEvent:
-        EventService.retrieveUpdateByHash(snapshot['hash']);
+      case UpdateType.updateEssentialsEvent:
+        EventService.retrieveUpdateByHash(data['hash']);
         break;
+      /*
+      case UpdateType.updateDetailsEvent:
+        EventService.retrieveDetailsByHash(data['hash']);
+        break;*/
       case UpdateType.updatePhotos:
-        var event = EventProvider().findEventByHash(snapshot['hash']);
+        var event = EventProvider().findEventByHash(data['hash']);
         if (event != null) {
           MediaService.retrieveImageUpdatesByHash(event);
         }
         break;
       case UpdateType.confirmEvent:
-        var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null && snapshot['phash'] != null) {
-          EventViewService.localConfirm(event, true, profileHash: snapshot['phash']);
+        var event = EventProvider().findEventByHash(data['hash']);
+        if (event != null && data['phash'] != null) {
+          EventViewService.localConfirm(event, true, profileHash: data['phash']);
         }
         break;
       case UpdateType.declineEvent:
-        var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null && snapshot['phash'] != null) {
-          EventViewService.localConfirm(event, false, profileHash: snapshot['phash']);
+        var event = EventProvider().findEventByHash(data['hash']);
+        if (event != null && data['phash'] != null) {
+          EventViewService.localConfirm(event, false, profileHash: data['phash']);
         }
         break;
       case UpdateType.deleteEvent:
-        var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null && snapshot['phash'] != null) {
-          EventService.localDelete(event, profileHash: snapshot['phash']);
+        var event = EventProvider().findEventByHash(data['hash']);
+        if (event != null && data['phash'] != null) {
+          EventViewService.localDelete(event, profileHash: data['phash']);
         }
         break;
       case UpdateType.profileDetails:
         //_handleProfileUpdate(snapshot['phash']);
         break;
       default:
-        debugPrint("default notification not catch $typeIndex");
-        break;
+        debugPrint("Type of update has not been catched");
     }
+  }
+
+  UpdateType? _findUpdateType(String typeString) {
+    for (var type in UpdateType.values) {
+      if (type.toString().split('.').last.toLowerCase() == typeString.toLowerCase()) {
+        return type;
+      }
+    }
+    return null;
   }
 }

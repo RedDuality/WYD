@@ -9,6 +9,7 @@ import 'package:wyd_front/state/user/user_provider.dart';
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
   final String eventHash;
+  DateTime updatedAt;
   int totalConfirmed;
   int totalProfiles;
   bool hasCachedMedia = false;
@@ -25,6 +26,7 @@ class Event extends CalendarEventData {
 
   Event({
     this.eventHash = "",
+    required this.updatedAt,
     required this.totalConfirmed,
     required this.totalProfiles,
     DateTime? date,
@@ -50,6 +52,7 @@ class Event extends CalendarEventData {
   factory Event.fromDto(RetrieveEventResponseDto dto) {
     return Event(
       eventHash: dto.hash,
+      updatedAt: dto.updatedAt,
       title: dto.title,
       startTime: dto.startTime,
       endTime: dto.endTime,

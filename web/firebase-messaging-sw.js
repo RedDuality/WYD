@@ -6,12 +6,12 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compa
 
 // --- 1. Default Firebase config (initial) ---
 let firebaseConfig = {
-    apiKey: 'AIzaSyBUPKovanIEvWa3oQtU3WP4jq8BMLKEzRg',
-    authDomain: 'wydaccounts.firebaseapp.com',
-    projectId: 'wydaccounts',
-    storageBucket: 'wydaccounts.firebasestorage.app',
-    messagingSenderId: '500769062162',
-    appId: '1:500769062162:web:8c7933c946f0cf331247cb',
+  apiKey: 'AIzaSyBUPKovanIEvWa3oQtU3WP4jq8BMLKEzRg',
+  authDomain: 'wydaccounts.firebaseapp.com',
+  projectId: 'wydaccounts',
+  storageBucket: 'wydaccounts.firebasestorage.app',
+  messagingSenderId: '500769062162',
+  appId: '1:500769062162:web:8c7933c946f0cf331247cb',
 };
 
 // --- 2. Initialize Firebase with default config ---
@@ -22,14 +22,19 @@ let messaging = firebase.messaging();
 
 // --- 4. Background message handler ---
 function setupBackgroundHandler() {
-    messaging.onBackgroundMessage((payload) => {
-        const notificationTitle = payload.notification?.title || 'Background Title';
-        const notificationOptions = {
-            body: payload.notification?.body || '',
-            icon: 'icons/favicon-96x96.png',
-        };
-        self.registration.showNotification(notificationTitle, notificationOptions);
-    });
+  messaging.onBackgroundMessage((payload) => {
+    // Log the full payload to inspect its structure
+    console.log('Received data-only message in the background:', payload.data);
+
+    // Get notification data from the 'data' payload
+    const data = payload.data;
+    const notificationTitle = data.title || 'Default Title';
+    const notificationOptions = {
+      body: data.body || '',
+      icon: 'icons/favicon-96x96.png',
+    };
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  });
 }
 
 // Initial setup

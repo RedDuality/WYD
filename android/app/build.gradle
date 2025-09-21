@@ -31,11 +31,19 @@ def getEnvProperties(envFile) {
     def properties = new Properties()
     if (envFile.exists()) {
         envFile.withReader { reader ->
-            properties.load(reader)
+            reader.eachLine { line ->
+                def trimmed = line.trim()
+                if (trimmed && !trimmed.startsWith("#") && trimmed.contains("=")) {
+                    def (key, value) = trimmed.split("=", 2)
+                    properties.setProperty(key.trim(), value.trim())
+                }
+            }
         }
     }
     return properties
+    
 }
+
 
 def envFile = file('../.env')
 def env = getEnvProperties(envFile)
@@ -83,11 +91,15 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
 
-            resValue "string", "site_url", env.getProperty("SITE_URL")
+            resValue "string", "site_url", "https://delightful-ocean-0ad217703.6.azurestaticapps.net/"
+
+            //resValue "string", "site_url", env.getProperty("SITE_URL")
         }
         debug {
+
+            resValue "string", "site_url", "https://delightful-ocean-0ad217703.6.azurestaticapps.net/"
             
-            resValue "string", "site_url", env.getProperty("SITE_URL")
+
         }
     }
 }
