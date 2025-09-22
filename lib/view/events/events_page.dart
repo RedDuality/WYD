@@ -1,7 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/service/event/event_service.dart';
+import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/state/event/event_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
@@ -37,7 +37,7 @@ class _EventsPageState extends State<EventsPage> {
     final DateTime initialDay = DateTime.now().firstDayOfWeek(start: WeekDays.monday).withoutTime;
     final endOfTheWeek = initialDay.add(const Duration(days: 7));
 
-    EventService.retrieveMultiple(initialDay, endOfTheWeek);
+    EventRetrieveService.retrieveMultiple(initialDay, endOfTheWeek);
   }
 
   void checkAndShowLinkEvent(BuildContext context) {
@@ -46,7 +46,7 @@ class _EventsPageState extends State<EventsPage> {
         var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
         if (eventHash != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-            final event = await EventService.retrieveAndAddByHash(eventHash);
+            final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
 
             EventViewService.initialize(event, null, event.currentConfirmed());
             if (context.mounted) {
@@ -102,7 +102,7 @@ class _EventsPageState extends State<EventsPage> {
         keepScrollOffset: true,
         onPageChange: (date, page) {
           var endDate = date.add(const Duration(days: 7));
-          EventService.retrieveMultiple(date, endDate);
+          EventRetrieveService.retrieveMultiple(date, endDate);
         },
       ),
       floatingActionButton: AddEventButton(

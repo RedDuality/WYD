@@ -100,6 +100,30 @@ class EventAPI {
     throw "Error while updating the event";
   }
 
+  Future confirm(String eventHash) async {
+    String url = '${functionUrl}Confirm';
+
+    var response = await client.get(
+      Uri.parse('$url/$eventHash'),
+    );
+    if (response.statusCode == 200) {
+      return;
+    }
+    throw "It was not possible to confirm the event";
+  }
+
+  Future decline(String eventHash) async {
+    String url = '${functionUrl}Decline';
+
+    var response = await client.get(
+      Uri.parse('$url/$eventHash'),
+    );
+    if (response.statusCode == 200) {
+      return;
+    }
+    throw "It was not possible to decline the event";
+  }
+
 /*
   Future<List<Media>> retrieveImageUpdatesFromHash(String eventHash) async {
     String url = '${functionUrl}Retrieve';
@@ -114,31 +138,6 @@ class EventAPI {
     throw "Error while fetching the event";
   }
 */
-  Future<RetrieveEventResponseDto> confirm(String eventHash) async {
-    String url = '${functionUrl}Confirm';
-
-    var response = await client.get(
-      Uri.parse('$url/$eventHash'),
-    );
-    if (response.statusCode == 200) {
-      RetrieveEventResponseDto event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
-      return event;
-    }
-    throw "It was not possible to confirm the event";
-  }
-
-  Future<RetrieveEventResponseDto> decline(String eventHash) async {
-    String url = '${functionUrl}Decline';
-
-    var response = await client.get(
-      Uri.parse('$url/$eventHash'),
-    );
-    if (response.statusCode == 200) {
-      RetrieveEventResponseDto event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
-      return event;
-    }
-    throw "It was not possible to decline the event";
-  }
 
   Future<RetrieveEventResponseDto> shareToProfiles(String eventhash, Set<int> profileIds) async {
     String url = '${functionUrl}Share';

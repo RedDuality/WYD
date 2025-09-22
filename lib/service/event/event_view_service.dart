@@ -3,7 +3,7 @@ import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/model/event_details.dart';
-import 'package:wyd_front/service/event/event_service.dart';
+import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
 import 'package:wyd_front/state/event/event_provider.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
@@ -15,45 +15,49 @@ class EventViewService {
   static void initialize(Event? initialEvent, DateTime? date, bool confirmed) {
     EventDetails? details;
     if (initialEvent != null) {
-      EventService.retrieveDetailsByHash(initialEvent.eventHash);
+      EventRetrieveService.retrieveDetailsByHash(initialEvent.eventHash);
 
       details = EventDetailsProvider().get(initialEvent.eventHash);
     }
     EventViewProvider().initialize(initialEvent, date, confirmed, details);
   }
 
-  static void localConfirm(Event event, bool confirmed, {String? profileHash}) {
-    confirmed ? event.confirm(profHash: profileHash) : event.dismiss(profHash: profileHash);
-  }
-
   static Future<Event> create(Event event) async {
     var createDto = CreateEventRequestDto.fromEvent(event);
     var createdEvent = await EventAPI().create(createDto);
-    return EventService.addEvent(createdEvent);
+    return EventRetrieveService.addEvent(createdEvent);
   }
 
   static Future<void> update(UpdateEventRequestDto updateDto) async {
     var eventDto = await EventAPI().update(updateDto);
-    EventService.addEvent(eventDto);
+    EventRetrieveService.addEvent(eventDto);
   }
 
-  static Future<void> confirm(Event event) async {
-    var updatedEvent = await EventAPI().confirm(event.eventHash);
-    EventService.addEvent(updatedEvent);
+  static void localConfirm(String eventHash, bool confirmed, {String? pHash}) {
+    var event = EventProvider().findEventByHash(eventHash)!;
+    String profileHash = pHash ?? UserProvider().getCurrentProfileHash();
 
-    localConfirm(event, true);
+    if (ProfileEventsProvider().confirm(eventHash, confirmed, profileHash)) {
+      event.totalConfirmed += confirmed ? 1 : -1;
+      EventViewProvider().updateCurrentEvent(event);
+    }
   }
 
-  static Future<void> decline(Event event) async {
-    var updatedEvent = await EventAPI().decline(event.eventHash);
-    EventService.addEvent(updatedEvent);
+  static Future<void> confirm(String eventHash) async {
+    await EventAPI().confirm(eventHash);
 
-    localConfirm(event, false);
+    localConfirm(eventHash, true);
+  }
+
+  static Future<void> decline(String eventHash) async {
+    await EventAPI().decline(eventHash);
+
+    localConfirm(eventHash, false);
   }
 
   static Future<void> shareToGroups(String eventHash, Set<int> groupsIds) async {
     var eventDto = await EventAPI().shareToProfiles(eventHash, groupsIds);
-    EventService.addEvent(eventDto);
+    EventRetrieveService.addEvent(eventDto);
   }
 
   static void localDelete(Event event, {String? profileHash}) {

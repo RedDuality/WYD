@@ -102,7 +102,7 @@ class Event extends CalendarEventData {
 
   ProfileEvent _getCurrentProfileEvent() {
     String profileHash = UserProvider().getCurrentProfileHash();
-    return ProfileEventsProvider().getSingle(eventHash, profileHash);
+    return ProfileEventsProvider().getSingle(eventHash, profileHash)!;
     //TODO return sharedWith.firstWhere((pe) => pe.profileHash == profileHash);
   }
 
@@ -122,18 +122,6 @@ class Event extends CalendarEventData {
         .map((profileEvent) => profileEvent.profileHash)
         .toSet();
     return result;
-  }
-
-  void confirm({String? profHash}) {
-    String profileHash = profHash ?? UserProvider().getCurrentProfileHash();
-    totalConfirmed += 1;
-    ProfileEventsProvider().confirm(eventHash, profileHash);
-  }
-
-  void dismiss({String? profHash}) {
-    String profileHash = profHash ?? UserProvider().getCurrentProfileHash();
-    totalConfirmed -= 1;
-    ProfileEventsProvider().dismiss(eventHash, profileHash);
   }
 
   // for delete

@@ -10,7 +10,7 @@ import 'package:wyd_front/state/event/event_provider.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/state/util/event_cache_manager.dart';
 
-class EventService {
+class EventRetrieveService {
 
   static void _addEvents(List<RetrieveEventResponseDto> dtos) {
     for (var dto in dtos) {

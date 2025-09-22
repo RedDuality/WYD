@@ -182,8 +182,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   if (!hasBeenChanged && exists && event.confirmed) // Decline
                     ElevatedButton(
                       onPressed: () async {
-                        var currentEvent = event.getEventWithCurrentFields();
-                        await EventViewService.decline(currentEvent);
+                        await EventViewService.decline(event.hash!);
                       },
                       child: Row(
                         children: [
@@ -200,8 +199,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   if (!hasBeenChanged && exists && !event.confirmed) // Confirm
                     ElevatedButton(
                       onPressed: () async {
-                        var currentEvent = event.getEventWithCurrentFields();
-                        await EventViewService.confirm(currentEvent);
+                        await EventViewService.confirm(event.hash!);
                       },
                       child: Row(
                         children: [

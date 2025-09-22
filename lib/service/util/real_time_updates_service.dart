@@ -7,7 +7,7 @@ import 'package:wyd_front/firebase_options.dart';
 import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
-import 'package:wyd_front/service/event/event_service.dart';
+import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/event_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
@@ -106,24 +106,19 @@ class RealTimeUpdateService {
 
     switch (updateType) {
       case UpdateType.createEvent:
-        EventService.retrieveEssentialByHash(data['hash']);
+        EventRetrieveService.retrieveEssentialByHash(data['hash']);
         break;
       case UpdateType.shareEvent:
-        EventService.retrieveSharedByHash(data['hash']);
+        EventRetrieveService.retrieveSharedByHash(data['hash']);
         break;
       case UpdateType.updateEssentialsEvent:
-        EventService.retrieveUpdateByHash(data['hash']);
+        EventRetrieveService.retrieveUpdateByHash(data['hash']);
         break;
       /*
       case UpdateType.updateDetailsEvent:
         EventService.retrieveDetailsByHash(data['hash']);
-        break;*/
-      case UpdateType.updatePhotos:
-        var event = EventProvider().findEventByHash(data['hash']);
-        if (event != null) {
-          MediaService.retrieveImageUpdatesByHash(event);
-        }
         break;
+      */
       case UpdateType.confirmEvent:
         var event = EventProvider().findEventByHash(data['hash']);
         if (event != null && data['phash'] != null) {
@@ -134,6 +129,13 @@ class RealTimeUpdateService {
         var event = EventProvider().findEventByHash(data['hash']);
         if (event != null && data['phash'] != null) {
           EventViewService.localConfirm(event, false, profileHash: data['phash']);
+        }
+        break;
+
+      case UpdateType.updatePhotos:
+        var event = EventProvider().findEventByHash(data['hash']);
+        if (event != null) {
+          MediaService.retrieveImageUpdatesByHash(event);
         }
         break;
       case UpdateType.deleteEvent:

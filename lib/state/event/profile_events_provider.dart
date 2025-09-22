@@ -15,7 +15,7 @@ class ProfileEventsProvider extends ChangeNotifier {
 
   Set<ProfileEvent> get(String eventHash) => _profileEvents[eventHash]!;
 
-  ProfileEvent getSingle(String eventHash, String profileHash) =>
+  ProfileEvent? getSingle(String eventHash, String profileHash) =>
       get(eventHash).firstWhere((pe) => pe.profileHash == profileHash);
 
   void add(String eventId, Set<ProfileEvent> newProfileEvents) {
@@ -41,15 +41,16 @@ class ProfileEventsProvider extends ChangeNotifier {
     _profileEvents[eventHash]!.removeWhere((pe) => pe.profileHash == profileHash);
   }
 
-  void confirm(String eventHash, String profileHash) {
+  bool confirm(String eventHash, bool confirmed, String profileHash) {
     var pe = getSingle(eventHash, profileHash);
-    pe.confirmed = true;
-    setSingle(eventHash, pe);
-  }
-
-  void dismiss(String eventHash, String profileHash) {
-    var pe = getSingle(eventHash, profileHash);
-    pe.confirmed = false;
-    setSingle(eventHash, pe);
+    if (pe != null) {
+      if (pe.confirmed != confirmed) {
+        pe.confirmed = confirmed;
+        setSingle(eventHash, pe);
+        return true;
+      }
+      return false;
+    }
+    return true;
   }
 }
