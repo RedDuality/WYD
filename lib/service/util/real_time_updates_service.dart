@@ -120,15 +120,13 @@ class RealTimeUpdateService {
         break;
       */
       case UpdateType.confirmEvent:
-        var event = EventProvider().findEventByHash(data['hash']);
-        if (event != null && data['phash'] != null) {
-          EventViewService.localConfirm(event, true, profileHash: data['phash']);
+        if (data['hash'] != null && data['phash'] != null) {
+          EventViewService.localConfirm(data['hash'], true, pHash: data['phash']);
         }
         break;
       case UpdateType.declineEvent:
-        var event = EventProvider().findEventByHash(data['hash']);
-        if (event != null && data['phash'] != null) {
-          EventViewService.localConfirm(event, false, profileHash: data['phash']);
+        if (data['hash'] != null && data['phash'] != null) {
+          EventViewService.localConfirm(data['hash'], false, pHash: data['phash']);
         }
         break;
 
