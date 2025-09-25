@@ -40,8 +40,7 @@ class MainProfileTile extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     if (exists) {
-                      showCustomPage(
-                          context, ProfileEditor(profile: profile!));
+                      showCustomPage(context, ProfileEditor(profile: profile!));
                     }
                   },
                   child: Row(
@@ -68,8 +67,7 @@ class MainProfileTile extends StatelessWidget {
                           children: [
                             Text(
                               exists ? profile!.name : "Loading...",
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
@@ -85,7 +83,7 @@ class MainProfileTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              if (exists) actions(profile!.eventHash),
+              if (exists) actions(profile!.id),
             ],
           ),
         ),
@@ -97,11 +95,12 @@ class MainProfileTile extends StatelessWidget {
     return Row(
       children: [
         if (profileHash != UserProvider().getCurrentProfileHash())
-          const SizedBox(width: 10),
-        if (profileHash != UserProvider().getCurrentProfileHash())
-          ElevatedButton(onPressed: () => {}, child: Text("Switch")),
-        const SizedBox(width: 10),
-        ElevatedButton(onPressed: () => {}, child: Text("Hide")),
+          Row(
+            children: [
+              const SizedBox(width: 10),
+              ElevatedButton(onPressed: () => {}, child: Text("Switch")),
+            ],
+          )
       ],
     );
   }

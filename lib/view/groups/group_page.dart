@@ -68,10 +68,10 @@ class GroupPage extends StatelessWidget {
             profileHash: community.getProfileHash(),
             type: ProfileTileType.view);
       case CommunityType.singlegroup:
-        return avatarTile(title: community.name);
+        return avatarTile(title: community.name!);
       case CommunityType.community:
         return expansionAvatarTile(
-            title: community.name, children: community.groups);
+            title: community.name!, children: community.groups);
     }
   }
 

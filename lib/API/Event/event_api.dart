@@ -139,7 +139,7 @@ class EventAPI {
   }
 */
 
-  Future<RetrieveEventResponseDto> shareToProfiles(String eventhash, Set<int> profileIds) async {
+  Future<RetrieveEventResponseDto> shareToProfiles(String eventhash, Set<String> profileIds) async {
     String url = '${functionUrl}Share';
 
     var response = await client.post(Uri.parse('$url/$eventhash'), body: json.encode(profileIds.toList()));

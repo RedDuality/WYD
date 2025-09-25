@@ -14,11 +14,11 @@ class User {
 
   User.fromDto(RetrieveUserResponseDto dto) {
     hash = dto.hash;
-    profileHashes = dto.profiles.map((profile) => profile.eventHash).toSet();
+    profileHashes = dto.profiles.map((profile) => profile.id).toSet();
     currentProfileHash =
         dto.profiles.firstWhere(
           (profile) => profile.mainProfile == true,
           orElse: () => dto.profiles.firstWhere((profile) => profile.role == Role.owner,),
-        ).eventHash;
+        ).id;
   }
 }

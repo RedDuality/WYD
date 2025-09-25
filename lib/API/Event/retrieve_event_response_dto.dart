@@ -30,7 +30,7 @@ class RetrieveEventResponseDto {
       title: json['title'] as String? ?? "",
       startTime: DateTime.parse(json['startTime'] as String),
       endTime: DateTime.parse(json['endTime'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String).toUtc(),
       totalConfirmed: json['totalConfirmed'] as int? ?? 1,
       totalProfiles: json['totalProfiles'] as int? ?? 1,
       details:

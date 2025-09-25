@@ -9,8 +9,7 @@ import 'package:wyd_front/view/settings/settings_page.dart';
 class ProfilesPage extends StatelessWidget {
   ProfilesPage({super.key});
 
-  final List<String> profileHashes =
-      UserProvider().getSecondaryProfilesHashes().toList();
+  final List<String> profileHashes = UserProvider().getSecondaryProfilesHashes().toList();
 
   @override
   Widget build(BuildContext context) {
@@ -71,21 +70,20 @@ class ProfilesPage extends StatelessWidget {
                       padding: EdgeInsets.all(16.0),
                       child: Text(
                         'Profilo corrente:',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                     ),
                     ProfileTile(
                       profileHash: UserProvider().getCurrentProfileHash(),
                       type: ProfileTileType.main,
+                      fetchDataFromServer: false, //TODO remove this
                     ),
                     if (profileHashes.isNotEmpty)
                       const Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Text(
                           'Altri profili:',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                       ),
                     if (profileHashes.isNotEmpty)

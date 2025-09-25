@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:wyd_front/API/Profile/profile_api.dart';
+import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 
@@ -8,51 +9,54 @@ class ProfileService {
 
   static final ProfileService _instance = ProfileService._privateConstructor();
 
-  factory ProfileService() {
-    return _instance;
-  }
+  factory ProfileService() => _instance;
 
-  final Set<String> queue = {};
+  final Set<String> _queue = {};
   Timer? _timer;
+  bool _isFetching = false;
 
-  void _startTimer(Function fun) {
-    if (_timer == null || !_timer!.isActive) {
-      _timer = Timer.periodic(Duration(milliseconds: 33), (timer) {
-        fun();
-      });
-    }
-  }
+  static const Duration debounceDuration = Duration(milliseconds: 100);
 
-  void _stopTimer() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  Future<List<Profile>?> searchByTag(String searchTag) async {
-    return ProfileAPI().searchByTag(searchTag);
-  }
-
-  Future<void> updateProfile(Profile profile) async {
-    await ProfileAPI().updateProfile(profile);
-    ProfilesProvider().addAll([profile]);
+  void _scheduleFetch() {
+    _timer?.cancel(); // Cancel any existing timer
+    _timer = Timer(debounceDuration, () async {
+      await _fetchProfiles();
+      if (_queue.isNotEmpty) {
+        _scheduleFetch(); // Reschedule if new requests came in during fetch
+      }
+    });
   }
 
   Future<void> _fetchProfiles() async {
-    if (queue.isNotEmpty) {
-      var request = ProfileAPI().retrieveFromHashes(queue.toList());
-      queue.clear();
-      final profiles = await request;
+    if (_isFetching || _queue.isEmpty) return;
+
+    _isFetching = true;
+    final hashes = _queue.toList();
+    _queue.clear();
+
+    try {
+      final dtos = await ProfileAPI().retrieveFromHashes(hashes);
+      final profiles = dtos.map((d) => Profile.fromDto(d)).toList();
       ProfilesProvider().addAll(profiles);
-    } else {
-      _stopTimer();
+    } finally {
+      _isFetching = false;
     }
   }
 
   void retrieveOrSynchProfile(Profile? profile, String hash) {
-    var anHourAgo = DateTime.now().subtract(Duration(hours: 1));
-    if (profile == null || profile.lastUpdatedTime.isBefore(anHourAgo)) {
-      queue.add(hash);
-      _startTimer(_fetchProfiles);
+    final anHourAgo = DateTime.now().subtract(Duration(hours: 1));
+    if (profile == null || profile.updatedAt.isBefore(anHourAgo)) {
+      _queue.add(hash);
+      _scheduleFetch();
     }
+  }
+
+  Future<void> updateProfile(UpdateProfileRequestDto updateDto) async {
+    await ProfileAPI().updateProfile(updateDto);
+  }
+
+  Future<List<Profile>> searchByTag(String searchTag) async {
+    final dtos = await ProfileAPI().searchByTag(searchTag);
+    return dtos.map((d) => Profile.fromDto(d)).toList();
   }
 }

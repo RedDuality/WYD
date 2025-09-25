@@ -11,6 +11,7 @@ class UserService {
     User user = User.fromDto(userDto);
 
     await UserProvider().updateUser(user);
+    
     ProfilesProvider().addAll(userDto.profiles);
   }
 }

@@ -1,30 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
+import 'package:wyd_front/API/User/retrieve_user_profile_response_dto.dart';
 import 'package:wyd_front/model/enum/profile_type.dart';
 import 'package:wyd_front/model/enum/role.dart';
 
 class Profile {
-  String eventHash = "";
+  String id = "";
   String tag = "";
   String name = "";
-  bool mainProfile = false;
+  DateTime updatedAt;
   String? blobHash = "";
   Color? color;
-  //ProfileType type;
-  Role? role;
-  DateTime lastUpdatedTime;
-
-//TODO mettere il default profile
+  Role role;
+  bool mainProfile = false;
 
   Profile({
-    this.name = "",
-    this.eventHash = "",
+    this.id = "",
     this.tag = "",
-    this.mainProfile = false,
+    this.name = "",
+    required this.updatedAt,
     this.blobHash = "",
     this.color,
-    //this.type = ProfileType.personal,
     this.role = Role.viewer,
-  }) : lastUpdatedTime = DateTime.now();
+    this.mainProfile = false,
+  });
+
+  factory Profile.fromDto(RetrieveProfileResponseDto dto) {
+    return Profile(
+      id: dto.id,
+      tag: dto.tag,
+      name: dto.name,
+      updatedAt: dto.updatedAt,
+    );
+  }
+
+  factory Profile.fromUserDto(RetrieveUserProfileResponseDto dto) {
+    return Profile(
+      id: dto.id,
+      tag: dto.tag,
+      name: dto.name,
+      updatedAt: dto.updatedAt,
+      blobHash: dto.blobHash,
+      color: dto.color != null ? Color(dto.color!) : null,
+      role: dto.role ?? Role.viewer,
+      mainProfile: dto.mainProfile ?? false,
+    );
+  }
 
   Profile copyWith({
     String? name,
@@ -34,59 +55,22 @@ class Profile {
     Color? color,
     ProfileType? type,
     Role? role,
-    DateTime? lastUpdatedTime,
+    DateTime? updatedAt,
   }) {
     return Profile(
-        eventHash: eventHash,
+        id: id,
         name: name ?? this.name,
         tag: tag ?? this.tag,
         mainProfile: mainProfile ?? this.mainProfile,
         blobHash: blobHash ?? this.blobHash,
         color: color ?? this.color,
-        //type: type ?? this.type,
-        role: role ?? this.role);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is Profile &&
-        other.eventHash == eventHash &&
-        other.lastUpdatedTime == lastUpdatedTime;
-  }
-
-  @override
-  int get hashCode => eventHash.hashCode;
-
-  // Factory constructor to create a Profile from JSON
-  factory Profile.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'hash': String? hash,
-        'tag': String? tag,
-        'name': String? name,
-        'mainProfile': bool? mainProfile,
-        'blobHash': String? blobHash,
-        //'type': int? type,
-        'role': int? role,
-        'color': int? color,
-      } =>
-        Profile(
-            eventHash: hash ?? "",
-            tag: tag ?? "",
-            name: name ?? "",
-            mainProfile: mainProfile ?? false,
-            blobHash: blobHash ?? "",
-            //type: ProfileType.values[type ?? 0],
-            color: color != null ? Color(color) : null,
-            role: role != null ? Role.values[role] : Role.viewer),
-      _ => throw const FormatException('Failed to decode Profile')
-    };
+        role: role ?? this.role,
+        updatedAt: updatedAt ?? this.updatedAt);
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'hash': eventHash,
+      'id': id,
       'name': name,
       'tag': tag,
       'color': color?.toARGB32(),

@@ -1,3 +1,4 @@
+import 'package:wyd_front/API/User/retrieve_user_profile_response_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 
 class RetrieveUserResponseDto {
@@ -23,7 +24,7 @@ class RetrieveUserResponseDto {
           currentProfileHash: "",
           profiles: profiles != null
               ? profiles.map((profile) {
-                  return Profile.fromJson(profile as Map<String, dynamic>);
+                  return Profile.fromUserDto(RetrieveUserProfileResponseDto.fromJson(profile as Map<String, dynamic>));
                 }).toList()
               : <Profile>[],
         ),

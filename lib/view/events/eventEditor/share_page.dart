@@ -22,7 +22,7 @@ class SharePage extends StatefulWidget {
 }
 
 class _SharePageState extends State<SharePage> {
-  Set<int> selectedGroups = {};
+  Set<String> selectedGroups = {};
   String currentProfileHash = UserProvider().getCurrentProfileHash();
 
   @override
@@ -101,7 +101,7 @@ class _SharePageState extends State<SharePage> {
 
   Widget _buildPersonalCommunityTile(BuildContext context, Community community) {
     final mainGroup = community.groups.first;
-    final profileHash = mainGroup.profileHashes.where((p) => p != currentProfileHash).first;
+    final profileHash = community.otherProfileId!;
     // TODO unite this in the profileTile
     // Listens for changes to a specific profile and rebuilds only when that profile is updated.
     final profile = context.select<ProfilesProvider, Profile?>(
@@ -124,20 +124,20 @@ class _SharePageState extends State<SharePage> {
         leading: CircleAvatar(
           backgroundImage: ImageProviderService.getImageProvider(),
         ),
-        title: Text(community.name),
+        title: Text(community.name!),
         trailing: _groupCheckBox(group));
   }
 
   Widget _buildMultiGroupCommunityTile(Community community) {
     return ExpansionTile(
       leading: CircleAvatar(backgroundImage: ImageProviderService.getImageProvider()),
-      title: Text(community.name),
+      title: Text(community.name!),
       children: community.groups.map((group) {
         return Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: ListTile(
                 leading: CircleAvatar(backgroundImage: ImageProviderService.getImageProvider()),
-                title: Text(group.name),
+                title: Text(group.name!),
                 trailing: _groupCheckBox(group)));
       }).toList(),
     );

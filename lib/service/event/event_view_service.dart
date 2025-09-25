@@ -55,7 +55,7 @@ class EventViewService {
     localConfirm(eventHash, false);
   }
 
-  static Future<void> shareToGroups(String eventHash, Set<int> groupsIds) async {
+  static Future<void> shareToGroups(String eventHash, Set<String> groupsIds) async {
     var eventDto = await EventAPI().shareToProfiles(eventHash, groupsIds);
     EventRetrieveService.addEvent(eventDto);
   }

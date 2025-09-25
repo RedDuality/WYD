@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/service/model/user_service.dart';
 
 class AuthenticationProvider with ChangeNotifier {
-  static final AuthenticationProvider _instance =
-      AuthenticationProvider._internal();
+  static final AuthenticationProvider _instance = AuthenticationProvider._internal();
 
   factory AuthenticationProvider({BuildContext? context}) {
     return _instance;
@@ -66,8 +65,7 @@ class AuthenticationProvider with ChangeNotifier {
 
   Future<void> register(String email, String password) async {
     try {
-      await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+      await _auth.createUserWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw e.message.toString();
@@ -92,8 +90,7 @@ class AuthenticationProvider with ChangeNotifier {
     try {
       final idToken = await _user?.getIdToken();
       if (idToken != null) {
-        await UserService()
-            .retrieveUser(); //sets user and profiles if successful
+        await UserService().retrieveUser(); //sets user and profiles if successful
         _isBackendVerified = true;
       } else {
         throw "It was not possible to login";

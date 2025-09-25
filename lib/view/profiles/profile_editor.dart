@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/profile_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/profile/profiles_provider.dart';
 
 class ProfileEditor extends StatefulWidget {
   final Profile profile;
@@ -37,9 +40,20 @@ class ProfileEditorState extends State<ProfileEditor> {
     super.dispose();
   }
 
-  void update(Profile updatedProfile) async {
-    await ProfileService().updateProfile(updatedProfile);
-    if (colorChanged) EventProvider().myUpdateFilter();
+  void update() async {
+    final profilesProvider = Provider.of<ProfilesProvider>(context, listen: false);
+    final eventProvider = Provider.of<EventProvider>(context, listen: false);
+
+    final updateDto = UpdateProfileRequestDto(
+      profileHash: widget.profile.id,
+      name: nameController.text != widget.profile.name ? nameController.text : null,
+      tag: tagController.text != widget.profile.tag ? tagController.text : null,
+      color: colorChanged ? _selectedColor.toARGB32() : null,
+    );
+    await ProfileService().updateProfile(updateDto);
+    var updatedProfile = widget.profile.copyWith(name: nameController.text, tag: tagController.text, color: _selectedColor);
+    profilesProvider.addAll([updatedProfile]);
+    if (colorChanged) eventProvider.myUpdateFilter();
   }
 
   @override
@@ -48,8 +62,7 @@ class ProfileEditorState extends State<ProfileEditor> {
       children: [
         Center(
           child: LayoutBuilder(builder: (context, constraints) {
-            double size =
-                constraints.maxWidth < 300 ? constraints.maxWidth : 300;
+            double size = constraints.maxWidth < 300 ? constraints.maxWidth : 300;
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -63,8 +76,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                       width: 3.5,
                     ),
                   ),
-                  child:
-                      SizedBox(width: size, height: size, child: profileImage),
+                  child: SizedBox(width: size, height: size, child: profileImage),
                 ),
                 SizedBox(height: 50),
                 Form(
@@ -140,13 +152,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                       ? ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              final updatedProfile = widget.profile.copyWith(
-                                name: nameController.text,
-                                tag: tagController.text,
-                                color: _selectedColor,
-                              );
-                              Navigator.pop(context);
-                              update(updatedProfile);
+                              update();
                             }
                           },
                           child: Text("Save"))
@@ -165,8 +171,7 @@ class ColorSelector extends StatefulWidget {
   final Color initialColor;
   final ValueChanged<Color> onColorSelected;
 
-  const ColorSelector(
-      {super.key, required this.initialColor, required this.onColorSelected});
+  const ColorSelector({super.key, required this.initialColor, required this.onColorSelected});
 
   @override
   State<ColorSelector> createState() => _ColorSelectorState();
@@ -212,9 +217,7 @@ class _ColorSelectorState extends State<ColorSelector> {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: selectedColor == color
-                  ? Colors.black
-                  : Colors.white, // outer ring
+              color: selectedColor == color ? Colors.black : Colors.white, // outer ring
             ),
             child: Center(
               child: Container(

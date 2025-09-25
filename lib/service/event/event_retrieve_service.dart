@@ -40,7 +40,7 @@ class EventRetrieveService {
 
     if (retrieveInterval != null) {
       var retrieveDto = RetrieveMultipleEventsRequestDto(
-          profileHashes: ProfilesProvider().getMyProfiles().map((profile) => profile.eventHash).toList(),
+          profileHashes: ProfilesProvider().getMyProfiles().map((profile) => profile.id).toList(),
           startTime: retrieveInterval.start,
           endTime: retrieveInterval.end);
 

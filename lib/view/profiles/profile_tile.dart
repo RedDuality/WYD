@@ -10,7 +10,7 @@ import 'package:wyd_front/view/profiles/tiles/view_profile_tile.dart';
 
 enum ProfileTileType { main, view, menu, header }
 
-class ProfileTile extends StatelessWidget {
+class ProfileTile extends StatefulWidget {
   final String profileHash;
   final ProfileTileType? type;
   final bool fetchDataFromServer;
@@ -23,15 +23,28 @@ class ProfileTile extends StatelessWidget {
   });
 
   @override
+  State<ProfileTile> createState() => _ProfileTileState();
+}
+
+class _ProfileTileState extends State<ProfileTile> {
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = ProfilesProvider().get(widget.profileHash);
+    if (widget.fetchDataFromServer) {
+      ProfileService().retrieveOrSynchProfile(profile, widget.profileHash);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Listens for changes to a specific profile and rebuilds only when that profile is updated.
     final profile = context.select<ProfilesProvider, Profile?>(
-      (provider) => provider.get(profileHash),
+      (provider) => provider.get(widget.profileHash),
     );
-    if (fetchDataFromServer) {
-      ProfileService().retrieveOrSynchProfile(profile, profileHash);
-    }
-    switch (type) {
+    
+    switch (widget.type) {
       case ProfileTileType.main:
         return MainProfileTile(profile: profile);
       case ProfileTileType.view:
