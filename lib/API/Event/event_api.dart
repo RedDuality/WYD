@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
+import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
@@ -139,10 +140,10 @@ class EventAPI {
   }
 */
 
-  Future<RetrieveEventResponseDto> shareToProfiles(String eventhash, Set<String> profileIds) async {
+  Future<RetrieveEventResponseDto> shareToProfiles(String eventhash, Set<ShareEventRequestDto> dtos) async {
     String url = '${functionUrl}Share';
 
-    var response = await client.post(Uri.parse('$url/$eventhash'), body: json.encode(profileIds.toList()));
+    var response = await client.post(Uri.parse('$url/$eventhash'), body: json.encode(dtos.toList()));
     if (response.statusCode == 200) {
       RetrieveEventResponseDto event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
       return event;

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
-import 'package:wyd_front/model/group.dart';
-import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
-import 'package:wyd_front/service/model/profile_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
-import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/view/profiles/profile_tile.dart';
 
 class SharePage extends StatefulWidget {
   final String eventTitle;
@@ -22,7 +20,7 @@ class SharePage extends StatefulWidget {
 }
 
 class _SharePageState extends State<SharePage> {
-  Set<String> selectedGroups = {};
+  Set<ShareEventRequestDto> selectedGroups = {};
   String currentProfileHash = UserProvider().getCurrentProfileHash();
 
   @override
@@ -59,7 +57,7 @@ class _SharePageState extends State<SharePage> {
               child: Consumer<CommunityProvider>(
                 builder: (context, communityProvider, child) {
                   return Column(
-                    children: communityProvider.communities!
+                    children: communityProvider.communities
                         .map((community) => _buildCommunityTile(context, community))
                         .toList(),
                   );
@@ -100,22 +98,14 @@ class _SharePageState extends State<SharePage> {
   }
 
   Widget _buildPersonalCommunityTile(BuildContext context, Community community) {
-    final mainGroup = community.groups.first;
+    final group = community.groups.first;
     final profileHash = community.otherProfileId!;
-    // TODO unite this in the profileTile
-    // Listens for changes to a specific profile and rebuilds only when that profile is updated.
-    final profile = context.select<ProfilesProvider, Profile?>(
-      (provider) => provider.get(profileHash),
+
+    return ProfileTile(
+      profileHash: profileHash,
+      type: ProfileTileType.view,
+      trailing: _groupCheckBox(group.id, community.id),
     );
-    ProfileService().retrieveOrSynchProfile(profile, profileHash);
-    if (profile == null) {
-      return ListTile(title: Text('Loading...'));
-    } else {
-      return ListTile(
-          leading: CircleAvatar(backgroundImage: ImageProviderService.getImageProvider()),
-          title: Text(profile.name),
-          trailing: _groupCheckBox(mainGroup));
-    }
   }
 
   Widget _buildSingleGroupCommunityTile(Community community) {
@@ -125,7 +115,7 @@ class _SharePageState extends State<SharePage> {
           backgroundImage: ImageProviderService.getImageProvider(),
         ),
         title: Text(community.name!),
-        trailing: _groupCheckBox(group));
+        trailing: _groupCheckBox(group.id, community.id));
   }
 
   Widget _buildMultiGroupCommunityTile(Community community) {
@@ -138,20 +128,21 @@ class _SharePageState extends State<SharePage> {
             child: ListTile(
                 leading: CircleAvatar(backgroundImage: ImageProviderService.getImageProvider()),
                 title: Text(group.name!),
-                trailing: _groupCheckBox(group)));
+                trailing: _groupCheckBox(group.id, community.id)));
       }).toList(),
     );
   }
 
-  Widget _groupCheckBox(Group group) {
+  Widget _groupCheckBox(String groupId, String communityId) {
+    var addDto = ShareEventRequestDto(communityId: communityId, groupId: groupId);
     return Checkbox(
-      value: selectedGroups.contains(group.id),
+      value: selectedGroups.contains(addDto),
       onChanged: (bool? value) {
         setState(() {
           if (value == true) {
-            selectedGroups.add(group.id);
+            selectedGroups.add(addDto);
           } else {
-            selectedGroups.remove(group.id);
+            selectedGroups.remove(addDto);
           }
         });
       },

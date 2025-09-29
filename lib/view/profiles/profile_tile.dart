@@ -8,17 +8,19 @@ import 'package:wyd_front/view/profiles/tiles/main_profile_tile.dart';
 import 'package:wyd_front/view/profiles/tiles/menu_profile_tile.dart';
 import 'package:wyd_front/view/profiles/tiles/view_profile_tile.dart';
 
-enum ProfileTileType { main, view, menu, header }
+enum ProfileTileType { main, view, eventMenu, header }
 
 class ProfileTile extends StatefulWidget {
   final String profileHash;
   final ProfileTileType? type;
+  final Widget? trailing;
   final bool fetchDataFromServer;
 
   const ProfileTile({
     super.key,
     required this.profileHash,
     required this.type,
+    this.trailing,
     this.fetchDataFromServer = true,
   });
 
@@ -48,8 +50,8 @@ class _ProfileTileState extends State<ProfileTile> {
       case ProfileTileType.main:
         return MainProfileTile(profile: profile);
       case ProfileTileType.view:
-        return ViewProfileTile(profile: profile);
-      case ProfileTileType.menu:
+        return ViewProfileTile(profile: profile, trailing: widget.trailing,);
+      case ProfileTileType.eventMenu:
         return MenuProfileTile(profile: profile);
       case ProfileTileType.header:
         return HeaderProfileTile(profile: profile);

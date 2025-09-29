@@ -11,6 +11,7 @@ class ProfileEventsProvider extends ChangeNotifier {
 
   ProfileEventsProvider._internal();
 
+
   final Map<String, Set<ProfileEvent>> _profileEvents = {};
 
   Set<ProfileEvent> get(String eventHash) => _profileEvents[eventHash]!;

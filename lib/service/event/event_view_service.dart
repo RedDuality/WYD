@@ -1,3 +1,4 @@
+import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/event.dart';
@@ -55,7 +56,7 @@ class EventViewService {
     localConfirm(eventHash, false);
   }
 
-  static Future<void> shareToGroups(String eventHash, Set<String> groupsIds) async {
+  static Future<void> shareToGroups(String eventHash, Set<ShareEventRequestDto> groupsIds) async {
     var eventDto = await EventAPI().shareToProfiles(eventHash, groupsIds);
     EventRetrieveService.addEvent(eventDto);
   }

@@ -5,7 +5,13 @@ import 'package:wyd_front/service/media/image_provider_service.dart';
 class ViewProfileTile extends StatelessWidget {
   final Profile? profile;
   final String? imageUrl;
-  const ViewProfileTile({super.key, required this.profile, this.imageUrl});
+  final Widget? trailing; 
+
+  const ViewProfileTile({
+    super.key, 
+    required this.profile, 
+    this.imageUrl,
+    this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +27,7 @@ class ViewProfileTile extends StatelessWidget {
           backgroundImage: ImageProviderService.getProfileImage(profile!.id, profile!.blobHash!),
         ),
         title: Text(profile!.name),
+        trailing: trailing,
       );
     }
   }

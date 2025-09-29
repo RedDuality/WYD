@@ -14,7 +14,11 @@ class CommunityProvider extends ChangeNotifier {
     _communities = [];
   }
 
-  List<Community>? get communities => _communities;
+  List<Community> get communities => _communities;
+
+  Community? find(String id) {
+    return _communities.firstWhere((c) => c.id == id);
+  }
 
   void add(Community community) {
     _communities.add(community);
@@ -31,8 +35,8 @@ class CommunityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateGroupTitle(int communityId, int groupIndex, String name) {
-    final community = _communities.firstWhere((c) => c.id == communityId);
+  void updateGroupTitle(String communityId, int groupIndex, String name) {
+    final community = find(communityId)!;
     community.groups[groupIndex].name = name;
     notifyListeners();
   }

@@ -62,15 +62,16 @@ class _SearchProfilePageState extends State<SearchProfilePage> {
                   ),
                 ],
               ),
-              TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text("Add"),
-                onPressed: () {
-                  CreateCommunityRequestDto community = CreateCommunityRequestDto(hashes: [value.id]);
+              if (!CommunityService().hasPersonalByProfileId(value.id))
+                TextButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add"),
+                  onPressed: () {
+                    CreateCommunityRequestDto community = CreateCommunityRequestDto(hashes: [value.id]);
 
-                  CommunityService().create(community);
-                },
-              ),
+                    CommunityService().create(community);
+                  },
+                ),
             ],
           ),
           onTap: () {},

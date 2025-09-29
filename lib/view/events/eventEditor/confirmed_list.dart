@@ -26,7 +26,7 @@ class ConfirmedList extends StatelessWidget {
           shrinkWrap: true,
           itemCount: confirmed.length,
           itemBuilder: (context, index) {
-            return ProfileTile(profileHash: confirmed[index].profileHash, type: ProfileTileType.menu);
+            return ProfileTile(profileHash: confirmed[index].profileHash, type: ProfileTileType.eventMenu);
           },
         ),
         //const Divider(),
@@ -40,7 +40,7 @@ class ConfirmedList extends StatelessWidget {
           itemBuilder: (context, index) {
             return ProfileTile(
               profileHash: toBeConfirmed[index].profileHash,
-              type: ProfileTileType.menu,
+              type: ProfileTileType.eventMenu,
             );
           },
         ),

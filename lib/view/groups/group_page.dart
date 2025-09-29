@@ -50,9 +50,9 @@ class GroupPage extends StatelessWidget {
       body: Consumer<CommunityProvider>(
         builder: (context, communityProvider, child) {
           return ListView.builder(
-            itemCount: communityProvider.communities!.length,
+            itemCount: communityProvider.communities.length,
             itemBuilder: (context, index) {
-              var community = communityProvider.communities![index];
+              var community = communityProvider.communities[index];
               return _buildCommunityTile(context, community);
             },
           );
