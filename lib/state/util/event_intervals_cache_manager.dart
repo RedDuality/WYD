@@ -3,25 +3,22 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
 
-class EventCacheManager {
+class EventIntervalsCacheManager {
   static const _databaseName = 'appointment_cache.db';
-  static const _tableName = 'intervals';
+  static const _tableName = 'cachedEventIntervals';
   static const _databaseVersion = 1;
 
-  static final EventCacheManager _instance = EventCacheManager._internal();
-  static Database? _database;
-  final List<DateTimeInterval> _cachedIntervals = [];
-
-  factory EventCacheManager() {
-    return _instance;
-  }
-
-  EventCacheManager._internal() {
+  static final EventIntervalsCacheManager _instance = EventIntervalsCacheManager._internal();
+  factory EventIntervalsCacheManager() => _instance;
+  EventIntervalsCacheManager._internal() {
     if (!kIsWeb) {
       _initDatabase();
       _loadIntervals();
     }
   }
+
+  static Database? _database;
+  final List<DateTimeInterval> _cachedIntervals = [];
 
   Future<void> _initDatabase() async {
     final databasePath = await getDatabasesPath();

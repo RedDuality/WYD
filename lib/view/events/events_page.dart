@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
-import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/event/calendar_view_week_adapter.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/event_tile.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view.dart';
@@ -20,6 +21,8 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
+  final weekViewAdapter = CalendarViewWeekAdapter();
+
   bool _dialogShown = false;
   late bool _private;
 
@@ -28,16 +31,16 @@ class _EventsPageState extends State<EventsPage> {
     super.initState();
     _private = widget.private;
 
-    EventProvider(initialPrivate: _private);
+    CalendarViewEventController(initialPrivate: _private);
 
     _retrieveCurrentViewEvent();
   }
 
-  void _retrieveCurrentViewEvent(){
-    final DateTime initialDay = DateTime.now().firstDayOfWeek(start: WeekDays.monday).withoutTime;
-    final endOfTheWeek = initialDay.add(const Duration(days: 7));
+  void _retrieveCurrentViewEvent() {
+    final range = weekViewAdapter.focusedRange;
 
-    EventRetrieveService.retrieveMultiple(initialDay, endOfTheWeek);
+    // The focusedRange is already a DateTimeRange(start, end)
+    EventRetrieveService.retrieveMultiple(range.start, range.end);
   }
 
   void checkAndShowLinkEvent(BuildContext context) {
@@ -78,7 +81,7 @@ class _EventsPageState extends State<EventsPage> {
               startDuration: startDuration,
               endDuration: endDuration);
         },
-        controller: EventProvider(),
+        controller: CalendarViewEventController(),
         showLiveTimeLineInAllDays: false,
         scrollOffset: 480.0,
         onEventTap: (events, date) {
@@ -101,9 +104,19 @@ class _EventsPageState extends State<EventsPage> {
         minuteSlotSize: MinuteSlotSize.minutes15,
         keepScrollOffset: true,
         onPageChange: (date, page) {
+          // 1. Update the adapter so listeners (like WeekEventsNotifier) are notified.
+          weekViewAdapter.updateFocusedDate(date);
+
+          // 2. ❌ REMOVE THE REDUNDANT CALL:
+          // var endDate = date.add(const Duration(days: 7));
+          // EventRetrieveService.retrieveMultiple(date, endDate);
+          // The WeekEventsNotifier should now handle this automatically.
+        },
+        /*
+        onPageChange: (date, page) {
           var endDate = date.add(const Duration(days: 7));
           EventRetrieveService.retrieveMultiple(date, endDate);
-        },
+        },*/
       ),
       floatingActionButton: AddEventButton(
         confirmed: widget.private,
@@ -131,7 +144,7 @@ class _EventsPageState extends State<EventsPage> {
                       onPressed: () {
                         setState(() {
                           _private = false;
-                          EventProvider().changeMode(_private);
+                          CalendarViewEventController().changeMode(_private);
                         });
                       },
                       icon: const Icon(Icons.event, size: 30, color: Colors.white),
@@ -159,7 +172,7 @@ class _EventsPageState extends State<EventsPage> {
                       onPressed: () {
                         setState(() {
                           _private = false;
-                          EventProvider().changeMode(_private);
+                          CalendarViewEventController().changeMode(_private);
                         });
                       },
                     ),
@@ -182,7 +195,7 @@ class _EventsPageState extends State<EventsPage> {
                       onPressed: () {
                         setState(() {
                           _private = true;
-                          EventProvider().changeMode(_private);
+                          CalendarViewEventController().changeMode(_private);
                         });
                       },
                       icon: const Icon(Icons.event_available, size: 30, color: Colors.white),
@@ -210,7 +223,7 @@ class _EventsPageState extends State<EventsPage> {
                       onPressed: () {
                         setState(() {
                           _private = true;
-                          EventProvider().changeMode(_private);
+                          CalendarViewEventController().changeMode(_private);
                         });
                       },
                     ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
 
 class CachedMediaProvider extends ChangeNotifier {
   static final CachedMediaProvider _instance = CachedMediaProvider._internal();
@@ -16,7 +16,7 @@ class CachedMediaProvider extends ChangeNotifier {
   Map<AssetEntity, bool>? get(String hash) => _cachedImagesMap[hash];
 
   void set(String eventHash, Set<AssetEntity> media) {
-    EventProvider().setHasCachedMedia(eventHash, true);
+    CalendarViewEventController().setHasCachedMedia(eventHash, true);
 
     var mediaMap = {for (var asset in media) asset: true};
     _cachedImagesMap[eventHash] = mediaMap;
@@ -24,7 +24,7 @@ class CachedMediaProvider extends ChangeNotifier {
   }
 
   void remove(String eventHash) {
-    EventProvider().setHasCachedMedia(eventHash, false);
+    CalendarViewEventController().setHasCachedMedia(eventHash, false);
 
     _cachedImagesMap[eventHash] = {};
     notifyListeners();

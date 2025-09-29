@@ -6,9 +6,9 @@ import 'package:wyd_front/model/util/date_time_interval.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
-import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
-import 'package:wyd_front/state/util/event_cache_manager.dart';
+import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class EventRetrieveService {
 
@@ -20,7 +20,7 @@ class EventRetrieveService {
 
   static Event addEvent(RetrieveEventResponseDto dto) {
     var event = Event.fromDto(dto);
-    EventProvider().addEvent(event);
+    CalendarViewEventController().addEvent(event);
 
     if (dto.details != null) {
       EventDetailsProvider().update(event.eventHash, dto.details!);
@@ -36,7 +36,7 @@ class EventRetrieveService {
 
   static Future<void> retrieveMultiple(DateTime startTime, DateTime endTime) async {
     var requestedInterval = DateTimeInterval(startTime, endTime);
-    var retrieveInterval = EventCacheManager().getMissingInterval(requestedInterval);
+    var retrieveInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
 
     if (retrieveInterval != null) {
       var retrieveDto = RetrieveMultipleEventsRequestDto(
@@ -46,7 +46,7 @@ class EventRetrieveService {
 
       var dtos = await EventAPI().listEvents(retrieveDto);
       _addEvents(dtos);
-      EventCacheManager().addInterval(retrieveInterval);
+      EventIntervalsCacheManager().addInterval(retrieveInterval);
     }
   }
 
@@ -69,7 +69,7 @@ class EventRetrieveService {
 
   //someone shared a link, have to also add on the backend
   static Future<Event> retrieveAndAddByHash(String eventHash) async {
-    var event = EventProvider().findEventByHash(eventHash);
+    var event = CalendarViewEventController().findEventByHash(eventHash);
     if (event == null) {
       var sharedEvent = await EventAPI().sharedWithHash(eventHash);
       return addEvent(sharedEvent);
@@ -81,7 +81,7 @@ class EventRetrieveService {
 
   //someone shared an event with profileId
   static Future<void> retrieveSharedByHash(String eventHash) async {
-    if (EventProvider().findEventByHash(eventHash) == null) {
+    if (CalendarViewEventController().findEventByHash(eventHash) == null) {
       var event = await EventAPI().retrieveEssentialsFromHash(eventHash);
       addEvent(event);
     } else {

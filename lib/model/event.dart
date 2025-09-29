@@ -46,7 +46,7 @@ class Event extends CalendarEventData {
           date: date ?? startTime.toLocal(),
           startTime: startTime.toLocal(),
           endTime: endTime.toLocal(),
-          endDate: endDate?.toLocal(),
+          endDate: endDate ?? endTime.toLocal(),
         );
 
   factory Event.fromDto(RetrieveEventResponseDto dto) {
@@ -58,6 +58,26 @@ class Event extends CalendarEventData {
       endTime: dto.endTime,
       totalProfiles: dto.totalProfiles,
       totalConfirmed: dto.totalConfirmed,
+    );
+  }
+
+  factory Event.fromDbMap(Map<String, dynamic> map) {
+    // Convert Unix timestamps (milliseconds since epoch) back to DateTime
+    final startTime = DateTime.fromMillisecondsSinceEpoch(map['startTime'] as int).toLocal();
+    final endTime = DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int).toLocal();
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toLocal();
+
+    return Event(
+      eventHash: map['eventHash'] as String,
+      updatedAt: updatedAt,
+      title: map['title'] as String,
+      startTime: startTime,
+      endTime: endTime,
+      totalProfiles: map['totalProfiles'] as int,
+      totalConfirmed: map['totalConfirmed'] as int,
+      // Pass the DateTime properties to the CalendarEventData super constructor
+      date: startTime.toLocal(),
+      endDate: endTime.toLocal(),
     );
   }
 

@@ -6,7 +6,7 @@ import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
-import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
@@ -35,7 +35,7 @@ class EventViewService {
   }
 
   static void localConfirm(String eventHash, bool confirmed, {String? pHash}) {
-    var event = EventProvider().findEventByHash(eventHash)!;
+    var event = CalendarViewEventController().findEventByHash(eventHash)!;
     String profileHash = pHash ?? UserProvider().getCurrentProfileHash();
 
     if (ProfileEventsProvider().confirm(eventHash, confirmed, profileHash)) {
@@ -70,7 +70,7 @@ class EventViewService {
 
       ProfileEventsProvider().remove(event.eventHash);
       EventDetailsProvider().remove(event.eventHash);
-      EventProvider().remove(event);
+      CalendarViewEventController().remove(event);
     }
   }
 

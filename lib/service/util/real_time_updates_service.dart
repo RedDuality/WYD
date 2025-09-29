@@ -8,7 +8,7 @@ import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class RealTimeUpdateService {
@@ -131,13 +131,13 @@ class RealTimeUpdateService {
         break;
 
       case UpdateType.updatePhotos:
-        var event = EventProvider().findEventByHash(data['hash']);
+        var event = CalendarViewEventController().findEventByHash(data['hash']);
         if (event != null) {
           MediaService.retrieveImageUpdatesByHash(event);
         }
         break;
       case UpdateType.deleteEvent:
-        var event = EventProvider().findEventByHash(data['hash']);
+        var event = CalendarViewEventController().findEventByHash(data['hash']);
         if (event != null && data['phash'] != null) {
           EventViewService.localDelete(event, profileHash: data['phash']);
         }

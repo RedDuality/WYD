@@ -4,7 +4,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/util/permission_service.dart';
-import 'package:wyd_front/state/event/event_provider.dart';
+import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
 
 class MediaAutoSelectService {
@@ -14,13 +14,13 @@ class MediaAutoSelectService {
       var now = DateTime.now();
 
       //including the ones that ends right now
-      var eventsNotChecked = EventProvider()
+      var eventsNotChecked = CalendarViewEventController()
           .allEvents
           .whereType<Event>()
           .where((event) => !event.endTime!.isAfter(now) && event.endTime!.isAfter(lastCheckedTime));
 
       var eventsToCheckInTheFuture =
-          EventProvider().allEvents.whereType<Event>().where((event) => event.endTime!.isAfter(now));
+          CalendarViewEventController().allEvents.whereType<Event>().where((event) => event.endTime!.isAfter(now));
 
       for (Event event in eventsNotChecked) {
         retrieveShootedPhotos(event.eventHash);
@@ -112,7 +112,7 @@ class MediaAutoSelectService {
   }
 
   static Future<void> mockRetrieveShootedPhotos(String eventHash) async {
-    var event = EventProvider().findEventByHash(eventHash);
+    var event = CalendarViewEventController().findEventByHash(eventHash);
     if (event != null) {
       var mockAssetEntities = List.generate(
         10,
@@ -131,7 +131,7 @@ class MediaAutoSelectService {
   }
 
   static Future<void> retrieveShootedPhotos(String eventHash) async {
-    var event = EventProvider().findEventByHash(eventHash);
+    var event = CalendarViewEventController().findEventByHash(eventHash);
     if (event != null) {
       var photosDuringEvent = await retrieveImagesByTime(event.startTime!.toUtc(), event.endTime!.toUtc());
 

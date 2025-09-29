@@ -2,18 +2,15 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/media/media_auto_select_service.dart';
 
-class EventProvider extends EventController {
-  // Private static instance
-  static EventProvider? _instance;
+class CalendarViewEventController extends EventController {
+  static CalendarViewEventController? _instance;
 
-  // Factory constructor returns the singleton instance
-  factory EventProvider({bool initialPrivate = true}) {
-    _instance ??= EventProvider._internal(initialPrivate: initialPrivate);
+  factory CalendarViewEventController({bool initialPrivate = true}) {
+    _instance ??= CalendarViewEventController._internal(initialPrivate: initialPrivate);
     return _instance!;
   }
 
-  // Private named constructor
-  EventProvider._internal({required bool initialPrivate})
+  CalendarViewEventController._internal({required bool initialPrivate})
       : confirmedView = initialPrivate,
         super(
           eventFilter: (date, events) => _instance!.myEventFilter(date, events),
@@ -60,7 +57,7 @@ class EventProvider extends EventController {
   }
 
   void setHasCachedMedia(String eventHash, bool hasCachedMedia) {
-    Event event = EventProvider().findEventByHash(eventHash)!;
+    Event event = CalendarViewEventController().findEventByHash(eventHash)!;
     event.hasCachedMedia = hasCachedMedia;
     addEvent(event);
   }
