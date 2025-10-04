@@ -4,7 +4,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/util/permission_service.dart';
-import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
 
 class MediaAutoSelectService {

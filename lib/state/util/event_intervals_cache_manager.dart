@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
@@ -18,7 +19,7 @@ class EventIntervalsCacheManager {
   }
 
   static Database? _database;
-  final List<DateTimeInterval> _cachedIntervals = [];
+  final List<DateTimeRange> _cachedIntervals = [];
 
   Future<void> _initDatabase() async {
     final databasePath = await getDatabasesPath();
@@ -45,8 +46,8 @@ class EventIntervalsCacheManager {
   }
 
   /// Adds a new interval to the cache, merging it with any existing overlaps and saving it to the database.
-  Future<void> addInterval(DateTimeInterval newInterval) async {
-    DateTimeInterval mergedInterval = newInterval;
+  Future<void> addInterval(DateTimeRange newInterval) async {
+    DateTimeRange mergedInterval = newInterval;
 
     if (kIsWeb) {
       final overlappingIntervals = _cachedIntervals.where((interval) => interval.overlapsWith(newInterval)).toList();
@@ -89,9 +90,9 @@ class EventIntervalsCacheManager {
 
   /// Gets the first and last dates of the first missing interval.
   ///
-  /// Returns a [DateTimeInterval] representing the missing data, or `null`
+  /// Returns a [DateTimeRange] representing the missing data, or `null`
   /// if the entire requested range is already in the cache.
-  DateTimeInterval? getMissingInterval(DateTimeInterval requestedInterval) {
+  DateTimeRange? getMissingInterval(DateTimeRange requestedInterval) {
     // Check if the requested interval is fully covered by existing cache.
     final fullyCovered = _cachedIntervals.any((interval) {
       return !requestedInterval.start.isBefore(interval.start) && !requestedInterval.end.isAfter(interval.end);
@@ -134,7 +135,7 @@ class EventIntervalsCacheManager {
     }
 
     if (missingStart.isBefore(missingEnd)) {
-      return DateTimeInterval(missingStart, missingEnd);
+      return DateTimeRange(start: missingStart, end: missingEnd);
     }
 
     return null;

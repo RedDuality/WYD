@@ -8,7 +8,7 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
-import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
 import 'package:wyd_front/view/events/eventEditor/confirmed_list.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';

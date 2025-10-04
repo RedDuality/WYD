@@ -1,38 +1,21 @@
 
-class DateTimeInterval {
-  final DateTime start;
-  final DateTime end;
+// Define an extension to add your custom methods to DateTimeRange
+import 'package:flutter/material.dart';
 
-  DateTimeInterval(this.start, this.end);
+extension DateTimeInterval on DateTimeRange {
 
-  // A helper method to check if this interval overlaps with another.
-  bool overlapsWith(DateTimeInterval other) {
+  bool overlapsWith(DateTimeRange other) {
     return start.isBefore(other.end) && end.isAfter(other.start);
   }
 
-  DateTimeInterval merge(DateTimeInterval other) {
+  /// Merges this range with another, assuming they overlap.
+  DateTimeRange merge(DateTimeRange other) {
     final newStart = start.isBefore(other.start) ? start : other.start;
     final newEnd = end.isAfter(other.end) ? end : other.end;
-    return DateTimeInterval(newStart, newEnd);
+
+    return DateTimeRange(start: newStart, end: newEnd); 
   }
 
-/*
-  Map<String, dynamic> toJson() {
-    return {
-      'start': start.toIso8601String(),
-      'end': end.toIso8601String(),
-    };
-  }
-
-  factory DateTimeInterval.fromJson(Map<String, dynamic> json) {
-    return DateTimeInterval(
-      DateTime.parse(json['start']),
-      DateTime.parse(json['end']),
-    );
-  }
-*/
-  
-  // Convert to a format suitable for database insertion.
   Map<String, dynamic> toDatabaseMap() {
     return {
       'start_timestamp': start.millisecondsSinceEpoch,
@@ -40,11 +23,10 @@ class DateTimeInterval {
     };
   }
 
-  // Create from a database map.
-  factory DateTimeInterval.fromDatabaseMap(Map<String, dynamic> map) {
-    return DateTimeInterval(
-      DateTime.fromMillisecondsSinceEpoch(map['start_timestamp']),
-      DateTime.fromMillisecondsSinceEpoch(map['end_timestamp']),
+  static DateTimeRange fromDatabaseMap(Map<String, dynamic> map) {
+    return DateTimeRange(
+      start: DateTime.fromMillisecondsSinceEpoch(map['start_timestamp']),
+      end: DateTime.fromMillisecondsSinceEpoch(map['end_timestamp']),
     );
   }
 }

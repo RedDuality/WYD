@@ -8,7 +8,7 @@ import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class RealTimeUpdateService {
@@ -32,19 +32,22 @@ class RealTimeUpdateService {
       throw "User is not authenticated. Cannot store FCM token.";
     }
 
-    // Request user permissions for notifications
-    await FirebaseMessaging.instance.requestPermission();
+    try {
+      await FirebaseMessaging.instance.requestPermission();
 
-    // (if !kisWeb) FCM token retrieval is independent of notification permissions
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    if (fcmToken != null) {
-      var requestDto = StoreFcmTokenRequestDto(
-        uuid: user.hash,
-        platform: getPlatform(),
-        fcmToken: fcmToken,
-      );
+      // (if !kisWeb) FCM token retrieval is independent of notification permissions
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        var requestDto = StoreFcmTokenRequestDto(
+          uuid: user.hash,
+          platform: getPlatform(),
+          fcmToken: fcmToken,
+        );
 
-      await UserAPI().storeFCMToken(requestDto);
+        await UserAPI().storeFCMToken(requestDto);
+      }
+    } catch (e) {
+      debugPrint('User did not gave permission for notifications');
     }
   }
 

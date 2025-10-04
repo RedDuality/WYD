@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:wyd_front/model/event.dart';
@@ -14,12 +15,14 @@ class EventStorage {
   factory EventStorage() => _instance;
   EventStorage._internal();
   // --------------------------------
-  
-  // StreamController notifies ALL listeners that the underlying data has changed.
-  // This is the efficient way to signal DB changes without holding all data in RAM.
-  final _eventUpdateController = StreamController<void>.broadcast();
 
-  Stream<void> get updates => _eventUpdateController.stream;
+  // StreamController notifies ALL listeners that the underlying data in range has changed.
+  // This is the efficient way to signal DB changes without holding all data in RAM.
+  final _rangeUpdateController = StreamController<DateTimeRange>.broadcast();
+  final _eventUpdateController = StreamController<Event>.broadcast();
+
+  Stream<DateTimeRange> get ranges => _rangeUpdateController.stream;
+  Stream<Event> get updates => _eventUpdateController.stream;
 
   // In-memory cache for web/other environments where sqflite isn't used
   final Map<String, Event> _inMemoryStorage = {};
@@ -50,13 +53,13 @@ class EventStorage {
             endTime INTEGER,      -- Storing as Unix timestamp (milliseconds)
             updatedAt INTEGER,    -- Storing as Unix timestamp
             totalConfirmed INTEGER,
-            totalProfiles INTEGER
+            totalProfiles INTEGER,
+            hasCachedMedia INTEGER DEFAULT 0
           )
         ''');
       },
     );
   }
-
 
   /// Converts the Dart Event object to a Map for SQLite.
   Map<String, dynamic> _toMap(Event event) {
@@ -69,6 +72,7 @@ class EventStorage {
       'updatedAt': event.updatedAt.millisecondsSinceEpoch,
       'totalConfirmed': event.totalConfirmed,
       'totalProfiles': event.totalProfiles,
+      'hasCachedMedia': event.hasCachedMedia ? 1 : 0,
     };
   }
 
@@ -85,13 +89,13 @@ class EventStorage {
     } else {
       _inMemoryStorage[event.eventHash] = event;
     }
-    
+
     // Send a signal that data has been modified.
-    _eventUpdateController.sink.add(null);
+    _eventUpdateController.sink.add(event);
   }
 
   /// Saves multiple events and emits a single change event.
-  Future<void> saveMultiple(List<Event> events) async {
+  Future<void> saveMultiple(List<Event> events, DateTimeRange range) async {
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -110,23 +114,20 @@ class EventStorage {
         _inMemoryStorage[event.eventHash] = event;
       }
     }
-    
+
     // Send a single signal after all saves are complete.
-    _eventUpdateController.sink.add(null);
+    _rangeUpdateController.sink.add(range);
   }
 
   /// Given a period, this function returns events that overlaps it.
   /// Overlap logic: (E_end > P_start) AND (E_start < P_end)
-  Future<List<Event>> getEventsInTimeRange({
-    required DateTime periodStartTime,
-    required DateTime periodEndTime,
-  }) async {
+  Future<List<Event>> getEventsInTimeRange(DateTimeRange range) async {
     if (kIsWeb) {
       return _inMemoryStorage.values.where((event) {
         final eventEndTime = event.endTime?.millisecondsSinceEpoch;
         final eventStartTime = event.startTime?.millisecondsSinceEpoch;
-        final periodStartMs = periodStartTime.millisecondsSinceEpoch;
-        final periodEndMs = periodEndTime.millisecondsSinceEpoch;
+        final periodStartMs = range.start.millisecondsSinceEpoch;
+        final periodEndMs = range.end.millisecondsSinceEpoch;
 
         if (eventEndTime == null || eventStartTime == null) return false;
 
@@ -137,8 +138,8 @@ class EventStorage {
       final db = await database;
       if (db == null) return [];
 
-      final int startTimestamp = periodStartTime.millisecondsSinceEpoch;
-      final int endTimestamp = periodEndTime.millisecondsSinceEpoch;
+      final int startTimestamp = range.start.millisecondsSinceEpoch;
+      final int endTimestamp = range.end.millisecondsSinceEpoch;
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
@@ -153,11 +154,12 @@ class EventStorage {
     }
   }
 
+
   Future<Event?> getEventByHash(String eventHash) async {
     if (kIsWeb) {
       return _inMemoryStorage[eventHash];
     }
-  
+
     final db = await database;
     if (db == null) return null;
 
@@ -173,8 +175,9 @@ class EventStorage {
     return null;
   }
   
+
   // This should be called when the application is shutting down
   void close() {
-    _eventUpdateController.close();
+    _rangeUpdateController.close();
   }
 }

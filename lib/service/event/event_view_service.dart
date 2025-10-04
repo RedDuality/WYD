@@ -5,8 +5,9 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
+import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
-import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
@@ -26,12 +27,12 @@ class EventViewService {
   static Future<Event> create(Event event) async {
     var createDto = CreateEventRequestDto.fromEvent(event);
     var createdEvent = await EventAPI().create(createDto);
-    return EventRetrieveService.addEvent(createdEvent);
+    return EventStorageService.addEvent(createdEvent);
   }
 
   static Future<void> update(UpdateEventRequestDto updateDto) async {
     var eventDto = await EventAPI().update(updateDto);
-    EventRetrieveService.addEvent(eventDto);
+    EventStorageService.addEvent(eventDto);
   }
 
   static void localConfirm(String eventHash, bool confirmed, {String? pHash}) {
@@ -58,7 +59,7 @@ class EventViewService {
 
   static Future<void> shareToGroups(String eventHash, Set<ShareEventRequestDto> groupsIds) async {
     var eventDto = await EventAPI().shareToProfiles(eventHash, groupsIds);
-    EventRetrieveService.addEvent(eventDto);
+    EventStorageService.addEvent(eventDto);
   }
 
   static void localDelete(Event event, {String? profileHash}) {

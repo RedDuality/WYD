@@ -4,7 +4,7 @@ import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/profile_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/event/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 
 class ProfileEditor extends StatefulWidget {

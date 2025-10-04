@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/state/event/abstract_event_range_controller.dart'; 
+import 'package:wyd_front/state/trash/event_range_controller.dart';
 
-class WeekViewAdapter implements AbstractEventRangeController {
-  
+class WeekViewAdapter implements EventRangeController {
   // 💡 Composition: Hold a reference to the external library controller.
-  //final WeekViewController _controller; 
+  //final WeekViewController _controller;
   final _controller;
 
   WeekViewAdapter(this._controller);
@@ -12,7 +11,7 @@ class WeekViewAdapter implements AbstractEventRangeController {
   // 1. Implementing Listenable methods by delegating to the wrapped controller
   @override
   void addListener(VoidCallback listener) => _controller.addListener(listener);
-  
+
   @override
   void removeListener(VoidCallback listener) => _controller.removeListener(listener);
 
@@ -23,6 +22,7 @@ class WeekViewAdapter implements AbstractEventRangeController {
     return _controller.weekRange();
   }
 
+/*
   // 3. Delegating control methods
   @override
   void prev() => _controller.prev();
@@ -34,7 +34,7 @@ class WeekViewAdapter implements AbstractEventRangeController {
   void reset() => _controller.reset();
 
   @override
-  void dispose() => _controller.dispose();
+  void dispose() => _controller.dispose();*/
 }
 
 // 💡 Usage: 
