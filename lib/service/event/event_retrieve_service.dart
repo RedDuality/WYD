@@ -6,18 +6,8 @@ import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
-import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class EventRetrieveService {
-
-// TODO remove this function
-  static Future<void> retrieveMultiple(DateTimeRange requestedInterval) async {
-    var retrieveInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
-
-    if (retrieveInterval != null) {
-      retrieveFromServer(retrieveInterval);
-    }
-  }
 
   static Future<List<RetrieveEventResponseDto>> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
