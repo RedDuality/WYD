@@ -17,7 +17,6 @@ class EventStorage {
   // --------------------------------
 
   // StreamController notifies ALL listeners that the underlying data in range has changed.
-  // This is the efficient way to signal DB changes without holding all data in RAM.
   final _rangeUpdateController = StreamController<DateTimeRange>.broadcast();
   final _eventUpdateController = StreamController<Event>.broadcast();
 
@@ -119,6 +118,30 @@ class EventStorage {
     _rangeUpdateController.sink.add(range);
   }
 
+  /// Removes an event by its hash and signals a range update.
+  Future<void> remove(Event event) async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return;
+
+      // Delete the event from the SQLite database
+      await db.delete(
+        _tableName,
+        where: 'eventHash = ?',
+        whereArgs: [event.eventHash],
+      );
+    } else {
+      // Remove the event from the in-memory cache
+      _inMemoryStorage.remove(event.eventHash);
+    }
+
+// TODO get the update correctly
+    _rangeUpdateController.sink.add(DateTimeRange(
+      start: DateTime.fromMillisecondsSinceEpoch(0),
+      end: DateTime.now().add(const Duration(days: 365 * 10)),
+    ));
+  }
+
   /// Given a period, this function returns events that overlaps it.
   /// Overlap logic: (E_end > P_start) AND (E_start < P_end)
   Future<List<Event>> getEventsInTimeRange(DateTimeRange range) async {
@@ -154,6 +177,35 @@ class EventStorage {
     }
   }
 
+  /// Retrieves the next events that directly follows the given time
+  Future<Event?> getNextEvent(DateTime time) async {
+    final targetMs = time.millisecondsSinceEpoch;
+
+    if (kIsWeb) {
+      // Filter and sort events that start after the given time
+      final events = _inMemoryStorage.values
+          .where((e) => e.startTime != null && e.startTime!.millisecondsSinceEpoch > targetMs)
+          .cast<Event>()
+          .toList();
+
+      // Return the event with the earliest start time
+      return events.isEmpty ? null : events.reduce((a, b) => a.startTime!.isBefore(b.startTime!) ? a : b);
+    }
+
+    // SQLite implementation
+    final db = await database;
+    if (db == null) return null;
+
+    final maps = await db.query(
+      _tableName,
+      where: 'startTime > ?',
+      whereArgs: [targetMs],
+      orderBy: 'startTime ASC',
+      limit: 1,
+    );
+
+    return maps.isNotEmpty ? Event.fromDbMap(maps.first) : null;
+  }
 
   Future<Event?> getEventByHash(String eventHash) async {
     if (kIsWeb) {
@@ -174,7 +226,6 @@ class EventStorage {
     }
     return null;
   }
-  
 
   // This should be called when the application is shutting down
   void close() {

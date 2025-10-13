@@ -7,7 +7,7 @@ import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
-import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
@@ -35,13 +35,14 @@ class EventViewService {
     EventStorageService.addEvent(eventDto);
   }
 
-  static void localConfirm(String eventHash, bool confirmed, {String? pHash}) {
-    var event = CalendarViewEventController().findEventByHash(eventHash)!;
+  static Future<void> localConfirm(String eventHash, bool confirmed, {String? pHash}) async {
+    var event = await EventStorage().getEventByHash(eventHash);
     String profileHash = pHash ?? UserProvider().getCurrentProfileHash();
 
     if (ProfileEventsProvider().confirm(eventHash, confirmed, profileHash)) {
-      event.totalConfirmed += confirmed ? 1 : -1;
+      event!.totalConfirmed += confirmed ? 1 : -1;
       EventViewProvider().updateCurrentEvent(event);
+      EventStorage().saveEvent(event);
     }
   }
 
@@ -71,7 +72,7 @@ class EventViewService {
 
       ProfileEventsProvider().remove(event.eventHash);
       EventDetailsProvider().remove(event.eventHash);
-      CalendarViewEventController().remove(event);
+      EventStorage().remove(event);
     }
   }
 

@@ -7,8 +7,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
+import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
-import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
 import 'package:wyd_front/view/events/eventEditor/confirmed_list.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
@@ -49,7 +49,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
   }
 
   Future<void> _deleteEvent(EventViewProvider provider) async {
-    Event? deleteEvent = CalendarViewEventController().findEventByHash(provider.hash!);
+    Event? deleteEvent = await EventStorage().getEventByHash(provider.hash!);
     if (deleteEvent != null) {
       EventViewService.delete(deleteEvent).then(
         (value) {

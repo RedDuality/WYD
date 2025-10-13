@@ -19,7 +19,7 @@ class EventViewProvider extends ChangeNotifier {
   factory EventViewProvider() {
     return _instance;
   }
-
+  
   Event? originalEvent;
 
   String? hash;

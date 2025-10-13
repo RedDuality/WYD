@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/service/util/permission_service.dart';
-import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
 
 class MediaAutoSelectService {
@@ -12,26 +14,24 @@ class MediaAutoSelectService {
     if (!kIsWeb) {
       DateTime lastCheckedTime = await _loadLastCheckedTime();
       var now = DateTime.now();
-
       //including the ones that ends right now
-      var eventsNotChecked = CalendarViewEventController()
-          .allEvents
-          .whereType<Event>()
-          .where((event) => !event.endTime!.isAfter(now) && event.endTime!.isAfter(lastCheckedTime));
-
-      var eventsToCheckInTheFuture =
-          CalendarViewEventController().allEvents.whereType<Event>().where((event) => event.endTime!.isAfter(now));
+      var sinceLastTime = DateTimeRange(start: lastCheckedTime, end: now);
+      var eventsNotChecked = await EventStorageService.retrieveEventsInTimeRange(sinceLastTime);
 
       for (Event event in eventsNotChecked) {
         retrieveShootedPhotos(event.eventHash);
       }
 
-      for (Event event in eventsToCheckInTheFuture) {
-        addTimer(event);
-      }
-
-      _saveDateTime(time: now);
+      _startNextTimer(now);
     }
+  }
+
+  static Future<void> _startNextTimer(DateTime now) async {
+    var nextEvent = await EventStorage().getNextEvent(now);
+
+    if (nextEvent != null) addTimer(nextEvent);
+
+    _saveDateTime(time: now);
   }
 
   static void addTimer(Event event) {
@@ -112,7 +112,7 @@ class MediaAutoSelectService {
   }
 
   static Future<void> mockRetrieveShootedPhotos(String eventHash) async {
-    var event = CalendarViewEventController().findEventByHash(eventHash);
+    var event = await EventStorage().getEventByHash(eventHash);
     if (event != null) {
       var mockAssetEntities = List.generate(
         10,
@@ -131,7 +131,7 @@ class MediaAutoSelectService {
   }
 
   static Future<void> retrieveShootedPhotos(String eventHash) async {
-    var event = CalendarViewEventController().findEventByHash(eventHash);
+    var event = await EventStorage().getEventByHash(eventHash);
     if (event != null) {
       var photosDuringEvent = await retrieveImagesByTime(event.startTime!.toUtc(), event.endTime!.toUtc());
 

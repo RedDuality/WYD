@@ -123,7 +123,6 @@ class Event extends CalendarEventData {
   ProfileEvent _getCurrentProfileEvent() {
     String profileHash = UserProvider().getCurrentProfileHash();
     return ProfileEventsProvider().getSingle(eventHash, profileHash)!;
-    //TODO return sharedWith.firstWhere((pe) => pe.profileHash == profileHash);
   }
 
   bool currentConfirmed() {

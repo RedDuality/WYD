@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
-import 'package:wyd_front/state/util/uri_provider.dart';
+import 'package:wyd_front/state/util/uri_service.dart';
 import 'package:wyd_front/view/authentication/login.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/widget/loading.dart';
@@ -19,9 +18,9 @@ GoRouter createRouter(AuthenticationProvider authProvider) {
       if (isAuthenticated) {
         return isLoggingIn ? '/' : null;
       } else {
-        final uriProvider = context.read<UriProvider>();
+
         String originalUri = state.uri.toString();
-        uriProvider.setUri(originalUri);
+        UriService.saveUri(originalUri);
 
         return isLoggingIn ? null : '/login';
       }
@@ -47,8 +46,7 @@ GoRouter createRouter(AuthenticationProvider authProvider) {
         path: '/shared',
         builder: (BuildContext context, GoRouterState state) {
           String? uri = state.uri.toString();
-          final uriProvider = context.watch<UriProvider>();
-          uriProvider.setUri(uri);
+          UriService.saveUri(uri);
           return authProvider.isLoading
               ? const LoadingPage()
               : const HomePage();

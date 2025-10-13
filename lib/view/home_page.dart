@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wyd_front/service/model/community_service.dart';
 import 'package:wyd_front/service/util/notification_service.dart';
 import 'package:wyd_front/service/util/permission_service.dart';
 import 'package:wyd_front/service/media/media_auto_select_service.dart';
 import 'package:wyd_front/service/util/real_time_updates_service.dart';
-import 'package:wyd_front/state/util/uri_provider.dart';
+import 'package:wyd_front/state/util/uri_service.dart';
 import 'package:wyd_front/view/events/events_page.dart';
 import 'package:wyd_front/view/groups/group_page.dart';
 
@@ -19,12 +18,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late int selectedIndex;
+  bool private = true;
+  String uri = "/";
+  bool isUriLoaded = false;
 
   @override
   void initState() {
     super.initState();
     selectedIndex = 0;
 
+    _initializeServices();
+    _loadUri();
+  }
+
+  Future<void> _initializeServices() async {
     //TODO check the double photo retriever init
     /*
     EventService.retrieveMultiple().then((value) {
@@ -43,27 +50,28 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final uriProvider = Provider.of<UriProvider>(context);
-
-    String uri = uriProvider.uri;
-    Widget page;
-    bool private = true;
+  Future<void> _loadUri() async {
+    uri = await UriService.getUri();
     if (uri.isNotEmpty) {
-      String destination = uri.split('?').first.replaceAll('/', '');
-      switch (destination) {
-        case 'shared':
-          private = false;
-          break;
-        default:
-          break;
+      final destination = uri.split('?').first.replaceAll('/', '');
+      if (destination == 'shared') {
+        private = false;
       }
-      // Handle the shared link scenario
+      await UriService.saveUri("");
     }
 
-    uriProvider.setUri("");
+    setState(() {
+      isUriLoaded = true;
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    if (!isUriLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    Widget page;
     switch (selectedIndex) {
       case 0:
         page = EventsPage(private: private, uri: uri);

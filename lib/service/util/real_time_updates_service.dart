@@ -8,7 +8,7 @@ import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class RealTimeUpdateService {
@@ -104,43 +104,46 @@ class RealTimeUpdateService {
     });
   }
 
-  void handleUpdate(Map<String, dynamic> data) {
+  Future<void> handleUpdate(Map<String, dynamic> data) async {
     var updateType = _findUpdateType(data['type']);
 
     switch (updateType) {
+      /*
       case UpdateType.createEvent:
-        EventRetrieveService.retrieveEssentialByHash(data['hash']);
+        EventRetrieveService.checkAndRetrieveEssentialByHash(data['id']);
         break;
       case UpdateType.shareEvent:
-        EventRetrieveService.retrieveSharedByHash(data['hash']);
+        EventRetrieveService.retrieveSharedByHash(data['id']);
         break;
+      */
       case UpdateType.updateEssentialsEvent:
-        EventRetrieveService.retrieveUpdateByHash(data['hash']);
+      
+        var updatedTime = DateTime.parse(data['time'] as String).toUtc();
+        EventRetrieveService.checkAndRetrieveEssentialByHash(data['id'], updatedTime);
         break;
       /*
       case UpdateType.updateDetailsEvent:
-        EventService.retrieveDetailsByHash(data['hash']);
+        EventService.retrieveDetailsByHash(data['id']);
         break;
       */
       case UpdateType.confirmEvent:
-        if (data['hash'] != null && data['phash'] != null) {
-          EventViewService.localConfirm(data['hash'], true, pHash: data['phash']);
+        if (data['id'] != null && data['profileId'] != null) {
+          EventViewService.localConfirm(data['id'], true, pHash: data['profileId']);
         }
         break;
       case UpdateType.declineEvent:
-        if (data['hash'] != null && data['phash'] != null) {
-          EventViewService.localConfirm(data['hash'], false, pHash: data['phash']);
+        if (data['id'] != null && data['profileId'] != null) {
+          EventViewService.localConfirm(data['id'], false, pHash: data['profileId']);
         }
         break;
-
       case UpdateType.updatePhotos:
-        var event = CalendarViewEventController().findEventByHash(data['hash']);
+        var event = await EventStorage().getEventByHash(data['id']);
         if (event != null) {
           MediaService.retrieveImageUpdatesByHash(event);
         }
         break;
       case UpdateType.deleteEvent:
-        var event = CalendarViewEventController().findEventByHash(data['hash']);
+        var event = await EventStorage().getEventByHash(data['id']);
         if (event != null && data['phash'] != null) {
           EventViewService.localDelete(event, profileHash: data['phash']);
         }

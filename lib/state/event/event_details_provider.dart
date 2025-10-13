@@ -3,6 +3,7 @@ import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/model/media.dart';
 
 class EventDetailsProvider extends ChangeNotifier {
+  
   static final EventDetailsProvider _instance = EventDetailsProvider._internal();
 
   factory EventDetailsProvider() {

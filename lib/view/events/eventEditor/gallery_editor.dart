@@ -49,7 +49,7 @@ class GalleryEditor extends StatelessWidget {
         height: 20,
       ),
       //On Devices, look for images
-      //TODO: show only if after the event
+      //TODO: show image lookup only if after the event
       if (!kIsWeb)
         Column(
           children: [

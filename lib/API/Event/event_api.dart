@@ -65,7 +65,7 @@ class EventAPI {
 
   //automatically add the event
   Future<RetrieveEventResponseDto> sharedWithHash(String eventHash) async {
-    String url = '${functionUrl}Shared';
+    String url = '${functionUrl}RetrieveFromShared';
 
     var response = await client.get(Uri.parse('$url/$eventHash'));
     if (response.statusCode == 200) {

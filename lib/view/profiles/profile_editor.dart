@@ -4,7 +4,7 @@ import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/profile_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/trash/calendar_view_event_controller.dart';
+import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 
 class ProfileEditor extends StatefulWidget {
@@ -42,7 +42,7 @@ class ProfileEditorState extends State<ProfileEditor> {
 
   void update() async {
     final profilesProvider = Provider.of<ProfilesProvider>(context, listen: false);
-    final eventProvider = Provider.of<CalendarViewEventController>(context, listen: false);
+    final eventProvider = Provider.of<CurrentEventsProvider>(context, listen: false);
 
     final updateDto = UpdateProfileRequestDto(
       profileHash: widget.profile.id,
@@ -51,9 +51,12 @@ class ProfileEditorState extends State<ProfileEditor> {
       color: colorChanged ? _selectedColor.toARGB32() : null,
     );
     await ProfileService().updateProfile(updateDto);
-    var updatedProfile = widget.profile.copyWith(name: nameController.text, tag: tagController.text, color: _selectedColor);
+    var updatedProfile =
+        widget.profile.copyWith(name: nameController.text, tag: tagController.text, color: _selectedColor);
     profilesProvider.addAll([updatedProfile]);
-    if (colorChanged) eventProvider.myUpdateFilter();
+
+    // TODO
+    if (colorChanged) eventProvider.refresh();
   }
 
   @override
