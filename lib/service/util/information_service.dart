@@ -51,7 +51,7 @@ class InformationService {
                     padding:
                         EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     decoration: BoxDecoration(
-                      color: Colors.black.withAlpha((255 * 0.7).round()),
+                      color: Colors.black.withAlpha((255 * 0.5).round()),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Row(

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/state/authentication_provider.dart';
+import 'package:wyd_front/state/user/authentication_provider.dart';
 
 class AuthInterceptor extends InterceptorContract {
   @override
@@ -23,7 +23,5 @@ class AuthInterceptor extends InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse(
-          {required BaseResponse response}) async =>
-      response;
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async => response;
 }

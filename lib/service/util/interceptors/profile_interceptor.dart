@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 
 class ProfileInterceptor extends InterceptorContract {
+  
   @override
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     try {

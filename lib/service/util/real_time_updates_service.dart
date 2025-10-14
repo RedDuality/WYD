@@ -1,93 +1,167 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:wyd_front/API/User/store_fcm_token_request_dto.dart';
+import 'package:wyd_front/API/User/user_api.dart';
+import 'package:wyd_front/firebase_options.dart';
 import 'package:wyd_front/model/enum/update_type.dart';
-import 'package:wyd_front/service/model/event_service.dart';
-import 'package:wyd_front/state/event_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/service/media/media_service.dart';
+import 'package:wyd_front/service/event/event_retrieve_service.dart';
+import 'package:wyd_front/state/event/event_storage.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 
 class RealTimeUpdateService {
-  static final RealTimeUpdateService _instance =
-      RealTimeUpdateService._internal();
+  static final RealTimeUpdateService _instance = RealTimeUpdateService._internal();
 
   factory RealTimeUpdateService({BuildContext? context}) {
     return _instance;
   }
 
-  late String deviceId;
-  late DateTime creationTime;
-
   RealTimeUpdateService._internal();
 
-  bool firstread = true;
+  void initialize() {
+    _storeTokenOnStartup();
+    _monitorTokenRefreshes();
+    _monitorMessages();
+  }
 
-  Future<void> start() async {
+  Future<void> _storeTokenOnStartup() async {
     var user = UserProvider().user;
-    if (user == null) throw "User is null";
+    if (user == null) {
+      throw "User is not authenticated. Cannot store FCM token.";
+    }
 
-    creationTime = DateTime.now();
+    try {
+      await FirebaseMessaging.instance.requestPermission();
 
-    FirebaseFirestore.instance
-        .collection(user.hash)
-        .orderBy('timestamp', descending: true)
-        .limit(1)
-        .snapshots()
-        .listen((snapshot) {
-      if (firstread) {
-        firstread = false;
-        return;
+      // (if !kisWeb) FCM token retrieval is independent of notification permissions
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        var requestDto = StoreFcmTokenRequestDto(
+          uuid: user.hash,
+          platform: getPlatform(),
+          fcmToken: fcmToken,
+        );
+
+        await UserAPI().storeFCMToken(requestDto);
       }
-      var update = snapshot.docs[0];
+    } catch (e) {
+      debugPrint('User did not gave permission for notifications');
+    }
+  }
 
-      //Yes, current device will update 2 times
-      handleUpdate(update);
+  static String getPlatform() {
+    if (kIsWeb) {
+      return 'web';
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'android';
+      case TargetPlatform.iOS:
+      //return 'ios';
+      case TargetPlatform.macOS:
+      //return 'macos';
+      case TargetPlatform.windows:
+      //return 'windows';
+      case TargetPlatform.linux:
+      //return 'linux';
+      default:
+        throw UnsupportedError(
+          'Your platform is not yet supported.',
+        );
+    }
+  }
+
+  void _monitorTokenRefreshes() {
+    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
+      var user = UserProvider().user;
+      if (user != null) {
+        var requestDto = StoreFcmTokenRequestDto(
+          uuid: user.hash,
+          platform: DefaultFirebaseOptions.currentPlatform.toString(),
+          fcmToken: fcmToken,
+        );
+        await UserAPI().storeFCMToken(requestDto);
+        debugPrint("FCM Token refreshed and stored: $fcmToken");
+      }
+    }).onError((err) {
+      throw ("Error monitoring token refresh: $err");
     });
   }
 
-  void handleUpdate(QueryDocumentSnapshot<Map<String, dynamic>> snapshot) {
-    var typeIndex = snapshot['type'];
-    switch (UpdateType.values[typeIndex]) {
-      case UpdateType.newEvent:
-        EventService().retrieveNewByHash(snapshot['hash']);
+  void _monitorMessages() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      debugPrint('Got a message whilst in the foreground!');
+      debugPrint('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        debugPrint('Message notification title: ${message.notification!.title}');
+        debugPrint('Message notification body: ${message.notification!.body}');
+        debugPrint('Message notification body: ${message.notification!}');
+      }
+      handleUpdate(message.data);
+    });
+  }
+
+  Future<void> handleUpdate(Map<String, dynamic> data) async {
+    var updateType = _findUpdateType(data['type']);
+
+    switch (updateType) {
+      /*
+      case UpdateType.createEvent:
+        EventRetrieveService.checkAndRetrieveEssentialByHash(data['id']);
         break;
       case UpdateType.shareEvent:
-        EventService().retrieveSharedByHash(snapshot['hash']);
+        EventRetrieveService.retrieveSharedByHash(data['id']);
         break;
-      case UpdateType.updateEvent:
-        EventService().retrieveUpdateByHash(snapshot['hash']);
+      */
+      case UpdateType.updateEssentialsEvent:
+      
+        var updatedTime = DateTime.parse(data['time'] as String).toUtc();
+        EventRetrieveService.checkAndRetrieveEssentialByHash(data['id'], updatedTime);
         break;
-      case UpdateType.updatePhotos:
-        var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null) {
-          EventService().retrieveImageUpdatesByHash(event);
-        }
+      /*
+      case UpdateType.updateDetailsEvent:
+        EventService.retrieveDetailsByHash(data['id']);
         break;
+      */
       case UpdateType.confirmEvent:
-        var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null && snapshot['phash'] != null) {
-          EventService()
-              .localConfirm(event, true, profileHash: snapshot['phash']);
+        if (data['id'] != null && data['profileId'] != null) {
+          EventViewService.localConfirm(data['id'], true, pHash: data['profileId']);
         }
         break;
       case UpdateType.declineEvent:
-        var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null && snapshot['phash'] != null) {
-          EventService()
-              .localConfirm(event, false, profileHash: snapshot['phash']);
+        if (data['id'] != null && data['profileId'] != null) {
+          EventViewService.localConfirm(data['id'], false, pHash: data['profileId']);
+        }
+        break;
+      case UpdateType.updatePhotos:
+        var event = await EventStorage().getEventByHash(data['id']);
+        if (event != null) {
+          MediaService.retrieveImageUpdatesByHash(event);
         }
         break;
       case UpdateType.deleteEvent:
-        var event = EventProvider().findEventByHash(snapshot['hash']);
-        if (event != null && snapshot['phash'] != null) {
-          EventService()
-              .localDelete(event, profileHash: snapshot['phash']);
+        var event = await EventStorage().getEventByHash(data['id']);
+        if (event != null && data['phash'] != null) {
+          EventViewService.localDelete(event, profileHash: data['phash']);
         }
         break;
       case UpdateType.profileDetails:
         //_handleProfileUpdate(snapshot['phash']);
         break;
       default:
-        debugPrint("default notification not catch $typeIndex");
-        break;
+        debugPrint("Type of update has not been catched");
     }
+  }
+
+  UpdateType? _findUpdateType(String typeString) {
+    for (var type in UpdateType.values) {
+      if (type.toString().split('.').last.toLowerCase() == typeString.toLowerCase()) {
+        return type;
+      }
+    }
+    return null;
   }
 }

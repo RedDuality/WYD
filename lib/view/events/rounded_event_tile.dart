@@ -82,7 +82,8 @@ class RoundedEventTile extends StatelessWidget {
                           overflow: TextOverflow.fade,
                         ),
                       ),
-                    /*
+                    /* 
+                    // description
                     if (description?.isNotEmpty ?? false)
                       Expanded(
                         child: Padding(

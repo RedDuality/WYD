@@ -1,11 +1,13 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/service/model/event_service.dart';
-import 'package:wyd_front/state/event_provider.dart';
+import 'package:wyd_front/service/event/event_retrieve_service.dart';
+import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/state/event/range_controller.dart';
+import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/event_tile.dart';
-import 'package:wyd_front/view/events/eventEditor/event_detail.dart';
+import 'package:wyd_front/view/events/eventEditor/event_view.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/widget/util/add_event_button.dart';
 
@@ -19,6 +21,9 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
+  late RangeController rangeController;
+  late CurrentEventsProvider eventsController;
+
   bool _dialogShown = false;
   late bool _private;
 
@@ -26,32 +31,34 @@ class _EventsPageState extends State<EventsPage> {
   void initState() {
     super.initState();
     _private = widget.private;
-    EventProvider(initialPrivate: _private);
+    rangeController = RangeController(DateTime.now(), 7);
+    eventsController = CurrentEventsProvider(rangeController, _private);
+    _checkAndShowLinkEvent(context);
   }
 
-  void checkAndShowLinkEvent(BuildContext context) {
-    if (!widget.private) {
-      if (!_dialogShown) {
-        var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
-        if (eventHash != null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            final event = await EventService().retrieveAndAddByHash(eventHash);
+  void _checkAndShowLinkEvent(BuildContext context) {
+    if (!widget.private && !_dialogShown) {
+      var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
+      if (eventHash != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
 
-            EventService().initializeDetails(event, null, event.confirmed());
-            if (context.mounted) {
-              showCustomDialog(context, EventDetail());
-            }
-          });
-          _dialogShown = true;
-        }
+          EventViewService.initialize(event, null, event.currentConfirmed());
+          if (context.mounted) {
+            showCustomDialog(
+                context,
+                EventView(
+                  eventHash: event.eventHash,
+                ));
+          }
+        });
+        _dialogShown = true;
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    checkAndShowLinkEvent(context);
-
     return Scaffold(
       appBar: Header(title: _private ? 'Agenda' : 'Eventi', actions: actions()),
       body: WeekView(
@@ -63,23 +70,32 @@ class _EventsPageState extends State<EventsPage> {
               startDuration: startDuration,
               endDuration: endDuration);
         },
-        controller: EventProvider(),
+        controller: eventsController,
         showLiveTimeLineInAllDays: false,
         scrollOffset: 480.0,
         onEventTap: (events, date) {
           Event selectedEvent = events.whereType<Event>().toList().first;
 
-          EventService().initializeDetails(selectedEvent, null, widget.private);
-          
-          showCustomDialog(context, EventDetail());
+          EventViewService.initialize(selectedEvent, null, widget.private);
+
+          showCustomDialog(
+              context,
+              EventView(
+                eventHash: selectedEvent.eventHash,
+              ));
         },
         onDateLongPress: (date) {
-          EventService().initializeDetails(null, date, widget.private);
+          EventViewService.initialize(null, date, widget.private);
 
-          showCustomDialog(context, EventDetail());
+          showCustomDialog(context, EventView());
         },
+        startDay: WeekDays.monday,
         minuteSlotSize: MinuteSlotSize.minutes15,
         keepScrollOffset: true,
+        onPageChange: (date, page) {
+          // Update the range so listeners (like CurrentViewEventsProvider) are notified.
+          rangeController.setRange(date, 7);
+        },
       ),
       floatingActionButton: AddEventButton(
         confirmed: widget.private,
@@ -107,16 +123,14 @@ class _EventsPageState extends State<EventsPage> {
                       onPressed: () {
                         setState(() {
                           _private = false;
-                          EventProvider().changeMode(_private);
+                          eventsController.changeMode(_private);
                         });
                       },
-                      icon: const Icon(Icons.event,
-                          size: 30, color: Colors.white),
+                      icon: const Icon(Icons.event, size: 30, color: Colors.white),
                       label: showText
                           ? const Text(
                               'Eventi',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
+                              style: TextStyle(fontSize: 20, color: Colors.white),
                             )
                           : const SizedBox.shrink(),
                       style: TextButton.styleFrom(
@@ -137,7 +151,7 @@ class _EventsPageState extends State<EventsPage> {
                       onPressed: () {
                         setState(() {
                           _private = false;
-                          EventProvider().changeMode(_private);
+                          eventsController.changeMode(_private);
                         });
                       },
                     ),
@@ -160,16 +174,14 @@ class _EventsPageState extends State<EventsPage> {
                       onPressed: () {
                         setState(() {
                           _private = true;
-                          EventProvider().changeMode(_private);
+                          eventsController.changeMode(_private);
                         });
                       },
-                      icon: const Icon(Icons.event_available,
-                          size: 30, color: Colors.white),
+                      icon: const Icon(Icons.event_available, size: 30, color: Colors.white),
                       label: showText
                           ? const Text(
                               'Agenda',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
+                              style: TextStyle(fontSize: 20, color: Colors.white),
                             )
                           : const SizedBox.shrink(),
                       style: TextButton.styleFrom(
@@ -190,7 +202,7 @@ class _EventsPageState extends State<EventsPage> {
                       onPressed: () {
                         setState(() {
                           _private = true;
-                          EventProvider().changeMode(_private);
+                          eventsController.changeMode(_private);
                         });
                       },
                     ),
