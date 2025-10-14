@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wyd_front/API/Test/test_api.dart';
 import 'package:wyd_front/view/widget/util/version_detail.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -16,8 +17,7 @@ class SettingsPage extends StatelessWidget {
           children: [
             SettingsTile(
               title: "Language",
-              action:
-                  ElevatedButton(onPressed: () => {}, child: Text("Italiano")),
+              action: ElevatedButton(onPressed: () => {}, child: Text("Italiano")),
             ),
             SettingsTile(
               title: "Dark mode",
@@ -25,13 +25,15 @@ class SettingsPage extends StatelessWidget {
             ),
             SettingsTile(
               title: "Locale",
-              action:
-                  ElevatedButton(onPressed: () => {}, child: Text("+1:00 CET")),
+              action: ElevatedButton(onPressed: () => {}, child: Text("+1:00 CET")),
             ),
             SettingsTile(
               title: "Scansione automatica della galleria",
-              action:
-                  ElevatedButton(onPressed: () => {}, child: Text("Attiva")),
+              action: ElevatedButton(onPressed: () => {}, child: Text("Attiva")),
+            ),
+            SettingsTile(
+              title: "Test",
+              action: ElevatedButton(onPressed: () => {TestAPI().testNotifications()}, child: Text("Test")),
             ),
             VersionDetail(),
           ],

@@ -1,1 +1,1 @@
-enum CommunityType { personal, singlegroup, community }
+enum CommunityType { community, singlegroup, personal }

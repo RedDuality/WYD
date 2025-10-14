@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/state/profiles_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/view/events/rounded_event_tile.dart';
 
 class EventTile<T> extends StatelessWidget {
@@ -21,19 +20,10 @@ class EventTile<T> extends StatelessWidget {
   final DateTime endDuration;
 
   List<Color> getProfileColors(Event event) {
-    var profileHashes = event.sharedWith
-        .map((e) => e.profileHash)
-        .toSet();
-    List<String> ownedProfiles = profileHashes
-        .intersection(UserProvider().getSecondaryProfilesHashes()).toList();
-    String currentProfileHash = UserProvider().getCurrentProfileHash();
-    if(profileHashes.intersection({currentProfileHash}).isNotEmpty) {
-      ownedProfiles.insertAll(0, [currentProfileHash, currentProfileHash]);
-    }
-
+    var profilesConfirmed = event.profilesThatConfirmed();
     final provider = ProfilesProvider();
 
-    return ownedProfiles.map((hash) {
+    return profilesConfirmed.map((hash) {
       final profile = provider.get(hash);
       return profile?.color ?? Colors.purple;
     }).toList();
@@ -50,7 +40,6 @@ class EventTile<T> extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.0),
             title: "${event.getConfirmTitle()}${event.title}",
             totalEvents: events.length,
-            description: event.description,
             padding: const EdgeInsets.fromLTRB(2.0, 0.0, 3.0, 3.0),
             margin: const EdgeInsets.all(1.5),
             backgroundColor: event.color,
@@ -60,7 +49,7 @@ class EventTile<T> extends StatelessWidget {
             descriptionStyle: event.descriptionStyle,
           ),
           // Notification dot if there are new images
-          if (event.cachedNewImages.isNotEmpty)
+          if (event.hasCachedMedia)
             Positioned(
               top: 4.0,
               right: 3.0,

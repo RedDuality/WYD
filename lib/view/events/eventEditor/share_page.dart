@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
-import 'package:wyd_front/model/group.dart';
-import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/model/event_service.dart';
-import 'package:wyd_front/service/model/profile_service.dart';
-import 'package:wyd_front/service/util/image_service.dart';
+import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/community_provider.dart';
-import 'package:wyd_front/state/profiles_provider.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/view/profiles/profile_tile.dart';
 
 class SharePage extends StatefulWidget {
   final String eventTitle;
   final String eventHash;
 
-  const SharePage(
-      {super.key, required this.eventTitle, required this.eventHash});
+  const SharePage({super.key, required this.eventTitle, required this.eventHash});
 
   @override
   State<SharePage> createState() => _SharePageState();
 }
 
 class _SharePageState extends State<SharePage> {
-  Set<int> selectedGroups = {};
+  Set<ShareEventRequestDto> selectedGroups = {};
   String currentProfileHash = UserProvider().getCurrentProfileHash();
 
   @override
@@ -60,9 +57,8 @@ class _SharePageState extends State<SharePage> {
               child: Consumer<CommunityProvider>(
                 builder: (context, communityProvider, child) {
                   return Column(
-                    children: communityProvider.communities!
-                        .map((community) =>
-                            _buildCommunityTile(context, community))
+                    children: communityProvider.communities
+                        .map((community) => _buildCommunityTile(context, community))
                         .toList(),
                   );
                 },
@@ -77,8 +73,7 @@ class _SharePageState extends State<SharePage> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      EventService()
-                          .shareToGroups(widget.eventHash, selectedGroups);
+                      EventViewService.shareToGroups(widget.eventHash, selectedGroups);
                       Navigator.of(context).pop();
                     },
                     child: const Text('Condividi'),
@@ -102,62 +97,52 @@ class _SharePageState extends State<SharePage> {
     }
   }
 
-  Widget _buildPersonalCommunityTile(
-      BuildContext context, Community community) {
-    final mainGroup = community.groups.first;
-    final profileHash =
-        mainGroup.profileHashes.where((p) => p != currentProfileHash).first;
+  Widget _buildPersonalCommunityTile(BuildContext context, Community community) {
+    final group = community.groups.first;
+    final profileHash = community.otherProfileId!;
 
-    final profile = context.select<ProfilesProvider, Profile?>(
-      (provider) => provider.get(profileHash),
+    return ProfileTile(
+      profileHash: profileHash,
+      type: ProfileTileType.view,
+      trailing: _groupCheckBox(group.id, community.id),
     );
-    ProfileService().synchProfile(profile, profileHash);
-    if (profile == null) {
-      return ListTile(title: Text('Loading...'));
-    } else {
-      return ListTile(
-          leading:
-              CircleAvatar(backgroundImage: ImageService().getImageProvider()),
-          title: Text(profile.name),
-          trailing: _groupCheckBox(mainGroup));
-    }
   }
 
   Widget _buildSingleGroupCommunityTile(Community community) {
     final group = community.groups.first;
     return ListTile(
         leading: CircleAvatar(
-          backgroundImage: ImageService().getImageProvider(),
+          backgroundImage: ImageProviderService.getImageProvider(),
         ),
-        title: Text(community.name),
-        trailing: _groupCheckBox(group));
+        title: Text(community.name!),
+        trailing: _groupCheckBox(group.id, community.id));
   }
 
   Widget _buildMultiGroupCommunityTile(Community community) {
     return ExpansionTile(
-      leading: CircleAvatar(backgroundImage: ImageService().getImageProvider()),
-      title: Text(community.name),
+      leading: CircleAvatar(backgroundImage: ImageProviderService.getImageProvider()),
+      title: Text(community.name!),
       children: community.groups.map((group) {
         return Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: ListTile(
-                leading: CircleAvatar(
-                    backgroundImage: ImageService().getImageProvider()),
-                title: Text(group.name),
-                trailing: _groupCheckBox(group)));
+                leading: CircleAvatar(backgroundImage: ImageProviderService.getImageProvider()),
+                title: Text(group.name!),
+                trailing: _groupCheckBox(group.id, community.id)));
       }).toList(),
     );
   }
 
-  Widget _groupCheckBox(Group group) {
+  Widget _groupCheckBox(String groupId, String communityId) {
+    var addDto = ShareEventRequestDto(communityId: communityId, groupId: groupId);
     return Checkbox(
-      value: selectedGroups.contains(group.id),
+      value: selectedGroups.contains(addDto),
       onChanged: (bool? value) {
         setState(() {
           if (value == true) {
-            selectedGroups.add(group.id);
+            selectedGroups.add(addDto);
           } else {
-            selectedGroups.remove(group.id);
+            selectedGroups.remove(addDto);
           }
         });
       },

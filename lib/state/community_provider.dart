@@ -2,22 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/community.dart';
 
 class CommunityProvider extends ChangeNotifier {
-  // Private static instance
   static final CommunityProvider _instance = CommunityProvider._internal();
 
-  // Factory constructor returns the singleton instance
   factory CommunityProvider() {
     return _instance;
   }
 
   List<Community> _communities = [];
 
-  // Private named constructor
   CommunityProvider._internal() {
     _communities = [];
   }
 
-  List<Community>? get communities => _communities;
+  List<Community> get communities => _communities;
+
+  Community? find(String id) {
+    return _communities.firstWhere((c) => c.id == id);
+  }
 
   void add(Community community) {
     _communities.add(community);
@@ -34,8 +35,8 @@ class CommunityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateGroupTitle(int communityId, int groupIndex, String name) {
-    final community = _communities.firstWhere((c) => c.id == communityId);
+  void updateGroupTitle(String communityId, int groupIndex, String name) {
+    final community = find(communityId)!;
     community.groups[groupIndex].name = name;
     notifyListeners();
   }

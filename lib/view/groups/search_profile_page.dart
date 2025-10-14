@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/DTO/create_community_dto.dart';
+import 'package:wyd_front/API/Community/create_community_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/model/community_service.dart';
 import 'package:wyd_front/service/model/profile_service.dart';
+
 class SearchProfilePage extends StatefulWidget {
   const SearchProfilePage({super.key});
 
@@ -13,26 +14,29 @@ class SearchProfilePage extends StatefulWidget {
 }
 
 class _SearchProfilePageState extends State<SearchProfilePage> {
-  List<Profile> _filteredUsers = [];
+  List<Profile> _filteredProfiles = [];
   bool _isLoading = false;
   Timer? _debounce;
 
   void _onSearchChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 200), () {
-      _fetchItems(value);
-    });
+    if (value.isNotEmpty) {
+      _debounce = Timer(const Duration(milliseconds: 200), () {
+        _fetchItems(value);
+      });
+    }
   }
 
   Future<void> _fetchItems(String tag) async {
     setState(() {
       _isLoading = true;
     });
-    var users = await ProfileService().searchByTag(tag);
+
+    var profiles = await ProfileService().searchByTag(tag);
 
     setState(() {
-      if (users != null) {
-        _filteredUsers = users;
+      if (profiles.isNotEmpty) {
+        _filteredProfiles = profiles;
       }
       _isLoading = false;
     });
@@ -41,25 +45,36 @@ class _SearchProfilePageState extends State<SearchProfilePage> {
   Widget _buildList() {
     return ListView(
       shrinkWrap: true,
-      children: _filteredUsers.map((Profile value) {
+      children: _filteredProfiles.map((Profile value) {
         return ListTile(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(value.name),
-              TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text("Add"),
-                onPressed: () {
-                  CreateCommunityDto community = CreateCommunityDto(hashes: [value.hash]);
-
-                  CommunityService().create(community);
-                },
+              Row(
+                children: [
+                  Text(value.name),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    value.tag,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
               ),
+              if (!CommunityService().hasPersonalByProfileId(value.id))
+                TextButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add"),
+                  onPressed: () {
+                    CreateCommunityRequestDto community = CreateCommunityRequestDto(hashes: [value.id]);
+
+                    CommunityService().create(community);
+                  },
+                ),
             ],
           ),
-          onTap: () {
-          },
+          onTap: () {},
         );
       }).toList(),
     );
@@ -92,7 +107,7 @@ class _SearchProfilePageState extends State<SearchProfilePage> {
             ),
           ),
           if (_isLoading) const CircularProgressIndicator(),
-          if (!_isLoading && _filteredUsers.isNotEmpty) _buildList(),
+          if (!_isLoading && _filteredProfiles.isNotEmpty) _buildList(),
         ],
       ),
     );

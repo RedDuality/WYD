@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/state/user_provider.dart';
+import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 import 'package:wyd_front/view/profiles/profiles_page.dart';
 

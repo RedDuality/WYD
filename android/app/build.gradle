@@ -25,6 +25,29 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+import java.util.Properties
+
+def getEnvProperties(envFile) {
+    def properties = new Properties()
+    if (envFile.exists()) {
+        envFile.withReader { reader ->
+            reader.eachLine { line ->
+                def trimmed = line.trim()
+                if (trimmed && !trimmed.startsWith("#") && trimmed.contains("=")) {
+                    def (key, value) = trimmed.split("=", 2)
+                    properties.setProperty(key.trim(), value.trim())
+                }
+            }
+        }
+    }
+    return properties
+    
+}
+
+
+def envFile = file('../.env')
+def env = getEnvProperties(envFile)
+
 android {
     namespace "com.example.wyd_front"
     compileSdk flutter.compileSdkVersion
@@ -34,12 +57,14 @@ android {
         //flutter_local_notifications
         coreLibraryDesugaringEnabled true
 
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+
+
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 
     sourceSets {
@@ -65,6 +90,16 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+
+            resValue "string", "site_url", "https://delightful-ocean-0ad217703.6.azurestaticapps.net/"
+
+            //resValue "string", "site_url", env.getProperty("SITE_URL")
+        }
+        debug {
+
+            resValue "string", "site_url", "https://delightful-ocean-0ad217703.6.azurestaticapps.net/"
+            
+
         }
     }
 }
@@ -75,7 +110,7 @@ flutter {
 
 dependencies {
     //flutter_local_notifications
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     //implementation 'androidx.window:window:1.0.0'
     //implementation 'androidx.window:window-java:1.0.0'
 }

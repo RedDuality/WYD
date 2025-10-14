@@ -1,1 +1,12 @@
-enum UpdateType { newEvent, shareEvent, updateEvent, updatePhotos, confirmEvent, declineEvent, deleteEvent, deleteForAll, profileDetails }
+enum UpdateType {
+  createEvent,
+  shareEvent,
+  updateEssentialsEvent,
+  updateDetailsEvent,
+  updatePhotos,
+  confirmEvent,
+  declineEvent,
+  deleteEvent,
+  deleteForAll,
+  profileDetails
+}

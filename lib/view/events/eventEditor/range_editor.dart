@@ -1,10 +1,10 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/state/eventEditor/detail_provider.dart';
+import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 
 class RangeEditor extends StatelessWidget {
-  final DetailProvider provider;
+  final EventViewProvider provider;
   const RangeEditor({super.key, required this.provider});
 
   Future<DateTime?> selectDate(BuildContext context, initialDate) async {
@@ -27,7 +27,7 @@ class RangeEditor extends StatelessWidget {
     return null;
   }
 
-  void checkValues(DetailProvider provider, DateTime start, DateTime end) {
+  void checkValues(EventViewProvider provider, DateTime start, DateTime end) {
     if (!end.isAfter(start)) {
       end = start.add(const Duration(hours: 1));
     }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/state/authentication_provider.dart';
+import 'package:wyd_front/state/user/authentication_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   final String mail;
