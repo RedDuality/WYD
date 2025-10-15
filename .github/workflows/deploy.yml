@@ -25,6 +25,8 @@ jobs:
         run: flutter build web
 
       - name: Commit build output
+        env:
+          TOKEN: ${{ secrets.GH_BUILDFRONTACTION }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
