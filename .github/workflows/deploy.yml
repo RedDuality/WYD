@@ -30,6 +30,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/RedDuality/WYD.git
           git add build/web
           git commit -m "Build web output"
           git push
