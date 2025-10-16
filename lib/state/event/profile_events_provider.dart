@@ -11,13 +11,18 @@ class ProfileEventsProvider extends ChangeNotifier {
 
   ProfileEventsProvider._internal();
 
-
   final Map<String, Set<ProfileEvent>> _profileEvents = {};
 
   Set<ProfileEvent> get(String eventHash) => _profileEvents[eventHash]!;
 
-  ProfileEvent? getSingle(String eventHash, String profileHash) =>
-      get(eventHash).firstWhere((pe) => pe.profileHash == profileHash);
+  ProfileEvent? getSingle(String eventHash, String profileHash) {
+    for (final pe in get(eventHash)) {
+      if (pe.profileHash == profileHash) {
+        return pe;
+      }
+    }
+    return null;
+  }
 
   void add(String eventId, Set<ProfileEvent> newProfileEvents) {
     // Get the existing Set or create a new one
