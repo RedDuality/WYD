@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/model/profile_service.dart';
+import 'package:wyd_front/service/profile/profile_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
-import 'package:wyd_front/state/profile/profiles_provider.dart';
 
 class ProfileEditor extends StatefulWidget {
   final Profile profile;
@@ -41,7 +41,7 @@ class ProfileEditorState extends State<ProfileEditor> {
   }
 
   void update() async {
-    final profilesProvider = Provider.of<ProfilesProvider>(context, listen: false);
+    // TODO remove this, let ProfileStorageService.AddProfile handle this
     final eventProvider = Provider.of<CurrentEventsProvider>(context, listen: false);
 
     final updateDto = UpdateProfileRequestDto(
@@ -50,13 +50,9 @@ class ProfileEditorState extends State<ProfileEditor> {
       tag: tagController.text != widget.profile.tag ? tagController.text : null,
       color: colorChanged ? _selectedColor.toARGB32() : null,
     );
-    await ProfileService().updateProfile(updateDto);
-    var updatedProfile =
-        widget.profile.copyWith(name: nameController.text, tag: tagController.text, color: _selectedColor);
-    profilesProvider.addAll([updatedProfile]);
+    await ProfileService.updateProfile(updateDto, widget.profile);
 
-    // TODO
-    if (colorChanged) eventProvider.refresh();
+    if(colorChanged) eventProvider.refresh();
   }
 
   @override
@@ -157,6 +153,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                             if (_formKey.currentState!.validate()) {
                               update();
                             }
+                            context.pop();
                           },
                           child: Text("Save"))
                       : Container(),

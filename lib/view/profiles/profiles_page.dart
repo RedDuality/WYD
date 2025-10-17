@@ -76,7 +76,6 @@ class ProfilesPage extends StatelessWidget {
                     ProfileTile(
                       profileHash: UserProvider().getCurrentProfileHash(),
                       type: ProfileTileType.main,
-                      fetchDataFromServer: false, //TODO remove this
                     ),
                     if (profileHashes.isNotEmpty)
                       const Padding(

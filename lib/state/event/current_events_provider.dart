@@ -9,23 +9,34 @@ import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 
 class CurrentEventsProvider extends EventController {
-  bool confirmedView = true;
+  bool _confirmedView = true;
   //Set<Event> _currentEventsCache = {};
   bool _isLoading = true;
 
   final EventStorage _storage = EventStorage();
-  final RangeController _controller;
-  late final StreamSubscription<DateTimeRange> _rangesSubscription;
-  late final StreamSubscription<Event> _eventSubscription;
+  RangeController? _controller;
+  StreamSubscription<DateTimeRange>? _rangesSubscription;
+  StreamSubscription<Event>? _eventSubscription;
 
   //List<Event> get events => _currentEventsCache.toList();
 
   bool get isLoading => _isLoading;
 
-  CurrentEventsProvider(this._controller, this.confirmedView) {
+  CurrentEventsProvider();
+
+  void initialize(RangeController controller, bool confirmedView) {
+    // Clean up any previous controller/listeners if re-initializing
+    _rangesSubscription?.cancel();
+    _eventSubscription?.cancel();
+    _controller?.removeListener(_retrieveEvents);
+
+    _controller = controller;
+    _confirmedView = confirmedView;
+
     super.updateFilter(newFilter: (date, events) => myEventFilter(date, events));
+
     // Listen to date changes from the range controller
-    _controller.addListener(() {
+    _controller!.addListener(() {
       _retrieveEvents(logger: "fromPageUpdate");
     });
 
@@ -42,18 +53,20 @@ class CurrentEventsProvider extends EventController {
   }
 
   Future<void> _retrieveEvents({String? logger}) async {
+    if (_controller == null) return;
     if (!_isLoading) {
       _isLoading = true;
     }
-    var newEvents = await EventStorageService.retrieveEventsInTimeRange(_controller.focusedRange);
+    var newEvents = await EventStorageService.retrieveEventsInTimeRange(_controller!.focusedRange);
     setEvents(newEvents);
   }
 
   Future<void> _synchWithStorage(DateTimeRange range) async {
-    if (range.overlapsWith(_controller.focusedRange)) {
+    if (_controller == null) return;
+    if (range.overlapsWith(_controller!.focusedRange)) {
       var overlap = DateTimeRange(
-        start: range.start.isAfter(_controller.focusedRange.start) ? range.start : _controller.focusedRange.start,
-        end: range.end.isBefore(_controller.focusedRange.end) ? range.end : _controller.focusedRange.end,
+        start: range.start.isAfter(_controller!.focusedRange.start) ? range.start : _controller!.focusedRange.start,
+        end: range.end.isBefore(_controller!.focusedRange.end) ? range.end : _controller!.focusedRange.end,
       );
 
       var updatedEvents = await EventStorageService.retrieveEventsInTimeRange(overlap);
@@ -63,11 +76,12 @@ class CurrentEventsProvider extends EventController {
   }
 
   void _updateEvent(Event event) {
+    if (_controller == null) return;
     if (allEvents.contains(event)) {
       remove(event);
       super.add(event);
       //notifyListeners();
-    } else if(_controller.focusedRange.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!))){
+    } else if (_controller!.focusedRange.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!))) {
       super.add(event);
     }
   }
@@ -91,9 +105,9 @@ class CurrentEventsProvider extends EventController {
   @override
   void dispose() {
     // super.allEvents.clear();
-    _controller.removeListener(_retrieveEvents);
-    _rangesSubscription.cancel();
-    _eventSubscription.cancel();
+    _controller?.removeListener(_retrieveEvents);
+    _rangesSubscription?.cancel();
+    _eventSubscription?.cancel();
     super.dispose();
   }
 
@@ -103,26 +117,26 @@ class CurrentEventsProvider extends EventController {
   }
 */
   void changeMode(bool privateMode) {
-    confirmedView = privateMode;
+    _confirmedView = privateMode;
     notifyListeners();
     //myUpdateFilter();
   }
 
 // triggers a view update
   void refresh() {
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   List<Event> myEventFilter<T extends Object?>(DateTime date, List<CalendarEventData<T>> events) {
     if (_isLoading) return [];
-    if (_controller.focusedRange.end.isBefore(date) || _controller.focusedRange.start.isAfter(date)) return [];
+    if (_controller!.focusedRange.end.isBefore(date) || _controller!.focusedRange.start.isAfter(date)) return [];
     return events
         .whereType<Event>()
-        .where((event) => event.occursOnDate(date.toLocal()) &&
-            event.currentConfirmed() == confirmedView // &&
+        .where((event) => event.occursOnDate(date.toLocal()) && event.currentConfirmed() == _confirmedView // &&
             //(confirmedView || event.endDate.isAfter(DateTime.now()))
             )
         .toList();
   }
 }
-

@@ -52,6 +52,7 @@ class EventStorageService {
 
     if (originalEvent != null && event.updatedAt.isAfter(originalEvent.updatedAt)) {
       if (originalEvent.endTime != event.endTime) {
+      
         MediaAutoSelectService.addTimer(event);
       }
       super.update(originalEvent, event);

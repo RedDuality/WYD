@@ -8,6 +8,7 @@ import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
+import 'package:wyd_front/service/profile/profile_retrieve_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
@@ -117,7 +118,6 @@ class RealTimeUpdateService {
         break;
       */
       case UpdateType.updateEssentialsEvent:
-      
         var updatedTime = DateTime.parse(data['time'] as String).toUtc();
         EventRetrieveService.checkAndRetrieveEssentialByHash(data['id'], updatedTime);
         break;
@@ -148,8 +148,8 @@ class RealTimeUpdateService {
           EventViewService.localDelete(event, profileHash: data['phash']);
         }
         break;
-      case UpdateType.profileDetails:
-        //_handleProfileUpdate(snapshot['phash']);
+      case UpdateType.profileUpdate:
+        ProfileRetrieveService().retrieve(data['id']);
         break;
       default:
         debugPrint("Type of update has not been catched");

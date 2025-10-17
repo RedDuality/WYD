@@ -1,5 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
@@ -32,8 +33,11 @@ class _EventsPageState extends State<EventsPage> {
     super.initState();
     _private = widget.private;
     rangeController = RangeController(DateTime.now(), 7);
-    eventsController = CurrentEventsProvider(rangeController, _private);
-    _checkAndShowLinkEvent(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final eventsController = Provider.of<CurrentEventsProvider>(context, listen: false);
+      eventsController.initialize(rangeController, _private);
+      _checkAndShowLinkEvent(context);
+    });
   }
 
   void _checkAndShowLinkEvent(BuildContext context) {
@@ -61,42 +65,44 @@ class _EventsPageState extends State<EventsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: Header(title: _private ? 'Agenda' : 'Eventi', actions: actions()),
-      body: WeekView(
-        eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
-          return EventTile(
-              date: date,
-              events: events.whereType<Event>().toList(),
-              boundary: boundary,
-              startDuration: startDuration,
-              endDuration: endDuration);
-        },
-        controller: eventsController,
-        showLiveTimeLineInAllDays: false,
-        scrollOffset: 480.0,
-        onEventTap: (events, date) {
-          Event selectedEvent = events.whereType<Event>().toList().first;
+      body: Consumer<CurrentEventsProvider>(builder: (context, eventsController, _) {
+        return WeekView(
+          eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
+            return EventTile(
+                date: date,
+                events: events.whereType<Event>().toList(),
+                boundary: boundary,
+                startDuration: startDuration,
+                endDuration: endDuration);
+          },
+          controller: eventsController,
+          showLiveTimeLineInAllDays: false,
+          scrollOffset: 480.0,
+          onEventTap: (events, date) {
+            Event selectedEvent = events.whereType<Event>().toList().first;
 
-          EventViewService.initialize(selectedEvent, null, widget.private);
+            EventViewService.initialize(selectedEvent, null, widget.private);
 
-          showCustomDialog(
-              context,
-              EventView(
-                eventHash: selectedEvent.eventHash,
-              ));
-        },
-        onDateLongPress: (date) {
-          EventViewService.initialize(null, date, widget.private);
+            showCustomDialog(
+                context,
+                EventView(
+                  eventHash: selectedEvent.eventHash,
+                ));
+          },
+          onDateLongPress: (date) {
+            EventViewService.initialize(null, date, widget.private);
 
-          showCustomDialog(context, EventView());
-        },
-        startDay: WeekDays.monday,
-        minuteSlotSize: MinuteSlotSize.minutes15,
-        keepScrollOffset: true,
-        onPageChange: (date, page) {
-          // Update the range so listeners (like CurrentViewEventsProvider) are notified.
-          rangeController.setRange(date, 7);
-        },
-      ),
+            showCustomDialog(context, EventView());
+          },
+          startDay: WeekDays.monday,
+          minuteSlotSize: MinuteSlotSize.minutes15,
+          keepScrollOffset: true,
+          onPageChange: (date, page) {
+            // Update the range so listeners (like CurrentViewEventsProvider) are notified.
+            rangeController.setRange(date, 7);
+          },
+        );
+      }),
       floatingActionButton: AddEventButton(
         confirmed: widget.private,
       ),

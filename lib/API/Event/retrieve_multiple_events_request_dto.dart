@@ -1,5 +1,5 @@
 class RetrieveMultipleEventsRequestDto {
-  List<String> profileHashes;
+  Set<String> profileHashes;
   DateTime startTime;
   DateTime? endTime;
 

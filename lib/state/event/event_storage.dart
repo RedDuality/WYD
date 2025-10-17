@@ -6,7 +6,7 @@ import 'package:path/path.dart';
 import 'package:wyd_front/model/event.dart';
 
 class EventStorage {
-  static const _databaseName = 'eventCache.db';
+  static const _databaseName = 'eventStorage.db';
   static const _tableName = 'events';
   static const _databaseVersion = 1;
 
@@ -229,6 +229,7 @@ class EventStorage {
 
   // This should be called when the application is shutting down
   void close() {
+    _eventUpdateController.close();
     _rangeUpdateController.close();
   }
 }

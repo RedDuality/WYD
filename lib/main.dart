@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
+import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
 import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => EventDetailsProvider()),
         ChangeNotifierProvider(create: (_) => CachedMediaProvider()),
         ChangeNotifierProvider(create: (_) => CommunityProvider()),
+        ChangeNotifierProvider(create: (_) => CurrentEventsProvider())
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {

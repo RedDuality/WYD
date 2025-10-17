@@ -85,7 +85,7 @@ class ProfileAPI {
     var response = await client.post(Uri.parse(url), body: jsonEncode(updateDto));
 
     if (response.statusCode == 200) {
-      return;
+      return;//RetrieveProfileResponseDto.fromJson(json.decode(response.body));
     }
 
     throw "Error while updating the profile";

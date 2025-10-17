@@ -8,6 +8,7 @@ class Profile {
   String id = "";
   String tag = "";
   String name = "";
+  DateTime lastFetched;
   DateTime updatedAt;
   String? blobHash = "";
   Color? color;
@@ -18,6 +19,7 @@ class Profile {
     this.id = "",
     this.tag = "",
     this.name = "",
+    required this.lastFetched,
     required this.updatedAt,
     this.blobHash = "",
     this.color,
@@ -30,6 +32,7 @@ class Profile {
       id: dto.id,
       tag: dto.tag,
       name: dto.name,
+      lastFetched: DateTime.now(),
       updatedAt: dto.updatedAt,
     );
   }
@@ -39,6 +42,7 @@ class Profile {
       id: dto.id,
       tag: dto.tag,
       name: dto.name,
+      lastFetched: DateTime.now(),
       updatedAt: dto.updatedAt,
       blobHash: dto.blobHash,
       color: dto.color != null ? Color(dto.color!) : null,
@@ -62,6 +66,7 @@ class Profile {
         name: name ?? this.name,
         tag: tag ?? this.tag,
         mainProfile: mainProfile ?? this.mainProfile,
+        lastFetched: lastFetched,
         blobHash: blobHash ?? this.blobHash,
         color: color ?? this.color,
         role: role ?? this.role,
