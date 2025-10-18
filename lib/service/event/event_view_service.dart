@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
@@ -13,6 +15,17 @@ import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class EventViewService {
+  static final _profileColorChangeController = StreamController<void>();
+
+  static Stream<void> get onProfileColorChangedStream => _profileColorChangeController.stream;
+
+  static void notifyProfileColorChanged() {
+    if (_profileColorChangeController.hasListener) {
+      _profileColorChangeController.add(null);
+    }
+  }
+
+
   // TODO put this under a provider
   static void initialize(Event? initialEvent, DateTime? date, bool confirmed) {
     EventDetails? details;
@@ -22,6 +35,10 @@ class EventViewService {
       details = EventDetailsProvider().get(initialEvent.eventHash);
     }
     EventViewProvider().initialize(initialEvent, date, confirmed, details);
+  }
+
+  static void dispose() {
+    _profileColorChangeController.close();
   }
 
   static Future<Event> create(Event event) async {

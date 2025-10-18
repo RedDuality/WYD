@@ -17,8 +17,8 @@ class EventStorage {
   // --------------------------------
 
   // StreamController notifies ALL listeners that the underlying data in range has changed.
-  final _rangeUpdateController = StreamController<DateTimeRange>.broadcast();
-  final _eventUpdateController = StreamController<Event>.broadcast();
+  final _rangeUpdateController = StreamController<DateTimeRange>();
+  final _eventUpdateController = StreamController<Event>();
 
   Stream<DateTimeRange> get ranges => _rangeUpdateController.stream;
   Stream<Event> get updates => _eventUpdateController.stream;

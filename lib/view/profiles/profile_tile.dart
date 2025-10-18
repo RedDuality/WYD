@@ -24,7 +24,7 @@ class _ProfileTileState extends State<ProfileTile> {
   @override
   Widget build(BuildContext context) {
     // Listens for changes to a specific profile and rebuilds only when that profile is updated.
-    final profile = context.select<ProfilesProvider, Profile?>(
+    final profile = context.select<ProfileProvider, Profile?>(
       (provider) => provider.get(widget.profileHash),
     );
 

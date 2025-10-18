@@ -5,11 +5,11 @@ import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/profile/profile_storage_service.dart';
 import 'package:wyd_front/state/profile/profile_storage.dart';
 
-class ProfilesProvider extends ChangeNotifier {
+class ProfileProvider extends ChangeNotifier {
   final ProfileStorage _storage = ProfileStorage();
   StreamSubscription<Profile>? _profileSubscription;
 
-  ProfilesProvider() {
+  ProfileProvider() {
     _profileSubscription = _storage.updates.listen((profile) {
       set(profile.id, profile);
     });
@@ -19,7 +19,6 @@ class ProfilesProvider extends ChangeNotifier {
 
   Profile? get(String id) {
     var result = _profiles[id];
-
     if (result == null) {
       unawaited(_checkStorage(id));
     }
@@ -39,13 +38,7 @@ class ProfilesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addAll(List<Profile> profiles) {
-    for (final profile in profiles) {
-      _profiles[profile.id] = profile;
-    }
-    notifyListeners();
-  }
-    @override
+  @override
   void dispose() {
     _profileSubscription?.cancel();
     super.dispose();

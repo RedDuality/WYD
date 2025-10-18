@@ -148,8 +148,8 @@ class RealTimeUpdateService {
           EventViewService.localDelete(event, profileHash: data['phash']);
         }
         break;
-      case UpdateType.profileUpdate:
-        ProfileRetrieveService().retrieve(data['id']);
+      case UpdateType.updateProfile:
+        ProfileRetrieveService().retrieveDetailed(data['id']);
         break;
       default:
         debugPrint("Type of update has not been catched");

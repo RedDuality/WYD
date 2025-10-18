@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/profile/profile_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/event/current_events_provider.dart';
 
 class ProfileEditor extends StatefulWidget {
   final Profile profile;
@@ -41,9 +39,6 @@ class ProfileEditorState extends State<ProfileEditor> {
   }
 
   void update() async {
-    // TODO remove this, let ProfileStorageService.AddProfile handle this
-    final eventProvider = Provider.of<CurrentEventsProvider>(context, listen: false);
-
     final updateDto = UpdateProfileRequestDto(
       profileHash: widget.profile.id,
       name: nameController.text != widget.profile.name ? nameController.text : null,
@@ -51,8 +46,6 @@ class ProfileEditorState extends State<ProfileEditor> {
       color: colorChanged ? _selectedColor.toARGB32() : null,
     );
     await ProfileService.updateProfile(updateDto, widget.profile);
-
-    if(colorChanged) eventProvider.refresh();
   }
 
   @override

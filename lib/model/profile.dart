@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
-import 'package:wyd_front/API/User/retrieve_user_profile_response_dto.dart';
 import 'package:wyd_front/model/enum/profile_type.dart';
 import 'package:wyd_front/model/enum/role.dart';
 
@@ -30,22 +29,32 @@ class Profile {
   factory Profile.fromDto(RetrieveProfileResponseDto dto) {
     return Profile(
       id: dto.id,
-      tag: dto.tag,
-      name: dto.name,
+      tag: dto.tag!,
+      name: dto.name!,
       lastFetched: DateTime.now(),
-      updatedAt: dto.updatedAt,
+      updatedAt: dto.updatedAt!,
     );
   }
 
-  factory Profile.fromUserDto(RetrieveUserProfileResponseDto dto) {
+  void updateFromDto(RetrieveProfileResponseDto dto) {
+    if (dto.tag != null) tag = dto.tag!;
+    if (dto.name != null) name = dto.name!;
+    if (dto.updatedAt != null) updatedAt = dto.updatedAt!;
+    if (dto.blobHash != null) blobHash = dto.blobHash;
+    if (dto.color != null) color = dto.color;
+    if (dto.role != null) role = dto.role!;
+    if (dto.mainProfile != null) mainProfile = dto.mainProfile!;
+  }
+
+  factory Profile.fromUserDto(RetrieveProfileResponseDto dto) {
     return Profile(
       id: dto.id,
-      tag: dto.tag,
-      name: dto.name,
+      tag: dto.tag!,
+      name: dto.name!,
       lastFetched: DateTime.now(),
-      updatedAt: dto.updatedAt,
+      updatedAt: dto.updatedAt!,
       blobHash: dto.blobHash,
-      color: dto.color != null ? Color(dto.color!) : null,
+      color: dto.color,
       role: dto.role ?? Role.viewer,
       mainProfile: dto.mainProfile ?? false,
     );

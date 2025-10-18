@@ -17,7 +17,7 @@ class ProfileStorage {
   ProfileStorage._internal();
   // --------------------------------
 
-  final _profileUpdateController = StreamController<Profile>.broadcast();
+  final _profileUpdateController = StreamController<Profile>();
 
   Stream<Profile> get updates => _profileUpdateController.stream;
 
@@ -105,7 +105,6 @@ class ProfileStorage {
     } else {
       _inMemoryStorage[profile.id] = profile;
     }
-
     _profileUpdateController.sink.add(profile);
   }
 
@@ -171,7 +170,6 @@ class ProfileStorage {
     return null;
   }
 
-  // This should be called when the application is shutting down
   void close() {
     _profileUpdateController.close();
   }

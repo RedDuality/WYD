@@ -22,7 +22,6 @@ class MainProfileTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var exists = profile != null;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
       child: Align(

@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         //insert those you want to inject throught the context
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => ProfilesProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => EventViewProvider()),
         ChangeNotifierProvider(create: (_) => EventDetailsProvider()),
         ChangeNotifierProvider(create: (_) => CachedMediaProvider()),

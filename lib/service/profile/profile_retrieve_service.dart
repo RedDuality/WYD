@@ -44,4 +44,17 @@ class ProfileRetrieveService {
     _queue.add(profileId);
     _scheduleFetch();
   }
+
+  Future<void> retrieveMultiple(List<String> profileIds) async {
+    _queue.addAll(profileIds);
+    _scheduleFetch();
+  }
+
+  // for user's profile update
+  Future<void> retrieveDetailed(String profileId) async {
+    var dto = await ProfileAPI().retrieveDetailed(profileId);
+    ProfileStorageService.update(dto);
+  }
+
+
 }
