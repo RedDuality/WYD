@@ -132,7 +132,6 @@ class CurrentEventsProvider extends EventController {
   void changeMode(bool privateMode) {
     _confirmedView = privateMode;
     notifyListeners();
-    //myUpdateFilter();
   }
 
   List<Event> myEventFilter<T extends Object?>(DateTime date, List<CalendarEventData<T>> events) {

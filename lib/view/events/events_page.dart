@@ -23,7 +23,6 @@ class EventsPage extends StatefulWidget {
 
 class _EventsPageState extends State<EventsPage> {
   late RangeController rangeController;
-  late CurrentEventsProvider eventsController;
 
   bool _dialogShown = false;
   late bool _private;
@@ -59,6 +58,13 @@ class _EventsPageState extends State<EventsPage> {
         _dialogShown = true;
       }
     }
+  }
+
+  void _changeMode(bool privateMode) {
+    setState(() {
+      _private = privateMode;
+      Provider.of<CurrentEventsProvider>(context, listen: false).changeMode(_private);
+    });
   }
 
   @override
@@ -127,10 +133,7 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     child: TextButton.icon(
                       onPressed: () {
-                        setState(() {
-                          _private = false;
-                          eventsController.changeMode(_private);
-                        });
+                        _changeMode(false);
                       },
                       icon: const Icon(Icons.event, size: 30, color: Colors.white),
                       label: showText
@@ -155,10 +158,7 @@ class _EventsPageState extends State<EventsPage> {
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.event, size: 30),
                       onPressed: () {
-                        setState(() {
-                          _private = false;
-                          eventsController.changeMode(_private);
-                        });
+                        _changeMode(false);
                       },
                     ),
                   );
@@ -178,10 +178,7 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     child: TextButton.icon(
                       onPressed: () {
-                        setState(() {
-                          _private = true;
-                          eventsController.changeMode(_private);
-                        });
+                        _changeMode(true);
                       },
                       icon: const Icon(Icons.event_available, size: 30, color: Colors.white),
                       label: showText
@@ -206,10 +203,7 @@ class _EventsPageState extends State<EventsPage> {
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.event_available, size: 30),
                       onPressed: () {
-                        setState(() {
-                          _private = true;
-                          eventsController.changeMode(_private);
-                        });
+                        _changeMode(true);
                       },
                     ),
                   );
