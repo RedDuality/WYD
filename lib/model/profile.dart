@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
-import 'package:wyd_front/model/enum/profile_type.dart';
 import 'package:wyd_front/model/enum/role.dart';
 
 class Profile {
@@ -36,16 +35,6 @@ class Profile {
     );
   }
 
-  void updateFromDto(RetrieveProfileResponseDto dto) {
-    if (dto.tag != null) tag = dto.tag!;
-    if (dto.name != null) name = dto.name!;
-    if (dto.updatedAt != null) updatedAt = dto.updatedAt!;
-    if (dto.blobHash != null) blobHash = dto.blobHash;
-    if (dto.color != null) color = dto.color;
-    if (dto.role != null) role = dto.role!;
-    if (dto.mainProfile != null) mainProfile = dto.mainProfile!;
-  }
-
   factory Profile.fromUserDto(RetrieveProfileResponseDto dto) {
     return Profile(
       id: dto.id,
@@ -60,6 +49,7 @@ class Profile {
     );
   }
 
+/*
   Profile copyWith({
     String? name,
     String? tag,
@@ -81,7 +71,7 @@ class Profile {
         role: role ?? this.role,
         updatedAt: updatedAt ?? this.updatedAt);
   }
-
+*/
   Map<String, dynamic> toJson() {
     return {
       'id': id,

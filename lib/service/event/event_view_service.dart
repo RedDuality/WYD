@@ -25,7 +25,6 @@ class EventViewService {
     }
   }
 
-
   // TODO put this under a provider
   static void initialize(Event? initialEvent, DateTime? date, bool confirmed) {
     EventDetails? details;
@@ -54,12 +53,12 @@ class EventViewService {
 
   static Future<void> localConfirm(String eventHash, bool confirmed, {String? pHash}) async {
     var event = await EventStorage().getEventByHash(eventHash);
-    String profileHash = pHash ?? UserProvider().getCurrentProfileHash();
+    if (event != null) {
+      String profileHash = pHash ?? UserProvider().getCurrentProfileHash();
 
-    if (ProfileEventsProvider().confirm(eventHash, confirmed, profileHash)) {
-      event!.totalConfirmed += confirmed ? 1 : -1;
-      EventViewProvider().updateCurrentEvent(event);
-      EventStorage().saveEvent(event);
+      if (ProfileEventsProvider().confirm(eventHash, confirmed, profileHash)) {
+        EventRetrieveService.retrieveEssentialByHash(eventHash);
+      }
     }
   }
 

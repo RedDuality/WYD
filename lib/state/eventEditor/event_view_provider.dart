@@ -19,7 +19,7 @@ class EventViewProvider extends ChangeNotifier {
   factory EventViewProvider() {
     return _instance;
   }
-  
+
   Event? originalEvent;
 
   String? hash;
@@ -66,6 +66,9 @@ class EventViewProvider extends ChangeNotifier {
       description = EventDetailsProvider().get(newEvent.eventHash)?.description;
 
       confirmed = newEvent.currentConfirmed();
+
+      totalConfirmed = newEvent.totalConfirmed;
+      totalProfiles = newEvent.totalProfiles;
 
       changes = 0;
 

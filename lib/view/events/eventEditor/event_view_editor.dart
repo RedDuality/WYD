@@ -37,8 +37,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
   }
 
   Future<void> _createEvent(EventViewProvider provider) async {
-    Event createEvent = provider.getEventWithCurrentFields();
-    Event newEvent = await EventViewService.create(createEvent);
+    Event createdEvent = provider.getEventWithCurrentFields();
+    Event newEvent = await EventViewService.create(createdEvent);
     widget.onEventCreated(newEvent.eventHash);
     EventViewService.initialize(newEvent, null, newEvent.currentConfirmed());
   }

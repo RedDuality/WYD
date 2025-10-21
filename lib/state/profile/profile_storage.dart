@@ -173,4 +173,15 @@ class ProfileStorage {
   void close() {
     _profileUpdateController.close();
   }
+
+  Future<void> clearAllProfiles() async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return;
+
+      await db.delete(_tableName);
+    } else {
+      _inMemoryStorage.clear();
+    }
+  }
 }

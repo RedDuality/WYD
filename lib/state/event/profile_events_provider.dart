@@ -55,7 +55,7 @@ class ProfileEventsProvider extends ChangeNotifier {
         setSingle(eventHash, pe);
         return true;
       }
-      return false;
+      return false; // no need to update
     }
     return true;
   }

@@ -107,7 +107,7 @@ class RealTimeUpdateService {
 
   Future<void> handleUpdate(Map<String, dynamic> data) async {
     var updateType = _findUpdateType(data['type']);
-
+    debugPrint('Handled');
     switch (updateType) {
       /*
       case UpdateType.createEvent:

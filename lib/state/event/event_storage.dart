@@ -227,6 +227,17 @@ class EventStorage {
     return null;
   }
 
+  Future<void> clearAllEvents() async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return;
+
+      await db.delete(_tableName);
+    } else {
+      _inMemoryStorage.clear();
+    }
+  }
+
   // This should be called when the application is shutting down
   void close() {
     _eventUpdateController.close();
