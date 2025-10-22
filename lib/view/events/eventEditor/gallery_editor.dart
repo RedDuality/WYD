@@ -8,6 +8,7 @@ import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/media/media_selection_service.dart';
 import 'package:wyd_front/service/media/media_auto_select_service.dart';
 import 'package:wyd_front/service/media/media_upload_service.dart';
+import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
 import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
 import 'package:wyd_front/view/widget/media/card_display.dart';
@@ -49,8 +50,7 @@ class GalleryEditor extends StatelessWidget {
         height: 20,
       ),
       //On Devices, look for images
-      //TODO: show image lookup only if after the event
-      if (!kIsWeb)
+      if (!kIsWeb && Provider.of<CurrentEventsProvider>(context).get(eventHash)!.startTime!.isAfter(DateTime.now()))
         Column(
           children: [
             Align(
