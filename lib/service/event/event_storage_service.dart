@@ -61,11 +61,11 @@ class EventStorageService {
   }
   */
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
-    var retrieveInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
+    var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
 
-    if (retrieveInterval != null) {
-      EventRetrieveService.retrieveFromServer(retrieveInterval).then((dtos) {
-        addEvents(dtos, retrieveInterval);
+    if (missingInterval != null) {
+      EventRetrieveService.retrieveFromServer(missingInterval).then((dtos) {
+        addEvents(dtos, missingInterval);
       });
     }
 

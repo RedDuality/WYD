@@ -7,7 +7,7 @@ import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
-import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
+import 'package:wyd_front/state/media/cached_media_provider.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';

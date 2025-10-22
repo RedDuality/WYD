@@ -4,13 +4,13 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/service/event/event_details_service.dart';
+import 'package:wyd_front/service/media/media_retrieve_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/media/media_selection_service.dart';
-import 'package:wyd_front/service/media/media_auto_select_service.dart';
 import 'package:wyd_front/service/media/media_upload_service.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
-import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
+import 'package:wyd_front/state/media/cached_media_provider.dart';
 import 'package:wyd_front/view/widget/media/card_display.dart';
 import 'package:wyd_front/view/widget/media/media_display.dart';
 
@@ -61,7 +61,7 @@ class GalleryEditor extends StatelessWidget {
                   /*
                 ElevatedButton(
                   onPressed: () async {
-                    MediaAutoSelectService.mockRetrieveShootedPhotos(eventHash);
+                    MediaRetrieveService.mockRetrieveShootedPhotos(eventHash);
                   },
                   child: Row(
                     children: [
@@ -76,7 +76,7 @@ class GalleryEditor extends StatelessWidget {
                 */
                   ElevatedButton(
                     onPressed: () async {
-                      MediaAutoSelectService.retrieveShootedPhotos(eventHash);
+                     MediaRetrieveService.retrieveShootedPhotos(eventHash);
                     },
                     child: Row(
                       children: [

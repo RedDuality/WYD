@@ -32,6 +32,10 @@ class SettingsPage extends StatelessWidget {
               action: ElevatedButton(onPressed: () => {}, child: Text("Attiva")),
             ),
             SettingsTile(
+              title: "Check for images of all past events",
+              action: ElevatedButton(onPressed: () => {}, child: Text("From last month")),
+            ),
+            SettingsTile(
               title: "Test",
               action: ElevatedButton(onPressed: () => {TestAPI().testNotifications()}, child: Text("Test")),
             ),
