@@ -10,7 +10,6 @@ import 'package:wyd_front/state/event/event_details_provider.dart';
 import 'package:wyd_front/state/eventEditor/cached_media_provider.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
-import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -53,7 +52,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => EventViewProvider()),
         ChangeNotifierProvider(create: (_) => EventDetailsProvider()),
         ChangeNotifierProvider(create: (_) => CachedMediaProvider()),
         ChangeNotifierProvider(create: (_) => CommunityProvider()),

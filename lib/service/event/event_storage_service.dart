@@ -5,7 +5,6 @@ import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
-import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class EventStorageService {
@@ -41,8 +40,7 @@ class EventStorageService {
     if (dto.sharedWith != null) {
       ProfileEventsProvider().add(event.eventHash, dto.sharedWith!);
     }
-    // TODO remove this, making the view listen to the provider
-    EventViewProvider().updateCurrentEvent(event);
+
     return event;
   }
 

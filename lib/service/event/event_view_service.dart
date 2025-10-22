@@ -5,13 +5,11 @@ import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
-import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/event/event_details_provider.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
-import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class EventViewService {
@@ -23,17 +21,6 @@ class EventViewService {
     if (_profileColorChangeController.hasListener) {
       _profileColorChangeController.add(null);
     }
-  }
-
-  // TODO put this under a provider
-  static void initialize(Event? initialEvent, DateTime? date, bool confirmed) {
-    EventDetails? details;
-    if (initialEvent != null) {
-      EventRetrieveService.retrieveDetailsByHash(initialEvent.eventHash);
-
-      details = EventDetailsProvider().get(initialEvent.eventHash);
-    }
-    EventViewProvider().initialize(initialEvent, date, confirmed, details);
   }
 
   static void dispose() {
@@ -84,8 +71,6 @@ class EventViewService {
     event.removeProfile(pHash);
 
     if (event.countMatchingProfiles(UserProvider().getProfileHashes()) == 0) {
-      EventViewProvider().close();
-
       ProfileEventsProvider().remove(event.eventHash);
       EventDetailsProvider().remove(event.eventHash);
       EventStorage().remove(event);

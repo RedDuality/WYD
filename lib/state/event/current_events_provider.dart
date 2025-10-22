@@ -57,6 +57,13 @@ class CurrentEventsProvider extends EventController {
     _retrieveEvents(logger: ""); // Initial load
   }
 
+  Event? get(String eventHash) {
+    for (final event in allEvents.whereType<Event>()) {
+      if (event.eventHash == eventHash) return event;
+    }
+    return null;
+  }
+
 // triggers a view update
   void refresh() {
     WidgetsBinding.instance.addPostFrameCallback((_) {

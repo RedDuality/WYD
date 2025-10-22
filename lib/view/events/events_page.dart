@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/state/event/range_controller.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
@@ -46,12 +45,12 @@ class _EventsPageState extends State<EventsPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
 
-          EventViewService.initialize(event, null, event.currentConfirmed());
           if (context.mounted) {
             showCustomDialog(
                 context,
                 EventView(
                   eventHash: event.eventHash,
+                  confirmed: event.currentConfirmed(),
                 ));
           }
         });
@@ -87,18 +86,23 @@ class _EventsPageState extends State<EventsPage> {
           onEventTap: (events, date) {
             Event selectedEvent = events.whereType<Event>().toList().first;
 
-            EventViewService.initialize(selectedEvent, null, widget.private);
+            EventRetrieveService.retrieveDetailsByHash(selectedEvent.eventHash);
 
             showCustomDialog(
                 context,
                 EventView(
                   eventHash: selectedEvent.eventHash,
+                  confirmed: widget.private,
                 ));
           },
           onDateLongPress: (date) {
-            EventViewService.initialize(null, date, widget.private);
 
-            showCustomDialog(context, EventView());
+            showCustomDialog(
+                context,
+                EventView(
+                  confirmed: widget.private,
+                  date: date,
+                ));
           },
           startDay: WeekDays.monday,
           minuteSlotSize: MinuteSlotSize.minutes15,
