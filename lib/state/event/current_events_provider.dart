@@ -17,7 +17,7 @@ class CurrentEventsProvider extends EventController {
   final EventStorage _storage = EventStorage();
   RangeController? _controller;
   StreamSubscription<DateTimeRange>? _rangesSubscription;
-  StreamSubscription<Event>? _eventSubscription;
+  StreamSubscription<(Event, bool)>? _eventSubscription;
 
   StreamSubscription<void>? _colorChangeSubscription;
 
@@ -37,7 +37,7 @@ class CurrentEventsProvider extends EventController {
     });
 
     _eventSubscription = _storage.updates.listen((event) {
-      _updateEvent(event);
+      _updateEvent(event.$1, event.$2);
     });
   }
 
@@ -94,13 +94,13 @@ class CurrentEventsProvider extends EventController {
     }
   }
 
-  void _updateEvent(Event event) {
+  void _updateEvent(Event event, bool deleted) {
     if (_controller == null) return;
     if (allEvents.contains(event)) {
       remove(event);
       super.add(event);
       //notifyListeners();
-    } else if (_controller!.focusedRange.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!))) {
+    } else if (!deleted && _controller!.focusedRange.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!))) {
       super.add(event);
     }
   }

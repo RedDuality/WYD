@@ -12,7 +12,7 @@ class BackgroundService {
     }
   }
 
-  void scheduleTestTask() {
+  void testScheduleTask() {
     Workmanager().registerOneOffTask(
       "1",
       "simpleTask1",

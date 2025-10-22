@@ -18,10 +18,10 @@ class EventStorage {
 
   // StreamController notifies ALL listeners that the underlying data in range has changed.
   final _rangeUpdateController = StreamController<DateTimeRange>();
-  final _eventUpdateController = StreamController<Event>();
+  final _eventUpdateController = StreamController<(Event, bool)>();
 
   Stream<DateTimeRange> get ranges => _rangeUpdateController.stream;
-  Stream<Event> get updates => _eventUpdateController.stream;
+  Stream<(Event, bool)> get updates => _eventUpdateController.stream;
 
   // In-memory cache for web/other environments where sqflite isn't used
   final Map<String, Event> _inMemoryStorage = {};
@@ -90,7 +90,7 @@ class EventStorage {
     }
 
     // Send a signal that data has been modified.
-    _eventUpdateController.sink.add(event);
+    _eventUpdateController.sink.add((event, false));
   }
 
   /// Saves multiple events and emits a single change event.
@@ -135,11 +135,7 @@ class EventStorage {
       _inMemoryStorage.remove(event.eventHash);
     }
 
-// TODO get the update correctly
-    _rangeUpdateController.sink.add(DateTimeRange(
-      start: DateTime.fromMillisecondsSinceEpoch(0),
-      end: DateTime.now().add(const Duration(days: 365 * 10)),
-    ));
+    _eventUpdateController.sink.add((event, true));
   }
 
   /// Given a period, this function returns events that overlaps it.
