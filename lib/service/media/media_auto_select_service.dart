@@ -38,6 +38,6 @@ class MediaAutoSelectService {
         debugPrint("Error while converting last checked time value");
       }
     }
-    return DateTime.now().toLocal();
+    return DateTime.now();
   }
 }

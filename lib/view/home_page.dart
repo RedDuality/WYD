@@ -69,8 +69,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      MediaAutoSelectService.checkEventsForPhotos();
+    if (!kIsWeb) {
+      if (state == AppLifecycleState.resumed) {
+        MediaAutoSelectService.checkEventsForPhotos();
+      }
     }
   }
 

@@ -14,7 +14,7 @@ class CachedMediaStorage {
   factory CachedMediaStorage() => _instance;
   CachedMediaStorage._internal();
 
-  final _eventMediaUpdateController = StreamController<String>();
+  final _eventMediaUpdateController = StreamController<String>.broadcast();
 
   Stream<String> get updates => _eventMediaUpdateController.stream;
 

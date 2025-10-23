@@ -7,7 +7,7 @@ import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/state/event/event_details_provider.dart';
+import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/view/events/eventEditor/confirmed_list.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
@@ -56,7 +56,6 @@ class _EventViewEditorState extends State<EventViewEditor> {
   void initState() {
     super.initState();
 
-    
     event = widget.event;
 
     exists = event != null;
@@ -66,8 +65,10 @@ class _EventViewEditorState extends State<EventViewEditor> {
     totalConfirmed = event?.totalConfirmed ?? 1;
     totalProfiles = event?.totalProfiles ?? 1;
     if (exists) {
-      var details = EventDetailsProvider().get(widget.event!.eventHash);
-      initialDescription = details!.description;
+      var details = EventDetailsStorage().get(widget.event!.eventHash);
+      if (details != null) {
+        initialDescription = details.description;
+      }
 
       shared = event!.totalProfiles > 1;
     }

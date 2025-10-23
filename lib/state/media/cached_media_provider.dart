@@ -14,6 +14,7 @@ class CachedMediaProvider extends ChangeNotifier {
   CachedMediaProvider(String eventHash) {
     load(eventHash);
     _eventMediaSubscription = _storage.updates.listen((eventHash) {
+      debugPrint("listen");
       load(eventHash);
     });
   }

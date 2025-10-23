@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/model/media.dart';
 
-class EventDetailsProvider extends ChangeNotifier {
+class EventDetailsStorage extends ChangeNotifier {
   
-  static final EventDetailsProvider _instance = EventDetailsProvider._internal();
+  static final EventDetailsStorage _instance = EventDetailsStorage._internal();
 
-  factory EventDetailsProvider() {
+  factory EventDetailsStorage() {
     return _instance;
   }
 
-  EventDetailsProvider._internal();
+  EventDetailsStorage._internal();
 
   final Map<String, EventDetails> _eventDetails = {};
 

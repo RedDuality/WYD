@@ -8,7 +8,7 @@ import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/media/media_selection_service.dart';
 import 'package:wyd_front/service/media/media_upload_service.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
-import 'package:wyd_front/state/event/event_details_provider.dart';
+import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/media/cached_media_provider.dart';
 import 'package:wyd_front/view/widget/media/card_display.dart';
 import 'package:wyd_front/view/widget/media/media_display.dart';
@@ -36,12 +36,12 @@ class GalleryEditor extends StatelessWidget {
       create: (_) => CachedMediaProvider(eventHash),
       child: Builder(
         builder: (context) {
-          var eventDetails = EventDetailsProvider().get(eventHash);
+          var eventDetails = EventDetailsStorage().get(eventHash);
           if (eventDetails != null &&
               eventDetails.totalImages > 0 &&
               eventDetails.media.isNotEmpty &&
               (eventDetails.validUntil == null || eventDetails.validUntil!.isBefore(DateTime.now()))) {
-            EventDetailsProvider().invalidateMediaCache(eventHash);
+            EventDetailsStorage().invalidateMediaCache(eventHash);
           }
 
           EventDetailsService.retrieveMedia(eventHash);
@@ -230,9 +230,9 @@ class GalleryEditor extends StatelessWidget {
             SizedBox(height: 10),
 
             //Already saved images
-            Consumer<EventDetailsProvider>(
+            Consumer<EventDetailsStorage>(
               builder: (context, eventProvider, child) {
-                final eventDetails = context.select<EventDetailsProvider, EventDetails?>(
+                final eventDetails = context.select<EventDetailsStorage, EventDetails?>(
                   (provider) => provider.get(eventHash),
                 );
                 if (eventDetails != null && eventDetails.totalImages > 0 && eventDetails.media.isEmpty) {

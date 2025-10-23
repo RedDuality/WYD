@@ -6,7 +6,7 @@ import 'package:workmanager/workmanager.dart';
 import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
-import 'package:wyd_front/state/event/event_details_provider.dart';
+import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => EventDetailsProvider()),
+        ChangeNotifierProvider(create: (_) => EventDetailsStorage()),
         ChangeNotifierProvider(create: (_) => CommunityProvider()),
         ChangeNotifierProvider(create: (_) => CurrentEventsProvider())
       ],
