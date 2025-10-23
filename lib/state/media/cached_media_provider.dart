@@ -1,39 +1,43 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/media/cached_media_storage.dart';
 
 class CachedMediaProvider extends ChangeNotifier {
-  static final CachedMediaProvider _instance = CachedMediaProvider._internal();
-  factory CachedMediaProvider() => _instance;
-  CachedMediaProvider._internal();
-
   final CachedMediaStorage _storage = CachedMediaStorage();
 
-  /// In‑memory cache (mirrors DB for fast access)
-  final Map<String, Map<AssetEntity, bool>> _cachedImagesMap = {};
+  Map<AssetEntity, bool> _cachedImagesMap = {};
 
-  Map<AssetEntity, bool>? get(String eventHash) => _cachedImagesMap[eventHash];
+  StreamSubscription<String>? _eventMediaSubscription;
 
-  /// Load from DB into memory
+  CachedMediaProvider(String eventHash) {
+    load(eventHash);
+    _eventMediaSubscription = _storage.updates.listen((eventHash) {
+      load(eventHash);
+    });
+  }
+
+  Map<AssetEntity, bool>? get() => _cachedImagesMap;
+
+  /// Load from DB
   Future<void> load(String eventHash) async {
     final media = await _storage.getMedia(eventHash);
-    _cachedImagesMap[eventHash] = media;
+    _cachedImagesMap = media;
     notifyListeners();
   }
 
   /// Save a set of assets for an event
   Future<void> set(String eventHash, Set<AssetEntity> media) async {
-    await _storage.setMedia(eventHash, media);
-    _cachedImagesMap[eventHash] = {for (var asset in media) asset: true};
-    EventStorageService.setHasCachedMedia(eventHash, true);
+    await _storage.addMedia(eventHash, media);
+    _cachedImagesMap = {for (var asset in media) asset: true};
     notifyListeners();
   }
 
   /// Remove all assets for an event
-  Future<void> remove(String eventHash) async {
-    await _storage.removeMedia(eventHash);
-    _cachedImagesMap[eventHash] = {};
+  Future<void> removeAll(String eventHash) async {
+    await _storage.removeAllMedia(eventHash);
+    _cachedImagesMap = {};
     EventStorageService.setHasCachedMedia(eventHash, false);
     notifyListeners();
   }
@@ -41,14 +45,20 @@ class CachedMediaProvider extends ChangeNotifier {
   /// Mark asset as selected
   Future<void> select(String eventHash, AssetEntity asset) async {
     await _storage.updateSelection(eventHash, asset, true);
-    _cachedImagesMap[eventHash]?[asset] = true;
+    _cachedImagesMap[asset] = true;
     notifyListeners();
   }
 
   /// Mark asset as unselected
   Future<void> unselect(String eventHash, AssetEntity asset) async {
     await _storage.updateSelection(eventHash, asset, false);
-    _cachedImagesMap[eventHash]?[asset] = false;
+    _cachedImagesMap[asset] = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _eventMediaSubscription?.cancel();
+    super.dispose();
   }
 }

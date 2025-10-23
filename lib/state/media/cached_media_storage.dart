@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wyd_front/service/event/event_storage_service.dart';
 
 class CachedMediaStorage {
   static const _databaseName = 'cachedMediaStorage.db';
@@ -12,6 +13,10 @@ class CachedMediaStorage {
   static final CachedMediaStorage _instance = CachedMediaStorage._internal();
   factory CachedMediaStorage() => _instance;
   CachedMediaStorage._internal();
+
+  final _eventMediaUpdateController = StreamController<String>();
+
+  Stream<String> get updates => _eventMediaUpdateController.stream;
 
   static Database? _database;
 
@@ -98,7 +103,7 @@ class CachedMediaStorage {
     return MapEntry(asset, map['isSelected'] == 1);
   }
 
-  Future<void> setMedia(String eventHash, Set<AssetEntity> assets) async {
+  Future<void> addMedia(String eventHash, Set<AssetEntity> assets) async {
     final db = await database;
     if (db == null) return;
     await db.transaction((txn) async {
@@ -110,12 +115,17 @@ class CachedMediaStorage {
         );
       }
     });
+
+    EventStorageService.setHasCachedMedia(eventHash, true);
+
+    _eventMediaUpdateController.sink.add(eventHash);
   }
 
-  Future<void> removeMedia(String eventHash) async {
+  Future<void> removeAllMedia(String eventHash) async {
     final db = await database;
     if (db == null) return;
     await db.delete(_tableName, where: 'eventHash = ?', whereArgs: [eventHash]);
+    EventStorageService.setHasCachedMedia(eventHash, false);
   }
 
   Future<void> updateSelection(String eventHash, AssetEntity asset, bool isSelected) async {

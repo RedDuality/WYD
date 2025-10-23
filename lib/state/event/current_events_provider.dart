@@ -96,11 +96,16 @@ class CurrentEventsProvider extends EventController {
 
   void _updateEvent(Event event, bool deleted) {
     if (_controller == null) return;
-    if (allEvents.contains(event)) {
+
+    final isFocused =
+        _controller!.focusedRange.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
+    final exists = allEvents.contains(event);
+
+    if (exists) {
       remove(event);
-      super.add(event);
-      //notifyListeners();
-    } else if (!deleted && _controller!.focusedRange.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!))) {
+    }
+
+    if (!deleted && (!exists || isFocused)) {
       super.add(event);
     }
   }

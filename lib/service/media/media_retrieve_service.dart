@@ -15,12 +15,12 @@ class MediaRetrieveService {
       var photosDuringEvent = await _retrieveImagesByTime(event.startTime!.toUtc(), event.endTime!.toUtc());
 
       if (photosDuringEvent.isNotEmpty) {
-        CachedMediaStorage().setMedia(event.eventHash, photosDuringEvent.toSet());
+        CachedMediaStorage().addMedia(event.eventHash, photosDuringEvent.toSet());
       }
     }
   }
 
-  static Future<void> mockRetrieveShootedPhotos(String eventHash) async {
+  static Future<void> mockRetrieveShootedPhotos(String eventHash, CachedMediaProvider provider) async {
     var event = await EventStorage().getEventByHash(eventHash);
     if (event != null) {
       var mockAssetEntities = List.generate(
@@ -34,7 +34,7 @@ class MediaRetrieveService {
       );
 
       if (mockAssetEntities.isNotEmpty) {
-        CachedMediaProvider().set(event.eventHash, mockAssetEntities.toSet());
+        provider.set(event.eventHash, mockAssetEntities.toSet());
       }
     }
   }

@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       }
       await UriService.saveUri("");
     }
-    
+
     if (!mounted) return;
     setState(() {
       isUriLoaded = true;
