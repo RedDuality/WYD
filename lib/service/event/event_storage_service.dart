@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/state/event/event_details_provider.dart';
+import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
-import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class EventStorageService {
@@ -18,7 +17,7 @@ class EventStorageService {
 
     for (var dto in dtos) {
       if (dto.details != null) {
-        EventDetailsProvider().update(dto.hash, dto.details!);
+        EventDetailsStorage().update(dto.hash, dto.details!);
       }
 
       if (dto.sharedWith != null) {
@@ -35,14 +34,13 @@ class EventStorageService {
     EventStorage().saveEvent(event);
 
     if (dto.details != null) {
-      EventDetailsProvider().update(event.eventHash, dto.details!);
+      EventDetailsStorage().update(event.eventHash, dto.details!);
     }
 
     if (dto.sharedWith != null) {
       ProfileEventsProvider().add(event.eventHash, dto.sharedWith!);
     }
-    // TODO remove this, making the view listen to the provider
-    EventViewProvider().updateCurrentEvent(event);
+
     return event;
   }
 
@@ -52,6 +50,7 @@ class EventStorageService {
 
     if (originalEvent != null && event.updatedAt.isAfter(originalEvent.updatedAt)) {
       if (originalEvent.endTime != event.endTime) {
+      
         MediaAutoSelectService.addTimer(event);
       }
       super.update(originalEvent, event);
@@ -62,11 +61,11 @@ class EventStorageService {
   }
   */
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
-    var retrieveInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
+    var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
 
-    if (retrieveInterval != null) {
-      EventRetrieveService.retrieveFromServer(retrieveInterval).then((dtos) {
-        addEvents(dtos, retrieveInterval);
+    if (missingInterval != null) {
+      EventRetrieveService.retrieveFromServer(missingInterval).then((dtos) {
+        addEvents(dtos, missingInterval);
       });
     }
 

@@ -34,8 +34,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
           },
           child: ProfileTile(
             profileHash: UserProvider().getCurrentProfileHash(),
-            type: ProfileTileType.header,
-            fetchDataFromServer: false,
+            type: ProfileTileType.header
           ),
         ),
       ],

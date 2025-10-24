@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
-import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 
 class ConfirmedList extends StatelessWidget {
-  final EventViewProvider provider;
+  final String eventHash;
 
-  const ConfirmedList({required this.provider, super.key});
+  const ConfirmedList({required this.eventHash, super.key});
 
   @override
   Widget build(BuildContext context) {
-    var sharedWith = ProfileEventsProvider().get(provider.hash!);
+    var sharedWith = ProfileEventsProvider().get(eventHash);
     List<ProfileEvent> confirmed = sharedWith.where((pe) => pe.confirmed == true).toList();
     List<ProfileEvent> toBeConfirmed = sharedWith.where((pe) => pe.confirmed == false).toList();
     return Column(

@@ -81,40 +81,26 @@ class Event extends CalendarEventData {
     );
   }
 
-/*
+  
   Event copy(
-      {String? title,
-      String? description,
-      CalendarEventData? event,
-      Color? color,
-      DateTime? startTime,
-      DateTime? endTime,
-      TextStyle? titleStyle,
-      TextStyle? descriptionStyle,
-      DateTime? endDate,
-      DateTime? date,
-      int? id,
-      String? hash,
-      int? groupId,
-      List<String>? images,
-      List<ProfileEvent>? sharedWith}) {
+      {int? totalConfirmed,}) {
     return Event(
-      hash: hash ?? this.hash,
-      groupId: groupId ?? this.groupId,
-      images: images ?? List<String>.from(this.images),
-      sharedWith: sharedWith ?? List<ProfileEvent>.from(this.sharedWith),
-      date: date ?? this.date,
-      startTime: startTime ?? this.startTime!,
-      endTime: endTime ?? this.endTime!,
-      endDate: endDate ?? this.endDate,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      color: color ?? this.color,
-      descriptionStyle: descriptionStyle ?? this.descriptionStyle,
-      titleStyle: titleStyle ?? this.titleStyle!,
+      eventHash: eventHash,
+      date: date,
+      startTime: startTime!,
+      endTime:endTime!,
+      endDate: endDate,
+      title: title,
+      description: description,
+      color: color,
+      descriptionStyle: descriptionStyle,
+      titleStyle:titleStyle!,
+      totalConfirmed: totalConfirmed ?? this.totalConfirmed,
+      updatedAt: updatedAt,
+      totalProfiles: totalProfiles,
     );
   }
-  */
+  
 
   String getConfirmTitle() {
     return totalProfiles > 1 ? "($totalConfirmed/$totalProfiles) " : "";

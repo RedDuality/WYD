@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/view/events/rounded_event_tile.dart';
@@ -19,9 +20,9 @@ class EventTile<T> extends StatelessWidget {
   final DateTime startDuration;
   final DateTime endDuration;
 
-  List<Color> getProfileColors(Event event) {
+  List<Color> getProfileColors(BuildContext context, Event event) {
     var profilesConfirmed = event.profilesThatConfirmed();
-    final provider = ProfilesProvider();
+    final provider = Provider.of<ProfileProvider>(context, listen: false);
 
     return profilesConfirmed.map((hash) {
       final profile = provider.get(hash);
@@ -43,7 +44,7 @@ class EventTile<T> extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(2.0, 0.0, 3.0, 3.0),
             margin: const EdgeInsets.all(1.5),
             backgroundColor: event.color,
-            sideBarColors: getProfileColors(event),
+            sideBarColors: getProfileColors(context, event),
             sideBarWidth: 4,
             titleStyle: event.titleStyle,
             descriptionStyle: event.descriptionStyle,

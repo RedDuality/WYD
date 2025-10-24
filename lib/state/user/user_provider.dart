@@ -25,7 +25,7 @@ class UserProvider extends ChangeNotifier {
   }
 
   Set<String> getProfileHashes() {
-    return _user!.profileHashes;
+    return Set<String>.from(_user!.profileHashes);
   }
 
   Future<void> updateUser(User user) async {
