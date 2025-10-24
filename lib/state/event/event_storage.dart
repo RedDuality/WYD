@@ -6,7 +6,7 @@ import 'package:path/path.dart';
 import 'package:wyd_front/model/event.dart';
 
 class EventStorage {
-  static const _databaseName = 'eventCache.db';
+  static const _databaseName = 'eventStorage.db';
   static const _tableName = 'events';
   static const _databaseVersion = 1;
 
@@ -16,12 +16,12 @@ class EventStorage {
   EventStorage._internal();
   // --------------------------------
 
-  // StreamController notifies ALL listeners that the underlying data in range has changed.
-  final _rangeUpdateController = StreamController<DateTimeRange>.broadcast();
-  final _eventUpdateController = StreamController<Event>.broadcast();
+  // StreamController notifies the listener that the underlying data in range has changed.
+  final _rangeUpdateController = StreamController<DateTimeRange>();
+  final _eventUpdateController = StreamController<(Event, bool)>();
 
   Stream<DateTimeRange> get ranges => _rangeUpdateController.stream;
-  Stream<Event> get updates => _eventUpdateController.stream;
+  Stream<(Event, bool)> get updates => _eventUpdateController.stream;
 
   // In-memory cache for web/other environments where sqflite isn't used
   final Map<String, Event> _inMemoryStorage = {};
@@ -90,7 +90,7 @@ class EventStorage {
     }
 
     // Send a signal that data has been modified.
-    _eventUpdateController.sink.add(event);
+    _eventUpdateController.sink.add((event, false));
   }
 
   /// Saves multiple events and emits a single change event.
@@ -135,11 +135,7 @@ class EventStorage {
       _inMemoryStorage.remove(event.eventHash);
     }
 
-// TODO get the update correctly
-    _rangeUpdateController.sink.add(DateTimeRange(
-      start: DateTime.fromMillisecondsSinceEpoch(0),
-      end: DateTime.now().add(const Duration(days: 365 * 10)),
-    ));
+    _eventUpdateController.sink.add((event, true));
   }
 
   /// Given a period, this function returns events that overlaps it.
@@ -227,8 +223,20 @@ class EventStorage {
     return null;
   }
 
+  Future<void> clearAllEvents() async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return;
+
+      await db.delete(_tableName);
+    } else {
+      _inMemoryStorage.clear();
+    }
+  }
+
   // This should be called when the application is shutting down
   void close() {
+    _eventUpdateController.close();
     _rangeUpdateController.close();
   }
 }

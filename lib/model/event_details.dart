@@ -2,7 +2,7 @@ import 'package:wyd_front/model/media.dart';
 
 class EventDetails {
   String hash = "";
-  String? description = "";
+  String description = "";
   int totalImages = 0;
   DateTime? updatedAt;
   DateTime? validUntil;
@@ -11,7 +11,7 @@ class EventDetails {
 
   EventDetails({
     required this.hash,
-    this.description,
+    required this.description,
     required this.totalImages,
     this.updatedAt,
   });
@@ -20,7 +20,7 @@ class EventDetails {
   factory EventDetails.fromJson(Map<String, dynamic> json) {
     return EventDetails(
       hash: json['hash'] as String,
-      description: json['description'] as String?,
+      description: json['description'] as String? ?? '',
       totalImages: json['totalImages'] as int,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );

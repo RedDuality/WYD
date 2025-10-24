@@ -1,5 +1,5 @@
 class RetrieveMultipleEventsRequestDto {
-  List<String> profileHashes;
+  Set<String> profileHashes;
   DateTime startTime;
   DateTime? endTime;
 
@@ -12,7 +12,7 @@ class RetrieveMultipleEventsRequestDto {
 
   Map<String, dynamic> toJson() {
     return {
-      'profileHashes': profileHashes,
+      'profileHashes': profileHashes.toList(),
       'startTime': startTime.toUtc().toIso8601String(),
       'endTime': endTime?.toUtc().toIso8601String(),
     };

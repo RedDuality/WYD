@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   late int selectedIndex;
   bool private = true;
   String uri = "/";
@@ -25,29 +25,15 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     selectedIndex = 0;
 
-    _initializeServices();
     _loadUri();
-  }
+    _initializeServices();
 
-  Future<void> _initializeServices() async {
-    //TODO check the double photo retriever init
-    /*
-    EventService.retrieveMultiple().then((value) {
-      if (!kIsWeb) {
-        MediaAutoSelectService.init();
-      }
-    });*/
-    CommunityService().retrieveCommunities();
-
-    RealTimeUpdateService().initialize();
-    if (!kIsWeb) {
-      PermissionService.requestPermissions().then((value) {
-        NotificationService().initialize();
-        MediaAutoSelectService.init();
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeSecondaryServices();
+    });
   }
 
   Future<void> _loadUri() async {
@@ -60,9 +46,40 @@ class _HomePageState extends State<HomePage> {
       await UriService.saveUri("");
     }
 
+    if (!mounted) return;
     setState(() {
       isUriLoaded = true;
     });
+  }
+
+  Future<void> _initializeServices() async {
+    CommunityService().retrieveCommunities();
+  }
+
+  Future<void> _initializeSecondaryServices() async {
+    RealTimeUpdateService().initialize();
+
+    if (!kIsWeb) {
+      PermissionService.requestPermissions().then((value) {
+        NotificationService().initialize();
+        MediaAutoSelectService.checkEventsForPhotos();
+      });
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!kIsWeb) {
+      if (state == AppLifecycleState.resumed) {
+        MediaAutoSelectService.checkEventsForPhotos();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override

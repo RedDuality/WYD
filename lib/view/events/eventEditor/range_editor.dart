@@ -1,11 +1,18 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 
 class RangeEditor extends StatelessWidget {
-  final EventViewProvider provider;
-  const RangeEditor({super.key, required this.provider});
+  final DateTime startTime;
+  final DateTime endTime;
+  final Function(DateTime, DateTime) onDateChanged;
+
+  const RangeEditor({
+    super.key,
+    required this.startTime,
+    required this.endTime,
+    required this.onDateChanged,
+  });
 
   Future<DateTime?> selectDate(BuildContext context, initialDate) async {
     return await showDatePicker(
@@ -18,8 +25,7 @@ class RangeEditor extends StatelessWidget {
 
   Future<DateTime?> selectTime(BuildContext context, initialDate) async {
     var initialTime = TimeOfDay.fromDateTime(initialDate);
-    final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: initialTime);
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTime);
 
     if (picked != null && picked != initialTime) {
       return DateTimeField.combine(initialDate, picked);
@@ -27,11 +33,11 @@ class RangeEditor extends StatelessWidget {
     return null;
   }
 
-  void checkValues(EventViewProvider provider, DateTime start, DateTime end) {
+  void checkValues(DateTime start, DateTime end) {
     if (!end.isAfter(start)) {
       end = start.add(const Duration(hours: 1));
     }
-    provider.updateDates(start, end);
+    onDateChanged(start, end);
   }
 
   @override
@@ -46,38 +52,30 @@ class RangeEditor extends StatelessWidget {
             runSpacing: 8.0, // Space between widgets vertically
             children: [
               SizedBox(
-                width: constraints.maxWidth > 600
-                    ? constraints.maxWidth / 2 - 4
-                    : constraints.maxWidth,
+                width: constraints.maxWidth > 600 ? constraints.maxWidth / 2 - 4 : constraints.maxWidth,
                 child: DateTimeField(
                   key: UniqueKey(),
-                  initialValue: provider.startTime,
+                  initialValue: startTime,
                   decoration: const InputDecoration(
                     suffixIcon: Icon(Icons.calendar_today),
                     isDense: true, // Ensures a more compact height
                     border: OutlineInputBorder(borderSide: BorderSide.none),
                   ),
-                  format: constraints.maxWidth > 375
-                      ? DateFormat("EEEE, dd MMMM yyyy")
-                      : DateFormat("dd/MM/yy"),
+                  format: constraints.maxWidth > 375 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM/yy"),
                   onChanged: (DateTime? value) {
                     if (value != null) {
-                      value = DateTimeField.combine(value,
-                          TimeOfDay.fromDateTime(provider.startTime));
-                      checkValues(
-                          provider, value, provider.endTime);
+                      value = DateTimeField.combine(value, TimeOfDay.fromDateTime(startTime));
+                      checkValues(value, endTime);
                     }
                   },
                   onShowPicker: selectDate,
                 ),
               ),
               SizedBox(
-                width: constraints.maxWidth > 600
-                    ? (constraints.maxWidth / 2) - 4
-                    : constraints.maxWidth,
+                width: constraints.maxWidth > 600 ? (constraints.maxWidth / 2) - 4 : constraints.maxWidth,
                 child: DateTimeField(
                   key: UniqueKey(),
-                  initialValue: provider.startTime,
+                  initialValue: startTime,
                   decoration: const InputDecoration(
                     suffixIcon: Icon(Icons.access_time),
                     isDense: true, // Ensures a more compact height
@@ -86,10 +84,8 @@ class RangeEditor extends StatelessWidget {
                   format: DateFormat("HH:mm"),
                   onChanged: (DateTime? value) {
                     if (value != null) {
-                      value = DateTimeField.combine(provider.startTime,
-                          TimeOfDay.fromDateTime(value));
-                      checkValues(
-                          provider, value, provider.endTime);
+                      value = DateTimeField.combine(startTime, TimeOfDay.fromDateTime(value));
+                      checkValues(value, endTime);
                     }
                   },
                   onShowPicker: selectTime,
@@ -104,38 +100,30 @@ class RangeEditor extends StatelessWidget {
             runSpacing: 8.0, // Space between widgets vertically
             children: [
               SizedBox(
-                width: constraints.maxWidth > 600
-                    ? (constraints.maxWidth / 2) - 4
-                    : constraints.maxWidth,
+                width: constraints.maxWidth > 600 ? (constraints.maxWidth / 2) - 4 : constraints.maxWidth,
                 child: DateTimeField(
                   key: UniqueKey(),
-                  initialValue: provider.endTime,
+                  initialValue: endTime,
                   decoration: const InputDecoration(
                     suffixIcon: Icon(Icons.calendar_today),
                     isDense: true, // Ensures a more compact height
                     border: OutlineInputBorder(borderSide: BorderSide.none),
                   ),
-                  format: constraints.maxWidth > 375
-                      ? DateFormat("EEEE, dd MMMM yyyy")
-                      : DateFormat("dd/MM/yy"),
+                  format: constraints.maxWidth > 375 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM/yy"),
                   onChanged: (DateTime? value) {
                     if (value != null) {
-                      value = DateTimeField.combine(value,
-                          TimeOfDay.fromDateTime(provider.endTime));
-                      checkValues(provider,
-                          provider.startTime, value);
+                      value = DateTimeField.combine(value, TimeOfDay.fromDateTime(endTime));
+                      checkValues(startTime, value);
                     }
                   },
                   onShowPicker: selectDate,
                 ),
               ),
               SizedBox(
-                width: constraints.maxWidth > 600
-                    ? (constraints.maxWidth / 2) - 4
-                    : constraints.maxWidth,
+                width: constraints.maxWidth > 600 ? (constraints.maxWidth / 2) - 4 : constraints.maxWidth,
                 child: DateTimeField(
                   key: UniqueKey(),
-                  initialValue: provider.endTime,
+                  initialValue: endTime,
                   decoration: const InputDecoration(
                     suffixIcon: Icon(Icons.access_time),
                     isDense: true, // Ensures a more compact height
@@ -144,10 +132,8 @@ class RangeEditor extends StatelessWidget {
                   format: DateFormat("HH:mm"),
                   onChanged: (DateTime? value) {
                     if (value != null) {
-                      value = DateTimeField.combine(provider.endTime,
-                          TimeOfDay.fromDateTime(value));
-                      checkValues(provider,
-                          provider.startTime, value);
+                      value = DateTimeField.combine(endTime, TimeOfDay.fromDateTime(value));
+                      checkValues(startTime, value);
                     }
                   },
                   onShowPicker: selectTime,

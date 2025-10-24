@@ -79,13 +79,25 @@ class ProfileAPI {
     }
   }
 
-  Future<void> updateProfile(UpdateProfileRequestDto updateDto) async {
+  Future<RetrieveProfileResponseDto> updateProfile(UpdateProfileRequestDto updateDto) async {
     String url = '${functionUrl}Update';
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(updateDto));
 
     if (response.statusCode == 200) {
-      return;
+      return RetrieveProfileResponseDto.fromJson(json.decode(response.body));
+    }
+
+    throw "Error while updating the profile";
+  }
+
+  Future<RetrieveProfileResponseDto> retrieveDetailed(String profileId) async {
+    String url = '${functionUrl}RetrieveDetailed';
+
+    var response = await client.get(Uri.parse('$url/$profileId'));
+
+    if (response.statusCode == 200) {
+      return RetrieveProfileResponseDto.fromJson(json.decode(response.body));
     }
 
     throw "Error while updating the profile";

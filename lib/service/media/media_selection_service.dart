@@ -1,5 +1,7 @@
 import 'dart:core';
+import 'dart:io';
 import 'dart:typed_data';
+import 'package:exif/exif.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -10,14 +12,12 @@ import 'package:wyd_front/service/media/mimetype_service.dart';
 
 class MediaSelectionService {
   // cache is made of assetEntities
-  static Future<List<MediaData>> dataFromCache(
-      List<AssetEntity> entities) async {
+  static Future<List<MediaData>> dataFromCache(List<AssetEntity> entities) async {
     List<MediaData> compressedImages = [];
     for (AssetEntity asset in entities) {
       final Uint8List? data = await asset.originBytes;
 
-      var blob = await _createBlobData(asset.createDateTime, data!,
-          mimeType: asset.mimeType);
+      var blob = await _createBlobData(asset.createDateTime, data!, mimeType: asset.mimeType);
 
       if (blob != null) {
         compressedImages.add(blob);
@@ -37,37 +37,22 @@ class MediaSelectionService {
       return []; // User cancelled the picker
     }
 
+    return await _getFilesMediaData(result);
+  }
+
+  static Future<List<MediaData>> _getFilesMediaData(FilePickerResult pickerResult) async {
     List<MediaData> blobs = [];
-    for (PlatformFile platformFile in result.files) {
+    for (PlatformFile platformFile in pickerResult.files) {
       MediaData? blob;
       if (platformFile.path != null) {
         final Uint8List? fileData = platformFile.bytes;
         if (fileData != null) {
-          final String? mimeType = platformFile.extension != null
-              ? MimetypeService.getMimeTypeFromExtension(
-                  platformFile.extension!)
-              : null;
+          final String? mimeType =
+              platformFile.extension != null ? MimetypeService.getMimeTypeFromExtension(platformFile.extension!) : null;
 
-          // TODO time of creation
-          DateTime creationDate = DateTime.now();
-/*
-import 'package:exif/exif.dart';
-import 'dart:io';
+          DateTime creationDate = await _getMediaCreationDate(platformFile.path!);
 
-Future<DateTime?> getExifCreationDate(String path) async {
-  final bytes = await File(path).readAsBytes();
-  final tags = await readExifFromBytes(bytes);
-  if (tags.containsKey('Image DateTime')) {
-    final dateString = tags['Image DateTime']!.printable;
-    return DateTime.tryParse(dateString.replaceFirst(':', '-', 2));
-  }
-  return null;
-}
-
-*/
-
-          blob =
-              await _createBlobData(creationDate, fileData, mimeType: mimeType);
+          blob = await _createBlobData(creationDate, fileData, mimeType: mimeType);
         }
       }
       if (blob != null) {
@@ -80,9 +65,65 @@ Future<DateTime?> getExifCreationDate(String path) async {
     return blobs;
   }
 
-  static Future<MediaData?> _createBlobData(
-      DateTime creationDate, Uint8List data,
-      {String? mimeType}) async {
+  static Future<DateTime> _getMediaCreationDate(String path) async {
+    // --- Step 1: Try to resolve AssetEntity from path ---
+    try {
+      final asset = await _resolveAssetEntityFromPath(path);
+      if (asset != null) {
+        return asset.createDateTime;
+      }
+    } catch (_) {
+      // ignore PhotoManager errors
+    }
+
+    // --- Step 2: Try EXIF metadata ---
+    try {
+      final bytes = await File(path).readAsBytes();
+      final tags = await readExifFromBytes(bytes);
+
+      if (tags.containsKey('Image DateTime')) {
+        final dateString = tags['Image DateTime']!.printable;
+        final parsed = DateTime.tryParse(dateString.replaceFirst(':', '-', 2));
+        if (parsed != null) {
+          return parsed;
+        }
+      }
+    } catch (_) {
+      // ignore EXIF errors
+    }
+
+    // --- Step 3: Fallback to FileStat ---
+    try {
+      final stat = await FileStat.stat(path);
+      return stat.changed; // always non-null
+    } catch (_) {
+      // ignore FileStat errors
+    }
+
+    // --- Step 4: Last resort ---
+    return DateTime.now();
+  }
+
+  /// Helper: try to find an AssetEntity from a file path
+  static Future<AssetEntity?> _resolveAssetEntityFromPath(String path) async {
+    final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
+      type: RequestType.common, // images + videos
+    );
+
+    for (final album in albums) {
+      final int count = await album.assetCountAsync;
+      final assets = await album.getAssetListRange(start: 0, end: count);
+      for (final asset in assets) {
+        final file = await asset.file;
+        if (file != null && file.path == path) {
+          return asset;
+        }
+      }
+    }
+    return null;
+  }
+
+  static Future<MediaData?> _createBlobData(DateTime creationDate, Uint8List data, {String? mimeType}) async {
     // First, check if the input data is empty
     if (data.isEmpty) {
       debugPrint('Input data is empty. Cannot create blob.');
@@ -112,7 +153,6 @@ Future<DateTime?> getExifCreationDate(String path) async {
   static Future<Uint8List?> _compressImage(Uint8List imageData) async {
     if (imageData.isNotEmpty) {
       try {
-        // TODO check in firefox
         final compressedImageData = await FlutterImageCompress.compressWithList(
           imageData,
           quality: 75,

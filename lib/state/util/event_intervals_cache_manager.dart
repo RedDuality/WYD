@@ -140,4 +140,17 @@ class EventIntervalsCacheManager {
 
     return null;
   }
+
+  Future<void> clearAllIntervals() async {
+    if (!kIsWeb) {
+      if (_database == null) {
+        debugPrint("database null");
+        return;
+      }
+
+      await _database!.delete(_tableName);
+    }
+
+    _cachedIntervals.clear();
+  }
 }

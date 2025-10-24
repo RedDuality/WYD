@@ -1,27 +1,30 @@
+import 'dart:async';
+
 import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
-import 'package:wyd_front/model/event_details.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
-import 'package:wyd_front/state/event/event_details_provider.dart';
+import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/event/profile_events_provider.dart';
-import 'package:wyd_front/state/eventEditor/event_view_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class EventViewService {
-  // TODO put this under a provider
-  static void initialize(Event? initialEvent, DateTime? date, bool confirmed) {
-    EventDetails? details;
-    if (initialEvent != null) {
-      EventRetrieveService.retrieveDetailsByHash(initialEvent.eventHash);
+  static final _profileColorChangeController = StreamController<void>();
 
-      details = EventDetailsProvider().get(initialEvent.eventHash);
+  static Stream<void> get onProfileColorChangedStream => _profileColorChangeController.stream;
+
+  static void notifyProfileColorChanged() {
+    if (_profileColorChangeController.hasListener) {
+      _profileColorChangeController.add(null);
     }
-    EventViewProvider().initialize(initialEvent, date, confirmed, details);
+  }
+
+  static void dispose() {
+    _profileColorChangeController.close();
   }
 
   static Future<Event> create(Event event) async {
@@ -37,12 +40,12 @@ class EventViewService {
 
   static Future<void> localConfirm(String eventHash, bool confirmed, {String? pHash}) async {
     var event = await EventStorage().getEventByHash(eventHash);
-    String profileHash = pHash ?? UserProvider().getCurrentProfileHash();
+    if (event != null) {
+      String profileHash = pHash ?? UserProvider().getCurrentProfileHash();
 
-    if (ProfileEventsProvider().confirm(eventHash, confirmed, profileHash)) {
-      event!.totalConfirmed += confirmed ? 1 : -1;
-      EventViewProvider().updateCurrentEvent(event);
-      EventStorage().saveEvent(event);
+      if (ProfileEventsProvider().confirm(eventHash, confirmed, profileHash)) {
+        EventRetrieveService.retrieveEssentialByHash(eventHash);
+      }
     }
   }
 
@@ -68,10 +71,8 @@ class EventViewService {
     event.removeProfile(pHash);
 
     if (event.countMatchingProfiles(UserProvider().getProfileHashes()) == 0) {
-      EventViewProvider().close();
-
       ProfileEventsProvider().remove(event.eventHash);
-      EventDetailsProvider().remove(event.eventHash);
+      EventDetailsStorage().remove(event.eventHash);
       EventStorage().remove(event);
     }
   }

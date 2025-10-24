@@ -1,8 +1,8 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/state/event/range_controller.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
@@ -22,7 +22,6 @@ class EventsPage extends StatefulWidget {
 
 class _EventsPageState extends State<EventsPage> {
   late RangeController rangeController;
-  late CurrentEventsProvider eventsController;
 
   bool _dialogShown = false;
   late bool _private;
@@ -32,8 +31,11 @@ class _EventsPageState extends State<EventsPage> {
     super.initState();
     _private = widget.private;
     rangeController = RangeController(DateTime.now(), 7);
-    eventsController = CurrentEventsProvider(rangeController, _private);
-    _checkAndShowLinkEvent(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final eventsController = Provider.of<CurrentEventsProvider>(context, listen: false);
+      eventsController.initialize(rangeController, _private);
+      _checkAndShowLinkEvent(context);
+    });
   }
 
   void _checkAndShowLinkEvent(BuildContext context) {
@@ -43,12 +45,12 @@ class _EventsPageState extends State<EventsPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
 
-          EventViewService.initialize(event, null, event.currentConfirmed());
           if (context.mounted) {
             showCustomDialog(
                 context,
                 EventView(
                   eventHash: event.eventHash,
+                  confirmed: event.currentConfirmed(),
                 ));
           }
         });
@@ -57,46 +59,60 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
+  void _changeMode(bool privateMode) {
+    setState(() {
+      _private = privateMode;
+      Provider.of<CurrentEventsProvider>(context, listen: false).changeMode(_private);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: Header(title: _private ? 'Agenda' : 'Eventi', actions: actions()),
-      body: WeekView(
-        eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
-          return EventTile(
-              date: date,
-              events: events.whereType<Event>().toList(),
-              boundary: boundary,
-              startDuration: startDuration,
-              endDuration: endDuration);
-        },
-        controller: eventsController,
-        showLiveTimeLineInAllDays: false,
-        scrollOffset: 480.0,
-        onEventTap: (events, date) {
-          Event selectedEvent = events.whereType<Event>().toList().first;
+      body: Consumer<CurrentEventsProvider>(builder: (context, eventsController, _) {
+        return WeekView(
+          eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
+            return EventTile(
+                date: date,
+                events: events.whereType<Event>().toList(),
+                boundary: boundary,
+                startDuration: startDuration,
+                endDuration: endDuration);
+          },
+          controller: eventsController,
+          showLiveTimeLineInAllDays: false,
+          scrollOffset: 480.0,
+          onEventTap: (events, date) {
+            Event selectedEvent = events.whereType<Event>().toList().first;
 
-          EventViewService.initialize(selectedEvent, null, widget.private);
+            EventRetrieveService.retrieveDetailsByHash(selectedEvent.eventHash);
 
-          showCustomDialog(
-              context,
-              EventView(
-                eventHash: selectedEvent.eventHash,
-              ));
-        },
-        onDateLongPress: (date) {
-          EventViewService.initialize(null, date, widget.private);
+            showCustomDialog(
+                context,
+                EventView(
+                  eventHash: selectedEvent.eventHash,
+                  confirmed: widget.private,
+                ));
+          },
+          onDateLongPress: (date) {
 
-          showCustomDialog(context, EventView());
-        },
-        startDay: WeekDays.monday,
-        minuteSlotSize: MinuteSlotSize.minutes15,
-        keepScrollOffset: true,
-        onPageChange: (date, page) {
-          // Update the range so listeners (like CurrentViewEventsProvider) are notified.
-          rangeController.setRange(date, 7);
-        },
-      ),
+            showCustomDialog(
+                context,
+                EventView(
+                  confirmed: widget.private,
+                  date: date,
+                ));
+          },
+          startDay: WeekDays.monday,
+          minuteSlotSize: MinuteSlotSize.minutes15,
+          keepScrollOffset: true,
+          onPageChange: (date, page) {
+            // Update the range so listeners (like CurrentViewEventsProvider) are notified.
+            rangeController.setRange(date, 7);
+          },
+        );
+      }),
       floatingActionButton: AddEventButton(
         confirmed: widget.private,
       ),
@@ -121,10 +137,7 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     child: TextButton.icon(
                       onPressed: () {
-                        setState(() {
-                          _private = false;
-                          eventsController.changeMode(_private);
-                        });
+                        _changeMode(false);
                       },
                       icon: const Icon(Icons.event, size: 30, color: Colors.white),
                       label: showText
@@ -149,10 +162,7 @@ class _EventsPageState extends State<EventsPage> {
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.event, size: 30),
                       onPressed: () {
-                        setState(() {
-                          _private = false;
-                          eventsController.changeMode(_private);
-                        });
+                        _changeMode(false);
                       },
                     ),
                   );
@@ -172,10 +182,7 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     child: TextButton.icon(
                       onPressed: () {
-                        setState(() {
-                          _private = true;
-                          eventsController.changeMode(_private);
-                        });
+                        _changeMode(true);
                       },
                       icon: const Icon(Icons.event_available, size: 30, color: Colors.white),
                       label: showText
@@ -200,10 +207,7 @@ class _EventsPageState extends State<EventsPage> {
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.event_available, size: 30),
                       onPressed: () {
-                        setState(() {
-                          _private = true;
-                          eventsController.changeMode(_private);
-                        });
+                        _changeMode(true);
                       },
                     ),
                   );

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/model/profile_service.dart';
+import 'package:wyd_front/service/profile/profile_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/event/current_events_provider.dart';
-import 'package:wyd_front/state/profile/profiles_provider.dart';
 
 class ProfileEditor extends StatefulWidget {
   final Profile profile;
@@ -41,22 +39,13 @@ class ProfileEditorState extends State<ProfileEditor> {
   }
 
   void update() async {
-    final profilesProvider = Provider.of<ProfilesProvider>(context, listen: false);
-    final eventProvider = Provider.of<CurrentEventsProvider>(context, listen: false);
-
     final updateDto = UpdateProfileRequestDto(
       profileHash: widget.profile.id,
       name: nameController.text != widget.profile.name ? nameController.text : null,
       tag: tagController.text != widget.profile.tag ? tagController.text : null,
       color: colorChanged ? _selectedColor.toARGB32() : null,
     );
-    await ProfileService().updateProfile(updateDto);
-    var updatedProfile =
-        widget.profile.copyWith(name: nameController.text, tag: tagController.text, color: _selectedColor);
-    profilesProvider.addAll([updatedProfile]);
-
-    // TODO
-    if (colorChanged) eventProvider.refresh();
+    await ProfileService.updateProfile(updateDto, widget.profile);
   }
 
   @override
@@ -157,6 +146,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                             if (_formKey.currentState!.validate()) {
                               update();
                             }
+                            context.pop();
                           },
                           child: Text("Save"))
                       : Container(),

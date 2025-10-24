@@ -8,5 +8,5 @@ enum UpdateType {
   declineEvent,
   deleteEvent,
   deleteForAll,
-  profileDetails
+  updateProfile
 }
