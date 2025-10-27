@@ -36,7 +36,6 @@ class EventViewEditor extends StatefulWidget {
 }
 
 class _EventViewEditorState extends State<EventViewEditor> {
-  late Event? event;
   late bool exists;
   bool shared = false;
 
@@ -55,22 +54,19 @@ class _EventViewEditorState extends State<EventViewEditor> {
   @override
   void initState() {
     super.initState();
+    exists = widget.event != null;
 
-    event = widget.event;
-
-    exists = event != null;
-
-    startTime = event?.startTime ?? (widget.date ?? DateTime.now());
-    endTime = event?.endTime ?? (widget.date ?? DateTime.now()).add(const Duration(hours: 1));
-    totalConfirmed = event?.totalConfirmed ?? 1;
-    totalProfiles = event?.totalProfiles ?? 1;
+    startTime = widget.event?.startTime ?? (widget.date ?? DateTime.now());
+    endTime = widget.event?.endTime ?? (widget.date ?? DateTime.now()).add(const Duration(hours: 1));
+    totalConfirmed = widget.event?.totalConfirmed ?? 1;
+    totalProfiles = widget.event?.totalProfiles ?? 1;
     if (exists) {
       var details = EventDetailsStorage().get(widget.event!.eventHash);
       if (details != null) {
         initialDescription = details.description;
       }
 
-      shared = event!.totalProfiles > 1;
+      shared = widget.event!.totalProfiles > 1;
     }
 
     _descriptionController.text = initialDescription;
@@ -95,7 +91,6 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   void setDates(DateTime startTime, DateTime endTime) {
     setState(() {
-      debugPrint("datescalled");
       this.startTime = startTime;
       this.endTime = endTime;
 
@@ -105,12 +100,12 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   bool _checkChanges() {
     if (widget.event == null) return false;
-    var titlechanged = widget.event!.title != widget.titleController.value.text;
-    var descriptionChanged = initialDescription != _descriptionController.value.text;
+    var titlechanged = widget.event!.title.trim() != widget.titleController.text.trim();
+    var descriptionChanged = initialDescription.trim() != _descriptionController.text.trim();
     var startTimeChanged = widget.event!.startTime != startTime;
     var endTimeChanged = widget.event!.endTime != endTime;
 
-    debugPrint("$titlechanged, $descriptionChanged, $startTimeChanged, $endTimeChanged");
+    // debugPrint("$titlechanged, $descriptionChanged, $startTimeChanged, $endTimeChanged");
 
     return startTimeChanged || endTimeChanged || titlechanged || descriptionChanged;
   }
@@ -130,8 +125,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
         endTime: endTime,
         endDate: endTime,
         updatedAt: DateTime.now(),
-        title: widget.titleController.text,
-        description: _descriptionController.text,
+        title: widget.titleController.text.trim(),
+        description: _descriptionController.text.trim(),
         totalConfirmed: totalConfirmed,
         totalProfiles: totalProfiles);
 
@@ -148,8 +143,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
     if (!hasBeenChanged || widget.event == null) return null;
     UpdateEventRequestDto updateDto = UpdateEventRequestDto(
       eventHash: widget.event!.eventHash,
-      title: widget.titleController.text != widget.event!.title ? widget.titleController.text : null,
-      description: _descriptionController.text != initialDescription ? _descriptionController.text : null,
+      title: widget.titleController.text.trim() != widget.event!.title.trim() ? widget.titleController.text.trim() : null,
+      description: _descriptionController.text.trim() != initialDescription.trim() ? _descriptionController.text.trim() : null,
       startTime: startTime != widget.event!.startTime ? startTime : null,
       endTime: endTime != widget.event!.endTime ? endTime : null,
     );
@@ -176,6 +171,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   @override
   Widget build(BuildContext context) {
+    hasBeenChanged = _checkChanges();
     var isWideScreen = MediaQuery.of(context).size.width > 450;
 
     return Column(
@@ -188,8 +184,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
             const Text("Dettagli"),
             if (exists && shared && isWideScreen)
               OverlayListButton(
-                title: "${event!.getConfirmTitle()} Confirmed",
-                child: ConfirmedList(eventHash: event!.eventHash),
+                title: "${widget.event!.getConfirmTitle()} Confirmed",
+                child: ConfirmedList(eventHash: widget.event!.eventHash),
               ),
           ],
         ),
@@ -198,8 +194,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
             children: [
               const SizedBox(height: 4),
               OverlayListButton(
-                title: "${event!.getConfirmTitle()} Confirmed",
-                child: ConfirmedList(eventHash: event!.eventHash),
+                title: "${widget.event!.getConfirmTitle()} Confirmed",
+                child: ConfirmedList(eventHash: widget.event!.eventHash),
               ),
             ],
           ),
@@ -235,7 +231,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   onPressed: () {
                     showCustomDialog(
                       context,
-                      SharePage(eventTitle: event!.title, eventHash: event!.eventHash),
+                      SharePage(eventTitle: widget.event!.title, eventHash: widget.event!.eventHash),
                     );
                   },
                   child: Row(
@@ -252,7 +248,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                 ElevatedButton(
                   onPressed: () async {
                     String? siteUrl = dotenv.env['SITE_URL'];
-                    String fullUrl = "$siteUrl/#/shared?event=${event!.eventHash}";
+                    String fullUrl = "$siteUrl/#/shared?event=${widget.event!.eventHash}";
 
                     if (kIsWeb) {
                       await Clipboard.setData(ClipboardData(text: fullUrl));
@@ -262,7 +258,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                       }
                     } else {
                       // If running on mobile, use the share dialog
-                      final result = await SharePlus.instance.share(ShareParams(text: fullUrl, subject: event!.title));
+                      final result = await SharePlus.instance.share(ShareParams(text: fullUrl, subject: widget.event!.title));
                       if (result == ShareResult.unavailable) {
                         debugPrint("It was not possible to share the event");
                       }
@@ -279,10 +275,10 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   ),
                 ),
               const SizedBox(width: 10),
-              if (exists && !hasBeenChanged && event!.currentConfirmed()) // Decline
+              if (exists && !hasBeenChanged && widget.event!.currentConfirmed()) // Decline
                 ElevatedButton(
                   onPressed: () async {
-                    await EventViewService.decline(event!.eventHash);
+                    await EventViewService.decline(widget.event!.eventHash);
                   },
                   child: Row(
                     children: [
@@ -296,10 +292,10 @@ class _EventViewEditorState extends State<EventViewEditor> {
                     ],
                   ),
                 ),
-              if (exists && !hasBeenChanged && !event!.currentConfirmed()) // Confirm
+              if (exists && !hasBeenChanged && !widget.event!.currentConfirmed()) // Confirm
                 ElevatedButton(
                   onPressed: () async {
-                    await EventViewService.confirm(event!.eventHash);
+                    await EventViewService.confirm(widget.event!.eventHash);
                   },
                   child: Row(
                     children: [
@@ -341,7 +337,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
           ),
         ),
         SizedBox(height: 5),
-        if (exists && event!.isOwner())
+        if (exists && widget.event!.isOwner())
           Align(
             alignment: Alignment.bottomRight,
             child: Row(
@@ -349,7 +345,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    _deleteEvent(event!.eventHash);
+                    _deleteEvent(widget.event!.eventHash);
                   },
                   child: Row(
                     children: [

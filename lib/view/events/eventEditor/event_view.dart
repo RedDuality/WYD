@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
@@ -74,14 +73,18 @@ class EventViewState extends State<EventView> {
               title: Container(
                 alignment: Alignment.bottomLeft,
                 padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-                child: Selector<CurrentEventsProvider, Event?>(
-                  selector: (_, provider) => eventHash != null ? provider.get(eventHash!) : null,
-                  builder: (context, event, child) {
+                child: Consumer<CurrentEventsProvider>(
+                  builder: (context, provider, child) {
+                    final event = eventHash != null ? provider.get(eventHash!) : null;
+                    final newTitle = event?.title ?? "Evento senza nome";
+
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _titleController.text = event?.title ?? "Evento senza nome";
-                      _titleController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: _titleController.text.length),
-                      );
+                      if (_titleController.text != newTitle) {
+                        _titleController.text = newTitle;
+                        _titleController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: _titleController.text.length),
+                        );
+                      }
                     });
 
                     return TextFormField(
@@ -111,9 +114,9 @@ class EventViewState extends State<EventView> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
-              child: Selector<CurrentEventsProvider, Event?>(
-                selector: (_, provider) => eventHash != null ? provider.get(eventHash!) : null,
-                builder: (context, event, child) {
+              child: Consumer<CurrentEventsProvider>(
+                builder: (context, provider, child) {
+                  final event = eventHash != null ? provider.get(eventHash!) : null;
                   return EventViewEditor(
                     event: event,
                     confirmed: widget.confirmed,

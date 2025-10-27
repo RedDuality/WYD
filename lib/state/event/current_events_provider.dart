@@ -102,7 +102,7 @@ class CurrentEventsProvider extends EventController {
     final exists = allEvents.contains(event);
 
     if (exists) {
-      remove(event);
+      super.remove(event);
     }
 
     if (!deleted && (!exists || isFocused)) {
