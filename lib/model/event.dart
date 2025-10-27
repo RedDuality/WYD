@@ -7,7 +7,7 @@ import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 // ignore: must_be_immutable
-class Event extends CalendarEventData {
+class Event extends CalendarEventData{
   final String eventHash;
   DateTime updatedAt;
   int totalConfirmed;
@@ -81,27 +81,6 @@ class Event extends CalendarEventData {
     );
   }
 
-  
-  Event copy(
-      {int? totalConfirmed,}) {
-    return Event(
-      eventHash: eventHash,
-      date: date,
-      startTime: startTime!,
-      endTime:endTime!,
-      endDate: endDate,
-      title: title,
-      description: description,
-      color: color,
-      descriptionStyle: descriptionStyle,
-      titleStyle:titleStyle!,
-      totalConfirmed: totalConfirmed ?? this.totalConfirmed,
-      updatedAt: updatedAt,
-      totalProfiles: totalProfiles,
-    );
-  }
-  
-
   String getConfirmTitle() {
     return totalProfiles > 1 ? "($totalConfirmed/$totalProfiles) " : "";
   }
@@ -129,11 +108,6 @@ class Event extends CalendarEventData {
     return result;
   }
 
-  // for delete
-  void removeProfile(String profileHash) {
-    ProfileEventsProvider().removeSingle(eventHash, profileHash);
-  }
-
   //for delete
   int countMatchingProfiles(Set<String> userProfileHashes) {
     var myprofiles = UserProvider().getProfileHashes().toSet();
@@ -141,4 +115,10 @@ class Event extends CalendarEventData {
     var result = eventProfiles.where((profileEvent) => myprofiles.contains(profileEvent.profileHash)).length;
     return result;
   }
+
+  // for delete
+  void removeProfile(String profileHash) {
+    ProfileEventsProvider().removeSingle(eventHash, profileHash);
+  }
+
 }

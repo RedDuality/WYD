@@ -6,6 +6,7 @@ import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
+import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
@@ -75,6 +76,20 @@ class EventAPI {
     }
 
     throw "Error while retrieving event";
+  }
+
+  Future<Set<ProfileEvent>> retriveProfileEvents(String eventHash) async {
+    String url = '${functionUrl}GetProfileEvents';
+
+    var response = await client.get(Uri.parse('$url/$eventHash'));
+    if (response.statusCode == 200) {
+      var decoded = jsonDecode(response.body) as List<dynamic>;
+      var pes = decoded.map((pe) => ProfileEvent.fromJson(pe as Map<String, dynamic>)).toSet();
+
+      return pes.cast<ProfileEvent>();
+    }
+
+    throw "Error while retrieving the profiles of the event";
   }
 
   Future<RetrieveEventResponseDto> create(CreateEventRequestDto createDto) async {

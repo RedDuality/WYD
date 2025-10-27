@@ -53,8 +53,6 @@ class ProfileRetrieveService {
   // for user's profile update
   Future<void> retrieveDetailed(String profileId) async {
     var dto = await ProfileAPI().retrieveDetailed(profileId);
-    ProfileStorageService.update(dto);
+    await ProfileStorageService.update(dto);
   }
-
-
 }

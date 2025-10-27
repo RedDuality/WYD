@@ -13,6 +13,7 @@ class Profile {
   Role role;
   bool mainProfile = false;
 
+  
   Profile({
     this.id = "",
     this.tag = "",

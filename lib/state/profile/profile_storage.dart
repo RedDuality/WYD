@@ -94,6 +94,7 @@ class ProfileStorage {
 
   /// Save or update a profile.
   Future<void> saveProfile(Profile profile) async {
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
