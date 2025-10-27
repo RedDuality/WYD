@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
 import 'package:wyd_front/model/profile.dart';
@@ -10,13 +8,15 @@ import 'package:wyd_front/state/profile/profile_storage.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class ProfileStorageService {
-  static void addProfiles(List<RetrieveProfileResponseDto> dtos) {
-    dtos.map((dto) => addProfile(dto));
+  static Future<void> addProfiles(List<RetrieveProfileResponseDto> dtos) async {
+    for (var dto in dtos) {
+      await addProfile(dto);
+    }
   }
 
   static Future<void> addProfile(RetrieveProfileResponseDto dto) async {
     var profile = Profile.fromDto(dto);
-    ProfileStorage().saveProfile(profile);
+    await ProfileStorage().saveProfile(profile);
   }
 
   static Future<void> update(RetrieveProfileResponseDto dto) async {

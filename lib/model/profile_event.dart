@@ -19,7 +19,12 @@ class ProfileEvent {
 
   factory ProfileEvent.fromJson(Map<String, dynamic> json) {
     return switch (json) {
-      {'profileHash': String profileHash, 'role': int? role, 'confirmed': bool confirmed, 'trusted': bool trusted} =>
+      {
+        'profileHash': String profileHash,
+        'role': int? role,
+        'confirmed': bool confirmed,
+        'trusted': bool trusted,
+      } =>
         ProfileEvent(profileHash, EventRole.values[role ?? 0], confirmed, trusted),
       _ => throw const FormatException('Failed to decode ProfileEvent')
     };

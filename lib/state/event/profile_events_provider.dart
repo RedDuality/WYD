@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/model/profile_event.dart';
 
 // Assuming ProfileEvent and EventRole are defined elsewhere
@@ -14,6 +15,12 @@ class ProfileEventsProvider extends ChangeNotifier {
   final Map<String, Set<ProfileEvent>> _profileEvents = {};
 
   Set<ProfileEvent> get(String eventHash) => _profileEvents[eventHash]!;
+
+  Future<Set<ProfileEvent>> retrieve(String eventHash)  async {
+    var profiles = await EventAPI().retriveProfileEvents(eventHash);
+
+    return profiles;
+  }
 
   ProfileEvent? getSingle(String eventHash, String profileHash) {
     for (final pe in get(eventHash)) {
