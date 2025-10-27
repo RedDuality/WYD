@@ -8,7 +8,6 @@ import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class EventRetrieveService {
-
   static Future<List<RetrieveEventResponseDto>> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
         profileHashes: UserProvider().getProfileHashes(),
@@ -39,6 +38,18 @@ class EventRetrieveService {
     EventStorageService.addEvent(event);
   }
 
+  static Future<void> checkEventUpdatesAfter(DateTime lastCheckedTime) async {
+    var retrieveDto = RetrieveMultipleEventsRequestDto(
+      profileHashes: UserProvider().getProfileHashes(),
+      startTime: lastCheckedTime,
+    );
+
+    
+    var updatedEvents = await EventAPI().retrieveUpdatedAfter(retrieveDto);
+    for (var eventDto in updatedEvents) {
+      EventStorageService.addEvent(eventDto);
+    }
+  }
 
   //someone shared a link, have to also add on the backend
   static Future<Event> retrieveAndAddByHash(String eventHash) async {
@@ -51,6 +62,4 @@ class EventRetrieveService {
       return event;
     }
   }
-
-
 }

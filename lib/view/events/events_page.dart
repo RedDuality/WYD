@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -86,7 +88,7 @@ class _EventsPageState extends State<EventsPage> {
           onEventTap: (events, date) {
             Event selectedEvent = events.whereType<Event>().toList().first;
 
-            EventRetrieveService.retrieveDetailsByHash(selectedEvent.eventHash);
+            unawaited(EventRetrieveService.retrieveDetailsByHash(selectedEvent.eventHash));
 
             showCustomDialog(
                 context,

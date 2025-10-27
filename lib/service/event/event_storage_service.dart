@@ -44,22 +44,6 @@ class EventStorageService {
     return event;
   }
 
-/*
-  void addEvent(Event event) {
-    var originalEvent = findEventByHash(event.eventHash);
-
-    if (originalEvent != null && event.updatedAt.isAfter(originalEvent.updatedAt)) {
-      if (originalEvent.endTime != event.endTime) {
-      
-        MediaAutoSelectService.addTimer(event);
-      }
-      super.update(originalEvent, event);
-    } else {
-      MediaAutoSelectService.addTimer(event);
-      super.add(event);
-    }
-  }
-  */
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
 
