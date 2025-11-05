@@ -7,7 +7,7 @@ import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 // ignore: must_be_immutable
-class Event extends CalendarEventData{
+class Event extends CalendarEventData {
   final String eventHash;
   DateTime updatedAt;
   int totalConfirmed;
@@ -26,10 +26,12 @@ class Event extends CalendarEventData{
 
   Event({
     this.eventHash = "",
+    // in Utc time
     required this.updatedAt,
     required this.totalConfirmed,
     required this.totalProfiles,
     DateTime? date,
+    // in Utc time
     required DateTime startTime,
     required DateTime endTime,
     DateTime? endDate,
@@ -63,22 +65,35 @@ class Event extends CalendarEventData{
 
   factory Event.fromDbMap(Map<String, dynamic> map) {
     // Convert Unix timestamps (milliseconds since epoch) back to DateTime
-    final startTime = DateTime.fromMillisecondsSinceEpoch(map['startTime'] as int).toLocal();
-    final endTime = DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int).toLocal();
-    final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toLocal();
+    final startTime = DateTime.fromMillisecondsSinceEpoch(map['startTime'] as int).toUtc();
+    final endTime = DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int).toUtc();
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toUtc();
 
     return Event(
       eventHash: map['eventHash'] as String,
       updatedAt: updatedAt,
       title: map['title'] as String,
+      date: startTime,
       startTime: startTime,
       endTime: endTime,
+      endDate: endTime,
       totalProfiles: map['totalProfiles'] as int,
       totalConfirmed: map['totalConfirmed'] as int,
-      // Pass the DateTime properties to the CalendarEventData super constructor
-      date: startTime.toLocal(),
-      endDate: endTime.toLocal(),
     );
+  }
+
+  /// Converts the Dart Event object to a Map for SQLite.
+  Map<String, dynamic> toDbMap() {
+    return {
+      'eventHash': eventHash,
+      'title': title,
+      'startTime': startTime!.toUtc().millisecondsSinceEpoch,
+      'endTime': endTime!.toUtc().millisecondsSinceEpoch,
+      'updatedAt': updatedAt.millisecondsSinceEpoch,
+      'totalConfirmed': totalConfirmed,
+      'totalProfiles': totalProfiles,
+      'hasCachedMedia': hasCachedMedia ? 1 : 0,
+    };
   }
 
   String getConfirmTitle() {
@@ -120,5 +135,4 @@ class Event extends CalendarEventData{
   void removeProfile(String profileHash) {
     ProfileEventsProvider().removeSingle(eventHash, profileHash);
   }
-
 }

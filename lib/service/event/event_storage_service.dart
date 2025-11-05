@@ -8,10 +8,10 @@ import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class EventStorageService {
-  static void addEvents(List<RetrieveEventResponseDto> dtos, DateTimeRange dateRange) {
+  static Future<void> addEvents(List<RetrieveEventResponseDto> dtos, DateTimeRange dateRange) async {
     // first update the storage
     var events = dtos.map(Event.fromDto).toList();
-    EventStorage().saveMultiple(events, dateRange);
+    await EventStorage().saveMultiple(events, dateRange);
 
     // then details and profileEvents
 

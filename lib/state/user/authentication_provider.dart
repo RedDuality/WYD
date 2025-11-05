@@ -93,7 +93,7 @@ class AuthenticationProvider with ChangeNotifier {
         await UserService().retrieveUser(); //sets user and profiles if successful
         _isBackendVerified = true;
       } else {
-        throw "It was not possible to login";
+        throw "It was not possible to log in";
       }
     } catch (e) {
       throw e.toString();

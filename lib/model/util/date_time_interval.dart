@@ -18,15 +18,15 @@ extension DateTimeInterval on DateTimeRange {
 
   Map<String, dynamic> toDatabaseMap() {
     return {
-      'start_timestamp': start.millisecondsSinceEpoch,
-      'end_timestamp': end.millisecondsSinceEpoch,
+      'start_timestamp': start.toUtc().millisecondsSinceEpoch,
+      'end_timestamp': end.toUtc().millisecondsSinceEpoch,
     };
   }
 
   static DateTimeRange fromDatabaseMap(Map<String, dynamic> map) {
     return DateTimeRange(
-      start: DateTime.fromMillisecondsSinceEpoch(map['start_timestamp']),
-      end: DateTime.fromMillisecondsSinceEpoch(map['end_timestamp']),
+      start: DateTime.fromMillisecondsSinceEpoch(map['start_timestamp']).toUtc(),
+      end: DateTime.fromMillisecondsSinceEpoch(map['end_timestamp']).toUtc(),
     );
   }
 }

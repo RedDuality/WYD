@@ -11,8 +11,8 @@ class EventRetrieveService {
   static Future<List<RetrieveEventResponseDto>> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
         profileHashes: UserProvider().getProfileHashes(),
-        startTime: retrieveInterval.start,
-        endTime: retrieveInterval.end);
+        startTime: retrieveInterval.start.toUtc(),
+        endTime: retrieveInterval.end.toUtc());
 
     var dtos = await EventAPI().listEvents(retrieveDto);
     return dtos;

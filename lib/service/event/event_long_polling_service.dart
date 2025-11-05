@@ -17,7 +17,7 @@ class EventLongPollingService {
 
   static void _scheduleNextCheck() async {
     final lastCheckedTime = await _loadLastCheckedTime();
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
     final nextDue = lastCheckedTime.add(_pollingInterval);
 
     final delay = nextDue.isAfter(now) ? nextDue.difference(now) : Duration.zero;
@@ -74,11 +74,11 @@ class EventLongPollingService {
     final dateTimeString = prefs.getString('eventLongPollingLastTime');
     if (dateTimeString != null) {
       try {
-        return DateTime.parse(dateTimeString).toLocal();
+        return DateTime.parse(dateTimeString).toUtc();
       } catch (e) {
         debugPrint("Error while converting last long polled time value: $e");
       }
     }
-    return DateTime.now(); // events are being retrieved by the eventRetrieveService
+    return DateTime.now().toUtc(); // events are being retrieved by the eventRetrieveService
   }
 }
