@@ -38,6 +38,21 @@ class EventAPI {
     throw "There was an error while fetching events";
   }
 
+  Future<List<RetrieveEventResponseDto>> retrieveUpdatedAfter(RetrieveMultipleEventsRequestDto retrieveEventsDto) async {
+    String url = '${functionUrl}UpdateByProfile';
+
+    var response = await client.post(Uri.parse(url), body: jsonEncode(retrieveEventsDto));
+
+    if (response.statusCode == 200) {
+      var dtos = List<RetrieveEventResponseDto>.from(
+          json.decode(response.body).map((dto) => RetrieveEventResponseDto.fromJson(dto)));
+
+      return dtos;
+    }
+
+    throw "There was an error while fetching updated events";
+  }
+
   Future<RetrieveEventResponseDto> retrieveEssentialsFromHash(String eventHash) async {
     String url = '${functionUrl}RetrieveEssentials';
 
@@ -50,6 +65,8 @@ class EventAPI {
 
     throw "Error while fetching the event";
   }
+
+
 
   Future<RetrieveEventResponseDto> retrieveDetailsFromHash(String eventHash) async {
     String url = '${functionUrl}RetrieveDetails';

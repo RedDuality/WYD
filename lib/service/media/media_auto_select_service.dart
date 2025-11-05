@@ -7,7 +7,7 @@ import 'package:wyd_front/service/media/media_retrieve_service.dart';
 class MediaAutoSelectService {
 
   static Future<void> checkEventsForPhotos() async {
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
     final lastCheckedTime = await _loadLastCheckedTime();
 
     // Get all events that ended since last check
@@ -33,11 +33,11 @@ class MediaAutoSelectService {
     final dateTimeString = prefs.getString('savedDateTime');
     if (dateTimeString != null) {
       try {
-        return DateTime.parse(dateTimeString).toLocal();
+        return DateTime.parse(dateTimeString).toUtc();
       } catch (e) {
         debugPrint("Error while converting last checked time value");
       }
     }
-    return DateTime.now();
+    return DateTime.now().subtract(Duration(days: 7)).toUtc();
   }
 }

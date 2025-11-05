@@ -1,10 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:wyd_front/service/model/community_service.dart';
-import 'package:wyd_front/service/util/notification_service.dart';
-import 'package:wyd_front/service/util/permission_service.dart';
-import 'package:wyd_front/service/media/media_auto_select_service.dart';
-import 'package:wyd_front/service/util/real_time_updates_service.dart';
+import 'package:wyd_front/service/util/app_lifecycle_service.dart';
 import 'package:wyd_front/state/util/uri_service.dart';
 import 'package:wyd_front/view/events/events_page.dart';
 import 'package:wyd_front/view/groups/group_page.dart';
@@ -25,15 +20,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     selectedIndex = 0;
 
     _loadUri();
-    _initializeServices();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeSecondaryServices();
-    });
+    AppLifecycleService().attach();
   }
 
   Future<void> _loadUri() async {
@@ -52,33 +43,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  Future<void> _initializeServices() async {
-    CommunityService().retrieveCommunities();
-  }
-
-  Future<void> _initializeSecondaryServices() async {
-    RealTimeUpdateService().initialize();
-
-    if (!kIsWeb) {
-      PermissionService.requestPermissions().then((value) {
-        NotificationService().initialize();
-        MediaAutoSelectService.checkEventsForPhotos();
-      });
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!kIsWeb) {
-      if (state == AppLifecycleState.resumed) {
-        MediaAutoSelectService.checkEventsForPhotos();
-      }
-    }
-  }
-
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    AppLifecycleService().detach();
     super.dispose();
   }
 
