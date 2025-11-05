@@ -60,20 +60,7 @@ class EventStorage {
     );
   }
 
-  /// Converts the Dart Event object to a Map for SQLite.
-  Map<String, dynamic> _toMap(Event event) {
-    return {
-      'eventHash': event.eventHash,
-      'title': event.title,
-      // Convert DateTime to Unix milliseconds for storage
-      'startTime': event.startTime!.millisecondsSinceEpoch,
-      'endTime': event.endTime!.millisecondsSinceEpoch,
-      'updatedAt': event.updatedAt.millisecondsSinceEpoch,
-      'totalConfirmed': event.totalConfirmed,
-      'totalProfiles': event.totalProfiles,
-      'hasCachedMedia': event.hasCachedMedia ? 1 : 0,
-    };
-  }
+
 
   /// Saves to storage and emits a change event.
   Future<void> saveEvent(Event event) async {
@@ -82,7 +69,7 @@ class EventStorage {
       if (db == null) return;
       await db.insert(
         _tableName,
-        _toMap(event),
+        event.toDbMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } else {
@@ -103,7 +90,7 @@ class EventStorage {
         for (final event in events) {
           await txn.insert(
             _tableName,
-            _toMap(event),
+            event.toDbMap(),
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         }
@@ -143,10 +130,11 @@ class EventStorage {
   Future<List<Event>> getEventsInTimeRange(DateTimeRange range) async {
     if (kIsWeb) {
       return _inMemoryStorage.values.where((event) {
-        final eventEndTime = event.endTime?.millisecondsSinceEpoch;
-        final eventStartTime = event.startTime?.millisecondsSinceEpoch;
-        final periodStartMs = range.start.millisecondsSinceEpoch;
-        final periodEndMs = range.end.millisecondsSinceEpoch;
+        final eventEndTime = event.endTime?.toUtc().millisecondsSinceEpoch;
+        final eventStartTime = event.startTime?.toUtc().millisecondsSinceEpoch;
+
+        final periodStartMs = range.start.toUtc().millisecondsSinceEpoch;
+        final periodEndMs = range.end.toUtc().millisecondsSinceEpoch;
 
         if (eventEndTime == null || eventStartTime == null) return false;
 
@@ -157,8 +145,8 @@ class EventStorage {
       final db = await database;
       if (db == null) return [];
 
-      final int startTimestamp = range.start.millisecondsSinceEpoch;
-      final int endTimestamp = range.end.millisecondsSinceEpoch;
+      final int startTimestamp = range.start.toUtc().millisecondsSinceEpoch;
+      final int endTimestamp = range.end.toUtc().millisecondsSinceEpoch;
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,

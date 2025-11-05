@@ -8,10 +8,10 @@ import 'package:wyd_front/state/event/profile_events_provider.dart';
 import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class EventStorageService {
-  static void addEvents(List<RetrieveEventResponseDto> dtos, DateTimeRange dateRange) {
+  static Future<void> addEvents(List<RetrieveEventResponseDto> dtos, DateTimeRange dateRange) async {
     // first update the storage
     var events = dtos.map(Event.fromDto).toList();
-    EventStorage().saveMultiple(events, dateRange);
+    await EventStorage().saveMultiple(events, dateRange);
 
     // then details and profileEvents
 
@@ -44,22 +44,6 @@ class EventStorageService {
     return event;
   }
 
-/*
-  void addEvent(Event event) {
-    var originalEvent = findEventByHash(event.eventHash);
-
-    if (originalEvent != null && event.updatedAt.isAfter(originalEvent.updatedAt)) {
-      if (originalEvent.endTime != event.endTime) {
-      
-        MediaAutoSelectService.addTimer(event);
-      }
-      super.update(originalEvent, event);
-    } else {
-      MediaAutoSelectService.addTimer(event);
-      super.add(event);
-    }
-  }
-  */
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
 
