@@ -24,7 +24,10 @@ class AuthenticationProvider with ChangeNotifier {
     _checkUserLoginStatus();
 
     _auth.authStateChanges().listen((User? user) async {
+      
       _user = user;
+
+      // if, for any reason, the token is no more, it returns to the login page
       if (_user == null) {
         _isBackendVerified = false;
         notifyListeners();
@@ -36,6 +39,7 @@ class AuthenticationProvider with ChangeNotifier {
     _isLoading = true;
     _isBackendVerified = false;
     _user = _auth.currentUser;
+
     if (_user != null) {
       try {
         await retrieveBackendUser();
@@ -44,23 +48,7 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
     _isLoading = false;
-    notifyListeners(); //scatena un cambio di route verso '/' che poi checks on isBackendVerified
-  }
-
-  Future<void> signIn(String email, String password) async {
-    try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      await retrieveBackendUser();
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'invalid-email') {
-        throw "Please insert a valid email";
-      } else if (e.code == 'invalid-credential') {
-        throw "The mail or the password provided are wrong";
-      } else {
-        debugPrint("Error signing in: $e");
-        throw "Unexpected error, please try later";
-      }
-    }
+    notifyListeners(); //scatena un redirect che checks isBackendVerified(see router)
   }
 
   Future<void> register(String email, String password) async {
@@ -77,11 +65,46 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
     try {
-      await retrieveBackendUser();
+      await createBackendUser();
     } on Exception catch (e) {
       debugPrint("Error registering: $e");
       await _auth.currentUser?.delete();
       throw "Unexpected error, please try later";
+    }
+  }
+
+  // Method to perform backend verification
+  Future<void> createBackendUser() async {
+    try {
+      final idToken = await _user?.getIdToken();
+      if (idToken != null) {
+        await UserService().createUser(); //sets user and profiles if successful
+
+        await _auth.currentUser?.getIdToken(true); // refresh token, as now it should contains the userId
+        _isBackendVerified = true;
+      } else {
+        throw "It was not possible to log in";
+      }
+    } catch (e) {
+      throw e.toString();
+    }
+
+    notifyListeners(); //successful, move to HomePage
+  }
+
+  Future<void> signIn(String email, String password) async {
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await retrieveBackendUser();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        throw "Please insert a valid email";
+      } else if (e.code == 'invalid-credential') {
+        throw "The mail or the password provided are wrong";
+      } else {
+        debugPrint("Error signing in: $e");
+        throw "Unexpected error, please try later";
+      }
     }
   }
 

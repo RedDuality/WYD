@@ -6,6 +6,7 @@ import 'package:wyd_front/view/authentication/login.dart';
 import 'package:wyd_front/view/home_page.dart';
 import 'package:wyd_front/view/widget/loading.dart';
 
+// consumer of AuthenticationProvider
 GoRouter createRouter(AuthenticationProvider authProvider) {
   return GoRouter(
     navigatorKey: GlobalKey<NavigatorState>(),
@@ -43,7 +44,7 @@ GoRouter createRouter(AuthenticationProvider authProvider) {
         },
       ),
       GoRoute(
-        path: '/shared',
+        path: '/share',
         builder: (BuildContext context, GoRouterState state) {
           String? uri = state.uri.toString();
           UriService.saveUri(uri);

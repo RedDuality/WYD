@@ -248,7 +248,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                 ElevatedButton(
                   onPressed: () async {
                     String? siteUrl = dotenv.env['SITE_URL'];
-                    String fullUrl = "$siteUrl/#/shared?event=${widget.event!.eventHash}";
+                    String fullUrl = "$siteUrl/#/share?event=${widget.event!.eventHash}";
 
                     if (kIsWeb) {
                       await Clipboard.setData(ClipboardData(text: fullUrl));

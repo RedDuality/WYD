@@ -6,12 +6,21 @@ import 'package:wyd_front/state/profile/profile_storage.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class UserService {
+  Future<void> createUser() async {
+    var userDto = await UserAPI().register();
+    _updatedUser(userDto);
+  }
+
   Future<void> retrieveUser() async {
-    RetrieveUserResponseDto userDto = await UserAPI().retrieve();
+    var userDto = await UserAPI().login();
+    _updatedUser(userDto);
+  }
+
+  Future<void> _updatedUser(RetrieveUserResponseDto userDto) async {
     User user = User.fromDto(userDto);
 
     await UserProvider().updateUser(user);
-    
+
     ProfileStorage().saveMultiple(userDto.profiles);
   }
 }
