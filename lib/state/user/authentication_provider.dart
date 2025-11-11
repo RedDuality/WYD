@@ -24,10 +24,10 @@ class AuthenticationProvider with ChangeNotifier {
     _checkUserLoginStatus();
 
     _auth.authStateChanges().listen((User? user) async {
-      
+      // be careful of register token refresh
       _user = user;
 
-      // if, for any reason, the token is no more, it returns to the login page
+      // if, for any reason(e.g. logout), the token is no more, it returns to the login page
       if (_user == null) {
         _isBackendVerified = false;
         notifyListeners();
@@ -73,7 +73,7 @@ class AuthenticationProvider with ChangeNotifier {
     }
   }
 
-  // Method to perform backend verification
+  // Method to perform backend creation
   Future<void> createBackendUser() async {
     try {
       final idToken = await _user?.getIdToken();

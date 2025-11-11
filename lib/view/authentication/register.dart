@@ -13,40 +13,31 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  String _mail = "";
-  String _password = "";
-  bool _isFormValid = false;
-
   final _registerKey = GlobalKey<FormState>();
+  final _mailController = TextEditingController();
+
+  String _password = "";
 
   @override
   void initState() {
     super.initState();
-    _mail = widget.mail;
+    _mailController.text = widget.mail;
   }
-  
+
+  @override
+  void dispose() {
+    _mailController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    // Funzione per aggiornare la validità del form
-    void updateFormValidity() {
-      setState(() {
-        _isFormValid = _registerKey.currentState?.validate() ?? false;
-      });
-    }
-
-    // Funzione per ottenere il colore del testo del bottone
-    Color getButtonTextColor() {
-      return _isFormValid ? Colors.lightBlue : Theme.of(context).colorScheme.primaryContainer;
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: <Widget>[
           Form(
             key: _registerKey,
-            onChanged: updateFormValidity,
             child: Column(
               children: <Widget>[
                 Flexible(
@@ -69,34 +60,32 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+                        // Email field
                         Container(
                           constraints: const BoxConstraints(maxWidth: 500),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 15),
                             child: TextFormField(
-                              initialValue: widget.mail,
-                              onChanged: (text) {
-                                setState(() {
-                                  _mail = text;
-                                });
-                                updateFormValidity();
-                              },
+                              controller: _mailController,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                               validator: (value) =>
-                                  EmailValidator.validate(value!)
-                                      ? null
-                                      : "Please enter a valid email address",
+                                  EmailValidator.validate(value ?? "") ? null : "Please enter a valid email address",
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: 'Email',
-                                  hintText: 'Enter valid email id as abc@mail.com'),
+                                  hintText: 'Enter valid email id as abc@mail.com',
+                                  errorStyle: TextStyle(height: 1.5)),
                             ),
                           ),
                         ),
+                        // Password field
                         Container(
                           constraints: const BoxConstraints(maxWidth: 500),
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
                             child: TextFormField(
+                              obscureText: true,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Password is required';
@@ -107,25 +96,24 @@ class _RegisterPageState extends State<RegisterPage> {
                                 return null;
                               },
                               onChanged: (text) {
-                                setState(() {
-                                  _password = text;
-                                });
-                                updateFormValidity();
+                                _password = text;
                               },
-                              obscureText: true,
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: 'Password',
-                                  hintText: 'Enter secure password'),
+                                  hintText: 'Enter secure password',
+                                  errorStyle: TextStyle(height: 1.5)),
                             ),
                           ),
                         ),
+                        // Confirm password field
                         Container(
                           constraints: const BoxConstraints(maxWidth: 500),
                           child: Padding(
-                            padding: const EdgeInsets.only(
-                                right: 15.0, bottom: 15.0, left: 15.0),
+                            padding: const EdgeInsets.only(right: 15.0, bottom: 15.0, left: 15.0),
                             child: TextFormField(
+                              obscureText: true,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please confirm your password';
@@ -135,18 +123,16 @@ class _RegisterPageState extends State<RegisterPage> {
                                 }
                                 return null;
                               },
-                              onChanged: (text) {
-                                updateFormValidity();
-                              },
-                              obscureText: true,
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: 'Confirm Password',
-                                  hintText: 'Enter secure password'),
+                                  hintText: 'Enter secure password',
+                                  errorStyle: TextStyle(height: 1.5)),
                             ),
                           ),
                         ),
                         const SizedBox(height: 10),
+                        // Register button
                         SizedBox(
                           height: 50,
                           width: 250,
@@ -154,9 +140,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             onPressed: () {
                               if (_registerKey.currentState!.validate()) {
                                 final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
-                                authProvider
-                                    .register(_mail, _password)
-                                    .catchError((error) {
+                                authProvider.register(_mailController.text, _password).catchError((error) {
                                   if (context.mounted) {
                                     InformationService().showErrorSnackBar(context, error);
                                   }
@@ -166,10 +150,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
                             ),
-                            child: Text(
+                            child: const Text(
                               'Register',
                               style: TextStyle(
-                                color: getButtonTextColor(),
+                                color: Colors.lightBlue,
                                 fontSize: 25,
                               ),
                             ),
@@ -182,17 +166,20 @@ class _RegisterPageState extends State<RegisterPage> {
               ],
             ),
           ),
+          // Back button
           Positioned(
-            top: 30, // Posiziona il pulsante vicino alla parte superiore (regola se necessario)
-            left: 30, // Posiziona il pulsante vicino alla sinistra (regola se necessario)
+            top: 30,
+            left: 30,
             child: FloatingActionButton(
               onPressed: () {
-                Navigator.pop(context); // Torna alla pagina precedente
+                Navigator.pop(context);
               },
-              mini: true, // Rende il pulsante più piccolo e rotondo
+              mini: true,
               backgroundColor: Theme.of(context).colorScheme.onPrimary,
-              child: Icon(Icons.arrow_back,
-                  color: Theme.of(context).colorScheme.primaryContainer),
+              child: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).colorScheme.primaryContainer,
+              ),
             ),
           ),
         ],

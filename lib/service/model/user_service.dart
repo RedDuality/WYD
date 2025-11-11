@@ -7,16 +7,16 @@ import 'package:wyd_front/state/user/user_provider.dart';
 
 class UserService {
   Future<void> createUser() async {
-    var userDto = await UserAPI().register();
-    _updatedUser(userDto);
+    RetrieveUserResponseDto userDto = await UserAPI().register();
+    _updateUser(userDto);
   }
 
   Future<void> retrieveUser() async {
-    var userDto = await UserAPI().login();
-    _updatedUser(userDto);
+    RetrieveUserResponseDto userDto = await UserAPI().login();
+    _updateUser(userDto);
   }
 
-  Future<void> _updatedUser(RetrieveUserResponseDto userDto) async {
+  Future<void> _updateUser(RetrieveUserResponseDto userDto) async {
     User user = User.fromDto(userDto);
 
     await UserProvider().updateUser(user);
