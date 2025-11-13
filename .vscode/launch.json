@@ -5,21 +5,38 @@
     "version": "0.2.1",
     "configurations": [
         {
-            "name": "WYD",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "WYD (profile mode)",
+            "name": "WYD (dev)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "args": [
+                "--dart-define=ENV=dev"
+            ]
         },
         {
-            "name": "WYD (release mode)",
+            "name": "WYD (prod)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "args": [
+                "--dart-define=ENV=prod"
+            ]
+        },
+        {
+            "name": "WYD (profile mode prod)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "args": [
+                "--dart-define=ENV=prod"
+            ]
+        },
+        {
+            "name": "WYD (release mode prod)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--dart-define=ENV=prod"
+            ]
         }
     ]
 }

@@ -19,8 +19,22 @@ class UserAPI {
           RequestInterceptor(),
         ]);
 
-  Future<RetrieveUserResponseDto> retrieve() async {
-    final url = '${functionUrl}Retrieve';
+  Future<RetrieveUserResponseDto> register() async {
+    final url = '${functionUrl}Register';
+    try {
+      var response = await client.get(Uri.parse(url)).timeout(const Duration(seconds: 30));
+      if (response.statusCode == 200) {
+        return RetrieveUserResponseDto.fromJson(jsonDecode(response.body));
+      } else {
+        throw "Server verification failed: ${response.statusCode}";
+      }
+    } on TimeoutException catch (_) {
+      throw "Server is probably waking up, please wait a moment and retry";
+    }
+  }
+
+  Future<RetrieveUserResponseDto> login() async {
+    final url = '${functionUrl}Login';
     try {
       var response = await client.get(Uri.parse(url)).timeout(const Duration(seconds: 30));
       if (response.statusCode == 200) {
