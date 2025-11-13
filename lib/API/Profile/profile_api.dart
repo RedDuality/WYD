@@ -5,6 +5,7 @@ import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
+import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class ProfileAPI {
@@ -16,6 +17,7 @@ class ProfileAPI {
       : client = InterceptedClient.build(interceptors: [
           AuthInterceptor(),
           RequestInterceptor(),
+          ProfileInterceptor(),
         ]);
 
 /*
