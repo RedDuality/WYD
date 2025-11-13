@@ -14,7 +14,11 @@ class CommunityAPI {
   final InterceptedClient client;
 
   CommunityAPI()
-      : client = InterceptedClient.build(interceptors: [AuthInterceptor(), RequestInterceptor(), ProfileInterceptor()]);
+      : client = InterceptedClient.build(interceptors: [
+          AuthInterceptor(),
+          RequestInterceptor(),
+          ProfileInterceptor(),
+        ]);
 
   Future<List<RetrieveCommunityResponseDto>> retrieveCommunities() async {
     String url = '${functionUrl}Retrieve';
