@@ -12,7 +12,9 @@ import 'package:wyd_front/state/community_provider.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+
+import 'firebase_options_dev.dart' as dev;
+import 'firebase_options_prod.dart' as prod;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -25,13 +27,15 @@ void callbackDispatcher() {
 }
 
 Future main() async {
-  await dotenv.load(fileName: ".env");
-
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  const env = String.fromEnvironment('ENV', defaultValue: 'dev');
+  await dotenv.load(fileName: '.env.$env');
+
+  final firebaseOptions =
+      env == 'prod' ? prod.DefaultFirebaseOptions.currentPlatform : dev.DefaultFirebaseOptions.currentPlatform;
+
+  await Firebase.initializeApp(options: firebaseOptions);
 
   if (!kIsWeb) {
     Workmanager().initialize(callbackDispatcher);

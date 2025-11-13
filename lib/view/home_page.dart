@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     uri = await UriService.getUri();
     if (uri.isNotEmpty) {
       final destination = uri.split('?').first.replaceAll('/', '');
-      if (destination == 'shared') {
+      if (destination == 'share') {
         private = false;
       }
       await UriService.saveUri("");

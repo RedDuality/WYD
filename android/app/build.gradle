@@ -85,6 +85,18 @@ android {
         multiDexEnabled true
     }
 
+    flavorDimensions "env"
+    productFlavors {
+        dev {
+            dimension "env"
+            applicationId "com.example.app.dev"
+        }
+        prod {
+            dimension "env"
+            applicationId "com.example.app"
+        }
+    }
+    
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
