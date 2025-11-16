@@ -59,6 +59,18 @@ class UserAPI {
     }
   }
 
+  Future<void> deleteFCMToken(String token) async {
+    final url = '${functionUrl}RemoveFcmToken';
+
+    var response = await client.post(Uri.parse(url), body: token);
+
+    if (response.statusCode == 200) {
+      return;
+    } else {
+      throw "Server verification failed: ${response.statusCode}";
+    }
+  }
+
 /*
 
   Future<Response> update(User user) async {

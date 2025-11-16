@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/profile/profile_storage.dart';
-import 'package:wyd_front/state/user/authentication_provider.dart';
+import 'package:wyd_front/service/model/user_service.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
-import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 import 'package:wyd_front/view/settings/settings_page.dart';
 
@@ -56,12 +53,8 @@ class ProfilesPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () async {
-                    AuthenticationProvider().signOut();
-
-                    EventStorage().clearAllEvents();
-                    EventIntervalsCacheManager().clearAllIntervals();
-                    ProfileStorage().clearAllProfiles();
+                  onPressed: () {
+                    UserService().logOut();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
