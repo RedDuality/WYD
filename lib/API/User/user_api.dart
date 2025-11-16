@@ -62,7 +62,13 @@ class UserAPI {
   Future<void> deleteFCMToken(String token) async {
     final url = '${functionUrl}RemoveFcmToken';
 
-    var response = await client.post(Uri.parse(url), body: token);
+    var response = await client.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(token),
+    );
 
     if (response.statusCode == 200) {
       return;
