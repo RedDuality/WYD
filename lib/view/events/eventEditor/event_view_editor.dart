@@ -154,6 +154,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
   Future<void> _updateEvent() async {
     var updateDto = _getUpdateDto();
     if (updateDto != null) await EventViewService.update(updateDto);
+    initialDescription = _descriptionController.text.trim();
   }
 
   Future<void> _deleteEvent(String eventHash) async {
