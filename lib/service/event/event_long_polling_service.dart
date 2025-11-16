@@ -8,7 +8,7 @@ class EventLongPollingService {
   static Timer? _pollingTimer;
   static bool _ongoingCheck = false;
 
-  static const Duration _pollingInterval = Duration(minutes: 1);
+  static const Duration _pollingInterval = Duration(minutes: 15);
 
   static void resumePolling() {
     if (_pollingTimer?.isActive == true) return;
@@ -27,14 +27,14 @@ class EventLongPollingService {
       _scheduleNextCheck();
     });
 
-    debugPrint('Next poll scheduled in $delay');
+    // debugPrint('Next poll scheduled in $delay');
   }
 
   /// Stops the polling timer. Called when the app/tab loses focus.
   static void pausePolling() {
     if (_pollingTimer?.isActive == true) {
       _pollingTimer!.cancel();
-      debugPrint('EventLongPollingService paused.');
+      // debugPrint('EventLongPollingService paused.');
     }
     _pollingTimer = null;
   }
@@ -42,7 +42,7 @@ class EventLongPollingService {
   static Future<void> checkForUpdatedEvent(DateTime now) async {
     // Ensure only one check process is running at a time, if the request is taking longer then _pollingInterval
     if (_ongoingCheck) {
-      debugPrint('checkForPhotos is already running. Skipping this poll.');
+      // debugPrint('checkForPhotos is already running. Skipping this poll.');
       return;
     }
 
