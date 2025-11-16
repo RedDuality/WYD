@@ -22,6 +22,8 @@ class ProfileEditorState extends State<ProfileEditor> {
   bool changed = false;
   bool colorChanged = false;
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +40,11 @@ class ProfileEditorState extends State<ProfileEditor> {
     super.dispose();
   }
 
-  void update() async {
+  Future<void> update() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final updateDto = UpdateProfileRequestDto(
       profileHash: widget.profile.id,
       name: nameController.text != widget.profile.name ? nameController.text : null,
@@ -46,6 +52,10 @@ class ProfileEditorState extends State<ProfileEditor> {
       color: colorChanged ? _selectedColor.toARGB32() : null,
     );
     await ProfileService.updateProfile(updateDto, widget.profile);
+
+    if (mounted) {
+      context.pop();
+    }
   }
 
   @override
@@ -59,6 +69,7 @@ class ProfileEditorState extends State<ProfileEditor> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Card(
+                  // Image
                   elevation: 15,
                   shadowColor: _selectedColor,
                   shape: RoundedRectangleBorder(
@@ -142,15 +153,26 @@ class ProfileEditorState extends State<ProfileEditor> {
                   height: 50,
                   child: changed || colorChanged
                       ? ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              update();
-                            }
-                            context.pop();
-                          },
-                          child: Text("Save"))
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    await update();
+                                  }
+                                },
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text("Save"),
+                        )
                       : Container(),
-                )
+                ),
               ],
             );
           }),
