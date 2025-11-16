@@ -11,6 +11,9 @@ class EventStorageService {
   static Future<void> addEvents(List<RetrieveEventResponseDto> dtos, DateTimeRange dateRange) async {
     // first update the storage
     var events = dtos.map(Event.fromDto).toList();
+        // update the loaded interval cache
+    await EventIntervalsCacheManager().addInterval(dateRange);
+
     await EventStorage().saveMultiple(events, dateRange);
 
     // then details and profileEvents
@@ -25,8 +28,7 @@ class EventStorageService {
       }
     }
 
-    // update the loaded interval cache
-    EventIntervalsCacheManager().addInterval(dateRange);
+
   }
 
   static Event addEvent(RetrieveEventResponseDto dto) {

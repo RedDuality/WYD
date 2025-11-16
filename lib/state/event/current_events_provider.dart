@@ -31,9 +31,12 @@ class CurrentEventsProvider extends EventController {
     _colorChangeSubscription = EventViewService.onProfileColorChangedStream.listen((_) {
       refresh();
     });
-    // Whenever the storage says data changed, re-fetch the current week's events
+
     _rangesSubscription = _storage.ranges.listen((updatedRange) {
-      _synchWithStorage(updatedRange);
+      // if updates are in the current view, re-fetch the current week's events
+      if (_controller != null && updatedRange.overlapsWith(_controller!.focusedRange)) {
+        _synchWithStorage(updatedRange);
+      }
     });
 
     _eventSubscription = _storage.updates.listen((event) {
@@ -76,22 +79,19 @@ class CurrentEventsProvider extends EventController {
     if (!_isLoading) {
       _isLoading = true;
     }
+    debugPrint("retrieveEvents");
     var newEvents = await EventStorageService.retrieveEventsInTimeRange(_controller!.focusedRange);
     setEvents(newEvents);
   }
 
   Future<void> _synchWithStorage(DateTimeRange range) async {
-    if (_controller == null) return;
-    if (range.overlapsWith(_controller!.focusedRange)) {
-      var overlap = DateTimeRange(
-        start: range.start.isAfter(_controller!.focusedRange.start) ? range.start : _controller!.focusedRange.start,
-        end: range.end.isBefore(_controller!.focusedRange.end) ? range.end : _controller!.focusedRange.end,
-      );
+    var overlap = DateTimeRange(
+      start: range.start.isAfter(_controller!.focusedRange.start) ? range.start : _controller!.focusedRange.start,
+      end: range.end.isBefore(_controller!.focusedRange.end) ? range.end : _controller!.focusedRange.end,
+    );
 
-      var updatedEvents = await EventStorageService.retrieveEventsInTimeRange(overlap);
-
-      addEvents(updatedEvents);
-    }
+    var events = await EventStorage().getEventsInTimeRange(overlap);
+    addEvents(events);
   }
 
   void _updateEvent(Event event, bool deleted) {
