@@ -29,7 +29,7 @@ class _VersionDetailState extends State<VersionDetail> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
+      padding: const EdgeInsets.only(top: 10.0, bottom: 3.0),
       child: Text(
         _version,
         style: const TextStyle(

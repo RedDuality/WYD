@@ -68,20 +68,22 @@ class ProfileEditorState extends State<ProfileEditor> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Card(
-                  // Image
-                  elevation: 15,
-                  shadowColor: _selectedColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                    side: BorderSide(
-                      color: _selectedColor,
-                      width: 3.5,
+                Expanded(
+                  child: Card(
+                    // Image
+                    elevation: 15,
+                    shadowColor: _selectedColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: BorderSide(
+                        color: _selectedColor,
+                        width: 3.5,
+                      ),
                     ),
+                    child: SizedBox(width: size, height: size, child: profileImage),
                   ),
-                  child: SizedBox(width: size, height: size, child: profileImage),
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -110,7 +112,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 25),
+                      SizedBox(height: 15),
                       Container(
                         constraints: const BoxConstraints(maxWidth: 350),
                         child: Padding(
@@ -138,7 +140,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                     ],
                   ),
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 ColorSelector(
                   initialColor: _selectedColor,
                   onColorSelected: (color) {
@@ -148,7 +150,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                     });
                   },
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 SizedBox(
                   height: 50,
                   child: changed || colorChanged
@@ -173,6 +175,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                         )
                       : Container(),
                 ),
+                SizedBox(height: 20),
               ],
             );
           }),

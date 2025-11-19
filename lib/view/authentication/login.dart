@@ -22,106 +22,102 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: FittedBox(
-          fit: BoxFit.contain,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 15.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 20.0),
                 child: Center(
-                  child: SizedBox(
-                    width: 300,
-                    height: 400,
-                    child: Image.asset(
-                      'assets/images/logo.jpg',
-                      fit: BoxFit.cover,
+                  child: LimitedBox(
+                    maxHeight: 400,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Image.asset('assets/images/logo.jpg'),
                     ),
                   ),
                 ),
               ),
-              Container(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: TextField(
-                    onChanged: (text) {
-                      _mail = text;
-                    },
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Email',
-                        hintText: 'Enter valid email id as abc@gmail.com'),
-                  ),
-                ),
-              ),
-              Container(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: TextField(
-                    onChanged: (text) {
-                      _password = text;
-                    },
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Password',
-                        hintText: 'Enter secure password'),
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  TestAPI().ping();
-                },
-                child: const Text(
-                  'Forgot Password',
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 50,
-                width: 250,
-                child: ElevatedButton(
-                  onPressed: () {
-                    final authProvider = AuthenticationProvider();
-                    authProvider.signIn(_mail, _password).catchError((error) {
-                      if (context.mounted) {
-                        InformationService().showErrorSnackBar(context, error);
-                      }
-                    });
+            ),
+            Container(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+                child: TextField(
+                  onChanged: (text) {
+                    _mail = text;
                   },
-                  child: Text(
-                    'Login',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        fontSize: 25),
-                  ),
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Email',
+                      hintText: 'Enter valid email id as abc@mail.com',
+                      helperText: ' '),
                 ),
               ),
-              const SizedBox(height: 30),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => RegisterPage(mail: _mail)),
-                  );
+            ),
+            Container(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+                child: TextField(
+                  onChanged: (text) {
+                    _password = text;
+                  },
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Password',
+                      hintText: 'Enter secure password',
+                      helperText: ' '),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 50,
+              width: 250,
+              child: ElevatedButton(
+                onPressed: () {
+                  final authProvider = AuthenticationProvider();
+                  authProvider.signIn(_mail, _password).catchError((error) {
+                    if (context.mounted) {
+                      InformationService().showErrorSnackBar(context, error);
+                    }
+                  });
                 },
-                child: const HoverText(
-                  text: 'New user? Create account',
-                  hoverColor: Colors.blue,
-                  defaultColor: Colors.black,
-                  fontSize: 18.0,
+                child: Text(
+                  'Login',
+                  style: TextStyle(color: Theme.of(context).colorScheme.primaryContainer, fontSize: 25),
                 ),
               ),
-              const SizedBox(height: 15),
-              // Add the version number text box here
-              VersionDetail(),
-            ],
-          ),
+            ),
+            const SizedBox(height: 3),
+            ElevatedButton(
+              onPressed: () {
+                TestAPI().ping();
+              },
+              child: const Text(
+                'Forgot Password',
+                style: TextStyle(color: Colors.blue, fontSize: 15),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterPage(mail: _mail)),
+                );
+              },
+              child: const HoverText(
+                text: 'New user? Create account',
+                hoverColor: Colors.black,
+                defaultColor: Colors.blue,
+                fontSize: 18.0,
+              ),
+            ),
+            // Add the version number text box here
+            VersionDetail(),
+          ],
         ),
       ),
     );
