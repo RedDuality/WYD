@@ -9,7 +9,7 @@ import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/event/profile_events_provider.dart';
+import 'package:wyd_front/service/event/profile_events_service.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class EventViewService {
@@ -43,7 +43,7 @@ class EventViewService {
     if (event != null) {
       String profileHash = pHash ?? UserProvider().getCurrentProfileHash();
 
-      if (ProfileEventsProvider().confirm(eventHash, confirmed, profileHash)) {
+      if (await ProfileEventsStorageService().confirm(eventHash, confirmed, profileHash)) {
         EventRetrieveService.retrieveEssentialByHash(eventHash);
       }
     }
@@ -66,19 +66,23 @@ class EventViewService {
     EventStorageService.addEvent(eventDto);
   }
 
-  static void localDelete(Event event, {String? profileHash}) {
+  static Future<void> localDelete(Event event, {String? profileHash}) async {
     var pHash = profileHash ?? UserProvider().getCurrentProfileHash();
     event.removeProfile(pHash);
 
-    if (event.countMatchingProfiles(UserProvider().getProfileHashes()) == 0) {
-      ProfileEventsProvider().remove(event.eventHash);
+    var profilesOfEvent = await event.countMatchingProfiles(UserProvider().getProfileHashes());
+    if (profilesOfEvent == 0) {
+      ProfileEventsStorageService().removeAll(event.eventHash);
       EventDetailsStorage().remove(event.eventHash);
       EventStorage().remove(event);
     }
   }
 
-  static Future<void> delete(Event event) async {
-    await EventAPI().delete(event.eventHash);
-    localDelete(event);
+  static Future<void> delete(String eventHash) async {
+    Event? event = await EventStorage().getEventByHash(eventHash);
+    if (event != null) {
+      await EventAPI().delete(event.eventHash);
+      localDelete(event);
+    }
   }
 }

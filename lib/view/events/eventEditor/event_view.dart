@@ -6,13 +6,11 @@ import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
 
 class EventView extends StatefulWidget {
   final String? eventHash;
-  final bool confirmed;
   final DateTime? date;
 
   const EventView({
     super.key,
     this.eventHash,
-    required this.confirmed,
     this.date,
   });
 
@@ -119,7 +117,6 @@ class EventViewState extends State<EventView> {
                   final event = eventHash != null ? provider.get(eventHash!) : null;
                   return EventViewEditor(
                     event: event,
-                    confirmed: widget.confirmed,
                     date: widget.date,
                     titleController: _titleController,
                     onEventCreated: onEventCreated,

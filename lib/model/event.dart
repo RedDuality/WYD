@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/model/enum/event_role.dart';
 import 'package:wyd_front/model/profile_event.dart';
-import 'package:wyd_front/state/event/profile_events_provider.dart';
+import 'package:wyd_front/service/event/profile_events_service.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 // ignore: must_be_immutable
@@ -12,7 +12,8 @@ class Event extends CalendarEventData {
   DateTime updatedAt;
   int totalConfirmed;
   int totalProfiles;
-  bool hasCachedMedia = false;
+  bool currentConfirmed = false;
+  bool hasCachedMedia;
 
   @override
   bool operator ==(Object other) {
@@ -30,6 +31,8 @@ class Event extends CalendarEventData {
     required this.updatedAt,
     required this.totalConfirmed,
     required this.totalProfiles,
+    required this.currentConfirmed,
+    this.hasCachedMedia = false,
     DateTime? date,
     // in Utc time
     required DateTime startTime,
@@ -51,7 +54,7 @@ class Event extends CalendarEventData {
           endDate: endDate ?? endTime.toLocal(),
         );
 
-  factory Event.fromDto(RetrieveEventResponseDto dto) {
+  factory Event.fromDto(RetrieveEventResponseDto dto, bool currentConfirmed){
     return Event(
       eventHash: dto.hash,
       updatedAt: dto.updatedAt,
@@ -60,6 +63,7 @@ class Event extends CalendarEventData {
       endTime: dto.endTime,
       totalProfiles: dto.totalProfiles,
       totalConfirmed: dto.totalConfirmed,
+      currentConfirmed: currentConfirmed,
     );
   }
 
@@ -79,6 +83,8 @@ class Event extends CalendarEventData {
       endDate: endTime,
       totalProfiles: map['totalProfiles'] as int,
       totalConfirmed: map['totalConfirmed'] as int,
+      currentConfirmed: map['currentConfirmed'] == 1,
+      hasCachedMedia: map['hasCachedMedia'] == 1,
     );
   }
 
@@ -93,6 +99,7 @@ class Event extends CalendarEventData {
       'totalConfirmed': totalConfirmed,
       'totalProfiles': totalProfiles,
       'hasCachedMedia': hasCachedMedia ? 1 : 0,
+      'currentConfirmed': currentConfirmed ? 1: 0,
     };
   }
 
@@ -100,39 +107,29 @@ class Event extends CalendarEventData {
     return totalProfiles > 1 ? "($totalConfirmed/$totalProfiles) " : "";
   }
 
-  ProfileEvent _getCurrentProfileEvent() {
+  Future<ProfileEvent?> _getCurrentProfileEvent() async {
     String profileHash = UserProvider().getCurrentProfileHash();
-    return ProfileEventsProvider().getSingle(eventHash, profileHash)!;
+    return await ProfileEventsStorageService().getSingle(eventHash, profileHash);
   }
 
-  bool currentConfirmed() {
-    return _getCurrentProfileEvent().confirmed;
+  Future<bool> isOwner() async {
+    var currentProfileEvent = await _getCurrentProfileEvent();
+    return currentProfileEvent!.role == EventRole.owner;
   }
 
-  bool isOwner() {
-    return _getCurrentProfileEvent().role == EventRole.owner;
-  }
-
-  Set<String> profilesThatConfirmed() {
+  Future<Set<String>> profilesThatConfirmed() async {
     var myprofiles = UserProvider().getProfileHashes().toSet();
-    var eventProfiles = ProfileEventsProvider().get(eventHash);
-    var result = eventProfiles
-        .where((profileEvent) => profileEvent.confirmed && myprofiles.contains(profileEvent.profileHash))
-        .map((profileEvent) => profileEvent.profileHash)
-        .toSet();
-    return result;
+    return await ProfileEventsStorageService().profilesThatConfirmed(eventHash, myprofiles);
   }
 
   //for delete
-  int countMatchingProfiles(Set<String> userProfileHashes) {
+  Future<int> countMatchingProfiles(Set<String> userProfileHashes) async {
     var myprofiles = UserProvider().getProfileHashes().toSet();
-    var eventProfiles = ProfileEventsProvider().get(eventHash);
-    var result = eventProfiles.where((profileEvent) => myprofiles.contains(profileEvent.profileHash)).length;
-    return result;
+    return await ProfileEventsStorageService().countMatchingProfiles(eventHash, myprofiles);
   }
 
   // for delete
   void removeProfile(String profileHash) {
-    ProfileEventsProvider().removeSingle(eventHash, profileHash);
+    ProfileEventsStorageService().removeSingle(eventHash, profileHash);
   }
 }

@@ -164,4 +164,25 @@ class RealTimeUpdateService {
     }
     return null;
   }
+
+  Future<void> deleteTokenOnLogout() async {
+    var user = UserProvider().user;
+    if (user == null) {
+      debugPrint("No authenticated user found. Skipping FCM token deletion.");
+      return;
+    }
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
+      if (fcmToken != null) {
+        await UserAPI().deleteFCMToken(fcmToken);
+        debugPrint('FCM Token successfully deleted from backend.');
+      }
+
+      await FirebaseMessaging.instance.deleteToken();
+      debugPrint('FCM Token successfully deleted locally.');
+    } catch (e) {
+      debugPrint('Error deleting FCM token: $e');
+    }
+  }
 }
