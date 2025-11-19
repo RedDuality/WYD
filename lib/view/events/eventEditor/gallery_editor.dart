@@ -32,6 +32,8 @@ class GalleryEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var hasEventFinished =
+        Provider.of<CurrentEventsProvider>(context).get(eventHash)!.startTime!.isAfter(DateTime.now());
     return ChangeNotifierProvider(
       create: (_) => CachedMediaProvider(eventHash),
       child: Builder(
@@ -53,8 +55,7 @@ class GalleryEditor extends StatelessWidget {
               height: 20,
             ),
             //On Devices, look for images
-            if (!kIsWeb &&
-                Provider.of<CurrentEventsProvider>(context).get(eventHash)!.startTime!.isAfter(DateTime.now()))
+            if (!kIsWeb && hasEventFinished)
               Column(
                 children: [
                   Align(

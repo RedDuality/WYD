@@ -8,7 +8,6 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
-import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/view/events/eventEditor/confirmed_list.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
@@ -17,7 +16,6 @@ import 'package:wyd_front/view/widget/button/overlay_list_button.dart';
 
 class EventViewEditor extends StatefulWidget {
   final Event? event;
-  final bool confirmed;
   final DateTime? date;
   final TextEditingController titleController;
   final Function(String) onEventCreated;
@@ -25,7 +23,6 @@ class EventViewEditor extends StatefulWidget {
   const EventViewEditor({
     super.key,
     required this.event,
-    required this.confirmed,
     this.date,
     required this.titleController,
     required this.onEventCreated,
@@ -119,16 +116,18 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   Event _getEventWithCurrentFields() {
     Event event = Event(
-        eventHash: widget.event != null ? widget.event!.eventHash : "",
-        date: startTime,
-        startTime: startTime,
-        endTime: endTime,
-        endDate: endTime,
-        updatedAt: DateTime.now(),
-        title: widget.titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        totalConfirmed: totalConfirmed,
-        totalProfiles: totalProfiles);
+      eventHash: widget.event != null ? widget.event!.eventHash : "",
+      date: startTime,
+      startTime: startTime,
+      endTime: endTime,
+      endDate: endTime,
+      updatedAt: DateTime.now(),
+      title: widget.titleController.text.trim(),
+      description: _descriptionController.text.trim(),
+      totalConfirmed: totalConfirmed,
+      totalProfiles: totalProfiles,
+      currentConfirmed: widget.event != null ? widget.event!.currentConfirmed : true,
+    );
 
     return event;
   }
@@ -143,8 +142,10 @@ class _EventViewEditorState extends State<EventViewEditor> {
     if (!hasBeenChanged || widget.event == null) return null;
     UpdateEventRequestDto updateDto = UpdateEventRequestDto(
       eventHash: widget.event!.eventHash,
-      title: widget.titleController.text.trim() != widget.event!.title.trim() ? widget.titleController.text.trim() : null,
-      description: _descriptionController.text.trim() != initialDescription.trim() ? _descriptionController.text.trim() : null,
+      title:
+          widget.titleController.text.trim() != widget.event!.title.trim() ? widget.titleController.text.trim() : null,
+      description:
+          _descriptionController.text.trim() != initialDescription.trim() ? _descriptionController.text.trim() : null,
       startTime: startTime != widget.event!.startTime ? startTime : null,
       endTime: endTime != widget.event!.endTime ? endTime : null,
     );
@@ -154,20 +155,19 @@ class _EventViewEditorState extends State<EventViewEditor> {
   Future<void> _updateEvent() async {
     var updateDto = _getUpdateDto();
     if (updateDto != null) await EventViewService.update(updateDto);
+    initialDescription = _descriptionController.text.trim();
   }
 
+  /*
   Future<void> _deleteEvent(String eventHash) async {
-    Event? deleteEvent = await EventStorage().getEventByHash(eventHash);
-    if (deleteEvent != null) {
-      EventViewService.delete(deleteEvent).then(
-        (value) {
-          if (mounted) Navigator.of(context).pop();
-        },
-        onError: (error) =>
-            {if (mounted) InformationService().showInfoPopup(context, "There was an error trying to delete the event")},
-      );
-    }
-  }
+    EventViewService.delete(eventHash).then(
+      (value) {
+        if (mounted) Navigator.of(context).pop();
+      },
+      onError: (error) =>
+          {if (mounted) InformationService().showInfoPopup(context, "There was an error trying to delete the event")},
+    );
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -258,7 +258,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
                       }
                     } else {
                       // If running on mobile, use the share dialog
-                      final result = await SharePlus.instance.share(ShareParams(text: fullUrl, subject: widget.event!.title));
+                      final result =
+                          await SharePlus.instance.share(ShareParams(text: fullUrl, subject: widget.event!.title));
                       if (result == ShareResult.unavailable) {
                         debugPrint("It was not possible to share the event");
                       }
@@ -275,7 +276,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   ),
                 ),
               const SizedBox(width: 10),
-              if (exists && !hasBeenChanged && widget.event!.currentConfirmed()) // Decline
+              if (exists && !hasBeenChanged && widget.event!.currentConfirmed) // Decline
                 ElevatedButton(
                   onPressed: () async {
                     await EventViewService.decline(widget.event!.eventHash);
@@ -292,7 +293,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                     ],
                   ),
                 ),
-              if (exists && !hasBeenChanged && !widget.event!.currentConfirmed()) // Confirm
+              if (exists && !hasBeenChanged && !widget.event!.currentConfirmed) // Confirm
                 ElevatedButton(
                   onPressed: () async {
                     await EventViewService.confirm(widget.event!.eventHash);
@@ -337,6 +338,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
           ),
         ),
         SizedBox(height: 5),
+        /*
         if (exists && widget.event!.isOwner())
           Align(
             alignment: Alignment.bottomRight,
@@ -363,7 +365,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                 ),
               ],
             ),
-          ),
+          ),*/
       ],
     );
   }

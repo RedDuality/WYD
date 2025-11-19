@@ -45,8 +45,12 @@ def getEnvProperties(envFile) {
 }
 
 
-def envFile = file('../.env')
+def envName = project.hasProperty("env") ? project.getProperty("env") : "dev"
+println ">>> Building with envName=${envName}"
+
+def envFile = file("../.env.${envName}")
 def env = getEnvProperties(envFile)
+
 
 android {
     namespace "com.example.wyd_front"
@@ -89,11 +93,13 @@ android {
     productFlavors {
         dev {
             dimension "env"
-            applicationId "com.example.app.dev"
+            applicationId "com.example.wyd_front"
+            resValue "string", "app_name", "WYD Dev"
         }
         prod {
             dimension "env"
-            applicationId "com.example.app"
+            applicationId "com.example.wyd_front"
+            resValue "string", "app_name", "WYD"
         }
     }
     

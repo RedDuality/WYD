@@ -39,14 +39,13 @@ class _RegisterPageState extends State<RegisterPage> {
           Form(
             key: _registerKey,
             child: Center(
-              // <-- this centers vertically
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min, // important for centering
-                  children: <Widget>[
-                    // Logo
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min, 
+                children: <Widget>[
+                  // Logo
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
                       child: Center(
                         child: LimitedBox(
                           maxHeight: 400,
@@ -57,113 +56,114 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                     ),
-
-                    // Email field
-                    Container(
-                      constraints: const BoxConstraints(maxWidth: 500),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: TextFormField(
-                          controller: _mailController,
-                          autovalidateMode: AutovalidateMode.onUnfocus,
-                          validator: (value) =>
-                              EmailValidator.validate(value ?? "") ? null : "Please enter a valid email address",
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Email',
-                            hintText: 'Enter valid email id as abc@mail.com',
-                            helperText: ' ',
-                          ),
+                  ),
+              
+                  // Email field
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+                      child: TextFormField(
+                        controller: _mailController,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        validator: (value) =>
+                            EmailValidator.validate(value ?? "") ? null : "Please enter a valid email address",
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Email',
+                          hintText: 'Enter valid email id as abc@mail.com',
+                          helperText: ' ',
                         ),
                       ),
                     ),
-
-                    // Password field
-                    Container(
-                      constraints: const BoxConstraints(maxWidth: 500),
-                      child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: TextFormField(
-                          obscureText: true,
-                          autovalidateMode: AutovalidateMode.onUnfocus,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Password is required';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters long';
-                            }
-                            return null;
-                          },
-                          onChanged: (text) {
-                            _password = text;
-                          },
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Password',
-                            hintText: 'Enter secure password',
-                            helperText: ' ',
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Confirm password field
-                    Container(
-                      constraints: const BoxConstraints(maxWidth: 500),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 15.0, bottom: 15.0, left: 15.0),
-                        child: TextFormField(
-                          obscureText: true,
-                          autovalidateMode: AutovalidateMode.onUnfocus,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please confirm your password';
-                            }
-                            if (value != _password) {
-                              return 'The password doesn\'t match';
-                            }
-                            return null;
-                          },
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Confirm Password',
-                            hintText: 'Enter secure password',
-                            helperText: ' ',
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Register button
-                    SizedBox(
-                      height: 50,
-                      width: 250,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_registerKey.currentState!.validate()) {
-                            final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
-                            authProvider.register(_mailController.text, _password).catchError((error) {
-                              if (context.mounted) {
-                                InformationService().showErrorSnackBar(context, error);
-                              }
-                            });
+                  ),
+              
+                  // Password field
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+                      child: TextFormField(
+                        obscureText: true,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Password is required';
                           }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters long';
+                          }
+                          return null;
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                        ),
-                        child: const Text(
-                          'Register',
-                          style: TextStyle(
-                            color: Colors.lightBlue,
-                            fontSize: 25,
-                          ),
+                        onChanged: (text) {
+                          _password = text;
+                        },
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Password',
+                          hintText: 'Enter secure password',
+                          helperText: ' ',
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+              
+                  // Confirm password field
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+                      child: TextFormField(
+                        obscureText: true,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != _password) {
+                            return 'The password doesn\'t match';
+                          }
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Confirm Password',
+                          hintText: 'Enter secure password',
+                          helperText: ' ',
+                        ),
+                      ),
+                    ),
+                  ),
+              
+                  // Register button
+                  SizedBox(
+                    height: 50,
+                    width: 250,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_registerKey.currentState!.validate()) {
+                          final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+                          authProvider.register(_mailController.text, _password).catchError((error) {
+                            if (context.mounted) {
+                              InformationService().showErrorSnackBar(context, error);
+                            }
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                      ),
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(
+                          color: Colors.lightBlue,
+                          fontSize: 25,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10,)
+                ],
               ),
             ),
           ),
