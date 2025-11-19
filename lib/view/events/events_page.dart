@@ -46,13 +46,11 @@ class _EventsPageState extends State<EventsPage> {
       if (eventHash != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
-
           if (context.mounted) {
             showCustomDialog(
                 context,
                 EventView(
                   eventHash: event.eventHash,
-                  confirmed: event.currentConfirmed(),
                 ));
           }
         });
@@ -94,7 +92,6 @@ class _EventsPageState extends State<EventsPage> {
                 context,
                 EventView(
                   eventHash: selectedEvent.eventHash,
-                  confirmed: widget.private,
                 ));
           },
           onDateLongPress: (date) {
@@ -102,7 +99,6 @@ class _EventsPageState extends State<EventsPage> {
             showCustomDialog(
                 context,
                 EventView(
-                  confirmed: widget.private,
                   date: date,
                 ));
           },
@@ -115,9 +111,7 @@ class _EventsPageState extends State<EventsPage> {
           },
         );
       }),
-      floatingActionButton: AddEventButton(
-        confirmed: widget.private,
-      ),
+      floatingActionButton: AddEventButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }

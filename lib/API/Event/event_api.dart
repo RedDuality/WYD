@@ -53,6 +53,7 @@ class EventAPI {
     throw "There was an error while fetching updated events";
   }
 
+  // ev + pe
   Future<RetrieveEventResponseDto> retrieveEssentialsFromHash(String eventHash) async {
     String url = '${functionUrl}RetrieveEssentials';
 
@@ -66,8 +67,7 @@ class EventAPI {
     throw "Error while fetching the event";
   }
 
-
-
+  // ev + details
   Future<RetrieveEventResponseDto> retrieveDetailsFromHash(String eventHash) async {
     String url = '${functionUrl}RetrieveDetails';
 

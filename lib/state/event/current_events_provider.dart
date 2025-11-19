@@ -151,7 +151,7 @@ class CurrentEventsProvider extends EventController {
     if (_controller!.focusedRange.end.isBefore(date) || _controller!.focusedRange.start.isAfter(date)) return [];
     return events
         .whereType<Event>()
-        .where((event) => event.occursOnDate(date.toLocal()) && event.currentConfirmed() == _confirmedView // &&
+        .where((event) => event.occursOnDate(date.toLocal()) && event.currentConfirmed == _confirmedView // &&
             //(confirmedView || event.endDate.isAfter(DateTime.now()))
             )
         .toList();

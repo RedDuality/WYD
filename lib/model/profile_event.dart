@@ -17,6 +17,21 @@ class ProfileEvent {
     return other is ProfileEvent && other.profileHash == profileHash;
   }
 
+  Map<String, dynamic> toDbMap(String eventHash) => {
+        'eventHash': eventHash,
+        'profileHash': profileHash,
+        'confirmed': confirmed ? 1 : 0,
+        'role': role,
+        'trusted': trusted, // assuming role is a string
+      };
+
+  static ProfileEvent fromDbMap(Map<String, dynamic> map) => ProfileEvent(
+        map['profileHash'],
+        map['role'],
+        map['confirmed'] == 1,
+        map['trusted'] == 1,
+      );
+
   factory ProfileEvent.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
