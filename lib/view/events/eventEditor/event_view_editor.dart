@@ -58,7 +58,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
     totalConfirmed = widget.event?.totalConfirmed ?? 1;
     totalProfiles = widget.event?.totalProfiles ?? 1;
     if (exists) {
-      var details = EventDetailsStorage().get(widget.event!.eventHash);
+      var details = EventDetailsProvider().get(widget.event!.eventHash);
       if (details != null) {
         initialDescription = details.description;
       }
@@ -126,7 +126,6 @@ class _EventViewEditorState extends State<EventViewEditor> {
       description: _descriptionController.text.trim(),
       totalConfirmed: totalConfirmed,
       totalProfiles: totalProfiles,
-      currentConfirmed: widget.event != null ? widget.event!.currentConfirmed : true,
     );
 
     return event;
@@ -158,7 +157,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
     initialDescription = _descriptionController.text.trim();
   }
 
-  /*
+  
   Future<void> _deleteEvent(String eventHash) async {
     EventViewService.delete(eventHash).then(
       (value) {
@@ -167,7 +166,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
       onError: (error) =>
           {if (mounted) InformationService().showInfoPopup(context, "There was an error trying to delete the event")},
     );
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +275,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   ),
                 ),
               const SizedBox(width: 10),
-              if (exists && !hasBeenChanged && widget.event!.currentConfirmed) // Decline
+              if (exists && !hasBeenChanged && widget.event!.currentConfirmed()) // Decline
                 ElevatedButton(
                   onPressed: () async {
                     await EventViewService.decline(widget.event!.eventHash);
@@ -293,7 +292,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                     ],
                   ),
                 ),
-              if (exists && !hasBeenChanged && !widget.event!.currentConfirmed) // Confirm
+              if (exists && !hasBeenChanged && !widget.event!.currentConfirmed()) // Confirm
                 ElevatedButton(
                   onPressed: () async {
                     await EventViewService.confirm(widget.event!.eventHash);
@@ -338,7 +337,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
           ),
         ),
         SizedBox(height: 5),
-        /*
+        
         if (exists && widget.event!.isOwner())
           Align(
             alignment: Alignment.bottomRight,
@@ -365,7 +364,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                 ),
               ],
             ),
-          ),*/
+          ),
       ],
     );
   }

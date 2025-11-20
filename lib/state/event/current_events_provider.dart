@@ -8,17 +8,20 @@ import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/state/event/range_controller.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
+import 'package:wyd_front/state/user/view_settings_cache.dart';
 
 class CurrentEventsProvider extends EventController {
+  late ProfileEventsCache profileEventsProvider;
   bool _confirmedView = true;
   //Set<Event> _currentEventsCache = {};
   bool _isLoading = true;
 
   final EventStorage _storage = EventStorage();
   RangeController? _controller;
+
   StreamSubscription<DateTimeRange>? _rangesSubscription;
   StreamSubscription<(Event, bool)>? _eventSubscription;
-
   StreamSubscription<void>? _colorChangeSubscription;
 
   //List<Event> get events => _currentEventsCache.toList();
@@ -44,6 +47,10 @@ class CurrentEventsProvider extends EventController {
     });
   }
 
+  void inject(ProfileEventsCache provider) {
+    profileEventsProvider = provider;
+  }
+
   void initialize(RangeController controller, bool confirmedView) {
     _confirmedView = confirmedView;
 
@@ -57,7 +64,7 @@ class CurrentEventsProvider extends EventController {
       _retrieveEvents(logger: "fromPageUpdate");
     });
 
-    _retrieveEvents(logger: ""); // Initial load
+    _retrieveEvents(logger: "Initial load");
   }
 
   Event? get(String eventHash) {
@@ -67,7 +74,7 @@ class CurrentEventsProvider extends EventController {
     return null;
   }
 
-// triggers a view update
+  // triggers a view update
   void refresh() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
@@ -79,9 +86,22 @@ class CurrentEventsProvider extends EventController {
     if (!_isLoading) {
       _isLoading = true;
     }
-    debugPrint("retrieveEvents");
+    debugPrint("retrieveEvents, $logger");
     var newEvents = await EventStorageService.retrieveEventsInTimeRange(_controller!.focusedRange);
-    setEvents(newEvents);
+    _setEvents(newEvents);
+  }
+
+  void _setEvents(List<Event> newEvents) {
+    _isLoading = false;
+    super.removeWhere((event) => true);
+    super.addAll(newEvents);
+
+    if (_isLoading) {
+      _isLoading = false;
+      //notifyListeners(); // : already called from super
+    }
+
+    profileEventsProvider.rangeChanged(allEvents.whereType<Event>().map((event) => event.eventHash).toSet());
   }
 
   Future<void> _synchWithStorage(DateTimeRange range) async {
@@ -91,39 +111,32 @@ class CurrentEventsProvider extends EventController {
     );
 
     var events = await EventStorage().getEventsInTimeRange(overlap);
-    addEvents(events);
+    _addEvents(events);
+  }
+
+  void _addEvents(List<Event> newEvents) {
+    super.addAll(newEvents);
+    profileEventsProvider.rangeChanged(allEvents.whereType<Event>().map((event) => event.eventHash).toSet());
+    //notifyListeners();
   }
 
   void _updateEvent(Event event, bool deleted) {
     if (_controller == null) return;
 
-    final isFocused =
+    final inTimeRange =
         _controller!.focusedRange.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
-    final exists = allEvents.contains(event);
+    final inMemory = allEvents.contains(event);
 
-    if (exists) {
+    // clean up the old copy
+    if (inMemory) {
       super.remove(event);
+      profileEventsProvider.remove(event.eventHash);
     }
 
-    if (!deleted && (!exists || isFocused)) {
+    if (!deleted && (!inMemory || inTimeRange)) {
       super.add(event);
+      profileEventsProvider.add(event.eventHash);
     }
-  }
-
-  void setEvents(List<Event> events) {
-    _isLoading = false;
-    super.removeWhere((event) => true);
-    super.addAll(events);
-
-    if (_isLoading) {
-      _isLoading = false;
-      //notifyListeners();
-    }
-  }
-
-  void addEvents(List<Event> newEvents) {
-    super.addAll(newEvents);
-    //notifyListeners();
   }
 
   @override
@@ -149,11 +162,19 @@ class CurrentEventsProvider extends EventController {
   List<Event> myEventFilter<T extends Object?>(DateTime date, List<CalendarEventData<T>> events) {
     if (_isLoading) return [];
     if (_controller!.focusedRange.end.isBefore(date) || _controller!.focusedRange.start.isAfter(date)) return [];
-    return events
+
+    // get all events in date but that are also confirmed by the profiles I have the permission on to see
+    // -> get all allowed profilesId(ViewSettings)
+    // -> get events in date and from profileIds
+    final todaysEventsIds = events
         .whereType<Event>()
-        .where((event) => event.occursOnDate(date.toLocal()) && event.currentConfirmed == _confirmedView // &&
-            //(confirmedView || event.endDate.isAfter(DateTime.now()))
-            )
-        .toList();
+        .where((event) => event.occursOnDate(date.toLocal()))
+        .map((event) => event.eventHash)
+        .toSet();
+    final viewingProfileIds = ViewSettingsCache().getProfiles(_confirmedView);
+    final eventIdsWhereConfirmed =
+        ProfileEventsCache().eventsWithProfilesConfirmed(todaysEventsIds, viewingProfileIds, _confirmedView);
+
+    return events.whereType<Event>().where((event) => eventIdsWhereConfirmed.contains(event.eventHash)).toList();
   }
 }

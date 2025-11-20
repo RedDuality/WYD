@@ -60,26 +60,6 @@ class EventStorage {
     );
   }
 
-
-
-  /// Saves to storage and emits a change event.
-  Future<void> saveEvent(Event event) async {
-    if (!kIsWeb) {
-      final db = await database;
-      if (db == null) return;
-      await db.insert(
-        _tableName,
-        event.toDbMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    } else {
-      _inMemoryStorage[event.eventHash] = event;
-    }
-
-    // Send a signal that data has been modified.
-    _eventUpdateController.sink.add((event, false));
-  }
-
   /// Saves multiple events and emits a single change event.
   Future<void> saveMultiple(List<Event> events, DateTimeRange range) async {
     if (!kIsWeb) {
@@ -105,6 +85,24 @@ class EventStorage {
     _rangeUpdateController.sink.add(range);
   }
 
+  /// Saves to storage and emits a change event.
+  Future<void> saveEvent(Event event) async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return;
+      await db.insert(
+        _tableName,
+        event.toDbMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } else {
+      _inMemoryStorage[event.eventHash] = event;
+    }
+
+    // Send a signal that data has been modified.
+    _eventUpdateController.sink.add((event, false));
+  }
+
   /// Removes an event by its hash and signals a range update.
   Future<void> remove(Event event) async {
     if (!kIsWeb) {
@@ -123,6 +121,26 @@ class EventStorage {
     }
 
     _eventUpdateController.sink.add((event, true));
+  }
+
+  Future<Event?> getEventByHash(String eventHash) async {
+    if (kIsWeb) {
+      return _inMemoryStorage[eventHash];
+    }
+
+    final db = await database;
+    if (db == null) return null;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableName,
+      where: 'eventHash = ?',
+      whereArgs: [eventHash],
+    );
+
+    if (maps.isNotEmpty) {
+      return Event.fromDbMap(maps.first);
+    }
+    return null;
   }
 
   /// Given a period, this function returns events that overlaps it.
@@ -161,6 +179,7 @@ class EventStorage {
     }
   }
 
+/*
   /// Retrieves the next events that directly follows the given time
   Future<Event?> getNextEvent(DateTime time) async {
     final targetMs = time.millisecondsSinceEpoch;
@@ -190,26 +209,7 @@ class EventStorage {
 
     return maps.isNotEmpty ? Event.fromDbMap(maps.first) : null;
   }
-
-  Future<Event?> getEventByHash(String eventHash) async {
-    if (kIsWeb) {
-      return _inMemoryStorage[eventHash];
-    }
-
-    final db = await database;
-    if (db == null) return null;
-
-    final List<Map<String, dynamic>> maps = await db.query(
-      _tableName,
-      where: 'eventHash = ?',
-      whereArgs: [eventHash],
-    );
-
-    if (maps.isNotEmpty) {
-      return Event.fromDbMap(maps.first);
-    }
-    return null;
-  }
+*/
 
   Future<void> clearAllEvents() async {
     if (!kIsWeb) {

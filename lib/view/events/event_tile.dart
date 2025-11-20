@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/state/profile/profiles_provider.dart';
+import 'package:wyd_front/state/profile/detailed_profiles_provider.dart';
 import 'package:wyd_front/view/events/rounded_event_tile.dart';
 
 class EventTile<T> extends StatelessWidget {
@@ -20,17 +19,15 @@ class EventTile<T> extends StatelessWidget {
   final DateTime startDuration;
   final DateTime endDuration;
 
-  Future<List<Color>?> getProfileColors(BuildContext context, Event event) async {
-    var profilesConfirmed = await event.profilesThatConfirmed();
-    if (context.mounted) {
-      final provider = Provider.of<ProfileProvider>(context, listen: false);
+  List<Color> _getProfileColors(Event event) {
+    var profilesConfirmed = event.profilesThatConfirmed();
 
-      return profilesConfirmed.map((hash) {
-        final profile = provider.get(hash);
-        return profile?.color ?? Colors.purple;
-      }).toList();
-    }
-    return null;
+    final provider = DetailedProfileProvider();
+
+    return profilesConfirmed.map((hash) {
+      final profile = provider.get(hash);
+      return profile?.color ?? Colors.purple;
+    }).toList();
   }
 
   @override
@@ -41,23 +38,17 @@ class EventTile<T> extends StatelessWidget {
 
     return Stack(
       children: [
-        FutureBuilder<List<Color>?>(
-          future: getProfileColors(context, event),
-          builder: (context, snapshot) {
-            final sideBarColors = snapshot.data ?? [event.color];
-            return RoundedEventTile(
-              borderRadius: BorderRadius.circular(12.0),
-              title: "${event.getConfirmTitle()}${event.title}",
-              totalEvents: events.length,
-              padding: const EdgeInsets.fromLTRB(2.0, 0.0, 3.0, 3.0),
-              margin: const EdgeInsets.all(1.5),
-              backgroundColor: event.color,
-              sideBarColors: sideBarColors,
-              sideBarWidth: 4,
-              titleStyle: event.titleStyle,
-              descriptionStyle: event.descriptionStyle,
-            );
-          },
+        RoundedEventTile(
+          borderRadius: BorderRadius.circular(12.0),
+          title: "${event.getConfirmTitle()}${event.title}",
+          totalEvents: events.length,
+          padding: const EdgeInsets.fromLTRB(2.0, 0.0, 3.0, 3.0),
+          margin: const EdgeInsets.all(1.5),
+          backgroundColor: event.color,
+          sideBarColors: _getProfileColors(event),
+          sideBarWidth: 4,
+          titleStyle: event.titleStyle,
+          descriptionStyle: event.descriptionStyle,
         ),
         if (event.hasCachedMedia)
           Positioned(

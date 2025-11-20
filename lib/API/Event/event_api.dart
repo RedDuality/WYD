@@ -95,13 +95,13 @@ class EventAPI {
     throw "Error while retrieving event";
   }
 
-  Future<Set<ProfileEvent>> retriveProfileEvents(String eventHash) async {
+  Future<Set<ProfileEvent>> retriveProfileEvents(String eventId) async {
     String url = '${functionUrl}GetProfileEvents';
 
-    var response = await client.get(Uri.parse('$url/$eventHash'));
+    var response = await client.get(Uri.parse('$url/$eventId'));
     if (response.statusCode == 200) {
       var decoded = jsonDecode(response.body) as List<dynamic>;
-      var pes = decoded.map((pe) => ProfileEvent.fromJson(pe as Map<String, dynamic>)).toSet();
+      var pes = decoded.map((pe) => ProfileEvent.fromJson(eventId, pe as Map<String, dynamic>)).toSet();
 
       return pes.cast<ProfileEvent>();
     }

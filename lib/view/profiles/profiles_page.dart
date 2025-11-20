@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/service/model/user_service.dart';
+import 'package:wyd_front/service/user/user_service.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
-import 'package:wyd_front/view/profiles/profile_tile.dart';
+import 'package:wyd_front/view/profiles/detailed_profile_tile.dart';
 import 'package:wyd_front/view/settings/settings_page.dart';
 
 class ProfilesPage extends StatelessWidget {
@@ -73,9 +74,9 @@ class ProfilesPage extends StatelessWidget {
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    ProfileTile(
-                      profileHash: UserProvider().getCurrentProfileHash(),
-                      type: ProfileTileType.main,
+                    DetailedProfileTile(
+                      profileId: UserProvider().getCurrentProfileId(),
+                      type: DetailedProfileTileType.main,
                     ),
                     if (profileHashes.isNotEmpty)
                       const Padding(
@@ -88,9 +89,9 @@ class ProfilesPage extends StatelessWidget {
                     if (profileHashes.isNotEmpty)
                       Column(
                         children: profileHashes.map((profileHash) {
-                          return ProfileTile(
-                            profileHash: profileHash,
-                            type: ProfileTileType.main,
+                          return DetailedProfileTile(
+                            profileId: profileHash,
+                            type: DetailedProfileTileType.main,
                           );
                         }).toList(),
                       ),

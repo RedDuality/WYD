@@ -1,56 +1,65 @@
 import 'package:wyd_front/model/enum/event_role.dart';
 
 class ProfileEvent {
-  String profileHash = "";
+  String eventId;
+  String profileId;
   EventRole role;
-  bool confirmed = false;
-  bool trusted = false;
+  bool confirmed;
+  bool trusted;
 
-  ProfileEvent(this.profileHash, this.role, this.confirmed, this.trusted);
+  ProfileEvent({
+    required this.eventId,
+    required this.profileId,
+    this.role = EventRole.viewer,
+    this.confirmed = false,
+    this.trusted = false,
+  });
 
   @override
-  int get hashCode => profileHash.hashCode;
+  int get hashCode => Object.hash(eventId, profileId);
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ProfileEvent && other.profileHash == profileHash;
+    return other is ProfileEvent && other.eventId == eventId && other.profileId == profileId;
   }
 
-  Map<String, dynamic> toDbMap(String eventHash) => {
-        'eventHash': eventHash,
-        'profileHash': profileHash,
+  Map<String, dynamic> toDbMap() => {
+        'eventId': eventId,
+        'profileHash': profileId,
+        'role': role.index,
         'confirmed': confirmed ? 1 : 0,
-        'role': role,
-        'trusted': trusted, // assuming role is a string
+        'trusted': trusted,
       };
 
-  static ProfileEvent fromDbMap(Map<String, dynamic> map) => ProfileEvent(
-        map['profileHash'],
-        map['role'],
-        map['confirmed'] == 1,
-        map['trusted'] == 1,
-      );
-
-  factory ProfileEvent.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'profileHash': String profileHash,
-        'role': int? role,
-        'confirmed': bool confirmed,
-        'trusted': bool trusted,
-      } =>
-        ProfileEvent(profileHash, EventRole.values[role ?? 0], confirmed, trusted),
-      _ => throw const FormatException('Failed to decode ProfileEvent')
-    };
+  static ProfileEvent fromDbMap(Map<String, dynamic> map) {
+    return ProfileEvent(
+      eventId: map['eventId'],
+      profileId: map['profileId'],
+      role: EventRole.values[map['role']],
+      confirmed: map['confirmed'] == 1,
+      trusted: map['trusted'] == 1,
+    );
   }
 
+  factory ProfileEvent.fromJson(String eventId, Map<String, dynamic> json) {
+    return ProfileEvent(
+      eventId: eventId,
+      profileId: json['profileId'] as String,
+      role: EventRole.values[json['role'] ?? 0],
+      confirmed: json['confirmed'] as bool,
+      trusted: json['truested'] as bool,
+    );
+  }
+
+  /*
   Map<String, dynamic> toJson() {
     return {
-      'profileHash': profileHash,
+      'eventId': eventId,
+      'profileId': profileId,
+      'eventRole': role.index,
       'confirmed': confirmed,
       'trusted': trusted,
-      'eventRole': role.index,
     };
-  }
+  }*/
 }

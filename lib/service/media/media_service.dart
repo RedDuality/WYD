@@ -11,15 +11,15 @@ class MediaService {
   // from BlobProvider, either cached or selected by user
   static Future<void> uploadImages(String eventHash, List<MediaData> blobs) async {
     var media = await MediaUploadService().uploadImages(eventHash, blobs);
-    EventDetailsStorage().addTotalMedia(eventHash, media.length);
+    EventDetailsProvider().addTotalMedia(eventHash, media.length);
   }
 
   // from Notifications
   static Future<void> retrieveImageUpdatesByHash(Event event) async {
-    var details = EventDetailsStorage().get(event.eventHash);
+    var details = EventDetailsProvider().get(event.eventHash);
 
     if (details != null) {
-      EventDetailsStorage().invalidateMediaCache(event.eventHash);
+      EventDetailsProvider().invalidateMediaCache(event.eventHash);
     }
   }
 
@@ -39,7 +39,7 @@ class MediaService {
         validUntil = any.validUntil;
       }
 
-      EventDetailsStorage().addMedia(eventHash, media, validUntil: validUntil);
+      EventDetailsProvider().addMedia(eventHash, media, validUntil: validUntil);
     }
   }
 

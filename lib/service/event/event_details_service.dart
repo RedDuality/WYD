@@ -3,11 +3,11 @@ import 'package:wyd_front/state/event/event_details_storage.dart';
 
 class EventDetailsService {
   static void addImages(String eventHash, int added) {
-    EventDetailsStorage().get(eventHash)!.totalImages += added;
+    EventDetailsProvider().get(eventHash)!.totalImages += added;
   }
 
   static void retrieveMedia(String eventHash, {int? start, int? end}) {
-    var details = EventDetailsStorage().get(eventHash);
+    var details = EventDetailsProvider().get(eventHash);
 
     if (details != null &&
         details.totalImages > 0 &&

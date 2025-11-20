@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:wyd_front/API/Profile/profile_api.dart';
+import 'package:wyd_front/model/profile.dart';
 import 'package:wyd_front/service/profile/profile_storage_service.dart';
 
 class ProfileRetrieveService {
@@ -33,8 +34,7 @@ class ProfileRetrieveService {
     _queue.clear();
 
     try {
-      final dtos = await ProfileAPI().retrieveFromHashes(hashes);
-      ProfileStorageService.addProfiles(dtos);
+      _retrieveFromServer(hashes);
     } finally {
       _isFetching = false;
     }
@@ -50,9 +50,13 @@ class ProfileRetrieveService {
     _scheduleFetch();
   }
 
-  // for user's profile update
-  Future<void> retrieveDetailed(String profileId) async {
-    var dto = await ProfileAPI().retrieveDetailed(profileId);
-    await ProfileStorageService.update(dto);
+  Future<void> _retrieveFromServer(List<String> hashes) async {
+    final dtos = await ProfileAPI().retrieveFromHashes(hashes);
+    ProfileStorageService.addProfiles(dtos);
+  }
+
+  static Future<List<Profile>> searchByTag(String searchTag) async {
+    final dtos = await ProfileAPI().searchByTag(searchTag);
+    return dtos.map((d) => Profile.fromDto(d)).toList();
   }
 }

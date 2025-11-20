@@ -21,7 +21,7 @@ class SharePage extends StatefulWidget {
 
 class _SharePageState extends State<SharePage> {
   Set<ShareEventRequestDto> selectedGroups = {};
-  String currentProfileHash = UserProvider().getCurrentProfileHash();
+  String currentProfileHash = UserProvider().getCurrentProfileId();
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +102,7 @@ class _SharePageState extends State<SharePage> {
     final profileHash = community.otherProfileId!;
 
     return ProfileTile(
-      profileHash: profileHash,
+      profileId: profileHash,
       type: ProfileTileType.view,
       trailing: _groupCheckBox(group.id, community.id),
     );

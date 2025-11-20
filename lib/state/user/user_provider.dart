@@ -14,22 +14,22 @@ class UserProvider extends ChangeNotifier {
 
   User? get user => _user;
 
-  String getCurrentProfileHash() {
+  String getCurrentProfileId() {
     return _user!.currentProfileHash;
   }
 
+  Set<String> getProfileIds() {
+    return Set<String>.from(_user!.profileIds);
+  }
+
   Set<String> getSecondaryProfilesHashes() {
-    var profiles = getProfileHashes();
-    profiles.remove(getCurrentProfileHash());
+    var profiles = getProfileIds();
+    profiles.remove(getCurrentProfileId());
     return profiles;
   }
 
-  Set<String> getProfileHashes() {
-    return Set<String>.from(_user!.profileHashes);
-  }
-
   Future<void> updateUser(User user) async {
-    if (_user == null || _user!.hash != user.hash) {
+    if (_user == null || _user!.id != user.id) {
       _user = user;
       notifyListeners();
     }

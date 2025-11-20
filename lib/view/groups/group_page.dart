@@ -65,7 +65,7 @@ class GroupPage extends StatelessWidget {
     switch (community.type) {
       case CommunityType.personal:
         return ProfileTile(
-            profileHash: community.getProfileHash(),
+            profileId: community.getProfileHash(),
             type: ProfileTileType.view);
       case CommunityType.singlegroup:
         return avatarTile(title: community.name!);

@@ -4,11 +4,10 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/service/event/profile_events_service.dart';
+import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
 import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class EventStorageService {
-
   static Future<void> addEvents(
     List<RetrieveEventResponseDto> dtos,
     DateTimeRange dateRange,
@@ -32,16 +31,15 @@ class EventStorageService {
 
   static Future<Event> _deserializeEvent(RetrieveEventResponseDto dto) async {
     if (dto.details != null) {
-      EventDetailsStorage().update(dto.hash, dto.details!);
+      EventDetailsProvider().update(dto.id, dto.details!);
     }
 
     // this goes before to allow event.currentConfirmed
     if (dto.sharedWith != null) {
-      await ProfileEventsStorageService().saveMultiple(dto.hash, dto.sharedWith!);
+      await ProfileEventsStorage().saveMultiple(dto.id, dto.sharedWith!);
     }
 
-    var currentConfirmed = await ProfileEventsStorageService().hasCurrentConfirmed(dto.hash);
-    return Event.fromDto(dto, currentConfirmed);
+    return Event.fromDto(dto);
   }
 
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
@@ -60,5 +58,11 @@ class EventStorageService {
     var event = await EventStorage().getEventByHash(eventHash);
     event!.hasCachedMedia = hasCachedMedia;
     EventStorage().saveEvent(event);
+  }
+
+  Future<List<Event>> getEventsToShowInRange(
+    DateTime date,
+  ) async {
+    return [];
   }
 }

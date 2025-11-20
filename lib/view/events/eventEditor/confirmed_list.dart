@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/profile_event.dart';
-import 'package:wyd_front/service/event/profile_events_service.dart';
+import 'package:wyd_front/service/event/profile_events_storage_service.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 
 class ConfirmedList extends StatefulWidget {
@@ -50,7 +50,7 @@ class _ConfirmedListState extends State<ConfirmedList> {
               itemCount: confirmed.length,
               itemBuilder: (context, index) {
                 return ProfileTile(
-                  profileHash: confirmed[index].profileHash,
+                  profileId: confirmed[index].profileId,
                   type: ProfileTileType.eventMenu,
                 );
               },
@@ -65,7 +65,7 @@ class _ConfirmedListState extends State<ConfirmedList> {
               itemCount: toBeConfirmed.length,
               itemBuilder: (context, index) {
                 return ProfileTile(
-                  profileHash: toBeConfirmed[index].profileHash,
+                  profileId: toBeConfirmed[index].profileId,
                   type: ProfileTileType.eventMenu,
                 );
               },

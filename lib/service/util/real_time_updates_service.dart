@@ -8,7 +8,7 @@ import 'package:wyd_front/model/enum/update_type.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/service/profile/profile_retrieve_service.dart';
+import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
@@ -40,7 +40,7 @@ class RealTimeUpdateService {
       final fcmToken = await FirebaseMessaging.instance.getToken();
       if (fcmToken != null) {
         var requestDto = StoreFcmTokenRequestDto(
-          uuid: user.hash,
+          uuid: user.id,
           platform: getPlatform(),
           fcmToken: fcmToken,
         );
@@ -79,7 +79,7 @@ class RealTimeUpdateService {
       var user = UserProvider().user;
       if (user != null) {
         var requestDto = StoreFcmTokenRequestDto(
-          uuid: user.hash,
+          uuid: user.id,
           platform: DefaultFirebaseOptions.currentPlatform.toString(),
           fcmToken: fcmToken,
         );
@@ -149,7 +149,7 @@ class RealTimeUpdateService {
         }
         break;
       case UpdateType.updateProfile:
-        ProfileRetrieveService().retrieveDetailed(data['id']);
+        DetailedProfileStorageService.retrieveFromServer(data['id']);
         break;
       default:
         debugPrint("Type of update has not been catched");

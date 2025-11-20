@@ -1,10 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
-import 'package:wyd_front/model/enum/event_role.dart';
-import 'package:wyd_front/model/profile_event.dart';
-import 'package:wyd_front/service/event/profile_events_service.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
@@ -12,7 +9,6 @@ class Event extends CalendarEventData {
   DateTime updatedAt;
   int totalConfirmed;
   int totalProfiles;
-  bool currentConfirmed = false;
   bool hasCachedMedia;
 
   @override
@@ -31,7 +27,6 @@ class Event extends CalendarEventData {
     required this.updatedAt,
     required this.totalConfirmed,
     required this.totalProfiles,
-    required this.currentConfirmed,
     this.hasCachedMedia = false,
     DateTime? date,
     // in Utc time
@@ -54,16 +49,15 @@ class Event extends CalendarEventData {
           endDate: endDate ?? endTime.toLocal(),
         );
 
-  factory Event.fromDto(RetrieveEventResponseDto dto, bool currentConfirmed){
+  factory Event.fromDto(RetrieveEventResponseDto dto) {
     return Event(
-      eventHash: dto.hash,
+      eventHash: dto.id,
       updatedAt: dto.updatedAt,
       title: dto.title,
       startTime: dto.startTime,
       endTime: dto.endTime,
       totalProfiles: dto.totalProfiles,
       totalConfirmed: dto.totalConfirmed,
-      currentConfirmed: currentConfirmed,
     );
   }
 
@@ -83,7 +77,6 @@ class Event extends CalendarEventData {
       endDate: endTime,
       totalProfiles: map['totalProfiles'] as int,
       totalConfirmed: map['totalConfirmed'] as int,
-      currentConfirmed: map['currentConfirmed'] == 1,
       hasCachedMedia: map['hasCachedMedia'] == 1,
     );
   }
@@ -99,7 +92,6 @@ class Event extends CalendarEventData {
       'totalConfirmed': totalConfirmed,
       'totalProfiles': totalProfiles,
       'hasCachedMedia': hasCachedMedia ? 1 : 0,
-      'currentConfirmed': currentConfirmed ? 1: 0,
     };
   }
 
@@ -107,29 +99,20 @@ class Event extends CalendarEventData {
     return totalProfiles > 1 ? "($totalConfirmed/$totalProfiles) " : "";
   }
 
-  Future<ProfileEvent?> _getCurrentProfileEvent() async {
-    String profileHash = UserProvider().getCurrentProfileHash();
-    return await ProfileEventsStorageService().getSingle(eventHash, profileHash);
+  bool isOwner() {
+    return ProfileEventsCache().isOwner(eventHash);
   }
 
-  Future<bool> isOwner() async {
-    var currentProfileEvent = await _getCurrentProfileEvent();
-    return currentProfileEvent!.role == EventRole.owner;
+  bool currentConfirmed() {
+    return ProfileEventsCache().currentConfirmed(eventHash);
   }
 
-  Future<Set<String>> profilesThatConfirmed() async {
-    var myprofiles = UserProvider().getProfileHashes().toSet();
-    return await ProfileEventsStorageService().profilesThatConfirmed(eventHash, myprofiles);
+  Set<String> profilesThatConfirmed() {
+    return ProfileEventsCache().profilesThatConfirmed(eventHash);
   }
 
   //for delete
-  Future<int> countMatchingProfiles(Set<String> userProfileHashes) async {
-    var myprofiles = UserProvider().getProfileHashes().toSet();
-    return await ProfileEventsStorageService().countMatchingProfiles(eventHash, myprofiles);
-  }
-
-  // for delete
-  void removeProfile(String profileHash) {
-    ProfileEventsStorageService().removeSingle(eventHash, profileHash);
+  int countMatchingProfiles() {
+    return ProfileEventsCache().countMatchingProfiles(eventHash);
   }
 }

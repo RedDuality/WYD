@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:wyd_front/service/model/user_service.dart';
+import 'package:wyd_front/service/user/user_service.dart';
 
 class AuthenticationProvider with ChangeNotifier {
   static final AuthenticationProvider _instance = AuthenticationProvider._internal();

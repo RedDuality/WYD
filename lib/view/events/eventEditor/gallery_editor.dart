@@ -38,12 +38,12 @@ class GalleryEditor extends StatelessWidget {
       create: (_) => CachedMediaProvider(eventHash),
       child: Builder(
         builder: (context) {
-          var eventDetails = EventDetailsStorage().get(eventHash);
+          var eventDetails = EventDetailsProvider().get(eventHash);
           if (eventDetails != null &&
               eventDetails.totalImages > 0 &&
               eventDetails.media.isNotEmpty &&
               (eventDetails.validUntil == null || eventDetails.validUntil!.isBefore(DateTime.now()))) {
-            EventDetailsStorage().invalidateMediaCache(eventHash);
+            EventDetailsProvider().invalidateMediaCache(eventHash);
           }
 
           EventDetailsService.retrieveMedia(eventHash);
@@ -231,9 +231,9 @@ class GalleryEditor extends StatelessWidget {
             SizedBox(height: 10),
 
             //Already saved images
-            Consumer<EventDetailsStorage>(
+            Consumer<EventDetailsProvider>(
               builder: (context, eventProvider, child) {
-                final eventDetails = context.select<EventDetailsStorage, EventDetails?>(
+                final eventDetails = context.select<EventDetailsProvider, EventDetails?>(
                   (provider) => provider.get(eventHash),
                 );
                 if (eventDetails != null && eventDetails.totalImages > 0 && eventDetails.media.isEmpty) {
