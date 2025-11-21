@@ -7,6 +7,7 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/range_controller.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
+import 'package:wyd_front/state/util/uri_service.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/event_tile.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view.dart';
@@ -14,9 +15,7 @@ import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/widget/util/add_event_button.dart';
 
 class EventsPage extends StatefulWidget {
-  final String uri;
-  final bool private;
-  const EventsPage({super.key, required this.private, this.uri = ""});
+  const EventsPage({super.key});
 
   @override
   State<EventsPage> createState() => _EventsPageState();
@@ -25,13 +24,11 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   late RangeController rangeController;
 
-  bool _dialogShown = false;
-  late bool _private;
+  bool _private = true;
 
   @override
   void initState() {
     super.initState();
-    _private = widget.private;
 
     rangeController = RangeController(DateTime.now(), 7);
 
@@ -42,23 +39,27 @@ class _EventsPageState extends State<EventsPage> {
     });
   }
 
-  void _checkAndShowLinkEvent(BuildContext context) {
-    if (!widget.private && !_dialogShown) {
-      var eventHash = Uri.dataFromString(widget.uri).queryParameters['event'];
-      if (eventHash != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
-          if (context.mounted) {
-            showCustomDialog(
-              context,
-              EventView(
-                eventHash: event.id,
-              ),
-            );
-          }
-        });
-        _dialogShown = true;
+  Future<void> _checkAndShowLinkEvent(BuildContext context) async {
+    final uri = await UriService.getUri();
+    if (uri.isNotEmpty) {
+      final destination = uri.split('?').first.replaceAll('/', '');
+      if (destination == 'share') {
+        var eventHash = Uri.dataFromString(uri).queryParameters['event'];
+        if (eventHash != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
+            if (context.mounted) {
+              showCustomDialog(
+                context,
+                EventView(
+                  eventHash: event.id,
+                ),
+              );
+            }
+          });
+        }
       }
+      UriService.saveUri("");
     }
   }
 
@@ -77,6 +78,7 @@ class _EventsPageState extends State<EventsPage> {
         return WeekView(
           eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
             return EventTile(
+                confirmedView: _private,
                 date: date,
                 events: events.whereType<Event>().toList(),
                 boundary: boundary,

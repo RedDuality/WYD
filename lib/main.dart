@@ -61,17 +61,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DetailedProfileCache()),
         ChangeNotifierProvider(create: (_) => ViewSettingsCache()),
         ChangeNotifierProvider(create: (_) => ProfileEventsCache()),
+        ChangeNotifierProvider(create: (ctx) => CurrentEventsProvider(ctx)), // needs ViewSettingsCache and ProfileEventsCache
         ChangeNotifierProvider(create: (_) => EventDetailsStorage()), // singleton
         ChangeNotifierProvider(create: (_) => CommunityStorage()), // singleton
-
-        // CurrentEventsProvider depends on ProfileEventsProvider
-        ChangeNotifierProxyProvider2<ProfileEventsCache, ViewSettingsCache, CurrentEventsProvider>(
-          create: (_) => CurrentEventsProvider(), // initial dummy
-          update: (_, profileEventsProvider, viewSettingsCache, currentEventsProvider) {
-            currentEventsProvider!.inject(profileEventsProvider, viewSettingsCache);
-            return currentEventsProvider;
-          },
-        ),
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {

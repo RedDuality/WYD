@@ -27,7 +27,7 @@ class UserProvider extends ChangeNotifier {
   Future<void> updateUser(User user) async {
     if (_user == null || _user!.id != user.id) {
       _user = user;
-      notifyListeners();
+      // notifyListeners();
     }
   }
 

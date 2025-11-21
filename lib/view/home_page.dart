@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/service/util/app_lifecycle_service.dart';
-import 'package:wyd_front/state/util/uri_service.dart';
 import 'package:wyd_front/view/events/events_page.dart';
 import 'package:wyd_front/view/groups/group_page.dart';
 
@@ -12,35 +11,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  late int selectedIndex;
-  bool private = true;
-  String uri = "/";
-  bool isUriLoaded = false;
+  int selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    selectedIndex = 0;
-
-    _loadUri();
 
     AppLifecycleService().attach();
-  }
-
-  Future<void> _loadUri() async {
-    uri = await UriService.getUri();
-    if (uri.isNotEmpty) {
-      final destination = uri.split('?').first.replaceAll('/', '');
-      if (destination == 'share') {
-        private = false;
-      }
-      await UriService.saveUri("");
-    }
-
-    if (!mounted) return;
-    setState(() {
-      isUriLoaded = true;
-    });
   }
 
   @override
@@ -51,14 +28,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    if (!isUriLoaded) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = EventsPage(private: private, uri: uri);
+        page = const EventsPage();
         break;
       case 1:
         page = const GroupPage();

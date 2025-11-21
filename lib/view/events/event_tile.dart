@@ -8,6 +8,7 @@ import 'package:wyd_front/view/events/rounded_event_tile.dart';
 class EventTile<T> extends StatelessWidget {
   const EventTile({
     super.key,
+    required this.confirmedView,
     required this.date,
     required this.events,
     required this.boundary,
@@ -15,6 +16,7 @@ class EventTile<T> extends StatelessWidget {
     required this.endDuration,
   });
 
+  final bool confirmedView;
   final DateTime date;
   final List<Event> events;
   final Rect boundary;
@@ -22,10 +24,10 @@ class EventTile<T> extends StatelessWidget {
   final DateTime endDuration;
 
   List<Color> _getProfileColors(BuildContext context, Event event) {
-    var profilesConfirmed = Provider.of<ProfileEventsCache>(context, listen: false).profilesThatConfirmed(event.id);
+    var relatedProfiles = Provider.of<ProfileEventsCache>(context, listen: false).relatedProfiles(event.id, confirmedView);
     final provider = Provider.of<DetailedProfileCache>(context, listen: false);
 
-    return profilesConfirmed.map((profileId) {
+    return relatedProfiles.map((profileId) {
       final profile = provider.get(profileId);
       return profile?.color ?? Colors.purple;
     }).toList();

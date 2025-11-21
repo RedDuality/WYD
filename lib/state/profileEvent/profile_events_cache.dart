@@ -97,11 +97,11 @@ class ProfileEventsCache extends ChangeNotifier {
     return matchingEvents;
   }
 
-  Set<String> profilesThatConfirmed(String eventId) {
+  Set<String> relatedProfiles(String eventId, bool confirmed) {
     var myProfileIds = UserProvider().getProfileIds();
     final eventProfiles = _profileEvents[eventId] ?? {};
     return eventProfiles
-        .where((pe) => pe.confirmed && myProfileIds.contains(pe.profileId))
+        .where((pe) => pe.confirmed == confirmed && myProfileIds.contains(pe.profileId))
         .map((pe) => pe.profileId)
         .toSet();
   }
