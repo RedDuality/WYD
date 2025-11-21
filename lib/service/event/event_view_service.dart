@@ -10,6 +10,7 @@ import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/service/event/profile_events_storage_service.dart';
+import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 
 class EventViewService {
@@ -43,7 +44,7 @@ class EventViewService {
     if (event != null) {
       String profileHash = pHash ?? UserProvider().getCurrentProfileId();
 
-      if (await ProfileEventsStorageService().confirm(eventHash, confirmed, profileHash)) {
+      if (await ProfileEventsStorageService.confirm(eventHash, confirmed, profileHash)) {
         EventRetrieveService.retrieveEssentialByHash(eventHash);
       }
     }
@@ -68,12 +69,14 @@ class EventViewService {
 
   static Future<void> localDelete(Event event, {String? profileHash}) async {
     var pHash = profileHash ?? UserProvider().getCurrentProfileId();
-    ProfileEventsStorageService().removeSingle(event.eventHash, pHash);
+    await ProfileEventsStorage().removeSingle(event.id, pHash);
 
-    var profilesOfEvent = event.countMatchingProfiles();
+    var myProfileIds = UserProvider().getProfileIds();
+    var profilesOfEvent = await ProfileEventsStorage().countMatchingProfiles(event.id, myProfileIds);
+
     if (profilesOfEvent == 0) {
-      ProfileEventsStorageService().removeAll(event.eventHash);
-      EventDetailsProvider().remove(event.eventHash);
+      ProfileEventsStorage().removeAll(event.id);
+      EventDetailsStorage().remove(event.id);
       EventStorage().remove(event);
     }
   }
@@ -81,7 +84,7 @@ class EventViewService {
   static Future<void> delete(String eventHash) async {
     Event? event = await EventStorage().getEventByHash(eventHash);
     if (event != null) {
-      await EventAPI().delete(event.eventHash);
+      await EventAPI().delete(event.id);
       localDelete(event);
     }
   }

@@ -5,12 +5,12 @@ import 'package:wyd_front/model/detailed_profile.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 import 'package:wyd_front/state/profile/detailed_profile_storage.dart';
 
-class DetailedProfileProvider extends ChangeNotifier {
+class DetailedProfileCache extends ChangeNotifier {
   final DetailedProfileStorage _storage = DetailedProfileStorage();
 
   StreamSubscription<DetailedProfile>? _profileSubscription;
 
-  DetailedProfileProvider() {
+  DetailedProfileCache() {
     _profileSubscription = _storage.updates.listen((profile) {
       _set(profile.id, profile);
     });

@@ -1,11 +1,10 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 
 // ignore: must_be_immutable
 class Event extends CalendarEventData {
-  final String eventHash;
+  final String id;
   DateTime updatedAt;
   int totalConfirmed;
   int totalProfiles;
@@ -15,14 +14,14 @@ class Event extends CalendarEventData {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Event) return false;
-    return eventHash == other.eventHash;
+    return id == other.id;
   }
 
   @override
-  int get hashCode => eventHash.hashCode;
+  int get hashCode => id.hashCode;
 
   Event({
-    this.eventHash = "",
+    this.id = "",
     // in Utc time
     required this.updatedAt,
     required this.totalConfirmed,
@@ -51,7 +50,7 @@ class Event extends CalendarEventData {
 
   factory Event.fromDto(RetrieveEventResponseDto dto) {
     return Event(
-      eventHash: dto.id,
+      id: dto.id,
       updatedAt: dto.updatedAt,
       title: dto.title,
       startTime: dto.startTime,
@@ -68,7 +67,7 @@ class Event extends CalendarEventData {
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toUtc();
 
     return Event(
-      eventHash: map['eventHash'] as String,
+      id: map['eventHash'] as String,
       updatedAt: updatedAt,
       title: map['title'] as String,
       date: startTime,
@@ -84,7 +83,7 @@ class Event extends CalendarEventData {
   /// Converts the Dart Event object to a Map for SQLite.
   Map<String, dynamic> toDbMap() {
     return {
-      'eventHash': eventHash,
+      'eventHash': id,
       'title': title,
       'startTime': startTime!.toUtc().millisecondsSinceEpoch,
       'endTime': endTime!.toUtc().millisecondsSinceEpoch,
@@ -97,22 +96,5 @@ class Event extends CalendarEventData {
 
   String getConfirmTitle() {
     return totalProfiles > 1 ? "($totalConfirmed/$totalProfiles) " : "";
-  }
-
-  bool isOwner() {
-    return ProfileEventsCache().isOwner(eventHash);
-  }
-
-  bool currentConfirmed() {
-    return ProfileEventsCache().currentConfirmed(eventHash);
-  }
-
-  Set<String> profilesThatConfirmed() {
-    return ProfileEventsCache().profilesThatConfirmed(eventHash);
-  }
-
-  //for delete
-  int countMatchingProfiles() {
-    return ProfileEventsCache().countMatchingProfiles(eventHash);
   }
 }

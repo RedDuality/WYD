@@ -69,18 +69,20 @@ class ProfileEditorState extends State<ProfileEditor> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Card(
-                    // Image
-                    elevation: 15,
-                    shadowColor: _selectedColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      side: BorderSide(
-                        color: _selectedColor,
-                        width: 3.5,
+                  child: Center(
+                    child: Card(
+                      // Image
+                      elevation: 15,
+                      shadowColor: _selectedColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                        side: BorderSide(
+                          color: _selectedColor,
+                          width: 3.5,
+                        ),
                       ),
+                      child: SizedBox(width: size, height: size, child: profileImage),
                     ),
-                    child: SizedBox(width: size, height: size, child: profileImage),
                   ),
                 ),
                 SizedBox(height: 20),

@@ -30,8 +30,8 @@ class DetailedProfileStorageService {
   }
 
   static Future<void> localUpdate(RetrieveDetailedProfileResponseDto dto) async {
-    await _addSingle(dto);
     _checkColorChanged(dto);
+    await _addSingle(dto);
   }
 
   static Future<void> _checkColorChanged(RetrieveDetailedProfileResponseDto dto) async {

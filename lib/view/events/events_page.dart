@@ -50,7 +50,7 @@ class _EventsPageState extends State<EventsPage> {
             showCustomDialog(
                 context,
                 EventView(
-                  eventHash: event.eventHash,
+                  eventHash: event.id,
                 ));
           }
         });
@@ -86,12 +86,12 @@ class _EventsPageState extends State<EventsPage> {
           onEventTap: (events, date) {
             Event selectedEvent = events.whereType<Event>().toList().first;
 
-            unawaited(EventRetrieveService.retrieveDetailsByHash(selectedEvent.eventHash));
+            unawaited(EventRetrieveService.retrieveDetailsByHash(selectedEvent.id));
 
             showCustomDialog(
                 context,
                 EventView(
-                  eventHash: selectedEvent.eventHash,
+                  eventHash: selectedEvent.id,
                 ));
           },
           onDateLongPress: (date) {

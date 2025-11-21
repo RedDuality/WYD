@@ -16,8 +16,14 @@ class ProfileEventsStorage {
   // --------------------------------
 
   // StreamControllers to notify listeners about changes
-  final _updateController = StreamController<ProfileEvent>();
-  Stream<ProfileEvent> get updates => _updateController.stream;
+  final _updateChannel = StreamController<ProfileEvent>();
+  Stream<ProfileEvent> get updatesChannel => _updateChannel.stream;
+
+  final _deleteChannel = StreamController<(String, String)>();
+  Stream<(String, String)> get deleteChannel => _deleteChannel.stream;
+
+  final _deleteAllChannel = StreamController<String>();
+  Stream<String> get deleteAllChannel => _deleteAllChannel.stream;
 
   // In-memory cache for web/other environments where sqflite isn't used
   final Map<String, Set<ProfileEvent>> _inMemoryStorage = {};
@@ -117,7 +123,7 @@ class ProfileEventsStorage {
       _inMemoryStorage[profileEvent.eventId] = existing;
     }
 
-    _updateController.sink.add(profileEvent);
+    _updateChannel.sink.add(profileEvent);
   }
 
   /// Get a single ProfileEvent by eventHash + profileHash
@@ -181,6 +187,27 @@ class ProfileEventsStorage {
     }
   }
 
+  /// Count how many of the given profileIds are present for a specific eventId
+  Future<int> countMatchingProfiles(String eventId, Set<String> profileIds) async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return 0;
+
+      // Query only the rows that match eventId and profileIds
+      final maps = await db.query(
+        _tableName,
+        columns: ['profileId'],
+        where: 'eventHash = ? AND profileId IN (${List.filled(profileIds.length, '?').join(',')})',
+        whereArgs: [eventId, ...profileIds],
+      );
+
+      return maps.length;
+    } else {
+      final eventProfiles = _inMemoryStorage[eventId] ?? {};
+      return eventProfiles.where((pe) => profileIds.contains(pe.profileId)).length;
+    }
+  }
+
   /// Remove a single ProfileEvent
   Future<void> removeSingle(String eventHash, String profileHash) async {
     if (!kIsWeb) {
@@ -195,6 +222,7 @@ class ProfileEventsStorage {
     } else {
       _inMemoryStorage[eventHash]?.removeWhere((pe) => pe.profileId == profileHash);
     }
+    _deleteChannel.sink.add((eventHash, profileHash));
   }
 
   /// Remove all ProfileEvents for an event
@@ -211,5 +239,6 @@ class ProfileEventsStorage {
     } else {
       _inMemoryStorage.remove(eventHash);
     }
+    _deleteAllChannel.sink.add(eventHash);
   }
 }

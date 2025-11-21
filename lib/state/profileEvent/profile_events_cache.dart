@@ -8,6 +8,8 @@ import 'package:wyd_front/state/user/user_provider.dart';
 class ProfileEventsCache extends ChangeNotifier {
   final ProfileEventsStorage _storage = ProfileEventsStorage();
   late final StreamSubscription<ProfileEvent> _profileEventSubscription;
+  late final StreamSubscription<(String, String)> _deleteChannel;
+  late final StreamSubscription<String> _deleteAllChannel;
 
   final Map<String, Set<ProfileEvent>> _profileEvents = {};
 
@@ -16,9 +18,16 @@ class ProfileEventsCache extends ChangeNotifier {
   }
 
   ProfileEventsCache() {
-    _profileEventSubscription = _storage.updates.listen((pe) {
+    _profileEventSubscription = _storage.updatesChannel.listen((pe) {
       // only for updates, the insertions are handled by currentEventsProvider
       _update(pe);
+    });
+    _deleteChannel = _storage.deleteChannel.listen((data) {
+      _removeSingle(data.$1, data.$2);
+    });
+
+    _deleteAllChannel = _storage.deleteAllChannel.listen((eventId) {
+      remove(eventId);
     });
   }
 
@@ -53,7 +62,7 @@ class ProfileEventsCache extends ChangeNotifier {
     }
   }
 
-  Future<void> removeSingle(String eventId, String profileId) async {
+  Future<void> _removeSingle(String eventId, String profileId) async {
     _profileEvents[eventId]?.removeWhere((pe) => pe.profileId == profileId);
   }
 
@@ -65,6 +74,8 @@ class ProfileEventsCache extends ChangeNotifier {
   @override
   void dispose() {
     _profileEventSubscription.cancel();
+    _deleteAllChannel.cancel();
+    _deleteChannel.cancel();
     super.dispose();
   }
 
@@ -84,12 +95,6 @@ class ProfileEventsCache extends ChangeNotifier {
       }
     }
     return matchingEvents;
-  }
-
-  int countMatchingProfiles(String eventId) {
-    var myProfileIds = UserProvider().getProfileIds();
-    final eventProfiles = _profileEvents[eventId] ?? {};
-    return eventProfiles.where((pe) => myProfileIds.contains(pe.profileId)).length;
   }
 
   Set<String> profilesThatConfirmed(String eventId) {

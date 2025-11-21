@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/user.dart';
 
 class UserProvider extends ChangeNotifier {
-  static final UserProvider _instance = UserProvider._internal();
-
-  factory UserProvider() {
-    return _instance;
-  }
-
-  UserProvider._internal();
-
   User? _user;
+
+  static final UserProvider _instance = UserProvider._internal();
+  factory UserProvider() => _instance;
+  UserProvider._internal();
 
   User? get user => _user;
 

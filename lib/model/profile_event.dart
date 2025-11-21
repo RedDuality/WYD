@@ -48,7 +48,7 @@ class ProfileEvent {
       profileId: json['profileId'] as String,
       role: EventRole.values[json['role'] ?? 0],
       confirmed: json['confirmed'] as bool,
-      trusted: json['truested'] as bool,
+      trusted: json['trusted'] as bool,
     );
   }
 

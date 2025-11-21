@@ -12,7 +12,9 @@ import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
 
 class CurrentEventsProvider extends EventController {
-  late ProfileEventsCache profileEventsProvider;
+  late ProfileEventsCache profileEventsCache;
+  late ViewSettingsCache viewSettingsCache;
+
   bool _confirmedView = true;
   //Set<Event> _currentEventsCache = {};
   bool _isLoading = true;
@@ -47,8 +49,9 @@ class CurrentEventsProvider extends EventController {
     });
   }
 
-  void inject(ProfileEventsCache provider) {
-    profileEventsProvider = provider;
+  void inject(ProfileEventsCache profileEventsCache, ViewSettingsCache viewSettingsCache) {
+    this.profileEventsCache = profileEventsCache;
+    this.viewSettingsCache = viewSettingsCache;
   }
 
   void initialize(RangeController controller, bool confirmedView) {
@@ -69,7 +72,7 @@ class CurrentEventsProvider extends EventController {
 
   Event? get(String eventHash) {
     for (final event in allEvents.whereType<Event>()) {
-      if (event.eventHash == eventHash) return event;
+      if (event.id == eventHash) return event;
     }
     return null;
   }
@@ -101,7 +104,7 @@ class CurrentEventsProvider extends EventController {
       //notifyListeners(); // : already called from super
     }
 
-    profileEventsProvider.rangeChanged(allEvents.whereType<Event>().map((event) => event.eventHash).toSet());
+    profileEventsCache.rangeChanged(allEvents.whereType<Event>().map((event) => event.id).toSet());
   }
 
   Future<void> _synchWithStorage(DateTimeRange range) async {
@@ -116,7 +119,7 @@ class CurrentEventsProvider extends EventController {
 
   void _addEvents(List<Event> newEvents) {
     super.addAll(newEvents);
-    profileEventsProvider.rangeChanged(allEvents.whereType<Event>().map((event) => event.eventHash).toSet());
+    profileEventsCache.rangeChanged(allEvents.whereType<Event>().map((event) => event.id).toSet());
     //notifyListeners();
   }
 
@@ -130,12 +133,12 @@ class CurrentEventsProvider extends EventController {
     // clean up the old copy
     if (inMemory) {
       super.remove(event);
-      profileEventsProvider.remove(event.eventHash);
+      profileEventsCache.remove(event.id);
     }
 
     if (!deleted && (!inMemory || inTimeRange)) {
       super.add(event);
-      profileEventsProvider.add(event.eventHash);
+      profileEventsCache.add(event.id);
     }
   }
 
@@ -163,18 +166,18 @@ class CurrentEventsProvider extends EventController {
     if (_isLoading) return [];
     if (_controller!.focusedRange.end.isBefore(date) || _controller!.focusedRange.start.isAfter(date)) return [];
 
-    // get all events in date but that are also confirmed by the profiles I have the permission on to see
+    // get all events in date but that are also confirmed by the profiles I have the setting to see on
     // -> get all allowed profilesId(ViewSettings)
     // -> get events in date and from profileIds
     final todaysEventsIds = events
         .whereType<Event>()
         .where((event) => event.occursOnDate(date.toLocal()))
-        .map((event) => event.eventHash)
+        .map((event) => event.id)
         .toSet();
-    final viewingProfileIds = ViewSettingsCache().getProfiles(_confirmedView);
+    final viewingProfileIds = viewSettingsCache.getProfiles(_confirmedView);
     final eventIdsWhereConfirmed =
-        ProfileEventsCache().eventsWithProfilesConfirmed(todaysEventsIds, viewingProfileIds, _confirmedView);
+        profileEventsCache.eventsWithProfilesConfirmed(todaysEventsIds, viewingProfileIds, _confirmedView);
 
-    return events.whereType<Event>().where((event) => eventIdsWhereConfirmed.contains(event.eventHash)).toList();
+    return events.whereType<Event>().where((event) => eventIdsWhereConfirmed.contains(event.id)).toList();
   }
 }

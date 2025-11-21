@@ -7,10 +7,10 @@ import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
-import 'package:wyd_front/state/profile/detailed_profiles_provider.dart';
+import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
 import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
-import 'package:wyd_front/state/community_provider.dart';
+import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -55,20 +55,20 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         //insert those you want to inject throught the context
-        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => ViewSettingsCache()),
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider()), // singleton
+        ChangeNotifierProvider(create: (_) => UserProvider()), // singleton
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => DetailedProfileProvider()),
-        ChangeNotifierProvider(create: (_) => EventDetailsProvider()),
-        ChangeNotifierProvider(create: (_) => CommunityProvider()),
+        ChangeNotifierProvider(create: (_) => DetailedProfileCache()),
+        ChangeNotifierProvider(create: (_) => ViewSettingsCache()),
         ChangeNotifierProvider(create: (_) => ProfileEventsCache()),
+        ChangeNotifierProvider(create: (_) => EventDetailsStorage()), // singleton
+        ChangeNotifierProvider(create: (_) => CommunityStorage()), // singleton
 
         // CurrentEventsProvider depends on ProfileEventsProvider
-        ChangeNotifierProxyProvider<ProfileEventsCache, CurrentEventsProvider>(
+        ChangeNotifierProxyProvider2<ProfileEventsCache, ViewSettingsCache, CurrentEventsProvider>(
           create: (_) => CurrentEventsProvider(), // initial dummy
-          update: (_, profileEventsProvider, currentEventsProvider) {
-            currentEventsProvider!.inject(profileEventsProvider);
+          update: (_, profileEventsProvider, viewSettingsCache, currentEventsProvider) {
+            currentEventsProvider!.inject(profileEventsProvider, viewSettingsCache);
             return currentEventsProvider;
           },
         ),

@@ -5,16 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/service/user/user_service.dart';
 
 class AuthenticationProvider with ChangeNotifier {
-  static final AuthenticationProvider _instance = AuthenticationProvider._internal();
-
-  factory AuthenticationProvider({BuildContext? context}) {
-    return _instance;
-  }
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _user;
   bool _isLoading = true;
   bool _isBackendVerified = false;
+
+  static final AuthenticationProvider _instance = AuthenticationProvider._internal();
+  factory AuthenticationProvider() => _instance;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get user => _user;
   bool get isLoading => _isLoading;

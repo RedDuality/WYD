@@ -18,7 +18,7 @@ class _ConfirmedListState extends State<ConfirmedList> {
   @override
   void initState() {
     super.initState();
-    _profileEventsFuture = ProfileEventsStorageService().retrieveFromServer(widget.eventHash);
+    _profileEventsFuture = ProfileEventsStorageService.retrieveFromServer(widget.eventHash);
   }
 
   @override

@@ -15,7 +15,7 @@ class MediaRetrieveService {
       var photosDuringEvent = await _retrieveImagesByTime(event.startTime!.toUtc(), event.endTime!.toUtc());
 
       if (photosDuringEvent.isNotEmpty) {
-        CachedMediaStorage().addMedia(event.eventHash, photosDuringEvent.toSet());
+        CachedMediaStorage().addMedia(event.id, photosDuringEvent.toSet());
       }
     }
   }
@@ -34,7 +34,7 @@ class MediaRetrieveService {
       );
 
       if (mockAssetEntities.isNotEmpty) {
-        provider.set(event.eventHash, mockAssetEntities.toSet());
+        provider.set(event.id, mockAssetEntities.toSet());
       }
     }
   }

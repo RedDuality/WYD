@@ -5,7 +5,7 @@ import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/community_provider.dart';
+import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 
@@ -54,7 +54,7 @@ class _SharePageState extends State<SharePage> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              child: Consumer<CommunityProvider>(
+              child: Consumer<CommunityStorage>(
                 builder: (context, communityProvider, child) {
                   return Column(
                     children: communityProvider.communities

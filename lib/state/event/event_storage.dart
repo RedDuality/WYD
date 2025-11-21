@@ -77,7 +77,7 @@ class EventStorage {
       });
     } else {
       for (final event in events) {
-        _inMemoryStorage[event.eventHash] = event;
+        _inMemoryStorage[event.id] = event;
       }
     }
 
@@ -96,7 +96,7 @@ class EventStorage {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } else {
-      _inMemoryStorage[event.eventHash] = event;
+      _inMemoryStorage[event.id] = event;
     }
 
     // Send a signal that data has been modified.
@@ -113,11 +113,11 @@ class EventStorage {
       await db.delete(
         _tableName,
         where: 'eventHash = ?',
-        whereArgs: [event.eventHash],
+        whereArgs: [event.id],
       );
     } else {
       // Remove the event from the in-memory cache
-      _inMemoryStorage.remove(event.eventHash);
+      _inMemoryStorage.remove(event.id);
     }
 
     _eventUpdateController.sink.add((event, true));

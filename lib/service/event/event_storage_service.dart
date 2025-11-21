@@ -31,7 +31,7 @@ class EventStorageService {
 
   static Future<Event> _deserializeEvent(RetrieveEventResponseDto dto) async {
     if (dto.details != null) {
-      EventDetailsProvider().update(dto.id, dto.details!);
+      EventDetailsStorage().update(dto.id, dto.details!);
     }
 
     // this goes before to allow event.currentConfirmed
