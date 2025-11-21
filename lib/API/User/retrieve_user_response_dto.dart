@@ -1,34 +1,29 @@
-import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/API/Profile/retrieve_detailed_profile_response_dto.dart';
 
 class RetrieveUserResponseDto {
-  String hash = "";
-  String currentProfileHash = "";
-  //Accounts
-  List<Profile> profiles = [];
+  String id = "";
+  String mainProfileId = "";
+  Set<String> profileIds = {};
+  // Accounts
+  List<RetrieveDetailedProfileResponseDto> profiles = [];
 
   RetrieveUserResponseDto({
-    this.hash = "",
-    this.currentProfileHash = "",
-    List<Profile>? profiles,
-  }) : profiles = profiles ?? [];
+    required this.id,
+    required this.mainProfileId,
+    required this.profileIds,
+    required this.profiles,
+  });
 
-  factory RetrieveUserResponseDto.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'hash': String? hash,
-        'profiles': List<dynamic>? profiles,
-      } =>
-        RetrieveUserResponseDto(
-          hash: hash ?? "",
-          currentProfileHash: "",
-          profiles: profiles != null
-              ? profiles.map((profile) {
-                  return Profile.fromUserDto(RetrieveProfileResponseDto.fromJson(profile as Map<String, dynamic>));
-                }).toList()
-              : <Profile>[],
-        ),
-      _ => throw const FormatException('Failed to decode UserDto')
-    };
+factory RetrieveUserResponseDto.fromJson(Map<String, dynamic> json) {
+    return RetrieveUserResponseDto(
+      id: json['id'] as String,
+      mainProfileId: json['mainProfileId'] as String,
+      profileIds: (json['profileIds'] as List<dynamic>)
+          .map((e) => e as String)
+          .toSet(),
+      profiles: (json['profiles'] as List<dynamic>)
+          .map((e) => RetrieveDetailedProfileResponseDto.fromJson(e))
+          .toList(),
+    );
   }
 }

@@ -1,25 +1,26 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/detailed_profile.dart';
 
-class ProfileStorage {
-  static const _databaseName = 'profileStorage.db';
-  static const _tableName = 'profiles';
+class DetailedProfileStorage {
+  static const _databaseName = 'detailedProfileStorage.db';
+  static const _tableName = 'detailed_profiles';
   static const _databaseVersion = 1;
 
   // --- Singleton Implementation ---
-  static final ProfileStorage _instance = ProfileStorage._internal();
-  factory ProfileStorage() => _instance;
-  ProfileStorage._internal();
+  static final DetailedProfileStorage _instance = DetailedProfileStorage._internal();
+  factory DetailedProfileStorage() => _instance;
+  DetailedProfileStorage._internal();
   // --------------------------------
 
-  final _profileUpdateController = StreamController<Profile>();
-  Stream<Profile> get updates => _profileUpdateController.stream;
+  final _profileUpdateController = StreamController<DetailedProfile>();
 
-  // In-memory cache for web/other environments where sqflite isn't used
-  final Map<String, Profile> _inMemoryStorage = {};
+  Stream<DetailedProfile> get updates => _profileUpdateController.stream;
+
+  final Map<String, DetailedProfile> _inMemoryStorage = {};
   static Database? _database;
 
   Future<Database?> get database async {
@@ -43,20 +44,18 @@ class ProfileStorage {
             id TEXT PRIMARY KEY,
             tag TEXT,
             name TEXT,
-            lastFetched INTEGER,
-            updatedAt INTEGER,
-            blobHash TEXT
+            color INTEGER,
+            blobHash TEXT,
+            lastFetched INTEGER NOT NULL,
+            updatedAt INTEGER
           )
         ''');
       },
     );
   }
 
-
-
-  /// Save or update a profile.
-  Future<void> saveProfile(Profile profile) async {
-
+  /// Save or update a single profile
+  Future<void> saveProfile(DetailedProfile profile) async {
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -71,8 +70,8 @@ class ProfileStorage {
     _profileUpdateController.sink.add(profile);
   }
 
-  /// Save multiple profiles.
-  Future<void> saveMultiple(List<Profile> profiles) async {
+  /// Save or overwrite multiple profiles
+  Future<void> saveMultiple(List<DetailedProfile> profiles) async {
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -90,30 +89,13 @@ class ProfileStorage {
         _inMemoryStorage[profile.id] = profile;
       }
     }
-
     for (final profile in profiles) {
       _profileUpdateController.sink.add(profile);
     }
   }
 
-/*
-  /// Remove a profile by ID.
-  Future<void> remove(Profile profile) async {
-    if (!kIsWeb) {
-      final db = await database;
-      if (db == null) return;
-      await db.delete(
-        _tableName,
-        where: 'id = ?',
-        whereArgs: [profile.id],
-      );
-    } else {
-      _inMemoryStorage.remove(profile.id);
-    }
-  }
-*/
-  /// Get a profile by ID.
-  Future<Profile?> getProfileById(String id) async {
+  /// Retrieve by ID
+  Future<DetailedProfile?> getById(String id) async {
     if (kIsWeb) {
       return _inMemoryStorage[id];
     }
@@ -128,7 +110,7 @@ class ProfileStorage {
     );
 
     if (maps.isNotEmpty) {
-      return Profile.fromDbMap(maps.first);
+      return DetailedProfile.fromDbMap(maps.first);
     }
     return null;
   }
@@ -137,11 +119,11 @@ class ProfileStorage {
     _profileUpdateController.close();
   }
 
-  Future<void> clearAllProfiles() async {
+  /// Clear all
+  Future<void> clearAll() async {
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
-
       await db.delete(_tableName);
     } else {
       _inMemoryStorage.clear();

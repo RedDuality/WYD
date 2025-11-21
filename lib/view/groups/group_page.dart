@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/community_provider.dart';
+import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/groups/search_profile_page.dart';
@@ -47,7 +47,7 @@ class GroupPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<CommunityProvider>(
+      body: Consumer<CommunityStorage>(
         builder: (context, communityProvider, child) {
           return ListView.builder(
             itemCount: communityProvider.communities.length,
@@ -65,7 +65,7 @@ class GroupPage extends StatelessWidget {
     switch (community.type) {
       case CommunityType.personal:
         return ProfileTile(
-            profileHash: community.getProfileHash(),
+            profileId: community.getProfileHash(),
             type: ProfileTileType.view);
       case CommunityType.singlegroup:
         return avatarTile(title: community.name!);

@@ -1,19 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
-import 'package:wyd_front/model/enum/role.dart';
+import 'package:wyd_front/model/detailed_profile.dart';
 
 class Profile {
   String id = "";
   String tag = "";
   String name = "";
+  String? blobHash = "";
+
   DateTime lastFetched;
   DateTime updatedAt;
-  String? blobHash = "";
-  Color? color;
-  Role role;
-  bool mainProfile = false;
 
-  
   Profile({
     this.id = "",
     this.tag = "",
@@ -21,9 +17,6 @@ class Profile {
     required this.lastFetched,
     required this.updatedAt,
     this.blobHash = "",
-    this.color,
-    this.role = Role.viewer,
-    this.mainProfile = false,
   });
 
   factory Profile.fromDto(RetrieveProfileResponseDto dto) {
@@ -36,49 +29,38 @@ class Profile {
     );
   }
 
-  factory Profile.fromUserDto(RetrieveProfileResponseDto dto) {
+  factory Profile.fromDetailed(DetailedProfile dp) {
     return Profile(
-      id: dto.id,
-      tag: dto.tag!,
-      name: dto.name!,
-      lastFetched: DateTime.now(),
-      updatedAt: dto.updatedAt!,
-      blobHash: dto.blobHash,
-      color: dto.color,
-      role: dto.role ?? Role.viewer,
-      mainProfile: dto.mainProfile ?? false,
+      id: dp.id,
+      tag: dp.tag,
+      name: dp.name,
+      blobHash: dp.blobHash,
+      lastFetched: dp.lastFetched,
+      updatedAt: dp.updatedAt!,
     );
   }
 
-/*
-  Profile copyWith({
-    String? name,
-    String? tag,
-    bool? mainProfile,
-    String? blobHash,
-    Color? color,
-    ProfileType? type,
-    Role? role,
-    DateTime? updatedAt,
-  }) {
-    return Profile(
-        id: id,
-        name: name ?? this.name,
-        tag: tag ?? this.tag,
-        mainProfile: mainProfile ?? this.mainProfile,
-        lastFetched: lastFetched,
-        blobHash: blobHash ?? this.blobHash,
-        color: color ?? this.color,
-        role: role ?? this.role,
-        updatedAt: updatedAt ?? this.updatedAt);
-  }
-*/
-  Map<String, dynamic> toJson() {
+  /// Converts a Profile object to a Map for SQLite.
+  Map<String, dynamic> toDbMap() {
     return {
       'id': id,
-      'name': name,
       'tag': tag,
-      'color': color?.toARGB32(),
+      'name': name,
+      'lastFetched': lastFetched.millisecondsSinceEpoch,
+      'updatedAt': updatedAt.millisecondsSinceEpoch,
+      'blobHash': blobHash,
     };
+  }
+
+  /// Converts a DB map back into a Profile object.
+  factory Profile.fromDbMap(Map<String, dynamic> map) {
+    return Profile(
+      id: map['id'] ?? "",
+      tag: map['tag'] ?? "",
+      name: map['name'] ?? "",
+      lastFetched: DateTime.fromMillisecondsSinceEpoch(map['lastFetched']),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt']),
+      blobHash: map['blobHash'],
+    );
   }
 }

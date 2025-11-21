@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/detailed_profile.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:wyd_front/view/profiles/profile_editor.dart';
 import 'package:wyd_front/view/widget/view/custom_page.dart';
 
 class MainProfileTile extends StatelessWidget {
-  final Profile? profile;
+  final DetailedProfile? profile;
   final Alignment alignment;
   final double height;
   final double maxWidth;
@@ -93,7 +93,7 @@ class MainProfileTile extends StatelessWidget {
   Widget actions(String profileHash) {
     return Row(
       children: [
-        if (profileHash != UserProvider().getCurrentProfileHash())
+        if (profileHash != UserProvider().getCurrentProfileId())
           Row(
             children: [
               const SizedBox(width: 10),

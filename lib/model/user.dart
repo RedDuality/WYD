@@ -1,24 +1,22 @@
 import 'package:wyd_front/API/User/retrieve_user_response_dto.dart';
-import 'package:wyd_front/model/enum/role.dart';
 
 class User {
-  String hash = "";
+  String id = "";
+  String mainProfileId = "";
   String currentProfileHash = "";
-  Set<String> profileHashes = {};
+  Set<String> profileIds = {};
 
   User({
-    this.hash = "",
-    this.currentProfileHash = "",
-    Set<String>? profileHashes,
-  }) : profileHashes = profileHashes ?? {};
+    required this.id,
+    required this.currentProfileHash,
+    required this.mainProfileId,
+    required this.profileIds
+  });
 
   User.fromDto(RetrieveUserResponseDto dto) {
-    hash = dto.hash;
-    profileHashes = dto.profiles.map((profile) => profile.id).toSet();
-    currentProfileHash =
-        dto.profiles.firstWhere(
-          (profile) => profile.mainProfile == true,
-          orElse: () => dto.profiles.firstWhere((profile) => profile.role == Role.owner,),
-        ).id;
+    id = dto.id;
+    mainProfileId = dto.mainProfileId;
+    currentProfileHash = dto.mainProfileId;
+    profileIds = dto.profileIds;
   }
 }

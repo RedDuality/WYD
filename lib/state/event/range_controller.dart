@@ -1,31 +1,36 @@
 import 'package:flutter/material.dart';
 
-
 /// An adapter that bridges the low-level onPageChange callback from the
 /// calendar_view package to the high-level AbstractCalendarController interface.
-class RangeController extends ChangeNotifier{
-  DateTimeRange _focusedRange;
+class RangeController extends ChangeNotifier {
+  late DateTimeRange _previousRange;
+  late DateTimeRange _focusedRange;
+  late DateTimeRange _futureRange;
 
   // Regular public constructor that accepts arguments
-  RangeController(DateTime date, int numberOfDay) : _focusedRange = _calculateRange(date, numberOfDay);
-
+  RangeController(DateTime date, int numberOfDay) {
+    _calculateRanges(date, numberOfDay);
+  }
+  
+  DateTimeRange get previousRange => _previousRange;
   DateTimeRange get focusedRange => _focusedRange;
+  DateTimeRange get futureRange => _futureRange;
 
   void setRange(DateTime newDate, int visibleDays) {
     final newRange = _calculateRange(newDate, visibleDays);
 
     // update and notify listeners only if the range has actually changed.
     if (_focusedRange.start != newRange.start || _focusedRange.end != newRange.end) {
-      _focusedRange = newRange;
+      _calculateRanges(newDate, visibleDays);
       // CurrentViewEventProvider is listening, thus triggering an event list update
       notifyListeners();
     }
   }
 
-  @override
-  void dispose() {
-    // This is called when the adapter is no longer needed (e.g., in a provider's dispose)
-    super.dispose();
+  void _calculateRanges(DateTime currentDay, int visibleDays) {
+    _focusedRange = _calculateRange(currentDay, visibleDays);
+    _previousRange = _calculateRange(currentDay.add(Duration(days: -visibleDays)), visibleDays);
+    _futureRange = _calculateRange(currentDay.add(Duration(days: visibleDays)), visibleDays);
   }
 
   static DateTimeRange _calculateRange(DateTime currentDay, int visibleDays) {
@@ -43,5 +48,4 @@ class RangeController extends ChangeNotifier{
       end: endOfRange,
     );
   }
-
 }

@@ -15,7 +15,7 @@ class MediaAutoSelectService {
     final eventsNotChecked = await EventStorageService.retrieveEventsInTimeRange(sinceLastTime);
 
     for (final event in eventsNotChecked) {
-      await MediaRetrieveService.retrieveShootedPhotos(event.eventHash);
+      await MediaRetrieveService.retrieveShootedPhotos(event.id);
     }
 
     await _saveDateTime(time: now);

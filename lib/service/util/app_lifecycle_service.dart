@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:wyd_front/service/community/community_service.dart';
 import 'package:wyd_front/service/event/event_long_polling_service.dart';
 import 'package:wyd_front/service/media/media_auto_select_service.dart';
-import 'package:wyd_front/service/model/community_service.dart';
 import 'package:wyd_front/service/util/notification_service.dart';
 import 'package:wyd_front/service/util/permission_service.dart';
 import 'package:wyd_front/service/util/real_time_updates_service.dart';

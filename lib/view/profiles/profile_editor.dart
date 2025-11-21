@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
-import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/profile/profile_service.dart';
+import 'package:wyd_front/model/detailed_profile.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
+import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 
 class ProfileEditor extends StatefulWidget {
-  final Profile profile;
+  final DetailedProfile profile;
   const ProfileEditor({super.key, required this.profile});
 
   @override
@@ -51,7 +51,7 @@ class ProfileEditorState extends State<ProfileEditor> {
       tag: tagController.text != widget.profile.tag ? tagController.text : null,
       color: colorChanged ? _selectedColor.toARGB32() : null,
     );
-    await ProfileService.updateProfile(updateDto, widget.profile);
+    await DetailedProfileStorageService.updateProfile(updateDto);
 
     if (mounted) {
       context.pop();
@@ -69,18 +69,20 @@ class ProfileEditorState extends State<ProfileEditor> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Card(
-                    // Image
-                    elevation: 15,
-                    shadowColor: _selectedColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      side: BorderSide(
-                        color: _selectedColor,
-                        width: 3.5,
+                  child: Center(
+                    child: Card(
+                      // Image
+                      elevation: 15,
+                      shadowColor: _selectedColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                        side: BorderSide(
+                          color: _selectedColor,
+                          width: 3.5,
+                        ),
                       ),
+                      child: SizedBox(width: size, height: size, child: profileImage),
                     ),
-                    child: SizedBox(width: size, height: size, child: profileImage),
                   ),
                 ),
                 SizedBox(height: 20),

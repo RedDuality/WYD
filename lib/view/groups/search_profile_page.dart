@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Community/create_community_request_dto.dart';
 import 'package:wyd_front/model/profile.dart';
-import 'package:wyd_front/service/model/community_service.dart';
-import 'package:wyd_front/service/profile/profile_service.dart';
+import 'package:wyd_front/service/community/community_service.dart';
+import 'package:wyd_front/service/profile/profile_retrieve_service.dart';
 
 class SearchProfilePage extends StatefulWidget {
   const SearchProfilePage({super.key});
@@ -32,7 +32,7 @@ class _SearchProfilePageState extends State<SearchProfilePage> {
       _isLoading = true;
     });
 
-    var profiles = await ProfileService.searchByTag(tag);
+    var profiles = await ProfileRetrieveService.searchByTag(tag);
 
     setState(() {
       if (profiles.isNotEmpty) {

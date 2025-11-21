@@ -36,6 +36,10 @@ class SettingsPage extends StatelessWidget {
               action: ElevatedButton(onPressed: () => {}, child: Text("From last month")),
             ),
             SettingsTile(
+              title: "Align profile preferences on all devices",
+              action: ElevatedButton(onPressed: () => {}, child: Text("For all profiles")),
+            ),
+            SettingsTile(
               title: "Test",
               action: ElevatedButton(onPressed: () => {TestAPI().testNotifications()}, child: Text("Test")),
             ),
