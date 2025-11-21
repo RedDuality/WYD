@@ -1,0 +1,51 @@
+name: Flutter Version Bump
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    bump-version:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  token: ${{ secrets.GH_BUILDFRONTACTION }} 
+
+            - name: Update Flutter version in pubspec.yaml
+              run: |
+                # 1. Read and clean the current version string.
+                # Use tr -d '\r' to strip potential Windows carriage returns from the line ending.
+                VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+                VERSION=$(echo $VERSION | tr -d '\r')
+
+                # 2. Extract Base version and Build number.
+                BASE=$(echo $VERSION | cut -d+ -f1)
+
+                # Attempt to extract Build number.
+                # If it is empty (like in '0.2.1+' or if + is missing), default it to 0.
+                BUILD=$(echo $VERSION | cut -d+ -f2)
+                if [[ -z "$BUILD" ]]; then
+                    BUILD=0
+                fi
+
+                # 3. Calculate new version.
+                NEW_BUILD=$((BUILD + 1))
+                NEW_VERSION="${BASE}+${NEW_BUILD}"
+
+                # 4. Update file.
+                echo "Updating Flutter version from $VERSION to $NEW_VERSION"
+                sed -i "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
+
+                # 5. Commit changes.
+                git config user.name "GitHub Actions"
+                git config user.email "actions@github.com"
+                git add pubspec.yaml
+                # The '|| echo "No changes to commit"' handles the case where git commit returns a non-zero exit code
+                git commit -m "chore: bump Flutter version to ${NEW_VERSION} [skip ci]" || echo "No changes to commit (version was already bumped)"
+
+            - name: Push changes
+              if: success()
+              run: git push
