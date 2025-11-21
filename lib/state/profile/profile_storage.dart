@@ -45,7 +45,7 @@ class ProfileStorage {
             name TEXT,
             lastFetched INTEGER,
             updatedAt INTEGER,
-            blobHash TEXT,
+            blobHash TEXT
           )
         ''');
       },

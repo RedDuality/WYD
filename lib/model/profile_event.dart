@@ -26,10 +26,10 @@ class ProfileEvent {
 
   Map<String, dynamic> toDbMap() => {
         'eventId': eventId,
-        'profileHash': profileId,
+        'profileId': profileId,
         'role': role.index,
         'confirmed': confirmed ? 1 : 0,
-        'trusted': trusted,
+        'trusted': trusted ? 1 : 0,
       };
 
   static ProfileEvent fromDbMap(Map<String, dynamic> map) {

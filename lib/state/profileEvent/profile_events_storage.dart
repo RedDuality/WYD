@@ -49,13 +49,13 @@ class ProfileEventsStorage {
         // Create table
         await db.execute('''
         CREATE TABLE $_tableName (
-          eventHash TEXT,
+          eventId TEXT,
           profileId TEXT,
           role INTEGER,
           confirmed INTEGER,
           trusted INTEGER,
-          PRIMARY KEY (eventHash, profileId),
-          FOREIGN KEY (eventHash) REFERENCES events(eventHash)
+          PRIMARY KEY (eventId, profileId),
+          FOREIGN KEY (eventId) REFERENCES events(eventId)
         )
       ''');
 
@@ -126,7 +126,7 @@ class ProfileEventsStorage {
     _updateChannel.sink.add(profileEvent);
   }
 
-  /// Get a single ProfileEvent by eventHash + profileHash
+  /// Get a single ProfileEvent by eventId + profileId
   Future<ProfileEvent?> getSingle(String eventId, String profileId) async {
     if (!kIsWeb) {
       final db = await database;
@@ -134,7 +134,7 @@ class ProfileEventsStorage {
 
       final maps = await db.query(
         _tableName,
-        where: 'eventHash = ? AND profileHash = ?',
+        where: 'eventId = ? AND profileId = ?',
         whereArgs: [eventId, profileId],
       );
 
@@ -147,7 +147,7 @@ class ProfileEventsStorage {
     }
   }
 
-  /// Get all ProfileEvents related to an eventHash
+  /// Get all ProfileEvents related to an eventId
   Future<Set<ProfileEvent>> getAll(String eventId) async {
     if (!kIsWeb) {
       final db = await database;
@@ -155,7 +155,7 @@ class ProfileEventsStorage {
 
       final maps = await db.query(
         _tableName,
-        where: 'eventHash = ?',
+        where: 'eventId = ?',
         whereArgs: [eventId],
       );
 
@@ -172,7 +172,7 @@ class ProfileEventsStorage {
 
       final maps = await db.query(
         _tableName,
-        where: 'eventHash IN (${List.filled(eventIds.length, '?').join(',')})',
+        where: 'eventId IN (${List.filled(eventIds.length, '?').join(',')})',
         whereArgs: eventIds,
       );
 
@@ -197,7 +197,7 @@ class ProfileEventsStorage {
       final maps = await db.query(
         _tableName,
         columns: ['profileId'],
-        where: 'eventHash = ? AND profileId IN (${List.filled(profileIds.length, '?').join(',')})',
+        where: 'eventId = ? AND profileId IN (${List.filled(profileIds.length, '?').join(',')})',
         whereArgs: [eventId, ...profileIds],
       );
 
@@ -209,36 +209,36 @@ class ProfileEventsStorage {
   }
 
   /// Remove a single ProfileEvent
-  Future<void> removeSingle(String eventHash, String profileHash) async {
+  Future<void> removeSingle(String eventId, String profileId) async {
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
 
       await db.delete(
         _tableName,
-        where: 'eventHash = ? AND profileHash = ?',
-        whereArgs: [eventHash, profileHash],
+        where: 'eventId = ? AND profileId = ?',
+        whereArgs: [eventId, profileId],
       );
     } else {
-      _inMemoryStorage[eventHash]?.removeWhere((pe) => pe.profileId == profileHash);
+      _inMemoryStorage[eventId]?.removeWhere((pe) => pe.profileId == profileId);
     }
-    _deleteChannel.sink.add((eventHash, profileHash));
+    _deleteChannel.sink.add((eventId, profileId));
   }
 
   /// Remove all ProfileEvents for an event
-  Future<void> removeAll(String eventHash) async {
+  Future<void> removeAll(String eventId) async {
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
 
       await db.delete(
         _tableName,
-        where: 'eventHash = ?',
-        whereArgs: [eventHash],
+        where: 'eventId = ?',
+        whereArgs: [eventId],
       );
     } else {
-      _inMemoryStorage.remove(eventHash);
+      _inMemoryStorage.remove(eventId);
     }
-    _deleteAllChannel.sink.add(eventHash);
+    _deleteAllChannel.sink.add(eventId);
   }
 }

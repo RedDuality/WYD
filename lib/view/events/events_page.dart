@@ -32,7 +32,9 @@ class _EventsPageState extends State<EventsPage> {
   void initState() {
     super.initState();
     _private = widget.private;
+
     rangeController = RangeController(DateTime.now(), 7);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final eventsController = Provider.of<CurrentEventsProvider>(context, listen: false);
       eventsController.initialize(rangeController, _private);
@@ -48,10 +50,11 @@ class _EventsPageState extends State<EventsPage> {
           final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
           if (context.mounted) {
             showCustomDialog(
-                context,
-                EventView(
-                  eventHash: event.id,
-                ));
+              context,
+              EventView(
+                eventHash: event.id,
+              ),
+            );
           }
         });
         _dialogShown = true;
@@ -95,7 +98,6 @@ class _EventsPageState extends State<EventsPage> {
                 ));
           },
           onDateLongPress: (date) {
-
             showCustomDialog(
                 context,
                 EventView(
