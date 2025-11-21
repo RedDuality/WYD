@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wyd_front/model/enum/role.dart';
 import 'package:wyd_front/model/profile.dart';
 
 class ProfileStorage {
@@ -18,12 +16,10 @@ class ProfileStorage {
   // --------------------------------
 
   final _profileUpdateController = StreamController<Profile>();
-
   Stream<Profile> get updates => _profileUpdateController.stream;
 
   // In-memory cache for web/other environments where sqflite isn't used
   final Map<String, Profile> _inMemoryStorage = {};
-
   static Database? _database;
 
   Future<Database?> get database async {
@@ -49,48 +45,14 @@ class ProfileStorage {
             name TEXT,
             lastFetched INTEGER,
             updatedAt INTEGER,
-            blobHash TEXT,
-            color INTEGER,
-            role TEXT,
-            mainProfile INTEGER DEFAULT 0
+            blobHash TEXT
           )
         ''');
       },
     );
   }
 
-  /// Converts a Profile object to a Map for SQLite.
-  Map<String, dynamic> _toMap(Profile profile) {
-    return {
-      'id': profile.id,
-      'tag': profile.tag,
-      'name': profile.name,
-      'lastFetched': profile.lastFetched.millisecondsSinceEpoch,
-      'updatedAt': profile.updatedAt.millisecondsSinceEpoch,
-      'blobHash': profile.blobHash,
-      'color': profile.color?.toARGB32(),
-      'role': profile.role.toString(),
-      'mainProfile': profile.mainProfile ? 1 : 0,
-    };
-  }
 
-  /// Converts a DB map back into a Profile object.
-  Profile _fromDbMap(Map<String, dynamic> map) {
-    return Profile(
-      id: map['id'] ?? "",
-      tag: map['tag'] ?? "",
-      name: map['name'] ?? "",
-      lastFetched: DateTime.fromMillisecondsSinceEpoch(map['lastFetched']),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt']),
-      blobHash: map['blobHash'],
-      color: map['color'] != null ? Color(map['color']) : null,
-      role: Role.values.firstWhere(
-        (r) => r.toString() == map['role'],
-        orElse: () => Role.viewer,
-      ),
-      mainProfile: map['mainProfile'] == 1,
-    );
-  }
 
   /// Save or update a profile.
   Future<void> saveProfile(Profile profile) async {
@@ -100,7 +62,7 @@ class ProfileStorage {
       if (db == null) return;
       await db.insert(
         _tableName,
-        _toMap(profile),
+        profile.toDbMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } else {
@@ -118,7 +80,7 @@ class ProfileStorage {
         for (final profile in profiles) {
           await txn.insert(
             _tableName,
-            _toMap(profile),
+            profile.toDbMap(),
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         }
@@ -166,7 +128,7 @@ class ProfileStorage {
     );
 
     if (maps.isNotEmpty) {
-      return _fromDbMap(maps.first);
+      return Profile.fromDbMap(maps.first);
     }
     return null;
   }

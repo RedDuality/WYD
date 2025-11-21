@@ -4,7 +4,7 @@ import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/util/uri_service.dart';
 import 'package:wyd_front/view/authentication/login.dart';
 import 'package:wyd_front/view/home_page.dart';
-import 'package:wyd_front/view/widget/loading.dart';
+import 'package:wyd_front/view/widget/loading_page.dart';
 
 // consumer of AuthenticationProvider
 GoRouter createRouter(AuthenticationProvider authProvider) {

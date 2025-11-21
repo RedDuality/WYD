@@ -11,7 +11,7 @@ class ProfileProvider extends ChangeNotifier {
 
   ProfileProvider() {
     _profileSubscription = _storage.updates.listen((profile) {
-      set(profile.id, profile);
+      _set(profile.id, profile);
     });
   }
 
@@ -29,11 +29,11 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> _checkStorage(String profileId) async {
     var profile = await ProfileStorageService.retrieve(profileId);
     if (profile != null) {
-      set(profileId, profile);
+      _set(profileId, profile);
     }
   }
 
-  void set(String id, Profile profile) {
+  void _set(String id, Profile profile) {
     _profiles[id] = profile;
     notifyListeners();
   }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/detailed_profile.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 
 class HeaderProfileTile extends StatelessWidget {
-  final Profile? profile;
+  final DetailedProfile? profile;
   final double circleSize;
   final double borderSize;
   final double padding;

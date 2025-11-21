@@ -7,11 +7,14 @@ import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
+import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
+import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
-import 'package:wyd_front/state/community_provider.dart';
+import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:wyd_front/state/user/view_settings_cache.dart';
 
 import 'firebase_options_dev.dart' as dev;
 import 'firebase_options_prod.dart' as prod;
@@ -31,8 +34,6 @@ Future main() async {
 
   const env = String.fromEnvironment('ENV', defaultValue: 'dev');
   await dotenv.load(fileName: '.env.$env');
-
-
 
   final firebaseOptions =
       env == 'prod' ? prod.DefaultFirebaseOptions.currentPlatform : dev.DefaultFirebaseOptions.currentPlatform;
@@ -54,12 +55,15 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         //insert those you want to inject throught the context
-        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider()), // singleton
+        ChangeNotifierProvider(create: (_) => UserProvider()), // singleton
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => EventDetailsStorage()),
-        ChangeNotifierProvider(create: (_) => CommunityProvider()),
-        ChangeNotifierProvider(create: (_) => CurrentEventsProvider())
+        ChangeNotifierProvider(create: (_) => DetailedProfileCache()),
+        ChangeNotifierProvider(create: (_) => ViewSettingsCache()),
+        ChangeNotifierProvider(create: (_) => ProfileEventsCache()),
+        ChangeNotifierProvider(create: (ctx) => CurrentEventsProvider(ctx)), // needs ViewSettingsCache and ProfileEventsCache
+        ChangeNotifierProvider(create: (_) => EventDetailsStorage()), // singleton
+        ChangeNotifierProvider(create: (_) => CommunityStorage()), // singleton
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {

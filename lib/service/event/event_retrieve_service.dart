@@ -10,18 +10,17 @@ import 'package:wyd_front/state/user/user_provider.dart';
 class EventRetrieveService {
   static Future<List<RetrieveEventResponseDto>> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
-        profileHashes: UserProvider().getProfileHashes(),
+        profileHashes: UserProvider().getProfileIds(),
         startTime: retrieveInterval.start.toUtc(),
         endTime: retrieveInterval.end.toUtc());
 
-    var dtos = await EventAPI().listEvents(retrieveDto);
-    return dtos;
+    return await EventAPI().listEvents(retrieveDto);
   }
 
   //real time update, another device(of the same user) created a new event
   static Future<void> retrieveEssentialByHash(String eventHash) async {
-    var event = await EventAPI().retrieveEssentialsFromHash(eventHash);
-    EventStorageService.addEvent(event);
+    var eventDto = await EventAPI().retrieveEssentialsFromHash(eventHash);
+    EventStorageService.addEvent(eventDto);
   }
 
   static Future<void> checkAndRetrieveEssentialByHash(String eventHash, DateTime updatedAt) async {
@@ -40,7 +39,7 @@ class EventRetrieveService {
 
   static Future<void> checkEventUpdatesAfter(DateTime lastCheckedTime) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
-      profileHashes: UserProvider().getProfileHashes(),
+      profileHashes: UserProvider().getProfileIds(),
       startTime: lastCheckedTime,
     );
 

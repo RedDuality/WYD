@@ -8,7 +8,7 @@ class ProfileInterceptor extends InterceptorContract {
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     try {
       request.headers['Current-Profile'] =
-          UserProvider().getCurrentProfileHash();
+          UserProvider().getCurrentProfileId();
     } catch (e) {
       debugPrint("profile interceptor $e");
     }

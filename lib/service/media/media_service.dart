@@ -16,10 +16,10 @@ class MediaService {
 
   // from Notifications
   static Future<void> retrieveImageUpdatesByHash(Event event) async {
-    var details = EventDetailsStorage().get(event.eventHash);
+    var details = EventDetailsStorage().get(event.id);
 
     if (details != null) {
-      EventDetailsStorage().invalidateMediaCache(event.eventHash);
+      EventDetailsStorage().invalidateMediaCache(event.id);
     }
   }
 
