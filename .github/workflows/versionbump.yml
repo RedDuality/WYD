@@ -1,0 +1,38 @@
+name: Flutter Version Bump
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Update Flutter version in pubspec.yaml
+        run: |
+          # read current version
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          BASE=$(echo $VERSION | cut -d+ -f1)
+          BUILD=$(echo $VERSION | cut -d+ -f2)
+          NEW_BUILD=$((BUILD + 1))
+          NEW_VERSION="${BASE}+${NEW_BUILD}"
+          echo "Updating Flutter version to $NEW_VERSION"
+          sed -i "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
+
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add pubspec.yaml
+          git commit -m "chore: bump Flutter version to ${NEW_VERSION} [skip ci]" || echo "No changes to commit"
+
+      - name: Push changes
+        env:
+          TOKEN: ${{ secrets.GH_BUILDFRONTACTION }}
+        run: |
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/RedDuality/WYD.git
+          git push
