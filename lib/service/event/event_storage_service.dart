@@ -8,7 +8,7 @@ import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
 import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class EventStorageService {
-  static Future<void> addEvents(
+  static Future<void> _addEvents(
     List<RetrieveEventResponseDto> dtos,
     DateTimeRange dateRange,
   ) async {
@@ -18,7 +18,6 @@ class EventStorageService {
     // Ensure interval is cached before saving
     await EventIntervalsCacheManager().addInterval(dateRange);
 
-    // Save all events once deserialization is complete
     await EventStorage().saveMultiple(events, dateRange);
   }
 
@@ -34,7 +33,6 @@ class EventStorageService {
       EventDetailsStorage().update(dto.id, dto.details!);
     }
 
-    // this goes before to allow event.currentConfirmed
     if (dto.sharedWith != null) {
       await ProfileEventsStorage().saveMultiple(dto.id, dto.sharedWith!);
     }
@@ -45,24 +43,27 @@ class EventStorageService {
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
 
-    if (missingInterval != null) {
-      EventRetrieveService.retrieveFromServer(missingInterval).then((dtos) {
-        addEvents(dtos, missingInterval);
-      });
-    }
+    if (missingInterval != null) _retrieveFromServer(missingInterval);
 
-    return EventStorage().getEventsInTimeRange(requestedInterval);
+    return EventStorage().getEventsInRange(requestedInterval);
+  }
+
+  static Future<List<Event>> retrieveEventsEndedIn(DateTimeRange requestedInterval) async {
+    var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
+
+    if (missingInterval != null) await _retrieveFromServer(missingInterval); // here we wait
+
+    return EventStorage().getEventsEndingInRange(requestedInterval);
+  }
+
+  static Future<void> _retrieveFromServer(DateTimeRange retrieveInterval) async {
+    var dtos = await EventRetrieveService.retrieveFromServer(retrieveInterval);
+    await _addEvents(dtos, retrieveInterval);
   }
 
   static Future<void> setHasCachedMedia(String eventHash, bool hasCachedMedia) async {
     var event = await EventStorage().getEventByHash(eventHash);
     event!.hasCachedMedia = hasCachedMedia;
     EventStorage().saveEvent(event);
-  }
-
-  Future<List<Event>> getEventsToShowInRange(
-    DateTime date,
-  ) async {
-    return [];
   }
 }

@@ -110,7 +110,7 @@ class CurrentEventsProvider extends EventController {
       end: range.end.isBefore(_controller!.focusedRange.end) ? range.end : _controller!.focusedRange.end,
     );
 
-    var events = await EventStorage().getEventsInTimeRange(overlap);
+    var events = await EventStorage().getEventsInRange(overlap);
     _addEvents(events);
   }
 
@@ -170,7 +170,7 @@ class CurrentEventsProvider extends EventController {
         events.whereType<Event>().where((event) => event.occursOnDate(date.toLocal())).map((event) => event.id).toSet();
     final viewingProfileIds = viewSettingsCache.getProfiles(_confirmedView);
     final eventIdsWhereConfirmed =
-        profileEventsCache.eventsWithProfilesConfirmed(todaysEventsIds, viewingProfileIds, _confirmedView);
+        profileEventsCache.eventsWithProfilesConfirmed(todaysEventsIds, profileIds: viewingProfileIds, confirmed: _confirmedView);
 
     return events.whereType<Event>().where((event) => eventIdsWhereConfirmed.contains(event.id)).toList();
   }

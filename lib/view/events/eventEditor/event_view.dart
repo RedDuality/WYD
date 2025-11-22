@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
+import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
 
@@ -20,12 +21,12 @@ class EventView extends StatefulWidget {
 
 class EventViewState extends State<EventView> {
   final _titleController = TextEditingController();
-  String? eventHash;
+  String? eventId;
 
   @override
   void initState() {
     super.initState();
-    eventHash = widget.eventHash;
+    eventId = widget.eventHash;
   }
 
   @override
@@ -34,14 +35,17 @@ class EventViewState extends State<EventView> {
     super.dispose();
   }
 
-  void onEventCreated(String eventHash) {
+  void onEventCreated(String eventId) {
     setState(() {
-      this.eventHash = eventHash;
+      this.eventId = eventId;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final profileEventCache = Provider.of<ProfileEventsCache>(context, listen: false);
+    final showImages = eventId != null && profileEventCache.atLeastOneConfirmed(eventId!);
+
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
@@ -73,7 +77,7 @@ class EventViewState extends State<EventView> {
                 padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
                 child: Consumer<CurrentEventsProvider>(
                   builder: (context, provider, child) {
-                    final event = eventHash != null ? provider.get(eventHash!) : null;
+                    final event = eventId != null ? provider.get(eventId!) : null;
                     final newTitle = event?.title ?? "Evento senza nome";
 
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -114,7 +118,7 @@ class EventViewState extends State<EventView> {
               padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
               child: Consumer<CurrentEventsProvider>(
                 builder: (context, provider, child) {
-                  final event = eventHash != null ? provider.get(eventHash!) : null;
+                  final event = eventId != null ? provider.get(eventId!) : null;
                   return EventViewEditor(
                     event: event,
                     date: widget.date,
@@ -126,11 +130,12 @@ class EventViewState extends State<EventView> {
             ),
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
-              child: eventHash != null ? GalleryEditor(eventHash: eventHash!) : Container(),
-            ),
-          ),
+              child: showImages
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
+                      child: GalleryEditor(eventId: eventId!),
+                    )
+                  : Container()),
         ],
       ),
     );

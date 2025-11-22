@@ -31,6 +31,7 @@ class MediaSelectionService {
       type: FileType.custom,
       allowedExtensions: MimetypeService().getAllowedExtensions(),
       allowMultiple: true,
+      withData: true
     );
 
     if (result == null) {
@@ -51,6 +52,7 @@ class MediaSelectionService {
               platformFile.extension != null ? MimetypeService.getMimeTypeFromExtension(platformFile.extension!) : null;
 
           DateTime creationDate = await _getMediaCreationDate(platformFile.path!);
+          debugPrint('File: ${platformFile.name}, path: ${platformFile.path}, bytes: ${platformFile.bytes?.length}');
 
           blob = await _createBlobData(creationDate, fileData, mimeType: mimeType);
         }

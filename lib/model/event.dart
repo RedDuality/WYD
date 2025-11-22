@@ -97,4 +97,8 @@ class Event extends CalendarEventData {
   String getConfirmTitle() {
     return totalProfiles > 1 ? "($totalConfirmed/$totalProfiles) " : "";
   }
+
+  bool hasEventFinished(){
+    return DateTime.now().isAfter(endTime!);
+  }
 }

@@ -6,7 +6,7 @@ class EventDetailsService {
     EventDetailsStorage().get(eventHash)!.totalImages += added;
   }
 
-  static void retrieveMedia(String eventHash, {int? start, int? end}) {
+  static void retrieveMediaFromServer(String eventHash, {int? start, int? end}) {
     var details = EventDetailsStorage().get(eventHash);
 
     if (details != null &&

@@ -24,7 +24,7 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   late RangeController rangeController;
 
-  bool _private = true;
+  bool _confirmedView = true;
 
   @override
   void initState() {
@@ -34,7 +34,7 @@ class _EventsPageState extends State<EventsPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final eventsController = Provider.of<CurrentEventsProvider>(context, listen: false);
-      eventsController.initialize(rangeController, _private);
+      eventsController.initialize(rangeController, _confirmedView);
       _checkAndShowLinkEvent(context);
     });
   }
@@ -65,20 +65,20 @@ class _EventsPageState extends State<EventsPage> {
 
   void _changeMode(bool privateMode) {
     setState(() {
-      _private = privateMode;
-      Provider.of<CurrentEventsProvider>(context, listen: false).changeMode(_private);
+      _confirmedView = privateMode;
+      Provider.of<CurrentEventsProvider>(context, listen: false).changeMode(_confirmedView);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Header(title: _private ? 'Agenda' : 'Eventi', actions: actions()),
+      appBar: Header(title: _confirmedView ? 'Agenda' : 'Eventi', actions: actions()),
       body: Consumer<CurrentEventsProvider>(builder: (context, eventsController, _) {
         return WeekView(
           eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
             return EventTile(
-                confirmedView: _private,
+                confirmedView: _confirmedView,
                 date: date,
                 events: events.whereType<Event>().toList(),
                 boundary: boundary,
@@ -123,7 +123,7 @@ class _EventsPageState extends State<EventsPage> {
   List<Widget> actions() {
     return [
       const SizedBox(width: 10),
-      if (_private)
+      if (_confirmedView)
         Builder(
           builder: (context) {
             double screenWidth = MediaQuery.of(context).size.width;
@@ -168,7 +168,7 @@ class _EventsPageState extends State<EventsPage> {
                   );
           },
         ),
-      if (!_private)
+      if (!_confirmedView)
         Builder(
           builder: (context) {
             double screenWidth = MediaQuery.of(context).size.width;

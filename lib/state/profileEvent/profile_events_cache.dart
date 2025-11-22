@@ -7,6 +7,7 @@ import 'package:wyd_front/state/user/user_provider.dart';
 
 class ProfileEventsCache extends ChangeNotifier {
   final ProfileEventsStorage _storage = ProfileEventsStorage();
+  
   late final StreamSubscription<ProfileEvent> _profileEventSubscription;
   late final StreamSubscription<(String, String)> _deleteChannel;
   late final StreamSubscription<String> _deleteAllChannel;
@@ -79,22 +80,23 @@ class ProfileEventsCache extends ChangeNotifier {
     super.dispose();
   }
 
-  Set<String> eventsWithProfilesConfirmed(
-    Set<String> eventIds,
-    Set<String> profileIds,
-    bool confirmed,
-  ) {
+  Set<String> eventsWithProfilesConfirmed(Set<String> eventIds,
+      {Set<String> profileIds = const {}, bool confirmed = true}) {
     final Set<String> matchingEvents = {};
     for (final eventId in eventIds) {
-      final profiles = _profileEvents[eventId] ?? {};
-      final hasMatch = profiles.any(
-        (pe) => profileIds.contains(pe.profileId) && pe.confirmed == confirmed,
-      );
-      if (hasMatch) {
+      if (atLeastOneConfirmed(eventId, profileIds: profileIds, confirmed: confirmed)) {
         matchingEvents.add(eventId);
       }
     }
     return matchingEvents;
+  }
+
+  bool atLeastOneConfirmed(String eventId, {Set<String> profileIds = const {}, bool confirmed = true}) {
+    if (profileIds.isEmpty) profileIds = UserProvider().getProfileIds();
+    final profiles = _profileEvents[eventId] ?? {};
+    return profiles.any(
+      (pe) => profileIds.contains(pe.profileId) && pe.confirmed == confirmed,
+    );
   }
 
   Set<String> relatedProfiles(String eventId, bool confirmed) {

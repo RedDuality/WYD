@@ -56,6 +56,8 @@ class EventStorage {
             hasCachedMedia INTEGER DEFAULT 0
           )
         ''');
+        await db.execute('CREATE INDEX idx_events_start_end ON $_tableName(startTime, endTime)');
+        await db.execute('CREATE INDEX idx_events_endTime ON $_tableName(endTime)');
       },
     );
   }
@@ -144,8 +146,8 @@ class EventStorage {
   }
 
   /// Given a period, this function returns events that overlaps it.
-  /// Overlap logic: (E_end > P_start) AND (E_start < P_end)
-  Future<List<Event>> getEventsInTimeRange(DateTimeRange range) async {
+  /// Overlap logic: (E_end > R_start) AND (E_start < R_end)
+  Future<List<Event>> getEventsInRange(DateTimeRange range) async {
     if (kIsWeb) {
       return _inMemoryStorage.values.where((event) {
         final eventEndTime = event.endTime?.toUtc().millisecondsSinceEpoch;
@@ -171,6 +173,39 @@ class EventStorage {
         where: 'endTime > ? AND startTime < ?',
         whereArgs: [startTimestamp, endTimestamp],
         orderBy: 'startTime ASC',
+      );
+
+      return List.generate(maps.length, (i) {
+        return Event.fromDbMap(maps[i]);
+      });
+    }
+  }
+
+  /// Returns events whose endTime falls inside the given range.
+  Future<List<Event>> getEventsEndingInRange(DateTimeRange range) async {
+    if (kIsWeb) {
+      final periodStartMs = range.start.toUtc().millisecondsSinceEpoch;
+      final periodEndMs = range.end.toUtc().millisecondsSinceEpoch;
+
+      return _inMemoryStorage.values.where((event) {
+        final eventEndTime = event.endTime?.toUtc().millisecondsSinceEpoch;
+        if (eventEndTime == null) return false;
+
+        return eventEndTime >= periodStartMs && eventEndTime <= periodEndMs;
+      }).toList()
+        ..sort((a, b) => a.endTime!.compareTo(b.endTime!));
+    } else {
+      final db = await database;
+      if (db == null) return [];
+
+      final int startTimestamp = range.start.toUtc().millisecondsSinceEpoch;
+      final int endTimestamp = range.end.toUtc().millisecondsSinceEpoch;
+
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tableName,
+        where: 'endTime >= ? AND endTime <= ?',
+        whereArgs: [startTimestamp, endTimestamp],
+        orderBy: 'endTime ASC',
       );
 
       return List.generate(maps.length, (i) {

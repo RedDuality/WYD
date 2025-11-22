@@ -63,6 +63,8 @@ class ProfileEventsStorage {
         await db.execute('CREATE INDEX idx_profile_events_profileId ON $_tableName(profileId)');
         await db.execute('CREATE INDEX idx_profile_events_eventId ON $_tableName(eventId)');
         await db.execute('CREATE INDEX idx_profile_events_confirmed ON $_tableName(confirmed)');
+        await db.execute(
+            'CREATE INDEX idx_profile_events_event_profile_confirmed ON $_tableName(eventId, profileId, confirmed)');
       },
     );
   }
@@ -205,6 +207,50 @@ class ProfileEventsStorage {
     } else {
       final eventProfiles = _inMemoryStorage[eventId] ?? {};
       return eventProfiles.where((pe) => profileIds.contains(pe.profileId)).length;
+    }
+  }
+
+  /// Return the set of eventIds where at least one profile is confirmed
+  Future<Set<String>> eventsWithProfilesConfirmed(
+    Set<String> eventIds, {
+    Set<String> profileIds = const {},
+    bool confirmed = true,
+  }) async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return {};
+
+      // Build placeholders for eventIds and profileIds
+      final eventPlaceholders = List.filled(eventIds.length, '?').join(',');
+      final profilePlaceholders =
+          profileIds.isNotEmpty ? 'AND profileId IN (${List.filled(profileIds.length, '?').join(',')})' : '';
+
+      final whereArgs = [
+        ...eventIds,
+        if (profileIds.isNotEmpty) ...profileIds,
+        confirmed ? 1 : 0,
+      ];
+
+      final rows = await db.query(
+        _tableName,
+        columns: ['eventId'],
+        where: 'eventId IN ($eventPlaceholders) $profilePlaceholders AND confirmed = ?',
+        whereArgs: whereArgs,
+        distinct: true,
+      );
+
+      return rows.map((r) => r['eventId'] as String).toSet();
+    } else {
+      final Set<String> matchingEvents = {};
+      for (final eventId in eventIds) {
+        final profiles = _inMemoryStorage[eventId] ?? {};
+        final ids = profileIds.isEmpty ? profiles.map((pe) => pe.profileId).toSet() : profileIds;
+        final hasMatch = profiles.any(
+          (pe) => ids.contains(pe.profileId) && pe.confirmed == confirmed,
+        );
+        if (hasMatch) matchingEvents.add(eventId);
+      }
+      return matchingEvents;
     }
   }
 
