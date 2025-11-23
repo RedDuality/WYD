@@ -8,7 +8,7 @@ class UserProvider extends ChangeNotifier {
   factory UserProvider() => _instance;
   UserProvider._internal();
 
-  User? get user => _user;
+  User? get user => _user; // if null try to fetch from storage
 
   String getCurrentProfileId() {
     return _user!.currentProfileHash;

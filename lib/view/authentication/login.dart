@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/API/Test/test_api.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
@@ -47,10 +48,12 @@ class _LoginPageState extends State<LoginPage> {
                   onChanged: (text) {
                     _mail = text;
                   },
+                  autofillHints: const [AutofillHints.email],
+                  keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Email',
-                      hintText: 'Enter valid email id as abc@mail.com',
+                      hintText: 'abc@mail.com',
                       helperText: ' '),
                 ),
               ),
@@ -64,6 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                     _password = text;
                   },
                   obscureText: true,
+                  autofillHints: const [AutofillHints.password],
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Password',
@@ -77,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
               width: 250,
               child: ElevatedButton(
                 onPressed: () {
-                  final authProvider = AuthenticationProvider();
+                  final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
                   authProvider.signIn(_mail, _password).catchError((error) {
                     if (context.mounted) {
                       InformationService().showErrorSnackBar(context, error);

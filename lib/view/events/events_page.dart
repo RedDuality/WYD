@@ -45,6 +45,7 @@ class _EventsPageState extends State<EventsPage> {
       final destination = uri.split('?').first.replaceAll('/', '');
       if (destination == 'share') {
         var eventHash = Uri.dataFromString(uri).queryParameters['event'];
+        unawaited(UriService.saveUri(""));
         if (eventHash != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final event = await EventRetrieveService.retrieveAndAddByHash(eventHash);
@@ -59,7 +60,6 @@ class _EventsPageState extends State<EventsPage> {
           });
         }
       }
-      UriService.saveUri("");
     }
   }
 

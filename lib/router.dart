@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
@@ -10,37 +12,36 @@ import 'package:wyd_front/view/widget/loading_page.dart';
 GoRouter createRouter(AuthenticationProvider authProvider) {
   return GoRouter(
     navigatorKey: GlobalKey<NavigatorState>(),
-    redirect: (context, state) {
-      if (authProvider.isLoading) return null;
+    redirect: (context, state) async {
+      if (authProvider.isLoading) return '/loading';
 
-      final isAuthenticated = authProvider.isBackendVerified;
+      final isLoggedIn = await authProvider.isLoggedIn();
       final isLoggingIn = state.matchedLocation == '/login';
 
-      if (isAuthenticated) {
-        return isLoggingIn ? '/' : null;
-      } else {
+      if (isLoggedIn) return isLoggingIn ? '/' : null;
 
-        String originalUri = state.uri.toString();
-        UriService.saveUri(originalUri);
+      final originalUri = state.uri.toString();
+      unawaited(UriService.saveUri(originalUri));
 
-        return isLoggingIn ? null : '/login';
-      }
+      return isLoggingIn ? null : '/login';
     },
     routes: <GoRoute>[
       GoRoute(
+        path: '/loading',
+        builder: (BuildContext context, GoRouterState state) {
+          return const LoadingPage();
+        },
+      ),
+      GoRoute(
         path: '/',
         builder: (BuildContext context, GoRouterState state) {
-          return authProvider.isLoading
-              ? const LoadingPage()
-              : const HomePage();
+          return authProvider.isLoading ? const LoadingPage() : HomePage();
         },
       ),
       GoRoute(
         path: '/login',
         builder: (BuildContext context, GoRouterState state) {
-          return authProvider.isLoading
-              ? const LoadingPage()
-              : const LoginPage();
+          return authProvider.isLoading ? const LoadingPage() : const LoginPage();
         },
       ),
       GoRoute(
@@ -48,9 +49,7 @@ GoRouter createRouter(AuthenticationProvider authProvider) {
         builder: (BuildContext context, GoRouterState state) {
           String? uri = state.uri.toString();
           UriService.saveUri(uri);
-          return authProvider.isLoading
-              ? const LoadingPage()
-              : const HomePage();
+          return authProvider.isLoading ? const LoadingPage() : HomePage();
         },
       ),
     ],

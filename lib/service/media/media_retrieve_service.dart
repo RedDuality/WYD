@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:wyd_front/service/util/permission_service.dart';
+import 'package:wyd_front/service/util/device_permission_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/media/cached_media_provider.dart';
 import 'package:wyd_front/state/media/cached_media_storage.dart';
@@ -41,7 +41,7 @@ class MediaRetrieveService {
 
   static Future<List<AssetEntity>> _retrieveImagesByTime(DateTime? start, DateTime? end) async {
     // Request permissions to access photos before proceeding
-    await PermissionService.requestGalleryPermissions();
+    await DevicePermissionService.requestGalleryPermissions();
 
     if (start == null || end == null) {
       throw ArgumentError("Both start and end dates must be provided.");

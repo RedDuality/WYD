@@ -55,7 +55,7 @@ class ProfilesPage extends StatelessWidget {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    UserService().logOut();
+                    UserService.logOut();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,

@@ -16,18 +16,29 @@ import 'package:wyd_front/state/user/view_settings_storage.dart';
 import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class UserService {
-  Future<void> createUser() async {
-    RetrieveUserResponseDto userDto = await UserAPI().register();
-    _updateUser(userDto);
+  static Future<void> retrieveBackendUser() async {
+    try {
+      final userDto = await UserAPI().login();
+      await _updateUser(userDto);
+    } catch (e) {
+      logOut();
+      throw e.toString();
+    }
   }
 
-  Future<void> retrieveUser() async {
-    RetrieveUserResponseDto userDto = await UserAPI().login();
-    _updateUser(userDto);
+  static Future<void> createBackendUser() async {
+    try {
+      final userDto = await UserAPI().register();
+      await _updateUser(userDto);
+    } catch (e) {
+      logOut();
+      throw e.toString();
+    }
   }
 
-  Future<void> _updateUser(RetrieveUserResponseDto userDto) async {
-    await UserProvider().updateUser(User.fromDto(userDto));
+  static Future<void> _updateUser(RetrieveUserResponseDto userDto) async {
+    final user = User.fromDto(userDto);
+    await UserProvider().updateUser(user);
 
     DetailedProfileStorageService.addMultiple(userDto.profiles);
 
@@ -49,12 +60,12 @@ class UserService {
     UserClaimStorage().saveMultiple(userClaims);
   }
 
-  Future<void> logOut() async {
-    await RealTimeUpdateService().deleteTokenOnLogout();
+  static Future<void> logOut() async {
+    RealTimeUpdateService().deleteTokenOnLogout();
 
     EventStorage().clearAllEvents();
     EventIntervalsCacheManager().clearAllIntervals();
-    
+
     ProfileStorage().clearAllProfiles();
     DetailedProfileStorage().clearAll();
     ViewSettingsStorage().clearAll();
