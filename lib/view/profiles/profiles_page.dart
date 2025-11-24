@@ -3,14 +3,14 @@ import 'package:provider/provider.dart';
 
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/service/user/user_service.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/view/profiles/detailed_profile_tile.dart';
 import 'package:wyd_front/view/settings/settings_page.dart';
 
 class ProfilesPage extends StatelessWidget {
   ProfilesPage({super.key});
 
-  final List<String> profileHashes = UserProvider().getSecondaryProfilesHashes().toList();
+  final List<String> profileHashes = UserCache().getSecondaryProfilesHashes().toList();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class ProfilesPage extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        child: Consumer<UserProvider>(
+        child: Consumer<UserCache>(
           builder: (context, userProvider, child) {
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -75,7 +75,7 @@ class ProfilesPage extends StatelessWidget {
                       ),
                     ),
                     DetailedProfileTile(
-                      profileId: UserProvider().getCurrentProfileId(),
+                      profileId: UserCache().getCurrentProfileId(),
                       type: DetailedProfileTileType.main,
                     ),
                     if (profileHashes.isNotEmpty)

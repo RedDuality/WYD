@@ -11,7 +11,7 @@ import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/service/event/profile_events_storage_service.dart';
 import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventViewService {
   static final _profileColorChangeController = StreamController<void>();
@@ -42,7 +42,7 @@ class EventViewService {
   static Future<void> localConfirm(String eventHash, bool confirmed, {String? pHash}) async {
     var event = await EventStorage().getEventByHash(eventHash);
     if (event != null) {
-      String profileHash = pHash ?? UserProvider().getCurrentProfileId();
+      String profileHash = pHash ?? UserCache().getCurrentProfileId();
 
       if (await ProfileEventsStorageService.confirm(eventHash, confirmed, profileHash)) {
         EventRetrieveService.retrieveEssentialByHash(eventHash);
@@ -68,10 +68,10 @@ class EventViewService {
   }
 
   static Future<void> localDelete(Event event, {String? profileHash}) async {
-    var pHash = profileHash ?? UserProvider().getCurrentProfileId();
+    var pHash = profileHash ?? UserCache().getCurrentProfileId();
     await ProfileEventsStorage().removeSingle(event.id, pHash);
 
-    var myProfileIds = UserProvider().getProfileIds();
+    var myProfileIds = UserCache().getProfileIds();
     var profilesOfEvent = await ProfileEventsStorage().countMatchingProfiles(event.id, myProfileIds);
 
     if (profilesOfEvent == 0) {

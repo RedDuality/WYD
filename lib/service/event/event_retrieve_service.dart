@@ -5,12 +5,12 @@ import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventRetrieveService {
   static Future<List<RetrieveEventResponseDto>> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
-        profileHashes: UserProvider().getProfileIds(),
+        profileHashes: UserCache().getProfileIds(),
         startTime: retrieveInterval.start.toUtc(),
         endTime: retrieveInterval.end.toUtc());
 
@@ -39,7 +39,7 @@ class EventRetrieveService {
 
   static Future<void> checkEventUpdatesAfter(DateTime lastCheckedTime) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
-      profileHashes: UserProvider().getProfileIds(),
+      profileHashes: UserCache().getProfileIds(),
       startTime: lastCheckedTime,
     );
 

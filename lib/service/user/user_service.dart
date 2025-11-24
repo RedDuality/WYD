@@ -11,12 +11,12 @@ import 'package:wyd_front/state/profile/detailed_profile_storage.dart';
 import 'package:wyd_front/state/profile/profile_storage.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/user/user_claims_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_storage.dart';
 import 'package:wyd_front/state/user/view_settings_storage.dart';
 import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class UserService {
-  static Future<void> retrieveBackendUser() async {
+  static Future<void> retrieveUser() async {
     try {
       final userDto = await UserAPI().login();
       await _updateUser(userDto);
@@ -38,7 +38,7 @@ class UserService {
 
   static Future<void> _updateUser(RetrieveUserResponseDto userDto) async {
     final user = User.fromDto(userDto);
-    await UserProvider().updateUser(user);
+    await UserStorage().saveUser(user);
 
     DetailedProfileStorageService.addMultiple(userDto.profiles);
 

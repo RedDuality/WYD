@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/enum/event_role.dart';
 import 'package:wyd_front/model/profile_event.dart';
 import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class ProfileEventsCache extends ChangeNotifier {
   final ProfileEventsStorage _storage = ProfileEventsStorage();
@@ -92,7 +92,7 @@ class ProfileEventsCache extends ChangeNotifier {
   }
 
   bool atLeastOneConfirmed(String eventId, {Set<String> profileIds = const {}, bool confirmed = true}) {
-    if (profileIds.isEmpty) profileIds = UserProvider().getProfileIds();
+    if (profileIds.isEmpty) profileIds = UserCache().getProfileIds();
     final profiles = _profileEvents[eventId] ?? {};
     return profiles.any(
       (pe) => profileIds.contains(pe.profileId) && pe.confirmed == confirmed,
@@ -100,7 +100,7 @@ class ProfileEventsCache extends ChangeNotifier {
   }
 
   Set<String> relatedProfiles(String eventId, bool confirmed) {
-    var myProfileIds = UserProvider().getProfileIds();
+    var myProfileIds = UserCache().getProfileIds();
     final eventProfiles = _profileEvents[eventId] ?? {};
     return eventProfiles
         .where((pe) => pe.confirmed == confirmed && myProfileIds.contains(pe.profileId))
@@ -109,13 +109,13 @@ class ProfileEventsCache extends ChangeNotifier {
   }
 
   bool currentConfirmed(String eventId) {
-    final currentProfileId = UserProvider().getCurrentProfileId();
+    final currentProfileId = UserCache().getCurrentProfileId();
     final pe = _profileEvents[eventId]?.where((pe) => pe.profileId == currentProfileId).firstOrNull!;
     return pe != null ? pe.confirmed : false;
   }
 
   bool isOwner(String eventId) {
-    final currentProfileId = UserProvider().getCurrentProfileId();
+    final currentProfileId = UserCache().getCurrentProfileId();
     final pe = _profileEvents[eventId]?.where((pe) => pe.profileId == currentProfileId).firstOrNull!;
     return pe != null ? pe.role == EventRole.owner : false;
   }

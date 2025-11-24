@@ -12,7 +12,7 @@ import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
 import 'package:wyd_front/view/widget/loading_page.dart';
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()), // singleton
-        ChangeNotifierProvider(create: (_) => UserProvider()), // singleton
+        ChangeNotifierProvider(create: (_) => UserCache()), // singleton
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => DetailedProfileCache()),
         ChangeNotifierProvider(create: (_) => ViewSettingsCache()),

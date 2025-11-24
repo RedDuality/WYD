@@ -6,7 +6,7 @@ import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/community_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 
 class SharePage extends StatefulWidget {
@@ -21,7 +21,7 @@ class SharePage extends StatefulWidget {
 
 class _SharePageState extends State<SharePage> {
   Set<ShareEventRequestDto> selectedGroups = {};
-  String currentProfileHash = UserProvider().getCurrentProfileId();
+  String currentProfileHash = UserCache().getCurrentProfileId();
 
   @override
   Widget build(BuildContext context) {

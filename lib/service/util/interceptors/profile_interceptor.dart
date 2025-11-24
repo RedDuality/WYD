@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class ProfileInterceptor extends InterceptorContract {
   
@@ -8,7 +8,7 @@ class ProfileInterceptor extends InterceptorContract {
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     try {
       request.headers['Current-Profile'] =
-          UserProvider().getCurrentProfileId();
+          UserCache().getCurrentProfileId();
     } catch (e) {
       debugPrint("profile interceptor $e");
     }

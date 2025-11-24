@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/view_settings.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/state/user/view_settings_storage.dart';
 
 class ViewSettingsCache extends ChangeNotifier {
@@ -15,8 +15,8 @@ class ViewSettingsCache extends ChangeNotifier {
     });
   }
 
-  final Set<String> _confirmedViewProfiles = {UserProvider().getCurrentProfileId()};
-  final Set<String> _sharedViewProfiles = {UserProvider().getCurrentProfileId()};
+  final Set<String> _confirmedViewProfiles = {UserCache().getCurrentProfileId()};
+  final Set<String> _sharedViewProfiles = {UserCache().getCurrentProfileId()};
 
   Set<String> getProfiles(bool confirmed) {
     return confirmed ? _confirmedViewProfiles : _sharedViewProfiles;
@@ -31,7 +31,7 @@ class ViewSettingsCache extends ChangeNotifier {
   }
 
   void _set(ViewSettings settings) {
-    if (settings.viewerId != UserProvider().getCurrentProfileId()) {
+    if (settings.viewerId != UserCache().getCurrentProfileId()) {
       return;
     }
 
@@ -42,7 +42,7 @@ class ViewSettingsCache extends ChangeNotifier {
   }
 
   Future<void> reset() async {
-    final currentProfileId = UserProvider().getCurrentProfileId();
+    final currentProfileId = UserCache().getCurrentProfileId();
     final settingsList = await ViewSettingsStorage().getByViewerId(currentProfileId);
 
     _confirmedViewProfiles

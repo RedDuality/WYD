@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/service/user/user_service.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_storage.dart';
 
 class AuthenticationProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -26,8 +26,9 @@ class AuthenticationProvider with ChangeNotifier {
 
   Future<void> _checkUserLoginStatus() async {
     if (await isLoggedIn()) {
-      if (UserProvider().user == null) {
-        await UserService.retrieveBackendUser();
+      if (await UserStorage.getUser() == null) {
+        // should never happen
+        await UserService.retrieveUser();
       }
     }
     _isLoading = false;
@@ -88,7 +89,7 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
     try {
-      await UserService.retrieveBackendUser();
+      await UserService.retrieveUser();
     } on Exception catch (e) {
       debugPrint("Error registering: $e");
       await _auth.currentUser?.delete();

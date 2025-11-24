@@ -10,7 +10,7 @@ import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class RealTimeUpdateService {
   static final RealTimeUpdateService _instance = RealTimeUpdateService._internal();
@@ -28,10 +28,7 @@ class RealTimeUpdateService {
   }
 
   Future<void> _storeTokenOnStartup() async {
-    var user = UserProvider().user;
-    if (user == null) {
-      throw "User is not authenticated. Cannot store FCM token.";
-    }
+    var user = await UserCache().user;
 
     try {
       await FirebaseMessaging.instance.requestPermission();
@@ -76,16 +73,15 @@ class RealTimeUpdateService {
 
   void _monitorTokenRefreshes() {
     FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
-      var user = UserProvider().user;
-      if (user != null) {
-        var requestDto = StoreFcmTokenRequestDto(
-          uuid: user.id,
-          platform: DefaultFirebaseOptions.currentPlatform.toString(),
-          fcmToken: fcmToken,
-        );
-        await UserAPI().storeFCMToken(requestDto);
-        debugPrint("FCM Token refreshed and stored: $fcmToken");
-      }
+      var user = await UserCache().user;
+
+      var requestDto = StoreFcmTokenRequestDto(
+        uuid: user.id,
+        platform: DefaultFirebaseOptions.currentPlatform.toString(),
+        fcmToken: fcmToken,
+      );
+      await UserAPI().storeFCMToken(requestDto);
+      debugPrint("FCM Token refreshed and stored: $fcmToken");
     }).onError((err) {
       throw ("Error monitoring token refresh: $err");
     });
@@ -166,11 +162,6 @@ class RealTimeUpdateService {
   }
 
   Future<void> deleteTokenOnLogout() async {
-    var user = UserProvider().user;
-    if (user == null) {
-      debugPrint("No authenticated user found. Skipping FCM token deletion.");
-      return;
-    }
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
 

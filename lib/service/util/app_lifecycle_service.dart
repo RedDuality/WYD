@@ -34,10 +34,12 @@ class AppLifecycleService with WidgetsBindingObserver {
   }
 
   static void _retrieveUpdates() {
-    UserService.retrieveBackendUser();
+    UserService.retrieveUser();
   }
 
   static void _initializeCollections() {
+    if(kIsWeb) UserService.retrieveUser(); // user is saved in shared_preferences, but viewSettings and userclaims are not
+
     CommunityService().retrieveCommunities();
   }
 
