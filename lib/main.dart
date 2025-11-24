@@ -15,6 +15,7 @@ import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/user/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
+import 'package:wyd_front/view/widget/loading_page.dart';
 
 import 'firebase_options_dev.dart' as dev;
 import 'firebase_options_prod.dart' as prod;
@@ -54,24 +55,30 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        //insert those you want to inject throught the context
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()), // singleton
         ChangeNotifierProvider(create: (_) => UserProvider()), // singleton
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => DetailedProfileCache()),
         ChangeNotifierProvider(create: (_) => ViewSettingsCache()),
         ChangeNotifierProvider(create: (_) => ProfileEventsCache()),
-        ChangeNotifierProvider(create: (ctx) => CurrentEventsProvider(ctx)), // needs ViewSettingsCache and ProfileEventsCache
+        ChangeNotifierProvider(
+            create: (ctx) => CurrentEventsProvider(ctx)), // needs ViewSettingsCache and ProfileEventsCache
         ChangeNotifierProvider(create: (_) => EventDetailsStorage()), // singleton
         ChangeNotifierProvider(create: (_) => CommunityStorage()), // singleton
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
+          if (authProvider.isLoading) {
+            return const MaterialApp(
+              title: 'WYD?',
+              home: LoadingPage(),
+            );
+          }
+
           return MaterialApp.router(
             title: 'WYD?',
             theme: ThemeData(
               useMaterial3: true,
-              //
               colorScheme: ColorScheme.fromSeed(
                 seedColor: Colors.green,
               ),
