@@ -5,17 +5,16 @@ import 'package:provider/provider.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/state/event/current_events_provider.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
-import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
+import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
-import 'package:wyd_front/view/widget/loading_page.dart';
 
 import 'firebase_options_dev.dart' as dev;
 import 'firebase_options_prod.dart' as prod;
@@ -55,26 +54,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthenticationProvider()), // singleton
-        ChangeNotifierProvider(create: (_) => UserCache()), // singleton
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_) => UserCache()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => DetailedProfileCache()),
         ChangeNotifierProvider(create: (_) => ViewSettingsCache()),
         ChangeNotifierProvider(create: (_) => ProfileEventsCache()),
         ChangeNotifierProvider(
-            create: (ctx) => CurrentEventsProvider(ctx)), // needs ViewSettingsCache and ProfileEventsCache
-        ChangeNotifierProvider(create: (_) => EventDetailsStorage()), // singleton
-        ChangeNotifierProvider(create: (_) => CommunityStorage()), // singleton
+          create: (ctx) => CurrentEventsProvider(
+            ctx.read<ProfileEventsCache>(),
+            ctx.read<ViewSettingsCache>(),
+          ),
+        ),
+        ChangeNotifierProvider(create: (_) => EventDetailsStorage()),
+        ChangeNotifierProvider(create: (_) => CommunityStorage()),
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {
-          if (authProvider.isLoading) {
-            return const MaterialApp(
-              title: 'WYD?',
-              home: LoadingPage(),
-            );
-          }
-
           return MaterialApp.router(
             title: 'WYD?',
             theme: ThemeData(

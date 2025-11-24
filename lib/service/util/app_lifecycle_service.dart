@@ -21,13 +21,13 @@ class AppLifecycleService with WidgetsBindingObserver {
     _initialized = true;
     WidgetsBinding.instance.addObserver(this);
 
-    _retrieveData();
+    await _retrieveData();
     _initializeServices();
   }
 
-  static void _retrieveData() {
+  static Future<void> _retrieveData() async {
     if (kIsWeb || AuthenticationProvider().isFirstTimeLogging) {
-      _initializeCollections();
+      await _initializeCollections();
     } else {
       _retrieveUpdates();
     }
@@ -37,9 +37,7 @@ class AppLifecycleService with WidgetsBindingObserver {
     UserService.retrieveUser();
   }
 
-  static void _initializeCollections() {
-    if(kIsWeb) UserService.retrieveUser(); // user is saved in shared_preferences, but viewSettings and userclaims are not
-
+  static Future<void> _initializeCollections() async {
     CommunityService().retrieveCommunities();
   }
 
@@ -57,7 +55,7 @@ class AppLifecycleService with WidgetsBindingObserver {
     });
   }
 
-  // resumed 
+  // resumed
   // app: turns on from the ram
   // web: depending on the browser, tabs returns in view/focus
   @override
@@ -75,6 +73,7 @@ class AppLifecycleService with WidgetsBindingObserver {
   }
 
   void detach() {
+    debugPrint("detached");
     if (!_initialized) return;
     _initialized = false;
     WidgetsBinding.instance.removeObserver(this);

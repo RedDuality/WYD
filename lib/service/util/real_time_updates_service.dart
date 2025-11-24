@@ -28,7 +28,7 @@ class RealTimeUpdateService {
   }
 
   Future<void> _storeTokenOnStartup() async {
-    var user = await UserCache().user;
+    var user = UserCache().user;
 
     try {
       await FirebaseMessaging.instance.requestPermission();
@@ -73,7 +73,7 @@ class RealTimeUpdateService {
 
   void _monitorTokenRefreshes() {
     FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
-      var user = await UserCache().user;
+      var user = UserCache().user;
 
       var requestDto = StoreFcmTokenRequestDto(
         uuid: user.id,

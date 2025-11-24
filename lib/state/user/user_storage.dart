@@ -2,24 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class UserStorage {
   // --- Singleton Implementation ---
   static final UserStorage _instance = UserStorage._internal();
   factory UserStorage() => _instance;
   UserStorage._internal();
+  
   // --------------------------------
-
-  final _userUpdateChannel = StreamController<User>();
-
-  Stream<User> get userUpdatesChannel => _userUpdateChannel.stream;
-
-
   Future<void> saveUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
     // Convert to JSON string
     await prefs.setString('user', jsonEncode(user.toJson()));
-    _userUpdateChannel.sink.add(user);
+    UserCache().updateUser(user);
   }
 
   static Future<User?> getUser() async {

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wyd_front/model/event.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
 import 'package:wyd_front/service/event/event_view_service.dart';
@@ -29,9 +28,9 @@ class CurrentEventsProvider extends EventController {
 
   //List<Event> get events => _currentEventsCache.toList();
 
-  CurrentEventsProvider(BuildContext context) {
-    profileEventsCache = context.read<ProfileEventsCache>();
-    viewSettingsCache = context.read<ViewSettingsCache>();
+  CurrentEventsProvider(ProfileEventsCache peCache, ViewSettingsCache vsCache) {
+    profileEventsCache = peCache;
+    viewSettingsCache = vsCache;
 
     super.updateFilter(newFilter: (date, events) => myEventFilter(date, events));
 
@@ -169,8 +168,8 @@ class CurrentEventsProvider extends EventController {
     final todaysEventsIds =
         events.whereType<Event>().where((event) => event.occursOnDate(date.toLocal())).map((event) => event.id).toSet();
     final viewingProfileIds = viewSettingsCache.getProfiles(_confirmedView);
-    final eventIdsWhereConfirmed =
-        profileEventsCache.eventsWithProfilesConfirmed(todaysEventsIds, profileIds: viewingProfileIds, confirmed: _confirmedView);
+    final eventIdsWhereConfirmed = profileEventsCache.eventsWithProfilesConfirmed(todaysEventsIds,
+        profileIds: viewingProfileIds, confirmed: _confirmedView);
 
     return events.whereType<Event>().where((event) => eventIdsWhereConfirmed.contains(event.id)).toList();
   }

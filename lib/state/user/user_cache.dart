@@ -5,33 +5,26 @@ import 'package:wyd_front/model/user.dart';
 import 'package:wyd_front/state/user/user_storage.dart';
 
 class UserCache extends ChangeNotifier {
-  late User _user;
-
-  final UserStorage _storage = UserStorage();
+  late User? _user;
 
   StreamSubscription<User>? _userUpdateSubscription;
 
-  UserCache() {
-    _initialize();
+  static final UserCache _instance = UserCache._internal();
+  factory UserCache() => _instance;
+  UserCache._internal();
 
-    _userUpdateSubscription = _storage.userUpdatesChannel.listen((user) {
-      _updateUser(user);
-    });
+  Future<void> initialize() async {
+    _user = (await UserStorage.getUser())!;
   }
 
-  void _initialize() async {
-    final user = await UserStorage.getUser();
-    if (user != null) _user = user;
-  }
-
-  User get user => _user;
+  User get user => _user!;
 
   String getCurrentProfileId() {
-    return _user.currentProfileHash;
+    return _user!.currentProfileHash;
   }
 
   Set<String> getProfileIds() {
-    return Set<String>.from(_user.profileIds);
+    return Set<String>.from(_user!.profileIds);
   }
 
   Set<String> getSecondaryProfilesHashes() {
@@ -40,13 +33,14 @@ class UserCache extends ChangeNotifier {
     return profiles;
   }
 
-  void _updateUser(User user) {
+  void updateUser(User user) {
+    debugPrint("userUpdated");
     _user = user;
     // notifyListeners();
   }
 
   void setCurrentProfile(String profileHash) {
-    _user.currentProfileHash = profileHash;
+    _user!.currentProfileHash = profileHash;
     notifyListeners();
   }
 

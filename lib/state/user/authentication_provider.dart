@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wyd_front/service/user/user_service.dart';
-import 'package:wyd_front/state/user/user_storage.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class AuthenticationProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -19,16 +19,17 @@ class AuthenticationProvider with ChangeNotifier {
   bool get isFirstTimeLogging => _firstTimeLogging;
 
   AuthenticationProvider._internal() {
-    _checkUserLoginStatus();
+    _assureUserIsLoaded();
 
     _auth.authStateChanges().listen((User? user) => _onUserChange(user));
   }
 
-  Future<void> _checkUserLoginStatus() async {
+  Future<void> _assureUserIsLoaded() async {
     if (await isLoggedIn()) {
-      if (await UserStorage.getUser() == null) {
-        // should never happen
+      if (kIsWeb) {
         await UserService.retrieveUser();
+      } else {
+        await UserCache().initialize();
       }
     }
     _isLoading = false;
