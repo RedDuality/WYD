@@ -21,7 +21,7 @@ class _VersionDetailState extends State<VersionDetail> {
     final packageInfo = await PackageInfo.fromPlatform();
     if (mounted) {
       setState(() {
-        _version = packageInfo.version;
+        _version = "${packageInfo.version}+${packageInfo.buildNumber}";
       });
     }
   }

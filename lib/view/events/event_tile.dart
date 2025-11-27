@@ -27,6 +27,7 @@ class EventTile<T> extends StatelessWidget {
   List<Color> _getProfileColors(BuildContext context, Event event) {
     var relatedProfiles =
         Provider.of<DetailedProfileEventsCache>(context, listen: false).relatedProfiles(event.id, confirmedView);
+
     final provider = Provider.of<DetailedProfileCache>(context, listen: false);
 
     return relatedProfiles.map((profileId) {

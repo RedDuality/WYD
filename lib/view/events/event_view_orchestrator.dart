@@ -3,16 +3,19 @@ import 'dart:async';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/events/event.dart';
-import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/event/range_controller.dart';
 import 'package:wyd_front/state/media/media_flag_cache.dart';
+import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
 
 class EventViewOrchestrator with ChangeNotifier {
-  final DetailedProfileEventsCache _peCache;
+
+  final DetailedProfileCache _dpCache;
   final ViewSettingsCache _vsCache;
+  final DetailedProfileEventsCache _peCache;
+
   final MediaFlagCache _mfCache;
   final EventsCache _eventsCache;
 
@@ -24,12 +27,14 @@ class EventViewOrchestrator with ChangeNotifier {
 
   EventViewOrchestrator({
     required EventsCache eventsCache,
+    required DetailedProfileCache dpCache,
     required DetailedProfileEventsCache peCache,
     required ViewSettingsCache vsCache,
     required MediaFlagCache mfCache,
     required RangeController rangeController,
     required bool confirmedView,
-  })  : _eventsCache = eventsCache,
+  })  : _dpCache = dpCache,
+        _eventsCache = eventsCache,
         _peCache = peCache,
         _vsCache = vsCache,
         _mfCache = mfCache,
@@ -37,16 +42,15 @@ class EventViewOrchestrator with ChangeNotifier {
         _confirmedView = confirmedView;
 
   void initialize() {
-    debugPrint("initialize");
     _peCache.setViewProvider(this);
     _eventsCache.setViewProvider(this);
 
+    _dpCache.addListener(_updateView);// for color changes
     _peCache.addListener(_updateView);
     _vsCache.addListener(_updateView);
     _mfCache.addListener(_updateView);
     _eventsCache.addListener(_updateView);
 
-    _colorChangeSubscription = EventActionsService.onProfileColorChangedStream.listen((_) => _updateView());
 
     controller.addListener(() {
       _onRangeChange(logger: "fromPageUpdate");
@@ -105,7 +109,7 @@ class EventViewOrchestrator with ChangeNotifier {
 
     var todaysEvents = events.whereType<Event>().where((event) => event.occursOnDate(date.toLocal()));
     final todaysEventsIds = todaysEvents.map((event) => event.id).toSet();
-    debugPrint("todays total: ${todaysEventsIds.length}");
+    //debugPrint("todays total: ${todaysEventsIds.length}");
 
     final viewingProfileIds = _vsCache.getProfiles(_confirmedView);
     //debugPrint("profiles total: ${viewingProfileIds.length}");
@@ -115,7 +119,7 @@ class EventViewOrchestrator with ChangeNotifier {
       profileIds: viewingProfileIds,
       confirmed: _confirmedView,
     );
-    debugPrint("confirmed total: ${eventIdsWhereConfirmed.length}");
+    //debugPrint("confirmed total: ${eventIdsWhereConfirmed.length}");
 
     return events.whereType<Event>().where((event) => eventIdsWhereConfirmed.contains(event.id)).toList();
   }

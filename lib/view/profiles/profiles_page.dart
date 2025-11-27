@@ -10,7 +10,7 @@ import 'package:wyd_front/view/settings/settings_page.dart';
 class ProfilesPage extends StatelessWidget {
   ProfilesPage({super.key});
 
-  final List<String> profileHashes = UserCache().getSecondaryProfilesHashes().toList();
+  final List<String> profileHashes = UserCache().getSecondaryProfilesIds().toList();
 
   @override
   Widget build(BuildContext context) {

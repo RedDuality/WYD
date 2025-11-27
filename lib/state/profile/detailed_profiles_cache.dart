@@ -14,6 +14,8 @@ class DetailedProfileCache extends ChangeNotifier {
   final Map<String, DetailedProfile> _profiles = {};
 
   DetailedProfileCache() {
+    _initialize();
+
     _profileChannel = _storage.updates.listen((profile) {
       _set(profile.id, profile);
     });
@@ -21,6 +23,13 @@ class DetailedProfileCache extends ChangeNotifier {
     _clearAllChannel = _storage.clearChannel.listen((_) {
       clearAll();
     });
+  }
+
+  Future<void> _initialize() async {
+    var map = await _storage.getAll();
+    for (var profile in map) {
+      _profiles[profile.id] = profile;
+    }
   }
 
   DetailedProfile? get(String id) {
