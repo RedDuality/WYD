@@ -23,10 +23,11 @@ class UserCache extends ChangeNotifier {
 
   Set<String> getProfileIds() => _user!.profileIds;
 
-  Set<String> getSecondaryProfilesHashes() {
-    var profiles = getProfileIds();
-    profiles.remove(getCurrentProfileId());
-    return profiles;
+  Set<String> getSecondaryProfilesIds() {
+    final profiles = getProfileIds();
+    final currentId = getCurrentProfileId();
+
+    return profiles.where((id) => id != currentId).toSet();
   }
 
   void updateUser(User? user) {

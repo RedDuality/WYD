@@ -8,6 +8,7 @@ import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/range_controller.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/media/media_flag_cache.dart';
+import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
 import 'package:wyd_front/view/events/event_view_orchestrator.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
@@ -39,9 +40,11 @@ class _EventsPageState extends State<EventsPage> {
     final profileEventsCache = context.read<DetailedProfileEventsCache>();
     final vsCache = context.read<ViewSettingsCache>();
     final mfCache = context.read<MediaFlagCache>();
+    final dpCache= context.read<DetailedProfileCache>();
 
     _viewOrchestrator = EventViewOrchestrator(
       eventsCache: appEventsCache,
+      dpCache: dpCache,
       peCache: profileEventsCache,
       vsCache: vsCache,
       mfCache: mfCache,

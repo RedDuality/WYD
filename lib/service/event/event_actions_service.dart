@@ -14,19 +14,6 @@ import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dar
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventActionsService {
-  static final _profileColorChangeController = StreamController<void>.broadcast();
-
-  static Stream<void> get onProfileColorChangedStream => _profileColorChangeController.stream;
-
-  static void notifyProfileColorChanged() {
-    if (_profileColorChangeController.hasListener) {
-      _profileColorChangeController.add(null);
-    }
-  }
-
-  static void dispose() {
-    _profileColorChangeController.close();
-  }
 
   static Future<String> create(CreateEventRequestDto createDto) async {
     var createdEventDto = await EventAPI().create(createDto);
@@ -67,6 +54,14 @@ class EventActionsService {
     EventStorageService.addEvent(eventDto);
   }
 
+  static Future<void> delete(String eventId) async {
+    Event? event = await EventStorage().getEventByHash(eventId);
+    if (event != null) {
+      await EventAPI().delete(event.id);
+      localDelete(event);
+    }
+  }
+
   static Future<void> localDelete(Event event, {String? profileHash}) async {
     var pHash = profileHash ?? UserCache().getCurrentProfileId();
     await DetailedProfileEventsStorage().removeSingle(event.id, pHash);
@@ -78,14 +73,6 @@ class EventActionsService {
       DetailedProfileEventsStorage().removeAll(event.id);
       EventDetailsCache().remove(event.id);
       EventStorage().remove(event);
-    }
-  }
-
-  static Future<void> delete(String eventId) async {
-    Event? event = await EventStorage().getEventByHash(eventId);
-    if (event != null) {
-      await EventAPI().delete(event.id);
-      localDelete(event);
     }
   }
 }

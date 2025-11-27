@@ -119,6 +119,20 @@ class DetailedProfileStorage {
     return null;
   }
 
+  /// Retrieve all profiles
+  Future<List<DetailedProfile>> getAll() async {
+    if (kIsWeb) {
+      return _inMemoryStorage.values.toList();
+    }
+
+    final db = await database;
+    if (db == null) return [];
+
+    final maps = await db.query(_tableName);
+
+    return maps.map((map) => DetailedProfile.fromDbMap(map)).toList();
+  }
+
   /// Clear all
   Future<void> clearAll() async {
     _clearAllChannel.sink.add(null);
