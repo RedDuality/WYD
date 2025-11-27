@@ -1,5 +1,5 @@
-import 'package:wyd_front/model/event_details.dart';
-import 'package:wyd_front/model/profile_event.dart';
+import 'package:wyd_front/model/events/event_details.dart';
+import 'package:wyd_front/model/profiles/profile_event.dart';
 
 class RetrieveEventResponseDto {
   final String id;

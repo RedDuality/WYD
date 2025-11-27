@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wyd_front/model/detailed_profile.dart';
+import 'package:wyd_front/model/users/detailed_profile.dart';
 
 class DetailedProfileStorage {
   static const _databaseName = 'detailedProfileStorage.db';
@@ -17,8 +17,10 @@ class DetailedProfileStorage {
   // --------------------------------
 
   final _profileUpdateController = StreamController<DetailedProfile>();
-
   Stream<DetailedProfile> get updates => _profileUpdateController.stream;
+
+  final _clearAllChannel = StreamController<void>();
+  Stream<void> get clearChannel => _clearAllChannel.stream;
 
   final Map<String, DetailedProfile> _inMemoryStorage = {};
   static Database? _database;
@@ -56,6 +58,8 @@ class DetailedProfileStorage {
 
   /// Save or update a single profile
   Future<void> saveProfile(DetailedProfile profile) async {
+    _profileUpdateController.sink.add(profile);
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -67,11 +71,14 @@ class DetailedProfileStorage {
     } else {
       _inMemoryStorage[profile.id] = profile;
     }
-    _profileUpdateController.sink.add(profile);
   }
 
   /// Save or overwrite multiple profiles
   Future<void> saveMultiple(List<DetailedProfile> profiles) async {
+    for (final profile in profiles) {
+      _profileUpdateController.sink.add(profile);
+    }
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -88,9 +95,6 @@ class DetailedProfileStorage {
       for (final profile in profiles) {
         _inMemoryStorage[profile.id] = profile;
       }
-    }
-    for (final profile in profiles) {
-      _profileUpdateController.sink.add(profile);
     }
   }
 
@@ -115,12 +119,10 @@ class DetailedProfileStorage {
     return null;
   }
 
-  void close() {
-    _profileUpdateController.close();
-  }
-
   /// Clear all
   Future<void> clearAll() async {
+    _clearAllChannel.sink.add(null);
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/detailed_profile.dart';
+import 'package:wyd_front/model/users/detailed_profile.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/view/profiles/profile_editor.dart';
 import 'package:wyd_front/view/widget/view/custom_page.dart';
 
@@ -93,7 +93,7 @@ class MainProfileTile extends StatelessWidget {
   Widget actions(String profileHash) {
     return Row(
       children: [
-        if (profileHash != UserProvider().getCurrentProfileId())
+        if (profileHash != UserCache().getCurrentProfileId())
           Row(
             children: [
               const SizedBox(width: 10),

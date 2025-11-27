@@ -1,21 +1,26 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/profiles/profile.dart';
 import 'package:wyd_front/service/profile/profile_storage_service.dart';
 import 'package:wyd_front/state/profile/profile_storage.dart';
 
-class ProfileProvider extends ChangeNotifier {
+class ProfileCache extends ChangeNotifier {
   final ProfileStorage _storage = ProfileStorage();
-  StreamSubscription<Profile>? _profileSubscription;
 
-  ProfileProvider() {
-    _profileSubscription = _storage.updates.listen((profile) {
-      _set(profile.id, profile);
-    });
-  }
+  late final StreamSubscription<Profile> _profileChannel;
+  late final StreamSubscription<void> _clearAllChannel;
 
   final Map<String, Profile> _profiles = {};
+
+  ProfileCache() {
+    _profileChannel = _storage.updates.listen((profile) {
+      _set(profile.id, profile);
+    });
+    _clearAllChannel = _storage.clearChannel.listen((_) {
+      clearAll();
+    });
+  }
 
   Profile? get(String id) {
     var result = _profiles[id];
@@ -38,9 +43,14 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearAll() {
+    _profiles.clear();
+  }
+
   @override
   void dispose() {
-    _profileSubscription?.cancel();
+    _clearAllChannel.cancel();
+    _profileChannel.cancel();
     super.dispose();
   }
 }

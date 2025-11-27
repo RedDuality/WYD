@@ -1,33 +1,48 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:wyd_front/API/User/user_api.dart';
 import 'package:wyd_front/API/User/retrieve_user_response_dto.dart';
-import 'package:wyd_front/model/user_claim.dart';
-import 'package:wyd_front/model/view_settings.dart';
-import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/model/users/user_claim.dart';
+import 'package:wyd_front/model/users/view_settings.dart';
+import 'package:wyd_front/model/users/user.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 import 'package:wyd_front/service/util/real_time_updates_service.dart';
+import 'package:wyd_front/state/event/event_intervals_manager.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
+import 'package:wyd_front/state/media/media_flag_storage.dart';
+import 'package:wyd_front/state/media/media_storage.dart';
 import 'package:wyd_front/state/profile/detailed_profile_storage.dart';
 import 'package:wyd_front/state/profile/profile_storage.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/user/user_claims_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_storage.dart';
 import 'package:wyd_front/state/user/view_settings_storage.dart';
-import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
 
 class UserService {
-  Future<void> createUser() async {
-    RetrieveUserResponseDto userDto = await UserAPI().register();
-    _updateUser(userDto);
+  static Future<void> retrieveUser() async {
+    try {
+      final userDto = await UserAPI().login();
+      await _updateUser(userDto);
+    } catch (e) {
+      logOut();
+      throw e.toString();
+    }
   }
 
-  Future<void> retrieveUser() async {
-    RetrieveUserResponseDto userDto = await UserAPI().login();
-    _updateUser(userDto);
+  static Future<void> createBackendUser() async {
+    try {
+      final userDto = await UserAPI().register();
+      await _updateUser(userDto);
+    } catch (e) {
+      logOut();
+      throw e.toString();
+    }
   }
 
-  Future<void> _updateUser(RetrieveUserResponseDto userDto) async {
-    await UserProvider().updateUser(User.fromDto(userDto));
+  static Future<void> _updateUser(RetrieveUserResponseDto userDto) async {
+    final user = User.fromDto(userDto);
+    await UserStorage().saveUser(user);
 
     DetailedProfileStorageService.addMultiple(userDto.profiles);
 
@@ -49,17 +64,26 @@ class UserService {
     UserClaimStorage().saveMultiple(userClaims);
   }
 
-  Future<void> logOut() async {
-    await RealTimeUpdateService().deleteTokenOnLogout();
+  static Future<void> logOut() async {
+    debugPrint("logout");
+    RealTimeUpdateService().deleteTokenOnLogout();
 
-    EventStorage().clearAllEvents();
-    EventIntervalsCacheManager().clearAllIntervals();
-    
-    ProfileStorage().clearAllProfiles();
+    // storages
+    EventStorage().clearAll();
+    EventIntervalsManager().clearAll();
+
+    DetailedProfileEventsStorage().clearAll();
+
+    MediaFlagStorage().clearAll();
+    MediaStorage().clearAll();
+
+    ProfileStorage().clearAll();
     DetailedProfileStorage().clearAll();
     ViewSettingsStorage().clearAll();
     UserClaimStorage().clearAll();
 
+    UserStorage().clearAll();
+    
     AuthenticationProvider().signOut();
   }
 }

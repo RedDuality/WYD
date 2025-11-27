@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/API/Community/share_event_request_dto.dart';
-import 'package:wyd_front/model/community.dart';
+import 'package:wyd_front/model/community/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
-import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/community_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 
 class SharePage extends StatefulWidget {
   final String eventTitle;
-  final String eventHash;
+  final String eventId;
 
-  const SharePage({super.key, required this.eventTitle, required this.eventHash});
+  const SharePage({super.key, required this.eventTitle, required this.eventId});
 
   @override
   State<SharePage> createState() => _SharePageState();
@@ -21,7 +21,7 @@ class SharePage extends StatefulWidget {
 
 class _SharePageState extends State<SharePage> {
   Set<ShareEventRequestDto> selectedGroups = {};
-  String currentProfileHash = UserProvider().getCurrentProfileId();
+  String currentProfileHash = UserCache().getCurrentProfileId();
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,7 @@ class _SharePageState extends State<SharePage> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      EventViewService.shareToGroups(widget.eventHash, selectedGroups);
+                      EventActionsService.shareToGroups(widget.eventId, selectedGroups);
                       Navigator.of(context).pop();
                     },
                     child: const Text('Condividi'),

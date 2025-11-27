@@ -7,7 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:wyd_front/model/blob_data.dart';
+import 'package:wyd_front/model/media/blob_data.dart';
 import 'package:wyd_front/service/media/mimetype_service.dart';
 
 class MediaSelectionService {
@@ -31,6 +31,7 @@ class MediaSelectionService {
       type: FileType.custom,
       allowedExtensions: MimetypeService().getAllowedExtensions(),
       allowMultiple: true,
+      withData: true
     );
 
     if (result == null) {
@@ -51,6 +52,7 @@ class MediaSelectionService {
               platformFile.extension != null ? MimetypeService.getMimeTypeFromExtension(platformFile.extension!) : null;
 
           DateTime creationDate = await _getMediaCreationDate(platformFile.path!);
+          debugPrint('File: ${platformFile.name}, path: ${platformFile.path}, bytes: ${platformFile.bytes?.length}');
 
           blob = await _createBlobData(creationDate, fileData, mimeType: mimeType);
         }

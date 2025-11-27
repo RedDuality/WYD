@@ -5,12 +5,12 @@ import 'package:wyd_front/API/User/store_fcm_token_request_dto.dart';
 import 'package:wyd_front/API/User/user_api.dart';
 import 'package:wyd_front/firebase_options.dart';
 import 'package:wyd_front/model/enum/update_type.dart';
-import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class RealTimeUpdateService {
   static final RealTimeUpdateService _instance = RealTimeUpdateService._internal();
@@ -28,10 +28,7 @@ class RealTimeUpdateService {
   }
 
   Future<void> _storeTokenOnStartup() async {
-    var user = UserProvider().user;
-    if (user == null) {
-      throw "User is not authenticated. Cannot store FCM token.";
-    }
+    var userId = UserCache().getUserId();
 
     try {
       await FirebaseMessaging.instance.requestPermission();
@@ -40,7 +37,7 @@ class RealTimeUpdateService {
       final fcmToken = await FirebaseMessaging.instance.getToken();
       if (fcmToken != null) {
         var requestDto = StoreFcmTokenRequestDto(
-          uuid: user.id,
+          uuid: userId,
           platform: getPlatform(),
           fcmToken: fcmToken,
         );
@@ -76,16 +73,15 @@ class RealTimeUpdateService {
 
   void _monitorTokenRefreshes() {
     FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
-      var user = UserProvider().user;
-      if (user != null) {
-        var requestDto = StoreFcmTokenRequestDto(
-          uuid: user.id,
-          platform: DefaultFirebaseOptions.currentPlatform.toString(),
-          fcmToken: fcmToken,
-        );
-        await UserAPI().storeFCMToken(requestDto);
-        debugPrint("FCM Token refreshed and stored: $fcmToken");
-      }
+      var userId = UserCache().getUserId();
+
+      var requestDto = StoreFcmTokenRequestDto(
+        uuid: userId,
+        platform: DefaultFirebaseOptions.currentPlatform.toString(),
+        fcmToken: fcmToken,
+      );
+      await UserAPI().storeFCMToken(requestDto);
+      debugPrint("FCM Token refreshed and stored: $fcmToken");
     }).onError((err) {
       throw ("Error monitoring token refresh: $err");
     });
@@ -128,12 +124,12 @@ class RealTimeUpdateService {
       */
       case UpdateType.confirmEvent:
         if (data['id'] != null && data['profileId'] != null) {
-          EventViewService.localConfirm(data['id'], true, pHash: data['profileId']);
+          EventActionsService.localConfirm(data['id'], true, pHash: data['profileId']);
         }
         break;
       case UpdateType.declineEvent:
         if (data['id'] != null && data['profileId'] != null) {
-          EventViewService.localConfirm(data['id'], false, pHash: data['profileId']);
+          EventActionsService.localConfirm(data['id'], false, pHash: data['profileId']);
         }
         break;
       case UpdateType.updatePhotos:
@@ -145,7 +141,7 @@ class RealTimeUpdateService {
       case UpdateType.deleteEvent:
         var event = await EventStorage().getEventByHash(data['id']);
         if (event != null && data['phash'] != null) {
-          EventViewService.localDelete(event, profileHash: data['phash']);
+          EventActionsService.localDelete(event, profileHash: data['phash']);
         }
         break;
       case UpdateType.updateProfile:
@@ -166,11 +162,6 @@ class RealTimeUpdateService {
   }
 
   Future<void> deleteTokenOnLogout() async {
-    var user = UserProvider().user;
-    if (user == null) {
-      debugPrint("No authenticated user found. Skipping FCM token deletion.");
-      return;
-    }
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
 

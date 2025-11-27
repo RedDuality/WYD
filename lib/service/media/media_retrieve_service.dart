@@ -2,26 +2,23 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:wyd_front/service/util/permission_service.dart';
+import 'package:wyd_front/model/events/event.dart';
+import 'package:wyd_front/service/util/device_permission_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/media/cached_media_provider.dart';
-import 'package:wyd_front/state/media/cached_media_storage.dart';
+import 'package:wyd_front/state/media/media_cache.dart';
+import 'package:wyd_front/state/media/media_storage.dart';
 
 class MediaRetrieveService {
+  static Future<void> retrieveShootedPhotos(Event event) async {
+    var photosDuringEvent = await _retrieveImagesByTime(event.startTime!.toUtc(), event.endTime!.toUtc());
 
-  static Future<void> retrieveShootedPhotos(String eventHash) async {
-    var event = await EventStorage().getEventByHash(eventHash);
-    if (event != null) {
-      var photosDuringEvent = await _retrieveImagesByTime(event.startTime!.toUtc(), event.endTime!.toUtc());
-
-      if (photosDuringEvent.isNotEmpty) {
-        CachedMediaStorage().addMedia(event.id, photosDuringEvent.toSet());
-      }
+    if (photosDuringEvent.isNotEmpty) {
+      MediaStorage().setCachedMedia(event.id, photosDuringEvent.toSet());
     }
   }
 
-  static Future<void> mockRetrieveShootedPhotos(String eventHash, CachedMediaProvider provider) async {
-    var event = await EventStorage().getEventByHash(eventHash);
+  static Future<void> mockRetrieveShootedPhotos(String eventId, MediaCache provider) async {
+    var event = await EventStorage().getEventByHash(eventId);
     if (event != null) {
       var mockAssetEntities = List.generate(
         10,
@@ -34,14 +31,14 @@ class MediaRetrieveService {
       );
 
       if (mockAssetEntities.isNotEmpty) {
-        provider.set(event.id, mockAssetEntities.toSet());
+        MediaStorage().setCachedMedia(event.id, mockAssetEntities.toSet());
       }
     }
   }
 
   static Future<List<AssetEntity>> _retrieveImagesByTime(DateTime? start, DateTime? end) async {
     // Request permissions to access photos before proceeding
-    await PermissionService.requestGalleryPermissions();
+    await DevicePermissionService.requestGalleryPermissions();
 
     if (start == null || end == null) {
       throw ArgumentError("Both start and end dates must be provided.");

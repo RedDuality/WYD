@@ -1,4 +1,4 @@
-import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/model/events/event.dart';
 
 class CreateEventRequestDto {
   String title;

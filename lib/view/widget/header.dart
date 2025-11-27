@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/state/user/user_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/view/profiles/detailed_profile_tile.dart';
 import 'package:wyd_front/view/profiles/profiles_page.dart';
 
@@ -33,7 +33,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
             );
           },
           child: DetailedProfileTile(
-            profileId: UserProvider().getCurrentProfileId(),
+            profileId: UserCache().getCurrentProfileId(),
             type: DetailedProfileTileType.header
           ),
         ),

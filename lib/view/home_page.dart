@@ -28,46 +28,49 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-        page = const EventsPage();
-        break;
-      case 1:
-        page = const GroupPage();
-        break;
-      default:
-        throw UnimplementedError('no widget for $selectedIndex');
-    }
-
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: Container(
           color: Theme.of(context).colorScheme.primaryContainer,
-          child: page,
+          child: _selectedPage(),
         ),
-        bottomNavigationBar: NavigationBar(
-          height: 50,
-          elevation: 0,
-          selectedIndex: selectedIndex,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          onDestinationSelected: (value) {
-            setState(() {
-              selectedIndex = value;
-            });
-          },
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.calendar_today, size: 30),
-              label: 'My Agenda',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.group, size: 30),
-              label: 'Groups',
-            ),
-          ],
-        ),
+        bottomNavigationBar: _navigationBar(),
       );
     });
+  }
+
+  Widget _selectedPage() {
+    switch (selectedIndex) {
+      case 0:
+        return const EventsPage();
+      case 1:
+        return const GroupPage();
+      default:
+        throw UnimplementedError('no widget for $selectedIndex');
+    }
+  }
+
+  Widget _navigationBar() {
+    return NavigationBar(
+      height: 50,
+      elevation: 0,
+      selectedIndex: selectedIndex,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+      onDestinationSelected: (value) {
+        setState(() {
+          selectedIndex = value;
+        });
+      },
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.calendar_today, size: 30),
+          label: 'My Agenda',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.group, size: 30),
+          label: 'Groups',
+        ),
+      ],
+    );
   }
 }

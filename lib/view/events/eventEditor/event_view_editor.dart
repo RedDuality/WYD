@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
-import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/model/events/event.dart';
+import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
-import 'package:wyd_front/state/event/event_details_storage.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
+import 'package:wyd_front/state/event/events_cache.dart';
+import 'package:wyd_front/state/event/event_details_cache.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/view/events/eventEditor/confirmed_list.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
@@ -17,14 +19,14 @@ import 'package:wyd_front/view/events/eventEditor/share_page.dart';
 import 'package:wyd_front/view/widget/button/overlay_list_button.dart';
 
 class EventViewEditor extends StatefulWidget {
-  final Event? event;
+  final String? eventId;
   final DateTime? date;
   final TextEditingController titleController;
   final Function(String) onEventCreated;
 
   const EventViewEditor({
     super.key,
-    required this.event,
+    required this.eventId,
     this.date,
     required this.titleController,
     required this.onEventCreated,
@@ -35,56 +37,55 @@ class EventViewEditor extends StatefulWidget {
 }
 
 class _EventViewEditorState extends State<EventViewEditor> {
+  Event? originalEvent;
   late bool exists;
-  bool shared = false;
 
-  late ProfileEventsCache _profileEventsCache;
+  late DetailedProfileEventsCache _profileEventsCache;
 
   final _descriptionController = TextEditingController();
   late VoidCallback _titleListener;
 
   late DateTime startTime;
   late DateTime endTime;
+
+  bool shared = false;
   int totalConfirmed = 1;
   int totalProfiles = 1;
 
   String initialDescription = '';
 
-  var hasBeenChanged = false;
+  var isBeingChanged = false;
 
   @override
   void initState() {
     super.initState();
-    exists = widget.event != null;
 
-    startTime = widget.event?.startTime ?? (widget.date ?? DateTime.now());
-    endTime = widget.event?.endTime ?? (widget.date ?? DateTime.now()).add(const Duration(hours: 1));
-    totalConfirmed = widget.event?.totalConfirmed ?? 1;
-    totalProfiles = widget.event?.totalProfiles ?? 1;
+    // Use read here, not select/watch
+    final provider = context.read<EventsCache>();
+    originalEvent = widget.eventId != null ? provider.get(widget.eventId!) : null;
+
+    exists = originalEvent != null;
+    startTime = originalEvent?.startTime ?? (widget.date ?? DateTime.now());
+    endTime = originalEvent?.endTime ?? (widget.date ?? DateTime.now()).add(const Duration(hours: 1));
+    totalConfirmed = originalEvent?.totalConfirmed ?? 1;
+    totalProfiles = originalEvent?.totalProfiles ?? 1;
+
     if (exists) {
-      var details = EventDetailsStorage().get(widget.event!.id);
+      var details = EventDetailsCache().get(originalEvent!.id);
       if (details != null) {
         initialDescription = details.description;
       }
-
-      shared = widget.event!.totalProfiles > 1;
+      shared = originalEvent!.totalProfiles > 1;
     }
 
     _descriptionController.text = initialDescription;
 
     _titleListener = () {
-      var changed = _checkChanges();
-      if (changed != hasBeenChanged) {
-        setState(() {
-          hasBeenChanged = changed;
-        });
-      }
+      _checkChanges();
     };
 
     _descriptionController.addListener(() {
-      setState(() {
-        hasBeenChanged = _checkChanges();
-      });
+      _checkChanges();
     });
 
     widget.titleController.addListener(_titleListener);
@@ -93,28 +94,31 @@ class _EventViewEditorState extends State<EventViewEditor> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _profileEventsCache = Provider.of<ProfileEventsCache>(context, listen: false);
+    _profileEventsCache = Provider.of<DetailedProfileEventsCache>(context, listen: false);
   }
 
   void setDates(DateTime startTime, DateTime endTime) {
     setState(() {
       this.startTime = startTime;
       this.endTime = endTime;
-
-      hasBeenChanged = _checkChanges();
     });
+    _checkChanges();
   }
 
-  bool _checkChanges() {
-    if (widget.event == null) return false;
-    var titlechanged = widget.event!.title.trim() != widget.titleController.text.trim();
-    var descriptionChanged = initialDescription.trim() != _descriptionController.text.trim();
-    var startTimeChanged = widget.event!.startTime != startTime;
-    var endTimeChanged = widget.event!.endTime != endTime;
+  void _checkChanges() {
+    if (originalEvent == null) return;
 
-    // debugPrint("$titlechanged, $descriptionChanged, $startTimeChanged, $endTimeChanged");
+    final titleChanged = originalEvent!.title.trim() != widget.titleController.text.trim();
+    final descriptionChanged = initialDescription.trim() != _descriptionController.text.trim();
+    final startTimeChanged = originalEvent!.startTime != startTime;
+    final endTimeChanged = originalEvent!.endTime != endTime;
 
-    return startTimeChanged || endTimeChanged || titlechanged || descriptionChanged;
+    final changed = startTimeChanged || endTimeChanged || titleChanged || descriptionChanged;
+    if (changed != isBeingChanged) {
+      setState(() {
+        isBeingChanged = changed;
+      });
+    }
   }
 
   @override
@@ -124,51 +128,45 @@ class _EventViewEditorState extends State<EventViewEditor> {
     super.dispose();
   }
 
-  Event _getEventWithCurrentFields() {
-    Event event = Event(
-      id: widget.event != null ? widget.event!.id : "",
-      date: startTime,
-      startTime: startTime,
-      endTime: endTime,
-      endDate: endTime,
-      updatedAt: DateTime.now(),
+  Future<void> _createEvent() async {
+    final createdEvent = _getCreateDto();
+    final newEventId = await EventActionsService.create(createdEvent);
+    widget.onEventCreated(newEventId);
+  }
+
+  CreateEventRequestDto _getCreateDto() {
+    return CreateEventRequestDto(
       title: widget.titleController.text.trim(),
       description: _descriptionController.text.trim(),
-      totalConfirmed: totalConfirmed,
-      totalProfiles: totalProfiles,
+      startTime: startTime,
+      endTime: endTime,
     );
-
-    return event;
-  }
-
-  Future<void> _createEvent() async {
-    Event createdEvent = _getEventWithCurrentFields();
-    Event newEvent = await EventViewService.create(createdEvent);
-    widget.onEventCreated(newEvent.id);
-  }
-
-  UpdateEventRequestDto? _getUpdateDto() {
-    if (!hasBeenChanged || widget.event == null) return null;
-    UpdateEventRequestDto updateDto = UpdateEventRequestDto(
-      eventHash: widget.event!.id,
-      title:
-          widget.titleController.text.trim() != widget.event!.title.trim() ? widget.titleController.text.trim() : null,
-      description:
-          _descriptionController.text.trim() != initialDescription.trim() ? _descriptionController.text.trim() : null,
-      startTime: startTime != widget.event!.startTime ? startTime : null,
-      endTime: endTime != widget.event!.endTime ? endTime : null,
-    );
-    return updateDto;
   }
 
   Future<void> _updateEvent() async {
-    var updateDto = _getUpdateDto();
-    if (updateDto != null) await EventViewService.update(updateDto);
-    initialDescription = _descriptionController.text.trim();
+    final updateDto = _getUpdateDto();
+    if (updateDto != null) {
+      await EventActionsService.update(updateDto);
+      initialDescription = _descriptionController.text.trim();
+    }
   }
 
-  Future<void> _deleteEvent(String eventHash) async {
-    EventViewService.delete(eventHash).then(
+  UpdateEventRequestDto? _getUpdateDto() {
+    if (!isBeingChanged || originalEvent == null) return null;
+
+    return UpdateEventRequestDto(
+      eventId: originalEvent!.id,
+      title:
+          widget.titleController.text.trim() != originalEvent!.title.trim() ? widget.titleController.text.trim() : null,
+      description:
+          _descriptionController.text.trim() != initialDescription.trim() ? _descriptionController.text.trim() : null,
+      startTime: startTime != originalEvent!.startTime ? startTime : null,
+      endTime: endTime != originalEvent!.endTime ? endTime : null,
+    );
+  }
+
+  Future<void> _deleteEvent() async {
+    EventActionsService.delete(originalEvent!.id).then(
       (value) {
         if (mounted) Navigator.of(context).pop();
       },
@@ -179,7 +177,15 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   @override
   Widget build(BuildContext context) {
-    hasBeenChanged = _checkChanges();
+    // Select only the specific event from provider
+    originalEvent = context.select<EventsCache, Event?>(
+      (provider) => widget.eventId != null ? provider.get(widget.eventId!) : null,
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkChanges();
+    });
+
     var isWideScreen = MediaQuery.of(context).size.width > 450;
 
     return Column(
@@ -192,8 +198,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
             const Text("Dettagli"),
             if (exists && shared && isWideScreen)
               OverlayListButton(
-                title: "${widget.event!.getConfirmTitle()} Confirmed",
-                child: ConfirmedList(eventHash: widget.event!.id),
+                title: "${originalEvent!.getConfirmTitle()} Confirmed",
+                child: ConfirmedList(eventId: originalEvent!.id),
               ),
           ],
         ),
@@ -202,8 +208,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
             children: [
               const SizedBox(height: 4),
               OverlayListButton(
-                title: "${widget.event!.getConfirmTitle()} Confirmed",
-                child: ConfirmedList(eventHash: widget.event!.id),
+                title: "${originalEvent!.getConfirmTitle()} Confirmed",
+                child: ConfirmedList(eventId: originalEvent!.id),
               ),
             ],
           ),
@@ -212,9 +218,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
           child: TextFormField(
             style: const TextStyle(fontSize: 14),
             controller: _descriptionController,
-            onChanged: (value) => setState(() {
-              hasBeenChanged = _checkChanges();
-            }),
+            onChanged: (value) => _checkChanges(),
             decoration: const InputDecoration(
               hintText: 'No description',
               contentPadding: EdgeInsets.symmetric(vertical: 4),
@@ -229,17 +233,25 @@ class _EventViewEditorState extends State<EventViewEditor> {
           onDateChanged: setDates,
         ),
         //Buttons
+        _buttons(context),
+      ],
+    );
+  }
+
+  Widget _buttons(BuildContext context) {
+    return Column(
+      children: [
         Align(
           alignment: Alignment.bottomRight,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (exists && !hasBeenChanged) // Share
+              if (exists && !isBeingChanged) // Share
                 ElevatedButton(
                   onPressed: () {
                     showCustomDialog(
                       context,
-                      SharePage(eventTitle: widget.event!.title, eventHash: widget.event!.id),
+                      SharePage(eventTitle: originalEvent!.title, eventId: originalEvent!.id),
                     );
                   },
                   child: Row(
@@ -252,11 +264,11 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   ),
                 ),
               const SizedBox(width: 10),
-              if (exists && !hasBeenChanged) // Send
+              if (exists && !isBeingChanged) // Send
                 ElevatedButton(
                   onPressed: () async {
                     String? siteUrl = dotenv.env['SITE_URL'];
-                    String fullUrl = "$siteUrl/#/share?event=${widget.event!.id}";
+                    String fullUrl = "$siteUrl/#/share?event=${originalEvent!.id}";
 
                     if (kIsWeb) {
                       await Clipboard.setData(ClipboardData(text: fullUrl));
@@ -267,7 +279,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                     } else {
                       // If running on mobile, use the share dialog
                       final result =
-                          await SharePlus.instance.share(ShareParams(text: fullUrl, subject: widget.event!.title));
+                          await SharePlus.instance.share(ShareParams(text: fullUrl, subject: originalEvent!.title));
                       if (result == ShareResult.unavailable) {
                         debugPrint("It was not possible to share the event");
                       }
@@ -284,10 +296,10 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   ),
                 ),
               const SizedBox(width: 10),
-              if (exists && !hasBeenChanged && _profileEventsCache.currentConfirmed(widget.event!.id)) // Decline
+              if (exists && !isBeingChanged && _profileEventsCache.currentConfirmed(originalEvent!.id)) // Decline
                 ElevatedButton(
                   onPressed: () async {
-                    await EventViewService.decline(widget.event!.id);
+                    await EventActionsService.decline(originalEvent!.id);
                   },
                   child: Row(
                     children: [
@@ -301,10 +313,10 @@ class _EventViewEditorState extends State<EventViewEditor> {
                     ],
                   ),
                 ),
-              if (exists && !hasBeenChanged && !_profileEventsCache.currentConfirmed(widget.event!.id)) // Confirm
+              if (exists && !isBeingChanged && !_profileEventsCache.currentConfirmed(originalEvent!.id)) // Confirm
                 ElevatedButton(
                   onPressed: () async {
-                    await EventViewService.confirm(widget.event!.id);
+                    await EventActionsService.confirm(originalEvent!.id);
                   },
                   child: Row(
                     children: [
@@ -315,7 +327,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                     ],
                   ),
                 ),
-              if (exists && hasBeenChanged) // Update
+              if (exists && isBeingChanged) // Update
                 ElevatedButton(
                   onPressed: () async {
                     await _updateEvent();
@@ -346,8 +358,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
           ),
         ),
         SizedBox(height: 5),
-
-        if (exists && _profileEventsCache.isOwner(widget.event!.id))
+        if (exists && !isBeingChanged && _profileEventsCache.isOwner(originalEvent!.id))
           Align(
             alignment: Alignment.bottomRight,
             child: Row(
@@ -355,7 +366,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    _deleteEvent(widget.event!.id);
+                    _deleteEvent();
                   },
                   child: Row(
                     children: [

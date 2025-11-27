@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
-import 'package:wyd_front/model/media.dart';
+import 'package:wyd_front/model/media/media.dart';
 
 enum MediaSize { mini, big }
 
