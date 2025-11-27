@@ -29,8 +29,8 @@ const RESOURCES = {"flutter.js": "888483df48293866f9f41d3d9274a779",
 "icons/ms-icon-144x144.png": "5cb73f148e7d3bbbf537f32378a0ee9e",
 "icons/apple-icon-144x144.png": "5cb73f148e7d3bbbf537f32378a0ee9e",
 "manifest.json": "47be4f623d9759e3ba047e4b64d4a445",
-"index.html": "b789a182ca909b4353558c90b55f966e",
-"/": "b789a182ca909b4353558c90b55f966e",
+"index.html": "74a2a9962ab06672d7580a02129bcf0e",
+"/": "74a2a9962ab06672d7580a02129bcf0e",
 "firebase-messaging-sw.js": "52587e61478aaf9a41302016afbe39f0",
 "assets/staticwebapp.config.json": "62ef6340ab1c9c611564f0f5fe7e099b",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
@@ -64,9 +64,9 @@ const RESOURCES = {"flutter.js": "888483df48293866f9f41d3d9274a779",
 "canvaskit/skwasm.js.symbols": "0088242d10d7e7d6d2649d1fe1bda7c1",
 ".well-known/assetlinks.json": "fbe822c5e0a15cbac96e3cf7fc60eecc",
 "favicon.ico": "09319878a0f99501bb4fd18e4b19de92",
-"flutter_bootstrap.js": "8acd9f557cd7d8a83ac67ea7aa8b1b3f",
+"flutter_bootstrap.js": "b3df6039039e23230d41ed67c8e8f030",
 "version.json": "fb02bee3111bd8beac3efe85f960a88c",
-"main.dart.js": "d5ea706a956ee5695736f60d73968039"};
+"main.dart.js": "e236bd11ccd682b55f2598ae64bf93a2"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
