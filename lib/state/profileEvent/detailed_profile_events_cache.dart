@@ -134,6 +134,7 @@ class DetailedProfileEventsCache extends ChangeNotifier {
 
   Set<String> relatedProfiles(String eventId, bool confirmed) {
     var myProfileIds = UserCache().getProfileIds();
+    
     final eventProfiles = _profileEvents[eventId] ?? {};
     return eventProfiles
         .where((pe) => pe.confirmed == confirmed && myProfileIds.contains(pe.profileId))
