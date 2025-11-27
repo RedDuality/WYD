@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
-import 'package:wyd_front/model/detailed_profile.dart';
+import 'package:wyd_front/model/users/detailed_profile.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 

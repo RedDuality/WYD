@@ -3,20 +3,26 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/state/media/media_flag_storage.dart';
 
-class CachedMediaStorage {
+class MediaStorage {
   static const _databaseName = 'cachedMediaStorage.db';
   static const _tableName = 'cached_media';
   static const _databaseVersion = 1;
 
-  static final CachedMediaStorage _instance = CachedMediaStorage._internal();
-  factory CachedMediaStorage() => _instance;
-  CachedMediaStorage._internal();
+  static final MediaStorage _instance = MediaStorage._internal();
 
-  final _eventMediaUpdateController = StreamController<String>.broadcast();
+  factory MediaStorage() => _instance;
+  MediaStorage._internal();
 
-  Stream<String> get updates => _eventMediaUpdateController.stream;
+  final _eventMediaUpdateController = StreamController<(String eventId, bool deleted)>.broadcast();
+  Stream<(String eventId, bool deleted)> get updates => _eventMediaUpdateController.stream;
+
+  final _eventMediaSelectionController = StreamController<(AssetEntity asset, bool selected)>.broadcast();
+  Stream<(AssetEntity asset, bool selected)> get selections => _eventMediaSelectionController.stream;
+
+  final _clearAllChannel = StreamController<void>.broadcast();
+  Stream<void> get clearChannel => _clearAllChannel.stream;
 
   static Database? _database;
 
@@ -36,7 +42,7 @@ class CachedMediaStorage {
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE $_tableName (
-            eventHash TEXT,
+            eventId TEXT,
             assetId TEXT,
             typeInt INTEGER,
             width INTEGER,
@@ -53,16 +59,16 @@ class CachedMediaStorage {
             mimeType TEXT,
             subtype INTEGER,
             isSelected INTEGER,
-            PRIMARY KEY (eventHash, assetId)
+            PRIMARY KEY (eventId, assetId)
           )
         ''');
       },
     );
   }
 
-  Map<String, dynamic> _toMap(String eventHash, AssetEntity asset, bool isSelected) {
+  Map<String, dynamic> _toMap(String eventId, AssetEntity asset, bool isSelected) {
     return {
-      'eventHash': eventHash,
+      'eventId': eventId,
       'assetId': asset.id,
       'typeInt': asset.typeInt,
       'width': asset.width,
@@ -103,53 +109,65 @@ class CachedMediaStorage {
     return MapEntry(asset, map['isSelected'] == 1);
   }
 
-  Future<void> addMedia(String eventHash, Set<AssetEntity> assets) async {
+  // overwrites previous records
+  Future<void> setCachedMedia(String eventId, Set<AssetEntity> assets) async {
     final db = await database;
-    if (db == null) return;
+    // to delete, call removeAllMedia
+    if (db == null || assets.isEmpty) return;
     await db.transaction((txn) async {
+      await txn.delete(_tableName, where: 'eventId = ?', whereArgs: [eventId]);
+
       for (final asset in assets) {
         await txn.insert(
           _tableName,
-          _toMap(eventHash, asset, true),
+          _toMap(eventId, asset, true),
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
       }
     });
 
-    EventStorageService.setHasCachedMedia(eventHash, true);
+    MediaFlagStorage().saveEventId(eventId);
 
-    _eventMediaUpdateController.sink.add(eventHash);
+    _eventMediaUpdateController.sink.add((eventId, false));
   }
 
-  Future<void> removeAllMedia(String eventHash) async {
+  Future<void> removeAllMedia(String eventId) async {
     final db = await database;
     if (db == null) return;
-    await db.delete(_tableName, where: 'eventHash = ?', whereArgs: [eventHash]);
-    EventStorageService.setHasCachedMedia(eventHash, false);
+
+    _eventMediaUpdateController.sink.add((eventId, true));
+
+    await db.delete(_tableName, where: 'eventId = ?', whereArgs: [eventId]);
+
+    MediaFlagStorage().remove(eventId);
   }
 
-  Future<void> updateSelection(String eventHash, AssetEntity asset, bool isSelected) async {
+  Future<void> updateSelection(String eventId, AssetEntity asset, bool isSelected) async {
     final db = await database;
     if (db == null) return;
+
+    _eventMediaSelectionController.sink.add((asset, isSelected));
+
     await db.insert(
       _tableName,
-      _toMap(eventHash, asset, isSelected),
+      _toMap(eventId, asset, isSelected),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<Map<AssetEntity, bool>> getMedia(String eventHash) async {
+  Future<Map<AssetEntity, bool>> getMedia(String eventId) async {
     final db = await database;
     if (db == null) return {};
     final result = await db.query(
       _tableName,
-      where: 'eventHash = ?',
-      whereArgs: [eventHash],
+      where: 'eventId = ?',
+      whereArgs: [eventId],
     );
     return Map.fromEntries(result.map(_fromDbMap));
   }
 
   Future<void> clearAll() async {
+    _clearAllChannel.sink.add(null);
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;

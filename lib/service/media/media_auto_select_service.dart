@@ -1,24 +1,33 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/service/media/media_retrieve_service.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 
 class MediaAutoSelectService {
-
   static Future<void> checkEventsForPhotos() async {
     final now = DateTime.now().toUtc();
     final lastCheckedTime = await _loadLastCheckedTime();
 
     // Get all events that ended since last check
     final sinceLastTime = DateTimeRange(start: lastCheckedTime, end: now);
-    final eventsNotChecked = await EventStorageService.retrieveEventsInTimeRange(sinceLastTime);
+    final eventsNotChecked = await _retrieveConfirmedEventsEndedIn(sinceLastTime);
 
     for (final event in eventsNotChecked) {
-      await MediaRetrieveService.retrieveShootedPhotos(event.id);
+      await MediaRetrieveService.retrieveShootedPhotos(event);
     }
 
     await _saveDateTime(time: now);
+  }
+
+  static Future<Set<Event>> _retrieveConfirmedEventsEndedIn(DateTimeRange requestedInterval) async {
+    final eventsNotChecked = await EventStorageService.retrieveEventsEndedIn(requestedInterval);
+    final confirmedEventIds =
+        await DetailedProfileEventsStorage().eventsWithProfilesConfirmed(eventsNotChecked.map((event) => event.id).toSet());
+
+    return eventsNotChecked.where((event) => confirmedEventIds.contains(event.id)).toSet();
   }
 
   /// Save DateTime to SharedPreferences

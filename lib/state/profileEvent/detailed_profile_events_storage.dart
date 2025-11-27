@@ -2,28 +2,30 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:wyd_front/model/profile_event.dart';
+import 'package:wyd_front/model/profiles/profile_event.dart';
 
-class ProfileEventsStorage {
+class DetailedProfileEventsStorage {
   static const _databaseName = 'profileEvents.db';
   static const _tableName = 'profile_events';
   static const _databaseVersion = 1;
 
   // --- Singleton Implementation ---
-  static final ProfileEventsStorage _instance = ProfileEventsStorage._internal();
-  factory ProfileEventsStorage() => _instance;
-  ProfileEventsStorage._internal();
+  static final DetailedProfileEventsStorage _instance = DetailedProfileEventsStorage._internal();
+  factory DetailedProfileEventsStorage() => _instance;
+  DetailedProfileEventsStorage._internal();
   // --------------------------------
 
-  // StreamControllers to notify listeners about changes
   final _updateChannel = StreamController<ProfileEvent>();
   Stream<ProfileEvent> get updatesChannel => _updateChannel.stream;
 
-  final _deleteChannel = StreamController<(String, String)>();
-  Stream<(String, String)> get deleteChannel => _deleteChannel.stream;
+  final _deleteChannel = StreamController<(String eventId, String profileId)>();
+  Stream<(String eventId, String profileId)> get deleteChannel => _deleteChannel.stream;
 
   final _deleteAllChannel = StreamController<String>();
   Stream<String> get deleteAllChannel => _deleteAllChannel.stream;
+
+  final _clearAllChannel = StreamController<void>();
+  Stream<void> get clearChannel => _clearAllChannel.stream;
 
   // In-memory cache for web/other environments where sqflite isn't used
   final Map<String, Set<ProfileEvent>> _inMemoryStorage = {};
@@ -63,30 +65,14 @@ class ProfileEventsStorage {
         await db.execute('CREATE INDEX idx_profile_events_profileId ON $_tableName(profileId)');
         await db.execute('CREATE INDEX idx_profile_events_eventId ON $_tableName(eventId)');
         await db.execute('CREATE INDEX idx_profile_events_confirmed ON $_tableName(confirmed)');
+        await db.execute(
+            'CREATE INDEX idx_profile_events_event_profile_confirmed ON $_tableName(eventId, profileId, confirmed)');
       },
     );
   }
 
-  /// Save a single ProfileEvent
-  Future<void> saveSingle(ProfileEvent profileEvent) async {
-    if (!kIsWeb) {
-      final db = await database;
-      if (db == null) return;
-
-      await db.insert(
-        _tableName,
-        profileEvent.toDbMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    } else {
-      final existing = _inMemoryStorage[profileEvent.eventId] ?? <ProfileEvent>{};
-      existing.add(profileEvent);
-      _inMemoryStorage[profileEvent.eventId] = existing;
-    }
-  }
-
   /// Save multiple ProfileEvents
-  Future<void> saveMultiple(String eventId, Set<ProfileEvent> profileEvents) async {
+  Future<void> saveMultipleProfileEvents(String eventId, Set<ProfileEvent> profileEvents) async {
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -108,6 +94,8 @@ class ProfileEventsStorage {
   }
 
   Future<void> update(ProfileEvent profileEvent) async {
+    _updateChannel.sink.add(profileEvent);
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -122,8 +110,6 @@ class ProfileEventsStorage {
       existing.add(profileEvent);
       _inMemoryStorage[profileEvent.eventId] = existing;
     }
-
-    _updateChannel.sink.add(profileEvent);
   }
 
   /// Get a single ProfileEvent by eventId + profileId
@@ -208,8 +194,54 @@ class ProfileEventsStorage {
     }
   }
 
+  /// Return the set of eventIds where at least one profile is confirmed
+  Future<Set<String>> eventsWithProfilesConfirmed(
+    Set<String> eventIds, {
+    Set<String> profileIds = const {},
+    bool confirmed = true,
+  }) async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return {};
+
+      // Build placeholders for eventIds and profileIds
+      final eventPlaceholders = List.filled(eventIds.length, '?').join(',');
+      final profilePlaceholders =
+          profileIds.isNotEmpty ? 'AND profileId IN (${List.filled(profileIds.length, '?').join(',')})' : '';
+
+      final whereArgs = [
+        ...eventIds,
+        if (profileIds.isNotEmpty) ...profileIds,
+        confirmed ? 1 : 0,
+      ];
+
+      final rows = await db.query(
+        _tableName,
+        columns: ['eventId'],
+        where: 'eventId IN ($eventPlaceholders) $profilePlaceholders AND confirmed = ?',
+        whereArgs: whereArgs,
+        distinct: true,
+      );
+
+      return rows.map((r) => r['eventId'] as String).toSet();
+    } else {
+      final Set<String> matchingEvents = {};
+      for (final eventId in eventIds) {
+        final profiles = _inMemoryStorage[eventId] ?? {};
+        final ids = profileIds.isEmpty ? profiles.map((pe) => pe.profileId).toSet() : profileIds;
+        final hasMatch = profiles.any(
+          (pe) => ids.contains(pe.profileId) && pe.confirmed == confirmed,
+        );
+        if (hasMatch) matchingEvents.add(eventId);
+      }
+      return matchingEvents;
+    }
+  }
+
   /// Remove a single ProfileEvent
   Future<void> removeSingle(String eventId, String profileId) async {
+    _deleteChannel.sink.add((eventId, profileId));
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -222,11 +254,12 @@ class ProfileEventsStorage {
     } else {
       _inMemoryStorage[eventId]?.removeWhere((pe) => pe.profileId == profileId);
     }
-    _deleteChannel.sink.add((eventId, profileId));
   }
 
   /// Remove all ProfileEvents for an event
   Future<void> removeAll(String eventId) async {
+    _deleteAllChannel.sink.add(eventId);
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -239,6 +272,18 @@ class ProfileEventsStorage {
     } else {
       _inMemoryStorage.remove(eventId);
     }
-    _deleteAllChannel.sink.add(eventId);
+  }
+
+  /// Remove all ProfileEvents across all events
+  Future<void> clearAll() async {
+    _clearAllChannel.sink.add(null);
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return;
+
+      await db.delete(_tableName); // deletes all rows
+    } else {
+      _inMemoryStorage.clear();
+    }
   }
 }

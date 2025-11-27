@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/detailed_profile.dart';
+import 'package:wyd_front/model/users/detailed_profile.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 
 class HeaderProfileTile extends StatelessWidget {

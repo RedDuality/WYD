@@ -1,54 +1,54 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wyd_front/service/user/user_service.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class AuthenticationProvider with ChangeNotifier {
-  static final AuthenticationProvider _instance = AuthenticationProvider._internal();
-
-  factory AuthenticationProvider({BuildContext? context}) {
-    return _instance;
-  }
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  User? _user;
-  bool _isLoading = true;
-  bool _isBackendVerified = false;
 
-  User? get user => _user;
+  bool _isLoading = true;
+  bool _firstTimeLogging = false;
+
+  static final AuthenticationProvider _instance = AuthenticationProvider._internal();
+  factory AuthenticationProvider() => _instance;
+
+  User? get user => _auth.currentUser;
   bool get isLoading => _isLoading;
-  bool get isBackendVerified => _isBackendVerified;
+  bool get isFirstTimeLogging => _firstTimeLogging;
 
   AuthenticationProvider._internal() {
-    _checkUserLoginStatus();
+    _assureUserIsLoaded();
 
-    _auth.authStateChanges().listen((User? user) async {
-      // be careful of register token refresh
-      _user = user;
-
-      // if, for any reason(e.g. logout), the token is no more, it returns to the login page
-      if (_user == null) {
-        _isBackendVerified = false;
-        notifyListeners();
-      }
-    });
+    _auth.authStateChanges().listen((User? user) => _onUserChange(user));
   }
 
-  Future<void> _checkUserLoginStatus() async {
-    _isLoading = true;
-    _isBackendVerified = false;
-    _user = _auth.currentUser;
-
-    if (_user != null) {
-      try {
-        await retrieveBackendUser();
-      } catch (e) {
-        //_isLoading = false;
+  Future<void> _assureUserIsLoaded() async {
+    if (await isLoggedIn()) {
+      if (kIsWeb) {
+        await UserService.retrieveUser();
+      } else {
+        await UserCache().initialize();
       }
     }
     _isLoading = false;
-    notifyListeners(); //scatena un redirect che checks isBackendVerified(see router)
+    notifyListeners(); //triggers a redirect that checks over UserService.isLoggedIn (see main)
+  }
+
+  void _onUserChange(User? user) {
+    // be careful of token refresh after registration(userId added to the token)
+
+    // if, for any reason(e.g. logout), the user is no more, it returns to the login page
+    if (user == null) {
+      _firstTimeLogging = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> isLoggedIn() async {
+    final idToken = await user?.getIdToken();
+    return idToken != null;
   }
 
   Future<void> register(String email, String password) async {
@@ -65,37 +65,20 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
     try {
-      await createBackendUser();
+      await UserService.createBackendUser();
+      await _auth.currentUser?.getIdToken(true); // refresh token, as now it should contains the userId
     } on Exception catch (e) {
       debugPrint("Error registering: $e");
       await _auth.currentUser?.delete();
       throw "Unexpected error, please try later";
     }
-  }
-
-  // Method to perform backend creation
-  Future<void> createBackendUser() async {
-    try {
-      final idToken = await _user?.getIdToken();
-      if (idToken != null) {
-        await UserService().createUser(); //sets user and profiles if successful
-
-        await _auth.currentUser?.getIdToken(true); // refresh token, as now it should contains the userId
-        _isBackendVerified = true;
-      } else {
-        throw "It was not possible to log in";
-      }
-    } catch (e) {
-      throw e.toString();
-    }
-
-    notifyListeners(); //successful, move to HomePage
+    _firstTimeLogging = true;
+    notifyListeners(); // now UserService.isLoggedIn should be true
   }
 
   Future<void> signIn(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      await retrieveBackendUser();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         throw "Please insert a valid email";
@@ -106,23 +89,15 @@ class AuthenticationProvider with ChangeNotifier {
         throw "Unexpected error, please try later";
       }
     }
-  }
-
-  // Method to perform backend verification
-  Future<void> retrieveBackendUser() async {
     try {
-      final idToken = await _user?.getIdToken();
-      if (idToken != null) {
-        await UserService().retrieveUser(); //sets user and profiles if successful
-        _isBackendVerified = true;
-      } else {
-        throw "It was not possible to log in";
-      }
-    } catch (e) {
-      throw e.toString();
+      await UserService.retrieveUser();
+    } on Exception catch (e) {
+      debugPrint("Error registering: $e");
+      await _auth.currentUser?.delete();
+      throw "Unexpected error, please try later";
     }
-
-    notifyListeners(); //successful, move to HomePage
+    _firstTimeLogging = true;
+    notifyListeners(); // now UserService.isLoggedIn should be true
   }
 
   Future<void> signOut() async {

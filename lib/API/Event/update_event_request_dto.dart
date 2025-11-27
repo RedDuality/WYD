@@ -1,12 +1,12 @@
 class UpdateEventRequestDto {
-  final String eventHash;
+  final String eventId;
   final String? title;
   final String? description;
   final DateTime? startTime;
   final DateTime? endTime;
 
   UpdateEventRequestDto({
-    required this.eventHash,
+    required this.eventId,
     this.title,
     this.description,
     this.startTime,
@@ -15,7 +15,7 @@ class UpdateEventRequestDto {
 
   Map<String, dynamic> toJson() {
     return {
-      'eventId': eventHash,
+      'eventId': eventId,
       'title': title,
       'description': description,
       'startTime': startTime?.toUtc().toIso8601String(),

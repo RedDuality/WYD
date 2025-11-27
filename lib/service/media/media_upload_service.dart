@@ -4,12 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:wyd_front/API/Media/media_api.dart';
 import 'package:wyd_front/API/Media/media_upload_request_dto.dart';
 import 'package:wyd_front/API/Media/media_upload_response_dto.dart';
-import 'package:wyd_front/model/blob_data.dart';
-import 'package:wyd_front/model/media.dart';
+import 'package:wyd_front/model/media/blob_data.dart';
+import 'package:wyd_front/model/media/media.dart';
 
 class MediaUploadService {
-  Future<Set<Media>> uploadImages(String eventHash, List<MediaData> media) async {
-    var uploadUrls = await _getUploadUrls(eventHash, media);
+  Future<Set<Media>> uploadImages(String eventId, List<MediaData> media) async {
+    var uploadUrls = await _getUploadUrls(eventId, media);
 
     var successfulUrls = uploadUrls.where((item) => item.error == null).toList();
 
@@ -36,9 +36,9 @@ class MediaUploadService {
     return uploadResults;
   }
 
-  Future<List<MediaUploadResponseDto>> _getUploadUrls(String eventHash, List<MediaData> blobs) async {
+  Future<List<MediaUploadResponseDto>> _getUploadUrls(String eventId, List<MediaData> blobs) async {
     var tokenDto = MediaUploadRequestDto(
-      parentHash: eventHash,
+      parentHash: eventId,
       media: blobs.map((blob) {
         return MediaInfo(
           id: blob.tempId,
@@ -55,7 +55,7 @@ class MediaUploadService {
     if (media.url != null) {
       try {
         await MediaAPI().uploadToUrl(data, media.url!, mimeType);
-        return Media(eventHash: media.id!, name: media.name!, extension: media.extension!, visibility: media.visibility!);
+        return Media(eventId: media.id!, name: media.name!, extension: media.extension!, visibility: media.visibility!);
       } catch (e) {
         debugPrint('Upload failed, Error: $e');
       }

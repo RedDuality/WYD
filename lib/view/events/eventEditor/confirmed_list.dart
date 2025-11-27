@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/profile_event.dart';
+import 'package:wyd_front/model/profiles/profile_event.dart';
 import 'package:wyd_front/service/event/profile_events_storage_service.dart';
 import 'package:wyd_front/view/profiles/profile_tile.dart';
 
 class ConfirmedList extends StatefulWidget {
-  final String eventHash;
+  final String eventId;
 
-  const ConfirmedList({required this.eventHash, super.key});
+  const ConfirmedList({required this.eventId, super.key});
 
   @override
   State<ConfirmedList> createState() => _ConfirmedListState();
@@ -18,7 +18,7 @@ class _ConfirmedListState extends State<ConfirmedList> {
   @override
   void initState() {
     super.initState();
-    _profileEventsFuture = ProfileEventsStorageService.retrieveFromServer(widget.eventHash);
+    _profileEventsFuture = ProfileEventsStorageService.retrieveFromServer(widget.eventId);
   }
 
   @override

@@ -16,7 +16,7 @@ class RoundedEventTile extends StatelessWidget {
 
   final BorderRadius borderRadius;
 
-  final TextStyle? titleStyle;
+  final TextStyle titleStyle;
 
   final TextStyle? descriptionStyle;
 
@@ -35,7 +35,7 @@ class RoundedEventTile extends StatelessWidget {
     this.backgroundColor = Colors.blue,
     this.sideBarColors = const [Colors.blue],
     this.sideBarWidth = 4,
-    this.titleStyle,
+    required this.titleStyle,
     this.descriptionStyle,
   });
 
@@ -73,11 +73,7 @@ class RoundedEventTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           title,
-                          style: titleStyle ??
-                              TextStyle(
-                                fontSize: 16,
-                                color: backgroundColor.accent,
-                              ),
+                          style: titleStyle,
                           softWrap: true,
                           overflow: TextOverflow.fade,
                         ),
