@@ -2,15 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/model/event_details.dart';
+import 'package:wyd_front/model/events/event_details.dart';
 import 'package:wyd_front/service/event/event_details_service.dart';
 import 'package:wyd_front/service/media/media_retrieve_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/media/media_selection_service.dart';
 import 'package:wyd_front/service/media/media_upload_service.dart';
-import 'package:wyd_front/state/event/current_events_provider.dart';
+import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
-import 'package:wyd_front/state/media/cached_media_provider.dart';
+import 'package:wyd_front/state/media/cached_media_cache.dart';
+import 'package:wyd_front/state/media/cached_media_storage.dart';
 import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/view/widget/media/card_display.dart';
 import 'package:wyd_front/view/widget/media/media_display.dart';
@@ -35,7 +36,7 @@ class GalleryEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final eventsCache = Provider.of<CurrentEventsProvider>(context, listen: false);
+    final eventsCache = Provider.of<EventsCache>(context, listen: false);
     final profileEventCache = Provider.of<ProfileEventsCache>(context, listen: false);
 
     final hasEventFinished = eventsCache.get(eventId)!.hasEventFinished();
@@ -44,7 +45,7 @@ class GalleryEditor extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
       child: ChangeNotifierProvider(
-        create: (_) => CachedMediaProvider(eventId),
+        create: (_) => CachedMediaCache(eventId),
         child: Builder(
           builder: (context) {
             var eventDetails = EventDetailsStorage().get(eventId);
@@ -58,13 +59,13 @@ class GalleryEditor extends StatelessWidget {
             EventDetailsService.retrieveMediaFromServer(eventId);
 
             return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              greyDivider(),
+              _greyDivider(),
               //On Devices, look for images
-              if (!kIsWeb && hasEventFinished && atLeastOneConfirmed) autoRetrieveButton(context),
+              if (!kIsWeb && hasEventFinished && atLeastOneConfirmed) _autoRetrieveButton(context),
 
-              imageSelection(),
-              uploadRelatedFilesButton(context),
-              alreadySavedImages(),
+              _imageSelection(),
+              _uploadRelatedFilesButton(context),
+              _alreadySavedImages(),
             ]);
           },
         ),
@@ -72,7 +73,7 @@ class GalleryEditor extends StatelessWidget {
     );
   }
 
-  Widget autoRetrieveButton(BuildContext context) {
+  Widget _autoRetrieveButton(BuildContext context) {
     return Column(
       children: [
         Align(
@@ -84,7 +85,7 @@ class GalleryEditor extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () async {
                       final provider = Provider.of<CachedMediaProvider>(context, listen: false);
-                      await MediaRetrieveService.mockRetrieveShootedPhotos(eventHash, provider);
+                      await MediaRetrieveService.mockRetrieveShootedPhotos(eventId, provider);
                     },
                     child: Row(
                       children: [
@@ -98,13 +99,14 @@ class GalleryEditor extends StatelessWidget {
               SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () async {
-                  MediaRetrieveService.retrieveShootedPhotos(eventId);
+                  final event = Provider.of<EventsCache>(context, listen: false).get(eventId);
+                  if (event != null) MediaRetrieveService.retrieveShootedPhotos(event);
                 },
                 child: Row(
                   children: [
                     Icon(Icons.search),
                     MediaQuery.of(context).size.width > 200
-                        ? const Text("Cerca foto scattate", style: TextStyle(fontSize: 18))
+                        ? const Text("Ritrova foto scattate", style: TextStyle(fontSize: 18))
                         : Container(),
                   ],
                 ),
@@ -112,13 +114,13 @@ class GalleryEditor extends StatelessWidget {
             ],
           ),
         ),
-        greyDivider(),
+        _greyDivider(),
       ],
     );
   }
 
-  Widget imageSelection() {
-    return Consumer<CachedMediaProvider>(builder: (context, mediaProvider, child) {
+  Widget _imageSelection() {
+    return Consumer<CachedMediaCache>(builder: (context, mediaProvider, child) {
       final mediaMap = mediaProvider.get();
       return mediaMap != null && mediaMap.isNotEmpty
           ? Column(
@@ -142,10 +144,10 @@ class GalleryEditor extends StatelessWidget {
                               maxWidth: itemWidth,
                               isSelected: isSelected,
                               onSelected: () {
-                                mediaProvider.select(eventId, image);
+                                CachedMediaStorage().updateSelection(eventId, image, true);
                               },
                               onUnSelected: () {
-                                mediaProvider.unselect(eventId, image);
+                                CachedMediaStorage().updateSelection(eventId, image, false);
                               },
                               mediaBuilder: ({onLoadingFinished, onError}) {
                                 return MediaDisplay.fromAsset(
@@ -163,21 +165,21 @@ class GalleryEditor extends StatelessWidget {
                   },
                 ),
                 SizedBox(height: 10),
-                selectionButtons(
+                _selectionButtons(
                   mediaProvider,
                   mediaMap,
                   context,
                 ),
-                greyDivider(),
+                _greyDivider(),
               ],
             )
           : Container();
     });
   }
 
-  Widget selectionButtons(CachedMediaProvider mediaProvider, Map<AssetEntity, bool> mediaMap, BuildContext context) {
+  Widget _selectionButtons(CachedMediaCache mediaProvider, Map<AssetEntity, bool> mediaMap, BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end, // 👈 pushes buttons to the right
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Column(
           mainAxisSize: MainAxisSize.min,
@@ -191,11 +193,8 @@ class GalleryEditor extends StatelessWidget {
                 if (selectedAssets.isNotEmpty) {
                   var cachedImages = await MediaSelectionService.dataFromCache(selectedAssets);
                   await MediaUploadService().uploadImages(eventId, cachedImages);
-                  // wait for upload to be successful
-                  mediaProvider.removeAll(eventId);
-                } else {
-                  mediaProvider.removeAll(eventId);
                 }
+                CachedMediaStorage().removeAllMedia(eventId);
               },
               icon: const Icon(Icons.upload),
               label: Row(
@@ -208,14 +207,14 @@ class GalleryEditor extends StatelessWidget {
             ),
             ElevatedButton.icon(
               onPressed: () async {
-                mediaProvider.removeAll(eventId);
+                CachedMediaStorage().removeAllMedia(eventId);
               },
               icon: const Icon(Icons.delete, color: Colors.red),
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (MediaQuery.of(context).size.width > 200)
-                    const Text('Remove All', style: TextStyle(color: Colors.red, fontSize: 18)),
+                    const Text('Ignore All', style: TextStyle(color: Colors.red, fontSize: 18)),
                 ],
               ),
             ),
@@ -225,7 +224,7 @@ class GalleryEditor extends StatelessWidget {
     );
   }
 
-  Widget uploadRelatedFilesButton(BuildContext context) {
+  Widget _uploadRelatedFilesButton(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
       child: Row(
@@ -251,7 +250,7 @@ class GalleryEditor extends StatelessWidget {
     );
   }
 
-  Widget alreadySavedImages() {
+  Widget _alreadySavedImages() {
     return Consumer<EventDetailsStorage>(
       builder: (context, eventProvider, child) {
         final eventDetails = context.select<EventDetailsStorage, EventDetails?>(
@@ -294,7 +293,7 @@ class GalleryEditor extends StatelessWidget {
     );
   }
 
-  Widget greyDivider() {
+  Widget _greyDivider() {
     return const Divider(
       color: Colors.grey,
       thickness: 0.5,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
-import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
@@ -12,10 +12,8 @@ class EventStorageService {
     List<RetrieveEventResponseDto> dtos,
     DateTimeRange dateRange,
   ) async {
-    // Kick off all deserializations in parallel
     final events = await Future.wait(dtos.map(_deserializeEvent));
 
-    // Ensure interval is cached before saving
     await EventIntervalsCacheManager().addInterval(dateRange);
 
     await EventStorage().saveMultiple(events, dateRange);
@@ -40,6 +38,7 @@ class EventStorageService {
     return Event.fromDto(dto);
   }
 
+  //
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
 
@@ -61,8 +60,9 @@ class EventStorageService {
     await _addEvents(dtos, retrieveInterval);
   }
 
-  static Future<void> setHasCachedMedia(String eventHash, bool hasCachedMedia) async {
-    var event = await EventStorage().getEventByHash(eventHash);
+  static Future<void> setHasCachedMedia(String eventId, bool hasCachedMedia) async {
+    debugPrint("setHasCachedMedia");
+    var event = await EventStorage().getEventByHash(eventId);
     event!.hasCachedMedia = hasCachedMedia;
     EventStorage().saveEvent(event);
   }

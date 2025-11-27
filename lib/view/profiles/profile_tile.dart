@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/profiles/profile.dart';
 import 'package:wyd_front/state/profile/profiles_provider.dart';
 import 'package:wyd_front/view/profiles/tiles/menu_profile_tile.dart';
 import 'package:wyd_front/view/profiles/tiles/view_profile_tile.dart';

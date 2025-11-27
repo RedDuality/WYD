@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/model/events/event.dart';
 
 class EventStorage {
   static const _databaseName = 'eventStorage.db';
@@ -46,7 +46,7 @@ class EventStorage {
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE $_tableName (
-            eventHash TEXT PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             title TEXT,
             startTime INTEGER,    -- Storing as Unix timestamp (milliseconds)
             endTime INTEGER,      -- Storing as Unix timestamp (milliseconds)
@@ -114,7 +114,7 @@ class EventStorage {
       // Delete the event from the SQLite database
       await db.delete(
         _tableName,
-        where: 'eventHash = ?',
+        where: 'id = ?',
         whereArgs: [event.id],
       );
     } else {
@@ -125,9 +125,9 @@ class EventStorage {
     _eventUpdateController.sink.add((event, true));
   }
 
-  Future<Event?> getEventByHash(String eventHash) async {
+  Future<Event?> getEventByHash(String id) async {
     if (kIsWeb) {
-      return _inMemoryStorage[eventHash];
+      return _inMemoryStorage[id];
     }
 
     final db = await database;
@@ -135,8 +135,8 @@ class EventStorage {
 
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
-      where: 'eventHash = ?',
-      whereArgs: [eventHash],
+      where: 'id = ?',
+      whereArgs: [id],
     );
 
     if (maps.isNotEmpty) {

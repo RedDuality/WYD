@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:wyd_front/API/User/user_api.dart';
 import 'package:wyd_front/API/User/retrieve_user_response_dto.dart';
-import 'package:wyd_front/model/user_claim.dart';
-import 'package:wyd_front/model/view_settings.dart';
-import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/model/users/user_claim.dart';
+import 'package:wyd_front/model/users/view_settings.dart';
+import 'package:wyd_front/model/users/user.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 import 'package:wyd_front/service/util/real_time_updates_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';

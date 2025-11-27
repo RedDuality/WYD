@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/state/event/current_events_provider.dart';
+import 'package:wyd_front/model/events/event.dart';
+import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
 
 class EventView extends StatefulWidget {
-  final String? eventHash;
+  final String? eventId;
   final DateTime? date;
 
   const EventView({
     super.key,
-    this.eventHash,
+    this.eventId,
     this.date,
   });
 
@@ -26,7 +27,7 @@ class EventViewState extends State<EventView> {
   @override
   void initState() {
     super.initState();
-    eventId = widget.eventHash;
+    eventId = widget.eventId;
   }
 
   @override
@@ -53,79 +54,19 @@ class EventViewState extends State<EventView> {
             expandedHeight: 200.0,
             floating: false,
             pinned: true,
-            leading: Container(
-              padding: EdgeInsets.zero,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.grey,
-                ),
-                child: const Icon(
-                  Icons.close,
-                  size: 36,
-                ),
-              ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: EdgeInsets.zero,
-              title: Container(
-                alignment: Alignment.bottomLeft,
-                padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-                child: Consumer<CurrentEventsProvider>(
-                  builder: (context, provider, child) {
-                    final event = eventId != null ? provider.get(eventId!) : null;
-                    final newTitle = event?.title ?? "Evento senza nome";
-
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (_titleController.text != newTitle) {
-                        _titleController.text = newTitle;
-                        _titleController.selection = TextSelection.fromPosition(
-                          TextPosition(offset: _titleController.text.length),
-                        );
-                      }
-                    });
-
-                    return TextFormField(
-                      controller: _titleController,
-                      decoration: InputDecoration(
-                        labelText: '',
-                        border: InputBorder.none,
-                        labelStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.0,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              background: Image.asset(
-                'assets/images/logoimage.png',
-                fit: BoxFit.cover,
-              ),
-            ),
+            leading: Container(padding: EdgeInsets.zero),
+            actions: [_exitButton()],
+            flexibleSpace: _titleManager(),
             backgroundColor: Colors.blue,
           ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
-              child: Consumer<CurrentEventsProvider>(
-                builder: (context, provider, child) {
-                  final event = eventId != null ? provider.get(eventId!) : null;
-                  return EventViewEditor(
-                    event: event,
-                    date: widget.date,
-                    titleController: _titleController,
-                    onEventCreated: onEventCreated,
-                  );
-                },
+              child: EventViewEditor(
+                eventId: eventId,
+                date: widget.date,
+                titleController: _titleController,
+                onEventCreated: onEventCreated,
               ),
             ),
           ),
@@ -137,6 +78,63 @@ class EventViewState extends State<EventView> {
                     )
                   : Container()),
         ],
+      ),
+    );
+  }
+
+  Widget _exitButton() {
+    return TextButton(
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.grey,
+      ),
+      child: const Icon(
+        Icons.close,
+        size: 36,
+      ),
+    );
+  }
+
+  Widget _titleManager() {
+    // Listen only to the specific event by ID
+    final event = context.select<EventsCache, Event?>(
+      (provider) => eventId != null ? provider.get(eventId!) : null,
+    );
+
+    final newTitle = event?.title ?? "Evento senza nome";
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_titleController.text != newTitle) {
+        _titleController.text = newTitle;
+        _titleController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _titleController.text.length),
+        );
+      }
+    });
+
+    return FlexibleSpaceBar(
+      titlePadding: EdgeInsets.zero,
+      title: Container(
+        alignment: Alignment.bottomLeft,
+        padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+        child: TextFormField(
+          controller: _titleController,
+          decoration: const InputDecoration(
+            labelText: '',
+            border: InputBorder.none,
+            labelStyle: TextStyle(color: Colors.white),
+          ),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+          ),
+        ),
+      ),
+      background: Image.asset(
+        'assets/images/logoimage.png',
+        fit: BoxFit.cover,
       ),
     );
   }

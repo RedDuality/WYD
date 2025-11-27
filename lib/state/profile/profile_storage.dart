@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/profiles/profile.dart';
 
 class ProfileStorage {
   static const _databaseName = 'profileStorage.db';

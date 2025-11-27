@@ -1,14 +1,14 @@
 import 'package:wyd_front/API/Event/event_api.dart';
-import 'package:wyd_front/model/profile_event.dart';
+import 'package:wyd_front/model/profiles/profile_event.dart';
 import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
 
 class ProfileEventsStorageService {
-  static Future<Set<ProfileEvent>> retrieveFromServer(String eventHash) async {
-    return await EventAPI().retriveProfileEvents(eventHash);
+  static Future<Set<ProfileEvent>> retrieveFromServer(String eventId) async {
+    return await EventAPI().retriveProfileEvents(eventId);
   }
 
-  static Future<bool> confirm(String eventHash, bool confirmed, String profileHash) async {
-    var pe = await ProfileEventsStorage().getSingle(eventHash, profileHash);
+  static Future<bool> confirm(String eventId, bool confirmed, String profileHash) async {
+    var pe = await ProfileEventsStorage().getSingle(eventId, profileHash);
 
     if (pe == null) return true;
     if (pe.confirmed == confirmed) return false;

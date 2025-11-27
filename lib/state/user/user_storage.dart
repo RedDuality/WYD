@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/model/users/user.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class UserStorage {

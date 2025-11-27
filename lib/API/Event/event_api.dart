@@ -6,7 +6,7 @@ import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
-import 'package:wyd_front/model/profile_event.dart';
+import 'package:wyd_front/model/profiles/profile_event.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
@@ -54,10 +54,10 @@ class EventAPI {
   }
 
   // ev + pe
-  Future<RetrieveEventResponseDto> retrieveEssentialsFromHash(String eventHash) async {
+  Future<RetrieveEventResponseDto> retrieveEssentialsFromHash(String eventId) async {
     String url = '${functionUrl}RetrieveEssentials';
 
-    var response = await client.get(Uri.parse('$url/$eventHash'));
+    var response = await client.get(Uri.parse('$url/$eventId'));
 
     if (response.statusCode == 200) {
       var dto = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
@@ -68,10 +68,10 @@ class EventAPI {
   }
 
   // ev + details
-  Future<RetrieveEventResponseDto> retrieveDetailsFromHash(String eventHash) async {
+  Future<RetrieveEventResponseDto> retrieveDetailsFromHash(String eventId) async {
     String url = '${functionUrl}RetrieveDetails';
 
-    var response = await client.get(Uri.parse('$url/$eventHash'));
+    var response = await client.get(Uri.parse('$url/$eventId'));
 
     if (response.statusCode == 200) {
       var dto = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
@@ -82,10 +82,10 @@ class EventAPI {
   }
 
   //automatically add the event
-  Future<RetrieveEventResponseDto> sharedWithHash(String eventHash) async {
+  Future<RetrieveEventResponseDto> sharedWithHash(String eventId) async {
     String url = '${functionUrl}RetrieveFromShared';
 
-    var response = await client.get(Uri.parse('$url/$eventHash'));
+    var response = await client.get(Uri.parse('$url/$eventId'));
     if (response.statusCode == 200) {
       var event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
 
@@ -133,11 +133,11 @@ class EventAPI {
     throw "Error while updating the event";
   }
 
-  Future confirm(String eventHash) async {
+  Future confirm(String eventId) async {
     String url = '${functionUrl}Confirm';
 
     var response = await client.get(
-      Uri.parse('$url/$eventHash'),
+      Uri.parse('$url/$eventId'),
     );
     if (response.statusCode == 200) {
       return;
@@ -145,11 +145,11 @@ class EventAPI {
     throw "It was not possible to confirm the event";
   }
 
-  Future decline(String eventHash) async {
+  Future decline(String eventId) async {
     String url = '${functionUrl}Decline';
 
     var response = await client.get(
-      Uri.parse('$url/$eventHash'),
+      Uri.parse('$url/$eventId'),
     );
     if (response.statusCode == 200) {
       return;
@@ -158,10 +158,10 @@ class EventAPI {
   }
 
 /*
-  Future<List<Media>> retrieveImageUpdatesFromHash(String eventHash) async {
+  Future<List<Media>> retrieveImageUpdatesFromHash(String eventId) async {
     String url = '${functionUrl}Retrieve';
 
-    var response = await client.get(Uri.parse('$url/$eventHash'));
+    var response = await client.get(Uri.parse('$url/$eventId'));
 
     if (response.statusCode == 200) {
       var event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
@@ -172,10 +172,10 @@ class EventAPI {
   }
 */
 
-  Future<RetrieveEventResponseDto> shareToProfiles(String eventhash, Set<ShareEventRequestDto> dtos) async {
+  Future<RetrieveEventResponseDto> shareToProfiles(String eventId, Set<ShareEventRequestDto> dtos) async {
     String url = '${functionUrl}Share';
 
-    var response = await client.post(Uri.parse('$url/$eventhash'), body: json.encode(dtos.toList()));
+    var response = await client.post(Uri.parse('$url/$eventId'), body: json.encode(dtos.toList()));
     if (response.statusCode == 200) {
       RetrieveEventResponseDto event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
       return event;
@@ -183,11 +183,11 @@ class EventAPI {
     throw "There was an error while sharing the event";
   }
 
-  Future<void> delete(String eventHash) async {
+  Future<void> delete(String eventId) async {
     String url = '${functionUrl}Delete';
 
     var response = await client.delete(
-      Uri.parse('$url/$eventHash'),
+      Uri.parse('$url/$eventId'),
     );
 
     if (response.statusCode == 200) {
@@ -196,11 +196,11 @@ class EventAPI {
     throw "Error while deleting the event";
   }
 
-  Future<void> deleteForAll(String eventHash) async {
+  Future<void> deleteForAll(String eventId) async {
     String url = '${functionUrl}DeleteForAll';
 
     var response = await client.delete(
-      Uri.parse('$url/$eventHash'),
+      Uri.parse('$url/$eventId'),
     );
     if (response.statusCode == 200) {
       return;

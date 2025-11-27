@@ -1,17 +1,17 @@
 import 'package:wyd_front/API/Media/media_api.dart';
 import 'package:wyd_front/API/Media/media_read_request_dto.dart';
-import 'package:wyd_front/model/blob_data.dart';
+import 'package:wyd_front/model/media/blob_data.dart';
 import 'package:wyd_front/model/enum/media_type.dart';
-import 'package:wyd_front/model/event.dart';
-import 'package:wyd_front/model/media.dart';
+import 'package:wyd_front/model/events/event.dart';
+import 'package:wyd_front/model/media/media.dart';
 import 'package:wyd_front/service/media/media_upload_service.dart';
 import 'package:wyd_front/state/event/event_details_storage.dart';
 
 class MediaService {
   // from BlobProvider, either cached or selected by user
-  static Future<void> uploadImages(String eventHash, List<MediaData> blobs) async {
-    var media = await MediaUploadService().uploadImages(eventHash, blobs);
-    EventDetailsStorage().addTotalMedia(eventHash, media.length);
+  static Future<void> uploadImages(String eventId, List<MediaData> blobs) async {
+    var media = await MediaUploadService().uploadImages(eventId, blobs);
+    EventDetailsStorage().addTotalMedia(eventId, media.length);
   }
 
   // from Notifications
@@ -23,8 +23,8 @@ class MediaService {
     }
   }
 
-  static Future<void> retrieveEventMediaWithPagination(String eventHash, {int? pageNumber, int? pageSize}) async {
-    var readDto = MediaReadRequestDto(parentHash: eventHash, pageNumber: pageNumber, pageSize: pageSize);
+  static Future<void> retrieveEventMediaWithPagination(String eventId, {int? pageNumber, int? pageSize}) async {
+    var readDto = MediaReadRequestDto(parentHash: eventId, pageNumber: pageNumber, pageSize: pageSize);
 
     var dtos = await MediaAPI().getReadUrls(MediaType.events, readDto);
     if (dtos.isNotEmpty) {
@@ -39,13 +39,7 @@ class MediaService {
         validUntil = any.validUntil;
       }
 
-      EventDetailsStorage().addMedia(eventHash, media, validUntil: validUntil);
+      EventDetailsStorage().addMedia(eventId, media, validUntil: validUntil);
     }
-  }
-
-  Media getWydLogo() {
-    return Media(
-      eventHash: "",
-    );
   }
 }

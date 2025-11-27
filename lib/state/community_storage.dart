@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/community.dart';
+import 'package:wyd_front/model/community/community.dart';
 
 class CommunityStorage extends ChangeNotifier {
   List<Community> _communities = [];

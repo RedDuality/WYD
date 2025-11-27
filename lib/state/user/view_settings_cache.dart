@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/view_settings.dart';
+import 'package:wyd_front/model/users/view_settings.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/state/user/view_settings_storage.dart';
 

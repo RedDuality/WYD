@@ -33,7 +33,7 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
     _isLoading = false;
-    notifyListeners(); //triggers a redirect that checks over UserService.isLoggedIn (see router)
+    notifyListeners(); //triggers a redirect that checks over UserService.isLoggedIn (see main)
   }
 
   void _onUserChange(User? user) {

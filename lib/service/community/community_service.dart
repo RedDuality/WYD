@@ -1,6 +1,6 @@
 import 'package:wyd_front/API/Community/community_api.dart';
 import 'package:wyd_front/API/Community/create_community_request_dto.dart';
-import 'package:wyd_front/model/community.dart';
+import 'package:wyd_front/model/community/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/state/community_storage.dart';
 

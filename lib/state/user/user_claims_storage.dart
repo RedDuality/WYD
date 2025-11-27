@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wyd_front/model/user_claim.dart';
+import 'package:wyd_front/model/users/user_claim.dart';
 
 class UserClaimStorage {
   static const _databaseName = 'userClaimStorage.db';

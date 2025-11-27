@@ -7,7 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:wyd_front/model/blob_data.dart';
+import 'package:wyd_front/model/media/blob_data.dart';
 import 'package:wyd_front/service/media/mimetype_service.dart';
 
 class MediaSelectionService {

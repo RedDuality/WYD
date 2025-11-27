@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/profiles/profile.dart';
 import 'package:wyd_front/service/profile/profile_retrieve_service.dart';
 import 'package:wyd_front/state/profile/profile_storage.dart';
 

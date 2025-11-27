@@ -1,4 +1,4 @@
-import 'package:wyd_front/model/media.dart';
+import 'package:wyd_front/model/media/media.dart';
 
 class EventDetails {
   String hash = "";

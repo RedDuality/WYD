@@ -1,50 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/event_details.dart';
-import 'package:wyd_front/model/media.dart';
+import 'package:wyd_front/model/events/event_details.dart';
+import 'package:wyd_front/model/media/media.dart';
 
 class EventDetailsStorage extends ChangeNotifier {
   
   static final EventDetailsStorage _instance = EventDetailsStorage._internal();
-
-  factory EventDetailsStorage() {
-    return _instance;
-  }
-
+  factory EventDetailsStorage() => _instance;
   EventDetailsStorage._internal();
 
   final Map<String, EventDetails> _eventDetails = {};
 
-  EventDetails? get(String eventHash) => _eventDetails[eventHash];
+  EventDetails? get(String eventId) => _eventDetails[eventId];
 
-  void create(String eventHash, EventDetails details) {
-    _eventDetails[eventHash] != null ? throw "details alredy exists" : _eventDetails[eventHash] = details;
+  void create(String eventId, EventDetails details) {
+    _eventDetails[eventId] != null ? throw "details alredy exists" : _eventDetails[eventId] = details;
     notifyListeners();
   }
 
-  void update(String eventHash, EventDetails details) {
-    if (_eventDetails[eventHash] == null || _eventDetails[eventHash]!.updatedAt != details.updatedAt) {
-      _eventDetails[eventHash] = details;
+  void update(String eventId, EventDetails details) {
+    if (_eventDetails[eventId] == null || _eventDetails[eventId]!.updatedAt != details.updatedAt) {
+      _eventDetails[eventId] = details;
       notifyListeners();
     }
   }
 
-  void addMedia(String eventHash, Set<Media> media, {DateTime? validUntil}) {
-    if (_eventDetails[eventHash]!.media.isEmpty) {
-      _eventDetails[eventHash]!.validUntil = validUntil!;
+  void addMedia(String eventId, Set<Media> media, {DateTime? validUntil}) {
+    if (_eventDetails[eventId]!.media.isEmpty) {
+      _eventDetails[eventId]!.validUntil = validUntil!;
     }
-    _eventDetails[eventHash]!.media.addAll(media);
+    _eventDetails[eventId]!.media.addAll(media);
     notifyListeners();
   }
 
-  void addTotalMedia(String eventHash, int totalMedia) {
-    _eventDetails[eventHash]!.totalImages += totalMedia;
-    invalidateMediaCache(eventHash);
+  void addTotalMedia(String eventId, int totalMedia) {
+    _eventDetails[eventId]!.totalImages += totalMedia;
+    invalidateMediaCache(eventId);
     notifyListeners();
   }
 
-  void invalidateMediaCache(String eventHash) {
-    _eventDetails[eventHash]!.media = {};
-    _eventDetails[eventHash]!.validUntil = null;
+  void invalidateMediaCache(String eventId) {
+    _eventDetails[eventId]!.media = {};
+    _eventDetails[eventId]!.validUntil = null; // this makes the widget retrieve all the old images
   }
 
   void remove(String hash) {

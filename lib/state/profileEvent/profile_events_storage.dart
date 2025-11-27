@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:wyd_front/model/profile_event.dart';
+import 'package:wyd_front/model/profiles/profile_event.dart';
 
 class ProfileEventsStorage {
   static const _databaseName = 'profileEvents.db';
@@ -15,7 +15,9 @@ class ProfileEventsStorage {
   ProfileEventsStorage._internal();
   // --------------------------------
 
-  // StreamControllers to notify listeners about changes
+  final _addChannel = StreamController<(String, Set<ProfileEvent>)>();
+  Stream<(String, Set<ProfileEvent>)> get addChannel => _addChannel.stream;
+
   final _updateChannel = StreamController<ProfileEvent>();
   Stream<ProfileEvent> get updatesChannel => _updateChannel.stream;
 
@@ -69,26 +71,10 @@ class ProfileEventsStorage {
     );
   }
 
-  /// Save a single ProfileEvent
-  Future<void> saveSingle(ProfileEvent profileEvent) async {
-    if (!kIsWeb) {
-      final db = await database;
-      if (db == null) return;
-
-      await db.insert(
-        _tableName,
-        profileEvent.toDbMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    } else {
-      final existing = _inMemoryStorage[profileEvent.eventId] ?? <ProfileEvent>{};
-      existing.add(profileEvent);
-      _inMemoryStorage[profileEvent.eventId] = existing;
-    }
-  }
-
   /// Save multiple ProfileEvents
   Future<void> saveMultiple(String eventId, Set<ProfileEvent> profileEvents) async {
+    _addChannel.sink.add((eventId, profileEvents));
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;

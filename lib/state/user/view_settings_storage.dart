@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wyd_front/model/view_settings.dart';
+import 'package:wyd_front/model/users/view_settings.dart';
 
 class ViewSettingsStorage {
   static const _databaseName = 'viewSettingsStorage.db';

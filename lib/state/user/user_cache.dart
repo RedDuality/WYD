@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/user.dart';
+import 'package:wyd_front/model/users/user.dart';
 import 'package:wyd_front/state/user/user_storage.dart';
 
 class UserCache extends ChangeNotifier {
@@ -17,15 +17,13 @@ class UserCache extends ChangeNotifier {
     _user = (await UserStorage.getUser())!;
   }
 
-  User get user => _user!;
+  User? get user => _user;
 
-  String getCurrentProfileId() {
-    return _user!.currentProfileHash;
-  }
+  String getUserId() => _user!.id;
 
-  Set<String> getProfileIds() {
-    return Set<String>.from(_user!.profileIds);
-  }
+  String getCurrentProfileId() => _user!.currentProfileId;
+
+  Set<String> getProfileIds() => _user!.profileIds;
 
   Set<String> getSecondaryProfilesHashes() {
     var profiles = getProfileIds();
@@ -34,13 +32,12 @@ class UserCache extends ChangeNotifier {
   }
 
   void updateUser(User user) {
-    debugPrint("userUpdated");
     _user = user;
     // notifyListeners();
   }
 
   void setCurrentProfile(String profileHash) {
-    _user!.currentProfileHash = profileHash;
+    _user!.currentProfileId = profileHash;
     notifyListeners();
   }
 

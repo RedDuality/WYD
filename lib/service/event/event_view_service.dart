@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
-import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
@@ -14,7 +14,7 @@ import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventViewService {
-  static final _profileColorChangeController = StreamController<void>();
+  static final _profileColorChangeController = StreamController<void>.broadcast();
 
   static Stream<void> get onProfileColorChangedStream => _profileColorChangeController.stream;
 
@@ -28,10 +28,10 @@ class EventViewService {
     _profileColorChangeController.close();
   }
 
-  static Future<Event> create(Event event) async {
-    var createDto = CreateEventRequestDto.fromEvent(event);
-    var createdEvent = await EventAPI().create(createDto);
-    return EventStorageService.addEvent(createdEvent);
+  static Future<String> create(CreateEventRequestDto createDto) async {
+    var createdEventDto = await EventAPI().create(createDto);
+    EventStorageService.addEvent(createdEventDto);
+    return createdEventDto.id;
   }
 
   static Future<void> update(UpdateEventRequestDto updateDto) async {
@@ -39,31 +39,31 @@ class EventViewService {
     EventStorageService.addEvent(eventDto);
   }
 
-  static Future<void> localConfirm(String eventHash, bool confirmed, {String? pHash}) async {
-    var event = await EventStorage().getEventByHash(eventHash);
+  static Future<void> localConfirm(String eventId, bool confirmed, {String? pHash}) async {
+    var event = await EventStorage().getEventByHash(eventId);
     if (event != null) {
       String profileHash = pHash ?? UserCache().getCurrentProfileId();
 
-      if (await ProfileEventsStorageService.confirm(eventHash, confirmed, profileHash)) {
-        EventRetrieveService.retrieveEssentialByHash(eventHash);
+      if (await ProfileEventsStorageService.confirm(eventId, confirmed, profileHash)) {
+        EventRetrieveService.retrieveEssentialByHash(eventId);
       }
     }
   }
 
-  static Future<void> confirm(String eventHash) async {
-    await EventAPI().confirm(eventHash);
+  static Future<void> confirm(String eventId) async {
+    await EventAPI().confirm(eventId);
 
-    localConfirm(eventHash, true);
+    localConfirm(eventId, true);
   }
 
-  static Future<void> decline(String eventHash) async {
-    await EventAPI().decline(eventHash);
+  static Future<void> decline(String eventId) async {
+    await EventAPI().decline(eventId);
 
-    localConfirm(eventHash, false);
+    localConfirm(eventId, false);
   }
 
-  static Future<void> shareToGroups(String eventHash, Set<ShareEventRequestDto> groupsIds) async {
-    var eventDto = await EventAPI().shareToProfiles(eventHash, groupsIds);
+  static Future<void> shareToGroups(String eventId, Set<ShareEventRequestDto> groupsIds) async {
+    var eventDto = await EventAPI().shareToProfiles(eventId, groupsIds);
     EventStorageService.addEvent(eventDto);
   }
 
@@ -81,8 +81,8 @@ class EventViewService {
     }
   }
 
-  static Future<void> delete(String eventHash) async {
-    Event? event = await EventStorage().getEventByHash(eventHash);
+  static Future<void> delete(String eventId) async {
+    Event? event = await EventStorage().getEventByHash(eventId);
     if (event != null) {
       await EventAPI().delete(event.id);
       localDelete(event);

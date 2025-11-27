@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/service/media/media_retrieve_service.dart';
 import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
@@ -16,7 +16,7 @@ class MediaAutoSelectService {
     final eventsNotChecked = await _retrieveConfirmedEventsEndedIn(sinceLastTime);
 
     for (final event in eventsNotChecked) {
-      await MediaRetrieveService.retrieveShootedPhotos(event.id);
+      await MediaRetrieveService.retrieveShootedPhotos(event);
     }
 
     await _saveDateTime(time: now);

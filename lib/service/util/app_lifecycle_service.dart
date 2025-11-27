@@ -21,13 +21,13 @@ class AppLifecycleService with WidgetsBindingObserver {
     _initialized = true;
     WidgetsBinding.instance.addObserver(this);
 
-    await _retrieveData();
+    _retrieveData();
     _initializeServices();
   }
 
-  static Future<void> _retrieveData() async {
+  static void _retrieveData() {
     if (kIsWeb || AuthenticationProvider().isFirstTimeLogging) {
-      await _initializeCollections();
+      _initializeCollections();
     } else {
       _retrieveUpdates();
     }
@@ -38,11 +38,12 @@ class AppLifecycleService with WidgetsBindingObserver {
   }
 
   static Future<void> _initializeCollections() async {
+    
     CommunityService().retrieveCommunities();
   }
 
   static void _initializeServices() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       RealTimeUpdateService().initialize();
       EventLongPollingService.resumePolling();
 

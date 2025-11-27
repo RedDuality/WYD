@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/model/event.dart';
+import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
 import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
 import 'package:wyd_front/view/events/rounded_event_tile.dart';
@@ -24,7 +24,8 @@ class EventTile<T> extends StatelessWidget {
   final DateTime endDuration;
 
   List<Color> _getProfileColors(BuildContext context, Event event) {
-    var relatedProfiles = Provider.of<ProfileEventsCache>(context, listen: false).relatedProfiles(event.id, confirmedView);
+    var relatedProfiles =
+        Provider.of<ProfileEventsCache>(context, listen: false).relatedProfiles(event.id, confirmedView);
     final provider = Provider.of<DetailedProfileCache>(context, listen: false);
 
     return relatedProfiles.map((profileId) {
@@ -47,10 +48,13 @@ class EventTile<T> extends StatelessWidget {
           totalEvents: events.length,
           padding: const EdgeInsets.fromLTRB(2.0, 0.0, 3.0, 3.0),
           margin: const EdgeInsets.all(1.5),
-          backgroundColor: event.color,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           sideBarColors: _getProfileColors(context, event),
           sideBarWidth: 4,
-          titleStyle: event.titleStyle,
+          titleStyle: TextStyle(
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
           descriptionStyle: event.descriptionStyle,
         ),
         if (event.hasCachedMedia)

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 /// An adapter that bridges the low-level onPageChange callback from the
 /// calendar_view package to the high-level AbstractCalendarController interface.
 class RangeController extends ChangeNotifier {
+  late DateTimeRange _totalRange;
   late DateTimeRange _previousRange;
   late DateTimeRange _focusedRange;
   late DateTimeRange _futureRange;
@@ -11,7 +12,8 @@ class RangeController extends ChangeNotifier {
   RangeController(DateTime date, int numberOfDay) {
     _calculateRanges(date, numberOfDay);
   }
-  
+
+  DateTimeRange get totalRange => _totalRange;
   DateTimeRange get previousRange => _previousRange;
   DateTimeRange get focusedRange => _focusedRange;
   DateTimeRange get futureRange => _futureRange;
@@ -31,6 +33,8 @@ class RangeController extends ChangeNotifier {
     _focusedRange = _calculateRange(currentDay, visibleDays);
     _previousRange = _calculateRange(currentDay.add(Duration(days: -visibleDays)), visibleDays);
     _futureRange = _calculateRange(currentDay.add(Duration(days: visibleDays)), visibleDays);
+
+    _totalRange = DateTimeRange(start: _previousRange.start, end: _futureRange.end);
   }
 
   static DateTimeRange _calculateRange(DateTime currentDay, int visibleDays) {

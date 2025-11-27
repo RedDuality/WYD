@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/profile.dart';
+import 'package:wyd_front/model/profiles/profile.dart';
 import 'package:wyd_front/service/profile/profile_storage_service.dart';
 import 'package:wyd_front/state/profile/profile_storage.dart';
 

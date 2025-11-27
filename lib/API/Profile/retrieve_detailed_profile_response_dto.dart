@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/model/user_claim.dart';
-import 'package:wyd_front/model/view_settings.dart';
+import 'package:wyd_front/model/users/user_claim.dart';
+import 'package:wyd_front/model/users/view_settings.dart';
 
 class RetrieveDetailedProfileResponseDto {
   final String id;
