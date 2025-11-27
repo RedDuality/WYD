@@ -7,13 +7,13 @@ import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
-import 'package:wyd_front/state/event/event_details_storage.dart';
+import 'package:wyd_front/state/event/event_details_cache.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/service/event/profile_events_storage_service.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 
-class EventViewService {
+class EventActionsService {
   static final _profileColorChangeController = StreamController<void>.broadcast();
 
   static Stream<void> get onProfileColorChangedStream => _profileColorChangeController.stream;
@@ -69,14 +69,14 @@ class EventViewService {
 
   static Future<void> localDelete(Event event, {String? profileHash}) async {
     var pHash = profileHash ?? UserCache().getCurrentProfileId();
-    await ProfileEventsStorage().removeSingle(event.id, pHash);
+    await DetailedProfileEventsStorage().removeSingle(event.id, pHash);
 
     var myProfileIds = UserCache().getProfileIds();
-    var profilesOfEvent = await ProfileEventsStorage().countMatchingProfiles(event.id, myProfileIds);
+    var profilesOfEvent = await DetailedProfileEventsStorage().countMatchingProfiles(event.id, myProfileIds);
 
     if (profilesOfEvent == 0) {
-      ProfileEventsStorage().removeAll(event.id);
-      EventDetailsStorage().remove(event.id);
+      DetailedProfileEventsStorage().removeAll(event.id);
+      EventDetailsCache().remove(event.id);
       EventStorage().remove(event);
     }
   }

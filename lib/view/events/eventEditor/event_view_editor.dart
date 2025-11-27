@@ -7,11 +7,11 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
-import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
-import 'package:wyd_front/state/event/event_details_storage.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
+import 'package:wyd_front/state/event/event_details_cache.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/view/events/eventEditor/confirmed_list.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
@@ -40,7 +40,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
   Event? originalEvent;
   late bool exists;
 
-  late ProfileEventsCache _profileEventsCache;
+  late DetailedProfileEventsCache _profileEventsCache;
 
   final _descriptionController = TextEditingController();
   late VoidCallback _titleListener;
@@ -71,7 +71,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
     totalProfiles = originalEvent?.totalProfiles ?? 1;
 
     if (exists) {
-      var details = EventDetailsStorage().get(originalEvent!.id);
+      var details = EventDetailsCache().get(originalEvent!.id);
       if (details != null) {
         initialDescription = details.description;
       }
@@ -94,7 +94,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _profileEventsCache = Provider.of<ProfileEventsCache>(context, listen: false);
+    _profileEventsCache = Provider.of<DetailedProfileEventsCache>(context, listen: false);
   }
 
   void setDates(DateTime startTime, DateTime endTime) {
@@ -130,7 +130,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   Future<void> _createEvent() async {
     final createdEvent = _getCreateDto();
-    final newEventId = await EventViewService.create(createdEvent);
+    final newEventId = await EventActionsService.create(createdEvent);
     widget.onEventCreated(newEventId);
   }
 
@@ -146,7 +146,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
   Future<void> _updateEvent() async {
     final updateDto = _getUpdateDto();
     if (updateDto != null) {
-      await EventViewService.update(updateDto);
+      await EventActionsService.update(updateDto);
       initialDescription = _descriptionController.text.trim();
     }
   }
@@ -166,7 +166,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
   }
 
   Future<void> _deleteEvent() async {
-    EventViewService.delete(originalEvent!.id).then(
+    EventActionsService.delete(originalEvent!.id).then(
       (value) {
         if (mounted) Navigator.of(context).pop();
       },
@@ -299,7 +299,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
               if (exists && !isBeingChanged && _profileEventsCache.currentConfirmed(originalEvent!.id)) // Decline
                 ElevatedButton(
                   onPressed: () async {
-                    await EventViewService.decline(originalEvent!.id);
+                    await EventActionsService.decline(originalEvent!.id);
                   },
                   child: Row(
                     children: [
@@ -316,7 +316,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
               if (exists && !isBeingChanged && !_profileEventsCache.currentConfirmed(originalEvent!.id)) // Confirm
                 ElevatedButton(
                   onPressed: () async {
-                    await EventViewService.confirm(originalEvent!.id);
+                    await EventActionsService.confirm(originalEvent!.id);
                   },
                   child: Row(
                     children: [

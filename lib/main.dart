@@ -7,11 +7,13 @@ import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wyd_front/state/community_storage.dart';
+import 'package:wyd_front/state/event/event_intervals_manager.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
-import 'package:wyd_front/state/event/event_details_storage.dart';
+import 'package:wyd_front/state/event/event_details_cache.dart';
+import 'package:wyd_front/state/media/media_flag_cache.dart';
 import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
-import 'package:wyd_front/state/profile/profiles_provider.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
+import 'package:wyd_front/state/profile/profiles_cache.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
@@ -57,13 +59,18 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => UserCache()),
-        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileCache()),
         ChangeNotifierProvider(create: (_) => DetailedProfileCache()),
         ChangeNotifierProvider(create: (_) => ViewSettingsCache()),
-        ChangeNotifierProvider(create: (_) => ProfileEventsCache()),
+        ChangeNotifierProvider(create: (_) => DetailedProfileEventsCache()),
         ChangeNotifierProvider(create: (_) => CommunityStorage()),
         ChangeNotifierProvider(create: (_) => EventsCache()),
-        ChangeNotifierProvider(create: (_) => EventDetailsStorage()),
+        ChangeNotifierProvider(create: (_) => EventDetailsCache()),
+        ChangeNotifierProvider(create: (_) => MediaFlagCache()),
+        Provider<EventIntervalsManager>(
+          create: (_) => EventIntervalsManager(),
+          dispose: (_, manager) => manager.dispose(),
+        ),
       ],
       child: Consumer<AuthenticationProvider>(
         builder: (context, authProvider, _) {

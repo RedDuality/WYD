@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/service/media/media_retrieve_service.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 
 class MediaAutoSelectService {
   static Future<void> checkEventsForPhotos() async {
@@ -25,7 +25,7 @@ class MediaAutoSelectService {
   static Future<Set<Event>> _retrieveConfirmedEventsEndedIn(DateTimeRange requestedInterval) async {
     final eventsNotChecked = await EventStorageService.retrieveEventsEndedIn(requestedInterval);
     final confirmedEventIds =
-        await ProfileEventsStorage().eventsWithProfilesConfirmed(eventsNotChecked.map((event) => event.id).toSet());
+        await DetailedProfileEventsStorage().eventsWithProfilesConfirmed(eventsNotChecked.map((event) => event.id).toSet());
 
     return eventsNotChecked.where((event) => confirmedEventIds.contains(event.id)).toSet();
   }

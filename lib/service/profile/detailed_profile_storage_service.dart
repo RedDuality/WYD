@@ -4,7 +4,7 @@ import 'package:wyd_front/API/Profile/retrieve_detailed_profile_response_dto.dar
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
 import 'package:wyd_front/model/users/detailed_profile.dart';
 import 'package:wyd_front/model/profiles/profile.dart';
-import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/state/profile/detailed_profile_storage.dart';
 import 'package:wyd_front/state/profile/profile_storage.dart';
 
@@ -37,7 +37,7 @@ class DetailedProfileStorageService {
   static Future<void> _checkColorChanged(RetrieveDetailedProfileResponseDto dto) async {
     var oldProfile = await DetailedProfileStorage().getById(dto.id);
     if (oldProfile!.color != dto.color) {
-      EventViewService.notifyProfileColorChanged();
+      EventActionsService.notifyProfileColorChanged();
     }
   }
 

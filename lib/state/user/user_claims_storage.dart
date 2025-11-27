@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -8,15 +10,18 @@ class UserClaimStorage {
   static const _tableName = 'user_claims';
   static const _databaseVersion = 1;
 
+  final Map<String, List<UserClaim>> _inMemoryStorage = {}; // profileId → claims
+  static Database? _database;
+
   // --- Singleton Implementation ---
   static final UserClaimStorage _instance = UserClaimStorage._internal();
   factory UserClaimStorage() => _instance;
   UserClaimStorage._internal();
   // --------------------------------
 
-  final Map<String, List<UserClaim>> _inMemoryStorage = {}; // profileId → claims
-  static Database? _database;
-
+  final _clearAllChannel = StreamController<void>();
+  Stream<void> get clearChannel => _clearAllChannel.stream;
+  
   Future<Database?> get database async {
     if (kIsWeb) return null;
     if (_database != null) return _database!;
@@ -126,6 +131,7 @@ class UserClaimStorage {
 
   /// Clear all claims
   Future<void> clearAll() async {
+    _clearAllChannel.sink.add(null);
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;

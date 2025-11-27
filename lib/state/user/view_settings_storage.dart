@@ -17,6 +17,9 @@ class ViewSettingsStorage {
   final _settingsUpdateController = StreamController<ViewSettings>();
   Stream<ViewSettings> get updates => _settingsUpdateController.stream;
 
+  final _clearAllChannel = StreamController<void>();
+  Stream<void> get clearChannel => _clearAllChannel.stream;
+
   final Map<String, ViewSettings> _inMemoryStorage = {}; // key: "$viewerId:$viewedId"
   static Database? _database;
 
@@ -52,6 +55,8 @@ class ViewSettingsStorage {
 
   /// Save or update a single ViewSettings
   Future<void> saveViewSettings(ViewSettings settings) async {
+    _settingsUpdateController.sink.add(settings);
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -63,11 +68,14 @@ class ViewSettingsStorage {
     } else {
       _inMemoryStorage['${settings.viewerId}:${settings.viewedId}'] = settings;
     }
-    _settingsUpdateController.sink.add(settings);
   }
 
   /// Save or overwrite multiple ViewSettings
   Future<void> saveMultiple(List<ViewSettings> settingsList) async {
+    for (final settings in settingsList) {
+      _settingsUpdateController.sink.add(settings);
+    }
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -84,10 +92,6 @@ class ViewSettingsStorage {
       for (final settings in settingsList) {
         _inMemoryStorage['${settings.viewerId}:${settings.viewedId}'] = settings;
       }
-    }
-
-    for (final settings in settingsList) {
-      _settingsUpdateController.sink.add(settings);
     }
   }
 
@@ -152,6 +156,8 @@ class ViewSettingsStorage {
   }
 
   Future<void> clearAll() async {
+    _clearAllChannel.sink.add(null);
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;

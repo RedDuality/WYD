@@ -9,10 +9,10 @@ import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/media/media_selection_service.dart';
 import 'package:wyd_front/service/media/media_upload_service.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
-import 'package:wyd_front/state/event/event_details_storage.dart';
-import 'package:wyd_front/state/media/cached_media_cache.dart';
-import 'package:wyd_front/state/media/cached_media_storage.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
+import 'package:wyd_front/state/event/event_details_cache.dart';
+import 'package:wyd_front/state/media/media_cache.dart';
+import 'package:wyd_front/state/media/media_storage.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/view/widget/media/card_display.dart';
 import 'package:wyd_front/view/widget/media/media_display.dart';
 
@@ -37,7 +37,7 @@ class GalleryEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final eventsCache = Provider.of<EventsCache>(context, listen: false);
-    final profileEventCache = Provider.of<ProfileEventsCache>(context, listen: false);
+    final profileEventCache = Provider.of<DetailedProfileEventsCache>(context, listen: false);
 
     final hasEventFinished = eventsCache.get(eventId)!.hasEventFinished();
     final atLeastOneConfirmed = profileEventCache.atLeastOneConfirmed(eventId);
@@ -45,15 +45,15 @@ class GalleryEditor extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
       child: ChangeNotifierProvider(
-        create: (_) => CachedMediaCache(eventId),
+        create: (_) => MediaCache(eventId),
         child: Builder(
           builder: (context) {
-            var eventDetails = EventDetailsStorage().get(eventId);
+            var eventDetails = EventDetailsCache().get(eventId);
             if (eventDetails != null &&
                 eventDetails.totalImages > 0 &&
                 eventDetails.media.isNotEmpty &&
                 (eventDetails.validUntil == null || eventDetails.validUntil!.isBefore(DateTime.now()))) {
-              EventDetailsStorage().invalidateMediaCache(eventId);
+              EventDetailsCache().invalidateMediaCache(eventId);
             }
 
             EventDetailsService.retrieveMediaFromServer(eventId);
@@ -120,7 +120,7 @@ class GalleryEditor extends StatelessWidget {
   }
 
   Widget _imageSelection() {
-    return Consumer<CachedMediaCache>(builder: (context, mediaProvider, child) {
+    return Consumer<MediaCache>(builder: (context, mediaProvider, child) {
       final mediaMap = mediaProvider.get();
       return mediaMap != null && mediaMap.isNotEmpty
           ? Column(
@@ -144,10 +144,10 @@ class GalleryEditor extends StatelessWidget {
                               maxWidth: itemWidth,
                               isSelected: isSelected,
                               onSelected: () {
-                                CachedMediaStorage().updateSelection(eventId, image, true);
+                                MediaStorage().updateSelection(eventId, image, true);
                               },
                               onUnSelected: () {
-                                CachedMediaStorage().updateSelection(eventId, image, false);
+                                MediaStorage().updateSelection(eventId, image, false);
                               },
                               mediaBuilder: ({onLoadingFinished, onError}) {
                                 return MediaDisplay.fromAsset(
@@ -177,7 +177,7 @@ class GalleryEditor extends StatelessWidget {
     });
   }
 
-  Widget _selectionButtons(CachedMediaCache mediaProvider, Map<AssetEntity, bool> mediaMap, BuildContext context) {
+  Widget _selectionButtons(MediaCache mediaProvider, Map<AssetEntity, bool> mediaMap, BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -194,7 +194,7 @@ class GalleryEditor extends StatelessWidget {
                   var cachedImages = await MediaSelectionService.dataFromCache(selectedAssets);
                   await MediaUploadService().uploadImages(eventId, cachedImages);
                 }
-                CachedMediaStorage().removeAllMedia(eventId);
+                MediaStorage().removeAllMedia(eventId);
               },
               icon: const Icon(Icons.upload),
               label: Row(
@@ -207,7 +207,7 @@ class GalleryEditor extends StatelessWidget {
             ),
             ElevatedButton.icon(
               onPressed: () async {
-                CachedMediaStorage().removeAllMedia(eventId);
+                MediaStorage().removeAllMedia(eventId);
               },
               icon: const Icon(Icons.delete, color: Colors.red),
               label: Row(
@@ -251,9 +251,9 @@ class GalleryEditor extends StatelessWidget {
   }
 
   Widget _alreadySavedImages() {
-    return Consumer<EventDetailsStorage>(
+    return Consumer<EventDetailsCache>(
       builder: (context, eventProvider, child) {
-        final eventDetails = context.select<EventDetailsStorage, EventDetails?>(
+        final eventDetails = context.select<EventDetailsCache, EventDetails?>(
           (provider) => provider.get(eventId),
         );
         if (eventDetails != null && eventDetails.totalImages > 0 && eventDetails.media.isEmpty) {

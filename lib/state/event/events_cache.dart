@@ -4,32 +4,104 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
+import 'package:wyd_front/service/event/event_storage_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/event_view_orchestrator.dart';
+import 'package:wyd_front/view/events/event_view_orchestrator.dart';
 
 class EventsCache extends EventController {
   EventViewOrchestrator? _provider;
 
   final EventStorage _storage = EventStorage();
 
-  StreamSubscription<DateTimeRange>? _rangesSubscription;
-  StreamSubscription<(Event, bool)>? _eventSubscription;
+  late final StreamSubscription<DateTimeRange> _rangesChannel;
+  late final StreamSubscription<(Event event, bool deleted)> _eventChannel;
+  late final StreamSubscription<void> _clearAllChannel;
+
+  DateTimeRange _rangeInCache =
+      DateTimeRange(start: DateTime.fromMicrosecondsSinceEpoch(0), end: DateTime.fromMillisecondsSinceEpoch(1));
 
   EventsCache() {
-
-    _rangesSubscription = _storage.ranges.listen((updatedRange) {
-      if (_provider != null && updatedRange.overlapsWith(_provider!.controller.focusedRange)) {
-        _synchWithStorage(updatedRange);
-      }
+    _rangesChannel = _storage.rangesChannel.listen((updatedRange) {
+      _synchWithStorage(updatedRange);
     });
 
-    _eventSubscription = _storage.updates.listen((event) {
+    _eventChannel = _storage.updatesChannel.listen((event) {
       if (event.$2) {
         _delete(event.$1);
       } else {
         _updateEvent(event.$1);
       }
     });
+
+    _clearAllChannel = _storage.clearChannel.listen((_) {
+      clearAll();
+    });
+  }
+
+  Future<void> _synchWithStorage(DateTimeRange updatedRange) async {
+    if (!_rangeInCache.overlapsWith(updatedRange)) return;
+
+    final overlap = _rangeInCache.getOverlap(updatedRange);
+    if (overlap == null) return;
+
+    var events = await _storage.getEventsInRange(overlap);
+
+    if (events.isNotEmpty) {
+      final eventIds = events.map((e) => e.id).toSet();
+      await _provider!.onMultipleEventsAdded(eventIds);
+      super.addAll(events);
+    }
+  }
+
+  Future<void> _updateEvent(Event event) async {
+    if (_provider == null) return;
+
+    final range = _provider!.controller.focusedRange;
+    final inTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
+
+    if (inTimeRange) {
+      Event? inMemoryEvent = allEvents.whereType<Event>().where((ev) => ev.id == event.id).firstOrNull;
+
+      if (inMemoryEvent != event) {
+        if (inMemoryEvent != null) {
+          super.remove(inMemoryEvent);
+        } else {
+          await _provider!.onSingleEventAdded(event.id);
+        }
+        super.add(event);
+      }
+    }
+  }
+
+  void _delete(Event event) {
+    Event? inMemoryEvent = allEvents.whereType<Event>().where((ev) => ev.id == event.id).firstOrNull;
+    if (inMemoryEvent != null) {
+      super.remove(event);
+    }
+  }
+
+  Future<void> onRangeChange(DateTimeRange newRange) async {
+    if (newRange == _rangeInCache) return;
+
+    final eventsToBeRemoved = super
+        .allEvents
+        .whereType<Event>()
+        .where((e) => !(e.endTime!.isAfter(newRange.start) && e.startTime!.isBefore(newRange.end)))
+        .toList();
+
+    super.removeAll(eventsToBeRemoved);
+
+    final addedIntervals = _rangeInCache.getAddedIntervals(newRange);
+
+    _rangeInCache = newRange;
+
+    List<Event> eventsToBeAdded = [];
+    for (final interval in addedIntervals) {
+      var events = await EventStorageService.retrieveEventsInTimeRange(interval);
+      eventsToBeAdded.addAll(events);
+    }
+
+    super.addAll(eventsToBeAdded);
   }
 
   void setViewProvider(EventViewOrchestrator? provider) {
@@ -42,56 +114,6 @@ class EventsCache extends EventController {
     }
   }
 
-  Future<void> _synchWithStorage(DateTimeRange range) async {
-    final range = _provider!.controller.focusedRange;
-    final overlap = DateTimeRange(
-      start: range.start.isAfter(range.start) ? range.start : range.start,
-      end: range.end.isBefore(range.end) ? range.end : range.end,
-    );
-
-    var events = await _storage.getEventsInRange(overlap);
-
-    if (events.isNotEmpty) {
-      final eventIds = events.map((e) => e.id).toSet();
-      await _provider!.onMultipleEventsAdded(eventIds);
-      super.addAll(events);
-    }
-  }
-
-  void _delete(Event event) {
-    Event? inMemoryEvent = allEvents.whereType<Event>().where((ev) => ev.id == event.id).firstOrNull;
-    if (inMemoryEvent != null) {
-      super.remove(event);
-    }
-  }
-
-  Future<void> _updateEvent(Event event) async {
-    if (_provider == null) return;
-    final range = _provider!.controller.focusedRange;
-    final inTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
-
-    Event? inMemoryEvent = allEvents.whereType<Event>().where((ev) => ev.id == event.id).firstOrNull;
-
-    final adding = inMemoryEvent == null;
-    final updating = inMemoryEvent != null;
-
-    if (inMemoryEvent != event) {
-      if (updating) {
-        event.hasCachedMedia = inMemoryEvent.hasCachedMedia;
-        super.remove(inMemoryEvent);
-      }
-
-      if (adding || inTimeRange) {
-        super.add(event);
-      }
-    }
-  }
-
-  void overwrite(List<Event> events) {
-    if (super.allEvents.isNotEmpty) super.removeWhere((_) => true);
-    super.addAll(events);
-  }
-
   Event? get(String eventId) {
     for (final event in allEvents.whereType<Event>()) {
       if (event.id == eventId) return event;
@@ -99,18 +121,16 @@ class EventsCache extends EventController {
     return null;
   }
 
-  // triggers a view update
-  void refresh() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+  void clearAll() {
+    super.allEvents.clear();
   }
 
   @override
   void dispose() {
     // super.allEvents.clear();
-    _rangesSubscription?.cancel();
-    _eventSubscription?.cancel();
+    _clearAllChannel.cancel();
+    _rangesChannel.cancel();
+    _eventChannel.cancel();
     super.dispose();
   }
 }

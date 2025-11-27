@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/profiles/profile.dart';
-import 'package:wyd_front/state/profile/profiles_provider.dart';
+import 'package:wyd_front/state/profile/profiles_cache.dart';
 import 'package:wyd_front/view/profiles/tiles/menu_profile_tile.dart';
 import 'package:wyd_front/view/profiles/tiles/view_profile_tile.dart';
 
@@ -22,7 +22,7 @@ class _ProfileTileState extends State<ProfileTile> {
   @override
   Widget build(BuildContext context) {
     // Listens for changes to a specific profile and rebuilds only when that profile is updated.
-    final profile = context.select<ProfileProvider, Profile?>(
+    final profile = context.select<ProfileCache, Profile?>(
       (provider) => provider.get(widget.profileId),
     );
 

@@ -7,8 +7,6 @@ import 'package:wyd_front/state/user/user_storage.dart';
 class UserCache extends ChangeNotifier {
   late User? _user;
 
-  StreamSubscription<User>? _userUpdateSubscription;
-
   static final UserCache _instance = UserCache._internal();
   factory UserCache() => _instance;
   UserCache._internal();
@@ -31,7 +29,7 @@ class UserCache extends ChangeNotifier {
     return profiles;
   }
 
-  void updateUser(User user) {
+  void updateUser(User? user) {
     _user = user;
     // notifyListeners();
   }
@@ -39,11 +37,5 @@ class UserCache extends ChangeNotifier {
   void setCurrentProfile(String profileHash) {
     _user!.currentProfileId = profileHash;
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _userUpdateSubscription?.cancel();
-    super.dispose();
   }
 }

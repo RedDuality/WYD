@@ -2,26 +2,24 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/enum/event_role.dart';
 import 'package:wyd_front/model/profiles/profile_event.dart';
-import 'package:wyd_front/state/event_view_orchestrator.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
+import 'package:wyd_front/view/events/event_view_orchestrator.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 
-class ProfileEventsCache extends ChangeNotifier {
+class DetailedProfileEventsCache extends ChangeNotifier {
   EventViewOrchestrator? _provider;
 
-  final ProfileEventsStorage _storage = ProfileEventsStorage();
+  final DetailedProfileEventsStorage _storage = DetailedProfileEventsStorage();
 
-  late final StreamSubscription<(String, Set<ProfileEvent>)> _addChannel;
+  late final StreamSubscription<(String eventId, Set<ProfileEvent> pes)> _addChannel;
   late final StreamSubscription<ProfileEvent> _updateChannel;
-  late final StreamSubscription<(String, String)> _deleteChannel;
+  late final StreamSubscription<(String eventId, String profileId)> _deleteChannel;
   late final StreamSubscription<String> _deleteAllChannel;
+  late final StreamSubscription<void> _clearAllChannel;
 
   final Map<String, Set<ProfileEvent>> _profileEvents = {};
 
-  ProfileEventsCache() {
-    _addChannel = _storage.addChannel.listen((pe) {
-      addProfileEvents(pe.$1, pe.$2);
-    });
+  DetailedProfileEventsCache() {
     _updateChannel = _storage.updatesChannel.listen((pe) {
       // only for updates, the insertions are handled by currentEventsProvider
       _update(pe);
@@ -32,6 +30,10 @@ class ProfileEventsCache extends ChangeNotifier {
     _deleteAllChannel = _storage.deleteAllChannel.listen((eventId) {
       remove(eventId);
     });
+
+    _clearAllChannel = _storage.clearChannel.listen((_) {
+      clearAll();
+    });
   }
 
   void setViewProvider(EventViewOrchestrator? provider) {
@@ -40,12 +42,6 @@ class ProfileEventsCache extends ChangeNotifier {
 
   Set<ProfileEvent> get(String eventId) {
     return _profileEvents[eventId]!;
-  }
-
-  Future<void> addProfileEvents(String eventId, Set<ProfileEvent> profileEvents) async {
-    if (_provider != null && _provider!.currentEventsIds().contains(eventId)) {
-      _profileEvents[eventId] = profileEvents;
-    }
   }
 
   // e.g. someone confirmed
@@ -60,10 +56,12 @@ class ProfileEventsCache extends ChangeNotifier {
     }
   }
 
-  Future<void> loadCorrespondingProfileEvents(Set<String> newEventIds) async {
-    _profileEvents.removeWhere((id, _) => !newEventIds.contains(id));
+  Future<void> synchWithCachedEvents() async {
+    if (_provider == null) return;
+    final currentEventsIds = _provider!.currentEventsIds();
+    _profileEvents.removeWhere((id, _) => !currentEventsIds.contains(id));
 
-    final missingIds = newEventIds.difference(_profileEvents.keys.toSet());
+    final missingIds = currentEventsIds.difference(_profileEvents.keys.toSet());
 
     if (missingIds.isNotEmpty) {
       final fetched = await _storage.getAllForEvents(missingIds.toList());
@@ -74,14 +72,35 @@ class ProfileEventsCache extends ChangeNotifier {
     }
   }
 
-  Future<void> remove(String eventId) async {
+  Future<void> loadCorrespondingProfileEvents(Set<String> eventIds) async {
+    final fetched = await _storage.getAllForEvents(eventIds.toList());
+    fetched.forEach((eventId, events) {
+      if (_profileEvents.containsKey(eventId)) {
+        _profileEvents[eventId]!.addAll(events);
+      } else {
+        _profileEvents[eventId] = events;
+      }
+    });
+  }
+
+  Future<void> loadProfileEvents(String newEventId) async {
+    final fetched = await _storage.getAll(newEventId);
+    _profileEvents[newEventId] = fetched;
+  }
+
+  void remove(String eventId) {
     if (_profileEvents.containsKey(eventId)) {
       _profileEvents.remove(eventId);
+      notifyListeners();
     }
   }
 
-  Future<void> _removeSingle(String eventId, String profileId) async {
+  void _removeSingle(String eventId, String profileId) {
     _profileEvents[eventId]?.removeWhere((pe) => pe.profileId == profileId);
+  }
+
+  void clearAll() {
+    _profileEvents.clear();
   }
 
   @override
@@ -90,6 +109,7 @@ class ProfileEventsCache extends ChangeNotifier {
     _updateChannel.cancel();
     _deleteAllChannel.cancel();
     _deleteChannel.cancel();
+    _clearAllChannel.cancel();
     super.dispose();
   }
 

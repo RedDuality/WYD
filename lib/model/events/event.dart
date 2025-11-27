@@ -8,17 +8,16 @@ class Event extends CalendarEventData {
   DateTime updatedAt;
   int totalConfirmed;
   int totalProfiles;
-  bool hasCachedMedia;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Event) return false;
-    return id == other.id && updatedAt == other.updatedAt && hasCachedMedia == other.hasCachedMedia;
+    return id == other.id && updatedAt == other.updatedAt;
   }
 
   @override
-  int get hashCode => Object.hash(id, updatedAt, hasCachedMedia);
+  int get hashCode => Object.hash(id, updatedAt);
 
   Event({
     this.id = "",
@@ -26,7 +25,6 @@ class Event extends CalendarEventData {
     required this.updatedAt,
     required this.totalConfirmed,
     required this.totalProfiles,
-    this.hasCachedMedia = false,
     DateTime? date,
     // in Utc time
     required DateTime startTime,
@@ -76,7 +74,6 @@ class Event extends CalendarEventData {
       endDate: endTime,
       totalProfiles: map['totalProfiles'] as int,
       totalConfirmed: map['totalConfirmed'] as int,
-      hasCachedMedia: map['hasCachedMedia'] == 1,
     );
   }
 
@@ -90,7 +87,6 @@ class Event extends CalendarEventData {
       'updatedAt': updatedAt.millisecondsSinceEpoch,
       'totalConfirmed': totalConfirmed,
       'totalProfiles': totalProfiles,
-      'hasCachedMedia': hasCachedMedia ? 1 : 0,
     };
   }
 

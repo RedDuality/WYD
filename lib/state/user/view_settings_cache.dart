@@ -7,27 +7,24 @@ import 'package:wyd_front/state/user/view_settings_storage.dart';
 
 class ViewSettingsCache extends ChangeNotifier {
   final ViewSettingsStorage _storage = ViewSettingsStorage();
-  StreamSubscription<ViewSettings>? _settingsSubscription;
-
-  ViewSettingsCache() {
-    _settingsSubscription = _storage.updates.listen((settings) {
-      _set(settings);
-    });
-  }
+  late final StreamSubscription<ViewSettings> _settingsChannel;
+  late final StreamSubscription<void> _clearAllChannel;
 
   final Set<String> _confirmedViewProfiles = {UserCache().getCurrentProfileId()};
   final Set<String> _sharedViewProfiles = {UserCache().getCurrentProfileId()};
 
-  Set<String> getProfiles(bool confirmed) {
-    return confirmed ? _confirmedViewProfiles : _sharedViewProfiles;
+  ViewSettingsCache() {
+    _settingsChannel = _storage.updates.listen((settings) {
+      _set(settings);
+    });
+
+    _clearAllChannel = _storage.clearChannel.listen((_) {
+      clearAll();
+    });
   }
 
-  void _updateSet(Set<String> set, String id, bool shouldContain) {
-    if (shouldContain) {
-      set.add(id);
-    } else {
-      set.remove(id);
-    }
+  Set<String> getProfiles(bool confirmed) {
+    return confirmed ? _confirmedViewProfiles : _sharedViewProfiles;
   }
 
   void _set(ViewSettings settings) {
@@ -39,6 +36,14 @@ class ViewSettingsCache extends ChangeNotifier {
     _updateSet(_sharedViewProfiles, settings.viewedId, settings.viewShared);
 
     notifyListeners();
+  }
+
+  void _updateSet(Set<String> set, String id, bool shouldContain) {
+    if (shouldContain) {
+      set.add(id);
+    } else {
+      set.remove(id);
+    }
   }
 
   Future<void> reset() async {
@@ -62,9 +67,15 @@ class ViewSettingsCache extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearAll() {
+    _confirmedViewProfiles.clear();
+    _sharedViewProfiles.clear();
+  }
+
   @override
   void dispose() {
-    _settingsSubscription?.cancel();
+    _clearAllChannel.cancel();
+    _settingsChannel.cancel();
     super.dispose();
   }
 }

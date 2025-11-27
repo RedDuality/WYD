@@ -5,19 +5,19 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/util/device_permission_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/media/cached_media_cache.dart';
-import 'package:wyd_front/state/media/cached_media_storage.dart';
+import 'package:wyd_front/state/media/media_cache.dart';
+import 'package:wyd_front/state/media/media_storage.dart';
 
 class MediaRetrieveService {
   static Future<void> retrieveShootedPhotos(Event event) async {
     var photosDuringEvent = await _retrieveImagesByTime(event.startTime!.toUtc(), event.endTime!.toUtc());
 
     if (photosDuringEvent.isNotEmpty) {
-      CachedMediaStorage().setCachedMedia(event.id, photosDuringEvent.toSet());
+      MediaStorage().setCachedMedia(event.id, photosDuringEvent.toSet());
     }
   }
 
-  static Future<void> mockRetrieveShootedPhotos(String eventId, CachedMediaCache provider) async {
+  static Future<void> mockRetrieveShootedPhotos(String eventId, MediaCache provider) async {
     var event = await EventStorage().getEventByHash(eventId);
     if (event != null) {
       var mockAssetEntities = List.generate(
@@ -31,7 +31,7 @@ class MediaRetrieveService {
       );
 
       if (mockAssetEntities.isNotEmpty) {
-        CachedMediaStorage().setCachedMedia(event.id, mockAssetEntities.toSet());
+        MediaStorage().setCachedMedia(event.id, mockAssetEntities.toSet());
       }
     }
   }

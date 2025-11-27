@@ -5,21 +5,21 @@ import 'package:wyd_front/model/enum/media_type.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/model/media/media.dart';
 import 'package:wyd_front/service/media/media_upload_service.dart';
-import 'package:wyd_front/state/event/event_details_storage.dart';
+import 'package:wyd_front/state/event/event_details_cache.dart';
 
 class MediaService {
   // from BlobProvider, either cached or selected by user
   static Future<void> uploadImages(String eventId, List<MediaData> blobs) async {
     var media = await MediaUploadService().uploadImages(eventId, blobs);
-    EventDetailsStorage().addTotalMedia(eventId, media.length);
+    EventDetailsCache().addTotalMedia(eventId, media.length);
   }
 
   // from Notifications
   static Future<void> retrieveImageUpdatesByHash(Event event) async {
-    var details = EventDetailsStorage().get(event.id);
+    var details = EventDetailsCache().get(event.id);
 
     if (details != null) {
-      EventDetailsStorage().invalidateMediaCache(event.id);
+      EventDetailsCache().invalidateMediaCache(event.id);
     }
   }
 
@@ -39,7 +39,7 @@ class MediaService {
         validUntil = any.validUntil;
       }
 
-      EventDetailsStorage().addMedia(eventId, media, validUntil: validUntil);
+      EventDetailsCache().addMedia(eventId, media, validUntil: validUntil);
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:wyd_front/API/User/store_fcm_token_request_dto.dart';
 import 'package:wyd_front/API/User/user_api.dart';
 import 'package:wyd_front/firebase_options.dart';
 import 'package:wyd_front/model/enum/update_type.dart';
-import 'package:wyd_front/service/event/event_view_service.dart';
+import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/media/media_service.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
@@ -124,12 +124,12 @@ class RealTimeUpdateService {
       */
       case UpdateType.confirmEvent:
         if (data['id'] != null && data['profileId'] != null) {
-          EventViewService.localConfirm(data['id'], true, pHash: data['profileId']);
+          EventActionsService.localConfirm(data['id'], true, pHash: data['profileId']);
         }
         break;
       case UpdateType.declineEvent:
         if (data['id'] != null && data['profileId'] != null) {
-          EventViewService.localConfirm(data['id'], false, pHash: data['profileId']);
+          EventActionsService.localConfirm(data['id'], false, pHash: data['profileId']);
         }
         break;
       case UpdateType.updatePhotos:
@@ -141,7 +141,7 @@ class RealTimeUpdateService {
       case UpdateType.deleteEvent:
         var event = await EventStorage().getEventByHash(data['id']);
         if (event != null && data['phash'] != null) {
-          EventViewService.localDelete(event, profileHash: data['phash']);
+          EventActionsService.localDelete(event, profileHash: data['phash']);
         }
         break;
       case UpdateType.updateProfile:

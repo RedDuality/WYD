@@ -1,13 +1,13 @@
 import 'package:wyd_front/service/media/media_service.dart';
-import 'package:wyd_front/state/event/event_details_storage.dart';
+import 'package:wyd_front/state/event/event_details_cache.dart';
 
 class EventDetailsService {
   static void addImages(String eventId, int added) {
-    EventDetailsStorage().get(eventId)!.totalImages += added;
+    EventDetailsCache().get(eventId)!.totalImages += added;
   }
 
   static void retrieveMediaFromServer(String eventId, {int? start, int? end}) {
-    var details = EventDetailsStorage().get(eventId);
+    var details = EventDetailsCache().get(eventId);
 
     if (details != null &&
         details.totalImages > 0 &&

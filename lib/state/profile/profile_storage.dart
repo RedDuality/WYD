@@ -18,6 +18,9 @@ class ProfileStorage {
   final _profileUpdateController = StreamController<Profile>();
   Stream<Profile> get updates => _profileUpdateController.stream;
 
+  final _clearAllChannel = StreamController<void>();
+  Stream<void> get clearChannel => _clearAllChannel.stream;
+
   // In-memory cache for web/other environments where sqflite isn't used
   final Map<String, Profile> _inMemoryStorage = {};
   static Database? _database;
@@ -52,11 +55,9 @@ class ProfileStorage {
     );
   }
 
-
-
   /// Save or update a profile.
   Future<void> saveProfile(Profile profile) async {
-
+    _profileUpdateController.sink.add(profile);
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -68,11 +69,14 @@ class ProfileStorage {
     } else {
       _inMemoryStorage[profile.id] = profile;
     }
-    _profileUpdateController.sink.add(profile);
   }
 
   /// Save multiple profiles.
   Future<void> saveMultiple(List<Profile> profiles) async {
+    for (final profile in profiles) {
+      _profileUpdateController.sink.add(profile);
+    }
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
@@ -89,10 +93,6 @@ class ProfileStorage {
       for (final profile in profiles) {
         _inMemoryStorage[profile.id] = profile;
       }
-    }
-
-    for (final profile in profiles) {
-      _profileUpdateController.sink.add(profile);
     }
   }
 
@@ -137,7 +137,9 @@ class ProfileStorage {
     _profileUpdateController.close();
   }
 
-  Future<void> clearAllProfiles() async {
+  Future<void> clearAll() async {
+    _clearAllChannel.sink.add(null);
+
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;

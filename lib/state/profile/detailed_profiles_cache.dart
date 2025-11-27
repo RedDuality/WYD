@@ -8,15 +8,20 @@ import 'package:wyd_front/state/profile/detailed_profile_storage.dart';
 class DetailedProfileCache extends ChangeNotifier {
   final DetailedProfileStorage _storage = DetailedProfileStorage();
 
-  StreamSubscription<DetailedProfile>? _profileSubscription;
-
-  DetailedProfileCache() {
-    _profileSubscription = _storage.updates.listen((profile) {
-      _set(profile.id, profile);
-    });
-  }
+  late final StreamSubscription<DetailedProfile> _profileChannel;
+  late final StreamSubscription<void> _clearAllChannel;
 
   final Map<String, DetailedProfile> _profiles = {};
+
+  DetailedProfileCache() {
+    _profileChannel = _storage.updates.listen((profile) {
+      _set(profile.id, profile);
+    });
+
+    _clearAllChannel = _storage.clearChannel.listen((_) {
+      clearAll();
+    });
+  }
 
   DetailedProfile? get(String id) {
     var result = _profiles[id];
@@ -38,9 +43,14 @@ class DetailedProfileCache extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearAll() {
+    _profiles.clear();
+  }
+
   @override
   void dispose() {
-    _profileSubscription?.cancel();
+    _clearAllChannel.cancel();
+    _profileChannel.cancel();
     super.dispose();
   }
 }

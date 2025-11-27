@@ -7,8 +7,9 @@ import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/range_controller.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
-import 'package:wyd_front/state/event_view_orchestrator.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
+import 'package:wyd_front/state/media/media_flag_cache.dart';
+import 'package:wyd_front/view/events/event_view_orchestrator.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
 import 'package:wyd_front/state/util/uri_service.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
@@ -35,13 +36,15 @@ class _EventsPageState extends State<EventsPage> {
     _rangeController = RangeController(DateTime.now(), 7);
 
     final appEventsCache = context.read<EventsCache>();
-    final profileEventsCache = context.read<ProfileEventsCache>();
+    final profileEventsCache = context.read<DetailedProfileEventsCache>();
     final vsCache = context.read<ViewSettingsCache>();
+    final mfCache = context.read<MediaFlagCache>();
 
     _viewOrchestrator = EventViewOrchestrator(
       eventsCache: appEventsCache,
       peCache: profileEventsCache,
       vsCache: vsCache,
+      mfCache: mfCache,
       rangeController: _rangeController,
       confirmedView: true,
     );
@@ -86,59 +89,65 @@ class _EventsPageState extends State<EventsPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _viewOrchestrator,
-      child: Scaffold(
-        appBar:
-            Header(title: _viewOrchestrator.confirmedView ? 'Agenda' : 'Eventi', actions: actions()),
-        body: Consumer<EventsCache>(builder: (context, eventsController, _) {
-          return WeekView(
-            eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
-              return EventTile(
-                  confirmedView: _viewOrchestrator.confirmedView,
-                  date: date,
-                  events: events.whereType<Event>().toList(),
-                  boundary: boundary,
-                  startDuration: startDuration,
-                  endDuration: endDuration);
-            },
-            controller: eventsController,
-            showLiveTimeLineInAllDays: false,
-            scrollOffset: 480.0,
-            onEventTap: (events, date) {
-              Event selectedEvent = events.whereType<Event>().toList().first;
+      child: Consumer<EventViewOrchestrator>(
+        builder: (context, orchestrator, _) {
+          return Scaffold(
+            appBar: Header(
+              title: orchestrator.confirmedView ? 'Agenda' : 'Eventi',
+              actions: actions(orchestrator),
+            ),
+            body: Consumer<EventsCache>(builder: (context, eventsController, _) {
+              return WeekView(
+                eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
+                  return EventTile(
+                      confirmedView: _viewOrchestrator.confirmedView,
+                      date: date,
+                      events: events.whereType<Event>().toList(),
+                      boundary: boundary,
+                      startDuration: startDuration,
+                      endDuration: endDuration);
+                },
+                controller: eventsController,
+                showLiveTimeLineInAllDays: false,
+                scrollOffset: 480.0,
+                onEventTap: (events, date) {
+                  Event selectedEvent = events.whereType<Event>().toList().first;
 
-              unawaited(EventRetrieveService.retrieveDetailsByHash(selectedEvent.id));
+                  unawaited(EventRetrieveService.retrieveDetailsByHash(selectedEvent.id));
 
-              showCustomDialog(
-                  context,
-                  EventView(
-                    eventId: selectedEvent.id,
-                  ));
-            },
-            onDateLongPress: (date) {
-              showCustomDialog(
-                  context,
-                  EventView(
-                    date: date,
-                  ));
-            },
-            startDay: WeekDays.monday,
-            minuteSlotSize: MinuteSlotSize.minutes15,
-            keepScrollOffset: true,
-            onPageChange: (date, page) {
-              _viewOrchestrator.controller.setRange(date, 7);
-            },
+                  showCustomDialog(
+                      context,
+                      EventView(
+                        eventId: selectedEvent.id,
+                      ));
+                },
+                onDateLongPress: (date) {
+                  showCustomDialog(
+                      context,
+                      EventView(
+                        date: date,
+                      ));
+                },
+                startDay: WeekDays.monday,
+                minuteSlotSize: MinuteSlotSize.minutes15,
+                keepScrollOffset: true,
+                onPageChange: (date, page) {
+                  _viewOrchestrator.controller.setRange(date, 7);
+                },
+              );
+            }),
+            floatingActionButton: AddEventButton(),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           );
-        }),
-        floatingActionButton: AddEventButton(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        },
       ),
     );
   }
 
-  List<Widget> actions() {
+  List<Widget> actions(EventViewOrchestrator orchestrator) {
     return [
       const SizedBox(width: 10),
-      if (_viewOrchestrator.confirmedView)
+      if (orchestrator.confirmedView)
         Builder(
           builder: (context) {
             double screenWidth = MediaQuery.of(context).size.width;
@@ -152,7 +161,7 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     child: TextButton.icon(
                       onPressed: () {
-                        _viewOrchestrator.changeMode(false);
+                        orchestrator.changeMode(false);
                       },
                       icon: const Icon(Icons.event, size: 30, color: Colors.white),
                       label: showText
@@ -177,13 +186,13 @@ class _EventsPageState extends State<EventsPage> {
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.event, size: 30),
                       onPressed: () {
-                        _viewOrchestrator.changeMode(false);
+                        orchestrator.changeMode(false);
                       },
                     ),
                   );
           },
         ),
-      if (!_viewOrchestrator.confirmedView)
+      if (!orchestrator.confirmedView)
         Builder(
           builder: (context) {
             double screenWidth = MediaQuery.of(context).size.width;
@@ -197,7 +206,7 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     child: TextButton.icon(
                       onPressed: () {
-                        _viewOrchestrator.changeMode(true);
+                        orchestrator.changeMode(true);
                       },
                       icon: const Icon(Icons.event_available, size: 30, color: Colors.white),
                       label: showText
@@ -222,7 +231,7 @@ class _EventsPageState extends State<EventsPage> {
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.event_available, size: 30),
                       onPressed: () {
-                        _viewOrchestrator.changeMode(true);
+                        orchestrator.changeMode(true);
                       },
                     ),
                   );

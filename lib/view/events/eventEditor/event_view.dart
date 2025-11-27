@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_cache.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
 
@@ -44,7 +44,7 @@ class EventViewState extends State<EventView> {
 
   @override
   Widget build(BuildContext context) {
-    final profileEventCache = Provider.of<ProfileEventsCache>(context, listen: false);
+    final profileEventCache = Provider.of<DetailedProfileEventsCache>(context, listen: false);
     final showImages = eventId != null && profileEventCache.atLeastOneConfirmed(eventId!);
 
     return Scaffold(

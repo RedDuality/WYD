@@ -1,20 +1,21 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:wyd_front/state/media/cached_media_storage.dart';
+import 'package:wyd_front/state/media/media_storage.dart';
 
-class CachedMediaCache extends ChangeNotifier {
-  final CachedMediaStorage _storage = CachedMediaStorage();
+class MediaCache extends ChangeNotifier {
+  final MediaStorage _storage = MediaStorage();
 
   // current event images
   Map<AssetEntity, bool> _cachedImagesMap = {};
 
-  late final StreamSubscription<(String, bool)> _eventMediaUpdateSubscription;
-  late final StreamSubscription<(AssetEntity, bool)> _eventMediaSelectionSubscription;
+  late final StreamSubscription<(String eventId, bool deleted)> _eventMediaUpdateChannel;
+  late final StreamSubscription<(AssetEntity asset, bool selected)> _eventMediaSelectionChannel;
+  late final StreamSubscription<void> _clearAllChannel;
 
-  CachedMediaCache(String eventId) {
+  MediaCache(String eventId) {
     load(eventId);
-    _eventMediaUpdateSubscription = _storage.updates.listen((updateData) {
+    _eventMediaUpdateChannel = _storage.updates.listen((updateData) {
       final removeAction = updateData.$2;
       if (removeAction) {
         removeAll(updateData.$1);
@@ -23,8 +24,12 @@ class CachedMediaCache extends ChangeNotifier {
       }
     });
 
-    _eventMediaSelectionSubscription = _storage.selections.listen((selectionData) {
+    _eventMediaSelectionChannel = _storage.selections.listen((selectionData) {
       select(selectionData.$1, selectionData.$2);
+    });
+
+    _clearAllChannel = _storage.clearChannel.listen((_) {
+      clearAll();
     });
   }
 
@@ -49,10 +54,15 @@ class CachedMediaCache extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearAll(){
+    _cachedImagesMap.clear();
+  }
+
   @override
   void dispose() {
-    _eventMediaSelectionSubscription.cancel();
-    _eventMediaUpdateSubscription.cancel();
+    _clearAllChannel.cancel();
+    _eventMediaSelectionChannel.cancel();
+    _eventMediaUpdateChannel.cancel();
     super.dispose();
   }
 }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/state/event/event_details_storage.dart';
+import 'package:wyd_front/state/event/event_details_cache.dart';
+import 'package:wyd_front/state/event/event_intervals_manager.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
-import 'package:wyd_front/state/profileEvent/profile_events_storage.dart';
-import 'package:wyd_front/state/util/event_intervals_cache_manager.dart';
+import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 
 class EventStorageService {
   static Future<void> _addEvents(
@@ -14,7 +14,7 @@ class EventStorageService {
   ) async {
     final events = await Future.wait(dtos.map(_deserializeEvent));
 
-    await EventIntervalsCacheManager().addInterval(dateRange);
+    await EventIntervalsManager().addInterval(dateRange);
 
     await EventStorage().saveMultiple(events, dateRange);
   }
@@ -27,12 +27,12 @@ class EventStorageService {
   }
 
   static Future<Event> _deserializeEvent(RetrieveEventResponseDto dto) async {
-    if (dto.details != null) {
-      EventDetailsStorage().update(dto.id, dto.details!);
+    if (dto.sharedWith != null) {
+      await DetailedProfileEventsStorage().saveMultipleProfileEvents(dto.id, dto.sharedWith!);
     }
 
-    if (dto.sharedWith != null) {
-      await ProfileEventsStorage().saveMultiple(dto.id, dto.sharedWith!);
+    if (dto.details != null) {
+      EventDetailsCache().update(dto.id, dto.details!);
     }
 
     return Event.fromDto(dto);
@@ -40,7 +40,7 @@ class EventStorageService {
 
   //
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
-    var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
+    var missingInterval = EventIntervalsManager().getMissingInterval(requestedInterval);
 
     if (missingInterval != null) _retrieveFromServer(missingInterval);
 
@@ -48,9 +48,9 @@ class EventStorageService {
   }
 
   static Future<List<Event>> retrieveEventsEndedIn(DateTimeRange requestedInterval) async {
-    var missingInterval = EventIntervalsCacheManager().getMissingInterval(requestedInterval);
+    var missingInterval = EventIntervalsManager().getMissingInterval(requestedInterval);
 
-    if (missingInterval != null) await _retrieveFromServer(missingInterval); // here we wait
+    if (missingInterval != null) await _retrieveFromServer(missingInterval); // in this case we wait
 
     return EventStorage().getEventsEndingInRange(requestedInterval);
   }
@@ -58,12 +58,5 @@ class EventStorageService {
   static Future<void> _retrieveFromServer(DateTimeRange retrieveInterval) async {
     var dtos = await EventRetrieveService.retrieveFromServer(retrieveInterval);
     await _addEvents(dtos, retrieveInterval);
-  }
-
-  static Future<void> setHasCachedMedia(String eventId, bool hasCachedMedia) async {
-    debugPrint("setHasCachedMedia");
-    var event = await EventStorage().getEventByHash(eventId);
-    event!.hasCachedMedia = hasCachedMedia;
-    EventStorage().saveEvent(event);
   }
 }

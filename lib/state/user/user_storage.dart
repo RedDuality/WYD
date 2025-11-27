@@ -9,8 +9,8 @@ class UserStorage {
   static final UserStorage _instance = UserStorage._internal();
   factory UserStorage() => _instance;
   UserStorage._internal();
-  
   // --------------------------------
+
   Future<void> saveUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
     // Convert to JSON string
@@ -28,8 +28,8 @@ class UserStorage {
     return User.fromJson(jsonMap);
   }
 
-  /// Clear all claims
   Future<void> clearAll() async {
+    UserCache().updateUser(null);
     final prefs = await SharedPreferences.getInstance();
     // Convert to JSON string
     await prefs.setString('user', "");

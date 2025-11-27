@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/model/events/event_details.dart';
 import 'package:wyd_front/model/media/media.dart';
 
-class EventDetailsStorage extends ChangeNotifier {
+class EventDetailsCache extends ChangeNotifier {
   
-  static final EventDetailsStorage _instance = EventDetailsStorage._internal();
-  factory EventDetailsStorage() => _instance;
-  EventDetailsStorage._internal();
+  static final EventDetailsCache _instance = EventDetailsCache._internal();
+  factory EventDetailsCache() => _instance;
+  EventDetailsCache._internal();
 
-  final Map<String, EventDetails> _eventDetails = {};
+  Map<String, EventDetails> _eventDetails = {};
 
   EventDetails? get(String eventId) => _eventDetails[eventId];
 
@@ -45,5 +45,9 @@ class EventDetailsStorage extends ChangeNotifier {
 
   void remove(String hash) {
     _eventDetails.remove(hash);
+  }
+
+  void clearAll(){
+    _eventDetails = {};
   }
 }

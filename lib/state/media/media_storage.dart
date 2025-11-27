@@ -3,23 +3,26 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/state/media/media_flag_storage.dart';
 
-class CachedMediaStorage {
+class MediaStorage {
   static const _databaseName = 'cachedMediaStorage.db';
   static const _tableName = 'cached_media';
   static const _databaseVersion = 1;
 
-  static final CachedMediaStorage _instance = CachedMediaStorage._internal();
+  static final MediaStorage _instance = MediaStorage._internal();
 
-  factory CachedMediaStorage() => _instance;
-  CachedMediaStorage._internal();
+  factory MediaStorage() => _instance;
+  MediaStorage._internal();
 
-  final _eventMediaUpdateController = StreamController<(String, bool)>.broadcast();
-  final _eventMediaSelectionController = StreamController<(AssetEntity, bool)>.broadcast();
-  // bool is for remove
-  Stream<(String, bool)> get updates => _eventMediaUpdateController.stream;
-  Stream<(AssetEntity, bool)> get selections => _eventMediaSelectionController.stream;
+  final _eventMediaUpdateController = StreamController<(String eventId, bool deleted)>.broadcast();
+  Stream<(String eventId, bool deleted)> get updates => _eventMediaUpdateController.stream;
+
+  final _eventMediaSelectionController = StreamController<(AssetEntity asset, bool selected)>.broadcast();
+  Stream<(AssetEntity asset, bool selected)> get selections => _eventMediaSelectionController.stream;
+
+  final _clearAllChannel = StreamController<void>.broadcast();
+  Stream<void> get clearChannel => _clearAllChannel.stream;
 
   static Database? _database;
 
@@ -123,7 +126,7 @@ class CachedMediaStorage {
       }
     });
 
-    EventStorageService.setHasCachedMedia(eventId, true);
+    MediaFlagStorage().saveEventId(eventId);
 
     _eventMediaUpdateController.sink.add((eventId, false));
   }
@@ -131,11 +134,12 @@ class CachedMediaStorage {
   Future<void> removeAllMedia(String eventId) async {
     final db = await database;
     if (db == null) return;
-    await db.delete(_tableName, where: 'eventId = ?', whereArgs: [eventId]);
-
-    EventStorageService.setHasCachedMedia(eventId, false);
 
     _eventMediaUpdateController.sink.add((eventId, true));
+
+    await db.delete(_tableName, where: 'eventId = ?', whereArgs: [eventId]);
+
+    MediaFlagStorage().remove(eventId);
   }
 
   Future<void> updateSelection(String eventId, AssetEntity asset, bool isSelected) async {
@@ -163,6 +167,7 @@ class CachedMediaStorage {
   }
 
   Future<void> clearAll() async {
+    _clearAllChannel.sink.add(null);
     if (!kIsWeb) {
       final db = await database;
       if (db == null) return;
