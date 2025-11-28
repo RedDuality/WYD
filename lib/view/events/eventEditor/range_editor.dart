@@ -61,7 +61,7 @@ class RangeEditor extends StatelessWidget {
                 isDense: true,
                 border: OutlineInputBorder(borderSide: BorderSide.none),
               ),
-              format: constraints.maxWidth > 420 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM"),
+              format: constraints.maxWidth > 400 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM"),
               onChanged: (DateTime? value) {
                 if (value != null) {
                   value = DateTimeField.combine(value, TimeOfDay.fromDateTime(startTime));

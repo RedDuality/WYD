@@ -44,22 +44,25 @@ class MenuProfileTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profile!.name,
-                    style: TextStyle(
-                        fontSize: titleFontSize, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    profile!.tag,
-                    style: TextStyle(
-                        color: Colors.grey, fontSize: subtitleFontSize),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile!.name,
+                      
+                      style: TextStyle(
+                          fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      profile!.tag,
+                      style: TextStyle(
+                          color: Colors.grey, fontSize: subtitleFontSize),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

@@ -42,7 +42,11 @@ class _ConfirmedListState extends State<ConfirmedList> {
           children: [
             const Text(
               "Confermati",
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
             ),
             ListView.builder(
               shrinkWrap: true,

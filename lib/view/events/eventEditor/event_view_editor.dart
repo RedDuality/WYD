@@ -186,55 +186,54 @@ class _EventViewEditorState extends State<EventViewEditor> {
       _checkChanges();
     });
 
-    var isWideScreen = MediaQuery.of(context).size.width > 450;
+    //var isWideScreen = MediaQuery.of(context).size.width > 450;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Dettagli"),
-            if (exists && shared && isWideScreen)
+            if (exists && shared)
               OverlayListButton(
-                title: "${originalEvent!.getConfirmTitle()} Confirmed",
+                title: "${originalEvent!.totalConfirmed} / ${originalEvent!.totalProfiles} confirmed",
                 child: ConfirmedList(eventId: originalEvent!.id),
               ),
+
+            RangeEditor(
+              startTime: startTime,
+              endTime: endTime,
+              onDateChanged: setDates,
+            ),
+
+            const Text("Dettagli"),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                style: const TextStyle(fontSize: 14),
+                controller: _descriptionController,
+                onChanged: (value) => _checkChanges(),
+                decoration: const InputDecoration(
+                  hintText: 'No description',
+                  contentPadding: EdgeInsets.symmetric(vertical: 4),
+                  isDense: true, // Ensures a more compact height
+                  border: OutlineInputBorder(borderSide: BorderSide.none),
+                ),
+              ),
+            ),
+
+            const SizedBox(
+              height: 5,
+            ),
+            //Buttons
+            _buttons(context),
           ],
         ),
-        if (exists && shared && !isWideScreen)
-          Column(
-            children: [
-              const SizedBox(height: 4),
-              OverlayListButton(
-                title: "${originalEvent!.getConfirmTitle()} Confirmed",
-                child: ConfirmedList(eventId: originalEvent!.id),
-              ),
-            ],
+        if (exists && !isBeingChanged && _profileEventsCache.isOwner(originalEvent!.id))
+          Positioned(
+            top: 0,
+            right: 0,
+            child: _buildMenuButton(),
           ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextFormField(
-            style: const TextStyle(fontSize: 14),
-            controller: _descriptionController,
-            onChanged: (value) => _checkChanges(),
-            decoration: const InputDecoration(
-              hintText: 'No description',
-              contentPadding: EdgeInsets.symmetric(vertical: 4),
-              isDense: true, // Ensures a more compact height
-              border: OutlineInputBorder(borderSide: BorderSide.none),
-            ),
-          ),
-        ),
-        RangeEditor(
-          startTime: startTime,
-          endTime: endTime,
-          onDateChanged: setDates,
-        ),
-        const SizedBox(height: 5,),
-        //Buttons
-        _buttons(context),
       ],
     );
   }
@@ -359,33 +358,59 @@ class _EventViewEditorState extends State<EventViewEditor> {
           ),
         ),
         SizedBox(height: 5),
-        if (exists && !isBeingChanged && _profileEventsCache.isOwner(originalEvent!.id))
-          Align(
-            alignment: Alignment.bottomRight,
+        //if (exists && !isBeingChanged && _profileEventsCache.isOwner(originalEvent!.id)) deleteButton(),
+      ],
+    );
+  }
+
+  Widget deleteButton() {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              _deleteEvent();
+            },
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    _deleteEvent();
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.delete,
-                        color: Colors.red,
-                      ),
-                      if (MediaQuery.of(context).size.width > 200)
-                        Text(
-                          'Delete',
-                          style: TextStyle(color: Colors.red, fontSize: 18),
-                        ),
-                    ],
-                  ),
+                Icon(
+                  Icons.delete,
+                  color: Colors.red,
                 ),
+                if (MediaQuery.of(context).size.width > 200)
+                  Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red, fontSize: 18),
+                  ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuButton() {
+    return PopupMenuButton<String>(
+      padding: EdgeInsets.zero,
+      splashRadius: 0.5,
+      //constraints: BoxConstraints.tightFor(width: 30, height: 30),
+      icon: const Icon(Icons.more_vert, size: 20.0),
+      offset: const Offset(-10,40),
+      onSelected: (String result) {
+        // Handle menu item selection (e.g., Delete, Share, etc.)
+        debugPrint('Menu option selected: $result');
+        //_deleteEvent();
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          height: 32.5,
+          value: 'Delete',
+          child: Text('Delete'),
+        ),
+        // Add more menu items here
       ],
     );
   }

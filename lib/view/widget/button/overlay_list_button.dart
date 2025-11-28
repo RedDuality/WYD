@@ -57,6 +57,8 @@ class OverlayListButtonState extends State<OverlayListButton> {
       leftPosition = position.dx + size.width - width;
     }
 
+    leftPosition = position.dx;
+
     return OverlayEntry(
       builder: (context) => Stack(
         children: [
