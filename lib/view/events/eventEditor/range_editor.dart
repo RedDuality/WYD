@@ -43,103 +43,81 @@ class RangeEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text("Inizio"),
-          Wrap(
-            spacing: 8.0, // Space between widgets horizontally
-            runSpacing: 8.0, // Space between widgets vertically
-            children: [
-              SizedBox(
-                width: constraints.maxWidth > 600 ? constraints.maxWidth / 2 - 4 : constraints.maxWidth,
-                child: DateTimeField(
-                  key: UniqueKey(),
-                  initialValue: startTime,
-                  decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.calendar_today),
-                    isDense: true, // Ensures a more compact height
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                  ),
-                  format: constraints.maxWidth > 375 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM/yy"),
-                  onChanged: (DateTime? value) {
-                    if (value != null) {
-                      value = DateTimeField.combine(value, TimeOfDay.fromDateTime(startTime));
-                      checkValues(value, endTime);
-                    }
-                  },
-                  onShowPicker: selectDate,
+          IntrinsicWidth(
+            child: DateTimeField(
+              key: UniqueKey(),
+              initialValue: startTime,
+              decoration: const InputDecoration(
+                suffixIcon: SizedBox.shrink(),
+                suffixIconConstraints: BoxConstraints(minWidth: 4.0, minHeight: 0),
+                prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                prefixIcon: Padding(
+                  padding: EdgeInsets.zero,
+                  child: Icon(Icons.calendar_today),
                 ),
+                isDense: true,
+                border: OutlineInputBorder(borderSide: BorderSide.none),
               ),
-              SizedBox(
-                width: constraints.maxWidth > 600 ? (constraints.maxWidth / 2) - 4 : constraints.maxWidth,
-                child: DateTimeField(
-                  key: UniqueKey(),
-                  initialValue: startTime,
-                  decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.access_time),
-                    isDense: true, // Ensures a more compact height
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                  ),
-                  format: DateFormat("HH:mm"),
-                  onChanged: (DateTime? value) {
-                    if (value != null) {
-                      value = DateTimeField.combine(startTime, TimeOfDay.fromDateTime(value));
-                      checkValues(value, endTime);
-                    }
-                  },
-                  onShowPicker: selectTime,
-                ),
-              ),
-            ],
+              format: constraints.maxWidth > 400 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM"),
+              onChanged: (DateTime? value) {
+                if (value != null) {
+                  value = DateTimeField.combine(value, TimeOfDay.fromDateTime(startTime));
+                  checkValues(value, endTime);
+                }
+              },
+              onShowPicker: selectDate,
+            ),
           ),
-          const SizedBox(height: 8),
-          const Text("Fine"),
-          Wrap(
-            spacing: 8.0, // Space between widgets horizontally
-            runSpacing: 8.0, // Space between widgets vertically
-            children: [
-              SizedBox(
-                width: constraints.maxWidth > 600 ? (constraints.maxWidth / 2) - 4 : constraints.maxWidth,
-                child: DateTimeField(
-                  key: UniqueKey(),
-                  initialValue: endTime,
-                  decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.calendar_today),
-                    isDense: true, // Ensures a more compact height
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                  ),
-                  format: constraints.maxWidth > 375 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM/yy"),
-                  onChanged: (DateTime? value) {
-                    if (value != null) {
-                      value = DateTimeField.combine(value, TimeOfDay.fromDateTime(endTime));
-                      checkValues(startTime, value);
-                    }
-                  },
-                  onShowPicker: selectDate,
+          IntrinsicWidth(
+            child: DateTimeField(
+              key: UniqueKey(),
+              initialValue: startTime,
+              decoration: const InputDecoration(
+                suffixIcon: SizedBox.shrink(),
+                suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                prefixIcon: Padding(
+                  padding: EdgeInsets.zero,
+                  child: Icon(Icons.access_time),
                 ),
+                isDense: true,
+                border: OutlineInputBorder(borderSide: BorderSide.none),
               ),
-              SizedBox(
-                width: constraints.maxWidth > 600 ? (constraints.maxWidth / 2) - 4 : constraints.maxWidth,
-                child: DateTimeField(
-                  key: UniqueKey(),
-                  initialValue: endTime,
-                  decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.access_time),
-                    isDense: true, // Ensures a more compact height
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                  ),
-                  format: DateFormat("HH:mm"),
-                  onChanged: (DateTime? value) {
-                    if (value != null) {
-                      value = DateTimeField.combine(endTime, TimeOfDay.fromDateTime(value));
-                      checkValues(startTime, value);
-                    }
-                  },
-                  onShowPicker: selectTime,
-                ),
+              format: DateFormat("HH:mm"),
+              onChanged: (DateTime? value) {
+                if (value != null) {
+                  value = DateTimeField.combine(startTime, TimeOfDay.fromDateTime(value));
+                  checkValues(value, endTime);
+                }
+              },
+              onShowPicker: selectTime,
+            ),
+          ),
+          const Text("- "),
+          IntrinsicWidth(
+            child: DateTimeField(
+              key: UniqueKey(),
+              initialValue: endTime,
+              decoration: const InputDecoration(
+                suffixIcon: SizedBox.shrink(),
+                suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                prefixIcon: SizedBox.shrink(),
+                isDense: true,
+                border: OutlineInputBorder(borderSide: BorderSide.none),
               ),
-            ],
+              format: DateFormat("HH:mm"),
+              onChanged: (DateTime? value) {
+                if (value != null) {
+                  value = DateTimeField.combine(endTime, TimeOfDay.fromDateTime(value));
+                  checkValues(startTime, value);
+                }
+              },
+              onShowPicker: selectTime,
+            ),
           ),
         ],
       );

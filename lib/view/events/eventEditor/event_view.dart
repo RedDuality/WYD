@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
+import 'package:wyd_front/view/events/eventEditor/title_editor.dart';
 
 class EventView extends StatefulWidget {
   final String? eventId;
@@ -27,7 +27,12 @@ class EventViewState extends State<EventView> {
   @override
   void initState() {
     super.initState();
+
     eventId = widget.eventId;
+
+    final event = context.read<EventsCache>().get(eventId!);
+    final newTitle = event?.title ?? "Evento senza nome";
+    _titleController.text = newTitle;
   }
 
   @override
@@ -98,40 +103,17 @@ class EventViewState extends State<EventView> {
   }
 
   Widget _titleManager() {
-    // Listen only to the specific event by ID
-    final event = context.select<EventsCache, Event?>(
-      (provider) => eventId != null ? provider.get(eventId!) : null,
-    );
-
-    final newTitle = event?.title ?? "Evento senza nome";
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_titleController.text != newTitle) {
-        _titleController.text = newTitle;
-        _titleController.selection = TextSelection.fromPosition(
-          TextPosition(offset: _titleController.text.length),
-        );
-      }
-    });
-
     return FlexibleSpaceBar(
       titlePadding: EdgeInsets.zero,
-      title: Container(
-        alignment: Alignment.bottomLeft,
-        padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-        child: TextFormField(
+      title: Builder(builder: (context) {
+        final settings = context.dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
+        final isCollapsed = (settings?.minExtent == settings?.currentExtent);
+
+        return TitleEditor(
           controller: _titleController,
-          decoration: const InputDecoration(
-            labelText: '',
-            border: InputBorder.none,
-            labelStyle: TextStyle(color: Colors.white),
-          ),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20.0,
-          ),
-        ),
-      ),
+          isCollapsed: isCollapsed,
+        );
+      }),
       background: Image.asset(
         'assets/images/logoimage.png',
         fit: BoxFit.cover,
