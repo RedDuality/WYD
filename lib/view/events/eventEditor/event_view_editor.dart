@@ -232,6 +232,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
           endTime: endTime,
           onDateChanged: setDates,
         ),
+        const SizedBox(height: 5,),
         //Buttons
         _buttons(context),
       ],

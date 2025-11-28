@@ -95,8 +95,10 @@ class GalleryEditor extends StatelessWidget {
                             : Container(),
                       ],
                     ),
-                  ),*/
-              SizedBox(width: 10),
+                  ),
+                  SizedBox(width: 10),
+                  */
+
               ElevatedButton(
                 onPressed: () async {
                   final event = Provider.of<EventsCache>(context, listen: false).get(eventId);
@@ -251,45 +253,52 @@ class GalleryEditor extends StatelessWidget {
   }
 
   Widget _alreadySavedImages() {
-    return Consumer<EventDetailsCache>(
-      builder: (context, eventProvider, child) {
-        final eventDetails = context.select<EventDetailsCache, EventDetails?>(
-          (provider) => provider.get(eventId),
-        );
-        if (eventDetails != null && eventDetails.totalImages > 0 && eventDetails.media.isEmpty) {
-          EventDetailsService.retrieveMediaFromServer(eventId);
-        }
-        return eventDetails == null
-            ? Container()
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  LayoutBuilder(builder: (context, constraints) {
-                    var media = eventDetails.media;
-                    var itemWidth = _getWidth(constraints.maxWidth, 303, media.length);
-                    //debugPrint('$maxWidth $divider $itemWidth');
-                    return Center(
-                      child: Wrap(
-                        children: media.map((m) {
-                          return CardDisplay(
-                            maxWidth: itemWidth,
-                            mediaBuilder: ({onLoadingFinished, onError}) {
-                              return MediaDisplay.fromMedia(
-                                parentHash: eventId,
-                                media: m,
-                                fit: BoxFit.cover,
-                                onLoadingFinished: onLoadingFinished,
-                                onError: onError,
+    return Column(
+      children: [
+        SizedBox(height: 2.5,),
+        Consumer<EventDetailsCache>(
+          builder: (context, eventProvider, child) {
+            final eventDetails = context.select<EventDetailsCache, EventDetails?>(
+              (provider) => provider.get(eventId),
+            );
+        
+            if (eventDetails != null && eventDetails.totalImages > 0 && eventDetails.media.isEmpty) {
+              EventDetailsService.retrieveMediaFromServer(eventId);
+            }
+        
+            return eventDetails == null
+                ? Container()
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      LayoutBuilder(builder: (context, constraints) {
+                        var media = eventDetails.media;
+                        var itemWidth = _getWidth(constraints.maxWidth, 303, media.length);
+                        //debugPrint('$maxWidth $divider $itemWidth');
+                        return Center(
+                          child: Wrap(
+                            children: media.map((m) {
+                              return CardDisplay(
+                                maxWidth: itemWidth,
+                                mediaBuilder: ({onLoadingFinished, onError}) {
+                                  return MediaDisplay.fromMedia(
+                                    parentHash: eventId,
+                                    media: m,
+                                    fit: BoxFit.cover,
+                                    onLoadingFinished: onLoadingFinished,
+                                    onError: onError,
+                                  );
+                                },
                               );
-                            },
-                          );
-                        }).toList(),
-                      ),
-                    );
-                  })
-                ],
-              );
-      },
+                            }).toList(),
+                          ),
+                        );
+                      })
+                    ],
+                  );
+          },
+        ),
+      ],
     );
   }
 
@@ -297,7 +306,7 @@ class GalleryEditor extends StatelessWidget {
     return const Divider(
       color: Colors.grey,
       thickness: 0.5,
-      height: 20,
+      height: 15,
     );
   }
 }
