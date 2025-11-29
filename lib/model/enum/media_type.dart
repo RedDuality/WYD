@@ -1,11 +1,11 @@
 // these must be the same name as the object storage buckets
-enum MediaType {
+enum MyMediaType {
   events,
   profiles,
 }
 
-extension MediaTypesExtension on MediaType {
+extension MediaTypesExtension on MyMediaType {
   int get index {
-    return MediaType.values.indexOf(this);
+    return MyMediaType.values.indexOf(this);
   }
 }

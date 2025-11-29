@@ -26,7 +26,7 @@ class MediaService {
   static Future<void> retrieveEventMediaWithPagination(String eventId, {int? pageNumber, int? pageSize}) async {
     var readDto = MediaReadRequestDto(parentHash: eventId, pageNumber: pageNumber, pageSize: pageSize);
 
-    var dtos = await MediaAPI().getReadUrls(MediaType.events, readDto);
+    var dtos = await MediaAPI().getReadUrls(MyMediaType.events, readDto);
     if (dtos.isNotEmpty) {
       var media = dtos.map((m) => Media.fromDto(m)).toSet();
 

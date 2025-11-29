@@ -35,10 +35,10 @@ class AppLifecycleService with WidgetsBindingObserver {
 
   static void _retrieveUpdates() {
     UserService.retrieveUser();
+    CommunityService().retrieveCommunities();
   }
 
   static Future<void> _initializeCollections() async {
-    
     CommunityService().retrieveCommunities();
   }
 
