@@ -30,7 +30,8 @@ class EventViewState extends State<EventView> {
 
     eventId = widget.eventId;
 
-    final event = context.read<EventsCache>().get(eventId!);
+    final event = eventId != null ? context.read<EventsCache>().get(eventId!) : null;
+
     final newTitle = event?.title ?? "Evento senza nome";
     _titleController.text = newTitle;
   }
