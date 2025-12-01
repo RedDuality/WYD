@@ -92,6 +92,32 @@ class _EventViewEditorState extends State<EventViewEditor> {
   }
 
   @override
+  void didUpdateWidget(covariant EventViewEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.eventId == null && widget.eventId != null) {
+      final provider = context.read<EventsCache>();
+      originalEvent = provider.get(widget.eventId!);
+
+      // Update the local state variables
+      setState(() {
+        exists = originalEvent != null;
+        if (exists) {
+          shared = originalEvent!.totalProfiles > 1;
+          totalConfirmed = originalEvent?.totalConfirmed ?? 1;
+          totalProfiles = originalEvent?.totalProfiles ?? 1;
+        }
+      });
+
+      // Manually run the check for changes after a new event creation
+      // This is necessary because the `originalEvent` has just been set.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkChanges();
+      });
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _profileEventsCache = Provider.of<DetailedProfileEventsCache>(context, listen: false);
@@ -350,7 +376,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
                   child: Row(
                     children: [
                       Icon(Icons.save),
-                      if (MediaQuery.of(context).size.width > 400) Text('Save', style: TextStyle(fontSize: 18)),
+                      if (MediaQuery.of(context).size.width > 400) Text('Create', style: TextStyle(fontSize: 18)),
                     ],
                   ),
                 ),
@@ -398,7 +424,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
       splashRadius: 0.5,
       //constraints: BoxConstraints.tightFor(width: 30, height: 30),
       icon: const Icon(Icons.more_vert, size: 20.0),
-      offset: const Offset(-10,40),
+      offset: const Offset(-10, 40),
       onSelected: (String result) {
         // Handle menu item selection (e.g., Delete, Share, etc.)
         debugPrint('Menu option selected: $result');
