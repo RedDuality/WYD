@@ -3,12 +3,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http show put;
+import 'package:wyd_front/model/enum/media_type.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/API/Media/media_read_request_dto.dart';
 import 'package:wyd_front/API/Media/media_read_response_dto.dart';
 import 'package:wyd_front/API/Media/media_upload_request_dto.dart';
 import 'package:wyd_front/API/Media/media_upload_response_dto.dart';
-import 'package:wyd_front/model/enum/media_type.dart';
+
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
@@ -58,7 +59,7 @@ class MediaAPI {
     throw "Error while retrieving the upload urls";
   }
 
-  Future<List<MediaReadResponseDto>> getReadUrls(MediaType type, MediaReadRequestDto dto) async {
+  Future<List<MediaReadResponseDto>> getReadUrls(MyMediaType type, MediaReadRequestDto dto) async {
     String url = '$functionUrl${type.name}/getReadUrls';
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(dto));

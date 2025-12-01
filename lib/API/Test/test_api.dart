@@ -11,7 +11,7 @@ class TestAPI {
   ]);
 
   Future<Response> ping() async {
-    String url = '${functionUrl}Ping';
+    final String url = '${functionUrl}Ping';
 
     return client.get(
       Uri.parse(url),
@@ -19,7 +19,7 @@ class TestAPI {
   }
 
   Future<Response> testNotifications() async {
-    String url = '${functionUrl}Notifications';
+    final String url = '${functionUrl}Notifications';
 
     Client authClient = InterceptedClient.build(interceptors: [
       AuthInterceptor(),

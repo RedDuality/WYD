@@ -6,7 +6,7 @@ import 'package:wyd_front/model/users/user_claim.dart';
 import 'package:wyd_front/model/users/view_settings.dart';
 import 'package:wyd_front/model/users/user.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
-import 'package:wyd_front/service/util/real_time_updates_service.dart';
+import 'package:wyd_front/service/util/real_time/real_time_update_service.dart';
 import 'package:wyd_front/state/event/event_intervals_manager.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/media/media_flag_storage.dart';
@@ -66,7 +66,7 @@ class UserService {
 
   static Future<void> logOut() async {
     debugPrint("logout");
-    RealTimeUpdateService().deleteTokenOnLogout();
+    RealTimeUpdateService().dispose();
 
     // storages
     EventStorage().clearAll();

@@ -122,7 +122,7 @@ class EventsCache extends EventController {
   }
 
   void clearAll() {
-    super.allEvents.clear();
+    super.removeWhere((_) => true);
   }
 
   @override
