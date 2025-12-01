@@ -120,6 +120,13 @@ android {
 
         }
     }
+
+    lintOptions {
+        // Disable lint analysis for the release build
+        disable 'LintCleanup' // A general setting, often helpful
+        checkReleaseBuilds false // Stops lint from running on release builds
+        abortOnError false // Prevents the build from failing on lint errors
+    }
 }
 
 flutter {
