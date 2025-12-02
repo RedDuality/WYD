@@ -5,6 +5,7 @@ import 'package:wyd_front/API/Community/create_community_request_dto.dart';
 import 'package:wyd_front/model/profiles/profile.dart';
 import 'package:wyd_front/service/community/community_service.dart';
 import 'package:wyd_front/service/profile/profile_retrieve_service.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 
 class SearchProfilePage extends StatefulWidget {
   const SearchProfilePage({super.key});
@@ -62,7 +63,7 @@ class _SearchProfilePageState extends State<SearchProfilePage> {
                   ),
                 ],
               ),
-              if (!CommunityService().hasPersonalByProfileId(value.id))
+              if (value.id != UserCache().getCurrentProfileId() && !CommunityService().hasPersonalByProfileId(value.id))
                 TextButton.icon(
                   icon: const Icon(Icons.add),
                   label: const Text("Add"),
