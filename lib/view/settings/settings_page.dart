@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Test/test_api.dart';
+import 'package:wyd_front/view/settings/settings_tile.dart';
+import 'package:wyd_front/view/settings/user_button.dart';
 import 'package:wyd_front/view/widget/util/version_detail.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -10,6 +12,10 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+        actions: [
+          UserButton(),
+          SizedBox(width: 10),
+        ],
       ),
       body: Center(
         child: Column(
@@ -46,36 +52,6 @@ class SettingsPage extends StatelessWidget {
             VersionDetail(),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class SettingsTile extends StatelessWidget {
-  final String title;
-  final Widget action;
-
-  const SettingsTile({super.key, required this.title, required this.action});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(
-        maxWidth: 350,
-        minHeight: 40,
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(fontSize: 16),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          action,
-        ],
       ),
     );
   }

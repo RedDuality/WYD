@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/service/user/user_service.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
-import 'package:wyd_front/view/profiles/detailed_profile_tile.dart';
+import 'package:wyd_front/view/profiles/mask_view.dart';
+import 'package:wyd_front/view/profiles/tiles/detailed_profile_tile.dart';
 import 'package:wyd_front/view/settings/settings_page.dart';
 
 class ProfilesPage extends StatelessWidget {
@@ -40,30 +38,7 @@ class ProfilesPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Ciao!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(
-                  width: 300,
-                  height: 300,
-                  child: ImageProviderService.getImage(size: ImageSize.big),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    UserService.logOut();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: const Text('Log out'),
-                ),
+                MaskView(),
                 Column(
                   children: [
                     const SizedBox(height: 10),

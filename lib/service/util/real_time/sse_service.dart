@@ -82,7 +82,11 @@ class SseService implements RealTimeService {
     await _subscription?.cancel();
     _subscription = null;
 
-    await _channel?.sink.close();
+    final sink = _channel?.sink;
+    if (sink != null) {
+      await sink.close();
+    }
+
     _channel = null;
   }
 }

@@ -7,7 +7,7 @@ import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
-import 'package:wyd_front/view/profiles/profile_tile.dart';
+import 'package:wyd_front/view/profiles/tiles/profile_tile.dart';
 
 class SharePage extends StatefulWidget {
   final String eventTitle;
