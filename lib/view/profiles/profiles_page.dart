@@ -38,7 +38,16 @@ class ProfilesPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                MaskView(),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical:0, horizontal: 35), 
+                  constraints: const BoxConstraints(
+                    maxWidth: 1200,
+                  ),
+                  child: SizedBox(
+                    height: 600,
+                    child: MaskView(),
+                  ),
+                ),
                 Column(
                   children: [
                     const SizedBox(height: 10),
