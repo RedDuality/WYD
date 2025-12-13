@@ -22,27 +22,20 @@ void showCustomDialog(BuildContext context, Widget child) {
           return Dialog(
             backgroundColor: Colors.transparent,
             insetPadding: EdgeInsets.all(insetPaddingValue),
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    padding: EdgeInsets.zero,
-                    child: child,
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth - insetPaddingValue * 2,
                   ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  padding: EdgeInsets.zero,
+                  child: child,
                 ),
-                /*
-                  Positioned(
-                      top: -100,
-                      child: Image.network("https://i.imgur.com/2yaf2wb.png",
-                          width: 150, height: 150))
-                */
-              ],
+              ),
             ),
           );
         },

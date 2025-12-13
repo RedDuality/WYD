@@ -13,9 +13,9 @@ import 'package:wyd_front/view/events/event_view_orchestrator.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
 import 'package:wyd_front/state/util/uri_service.dart';
-import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/event_tile.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view.dart';
+import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/widget/util/add_event_button.dart';
 
@@ -40,7 +40,7 @@ class _EventsPageState extends State<EventsPage> {
     final profileEventsCache = context.read<DetailedProfileEventsCache>();
     final vsCache = context.read<ViewSettingsCache>();
     final mfCache = context.read<MediaFlagCache>();
-    final dpCache= context.read<DetailedProfileCache>();
+    final dpCache = context.read<DetailedProfileCache>();
 
     _viewOrchestrator = EventViewOrchestrator(
       eventsCache: appEventsCache,
@@ -119,17 +119,19 @@ class _EventsPageState extends State<EventsPage> {
                   unawaited(EventRetrieveService.retrieveDetailsByHash(selectedEvent.id));
 
                   showCustomDialog(
-                      context,
-                      EventView(
-                        eventId: selectedEvent.id,
-                      ));
+                    context,
+                    EventView(
+                      eventId: selectedEvent.id,
+                    ),
+                  );
                 },
                 onDateLongPress: (date) {
                   showCustomDialog(
-                      context,
-                      EventView(
-                        date: date,
-                      ));
+                    context,
+                    EventView(
+                      date: date,
+                    ),
+                  );
                 },
                 startDay: WeekDays.monday,
                 minuteSlotSize: MinuteSlotSize.minutes15,

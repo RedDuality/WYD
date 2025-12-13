@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view.dart';
+import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 
 class AddEventButton extends StatelessWidget {
 

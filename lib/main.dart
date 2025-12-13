@@ -10,6 +10,7 @@ import 'package:wyd_front/state/community_storage.dart';
 import 'package:wyd_front/state/event/event_intervals_manager.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/event/event_details_cache.dart';
+import 'package:wyd_front/state/mask/mask_cache.dart';
 import 'package:wyd_front/state/media/media_flag_cache.dart';
 import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
 import 'package:wyd_front/state/profile/profiles_cache.dart';
@@ -33,6 +34,8 @@ void callbackDispatcher() {
 }
 
 Future main() async {
+  //await initializeDateFormatting('it', 'IT');
+
   WidgetsFlutterBinding.ensureInitialized();
 
   const env = String.fromEnvironment('ENV', defaultValue: 'dev');
@@ -66,6 +69,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CommunityStorage()),
         ChangeNotifierProvider(create: (_) => EventsCache()),
         ChangeNotifierProvider(create: (_) => EventDetailsCache()),
+        ChangeNotifierProvider(create: (_) => MaskCache()),
         ChangeNotifierProvider(create: (_) => MediaFlagCache()),
         Provider<EventIntervalsManager>(
           create: (_) => EventIntervalsManager(),

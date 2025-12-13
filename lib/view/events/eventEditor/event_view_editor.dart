@@ -14,7 +14,7 @@ import 'package:wyd_front/state/event/event_details_cache.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/view/events/eventEditor/confirmed_list.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/view/events/eventEditor/range_editor.dart';
+import 'package:wyd_front/view/widget/util/range_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/share_page.dart';
 import 'package:wyd_front/view/widget/button/overlay_list_button.dart';
 
@@ -123,7 +123,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
     _profileEventsCache = Provider.of<DetailedProfileEventsCache>(context, listen: false);
   }
 
-  void setDates(DateTime startTime, DateTime endTime) {
+  void _setDates(DateTime startTime, DateTime endTime) {
     setState(() {
       this.startTime = startTime;
       this.endTime = endTime;
@@ -228,7 +228,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
             RangeEditor(
               startTime: startTime,
               endTime: endTime,
-              onDateChanged: setDates,
+              onDateChanged: _setDates,
             ),
 
             const Text("Dettagli"),
@@ -241,19 +241,18 @@ class _EventViewEditorState extends State<EventViewEditor> {
                 decoration: const InputDecoration(
                   hintText: 'No description',
                   contentPadding: EdgeInsets.symmetric(vertical: 4),
-                  isDense: true, // Ensures a more compact height
+                  isDense: true,
                   border: OutlineInputBorder(borderSide: BorderSide.none),
                 ),
               ),
             ),
 
-            const SizedBox(
-              height: 5,
-            ),
+            const SizedBox(height: 5),
             //Buttons
             _buttons(context),
           ],
         ),
+        // Menu
         if (exists && !isBeingChanged && _profileEventsCache.isOwner(originalEvent!.id))
           Positioned(
             top: 0,

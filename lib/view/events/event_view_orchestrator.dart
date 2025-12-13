@@ -20,6 +20,7 @@ class EventViewOrchestrator with ChangeNotifier {
   final EventsCache _eventsCache;
 
   final RangeController _controller;
+
   bool _confirmedView = true;
   bool _isLoading = true;
 
@@ -49,7 +50,7 @@ class EventViewOrchestrator with ChangeNotifier {
     _peCache.addListener(_updateView);
     _vsCache.addListener(_updateView);
     _mfCache.addListener(_updateView);
-    _eventsCache.addListener(_updateView);
+    //_eventsCache.addListener(_updateView);
 
 
     controller.addListener(() {
@@ -130,7 +131,7 @@ class EventViewOrchestrator with ChangeNotifier {
     _colorChangeSubscription?.cancel();
     _peCache.removeListener(_updateView);
     _vsCache.removeListener(_updateView);
-    _eventsCache.removeListener(_updateView);
+    //_eventsCache.removeListener(_updateView);
 
     _peCache.setViewProvider(null);
     _eventsCache.setViewProvider(null);
