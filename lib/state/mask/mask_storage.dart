@@ -60,6 +60,31 @@ class MaskStorage {
     );
   }
 
+  /// Saves multiple masks and emits a single change event.
+  Future<void> saveMultiple(List<Mask> masks, DateTimeRange range) async {
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return;
+
+      await db.transaction((txn) async {
+        for (final mask in masks) {
+          await txn.insert(
+            _tableName,
+            mask.toDbMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+      });
+    } else {
+      for (final mask in masks) {
+        _inMemoryStorage[mask.id] = mask;
+      }
+    }
+
+    // Send a single signal after all saves are complete.
+    _rangeUpdateController.sink.add(range);
+  }
+
   /// Saves to storage and emits a change event.
   Future<void> saveMask(Mask mask) async {
     // Send a signal that data has been modified.
@@ -75,6 +100,40 @@ class MaskStorage {
       );
     } else {
       _inMemoryStorage[mask.id] = mask;
+    }
+  }
+
+  /// Given a period, this function returns masks that overlap it.
+  /// Overlap logic: (M_end > R_start) AND (M_start < R_end)
+  Future<List<Mask>> getMasksInRange(DateTimeRange range) async {
+    if (kIsWeb) {
+      return _inMemoryStorage.values.where((mask) {
+        final maskEndTime = mask.endTime.toUtc().millisecondsSinceEpoch;
+        final maskStartTime = mask.startTime.toUtc().millisecondsSinceEpoch;
+
+        final periodStartMs = range.start.toUtc().millisecondsSinceEpoch;
+        final periodEndMs = range.end.toUtc().millisecondsSinceEpoch;
+
+        return maskEndTime > periodStartMs && maskStartTime < periodEndMs;
+      }).toList()
+        ..sort((a, b) => a.startTime.compareTo(b.startTime));
+    } else {
+      final db = await database;
+      if (db == null) return [];
+
+      final int startTimestamp = range.start.toUtc().millisecondsSinceEpoch;
+      final int endTimestamp = range.end.toUtc().millisecondsSinceEpoch;
+
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tableName,
+        where: 'endTime > ? AND startTime < ?',
+        whereArgs: [startTimestamp, endTimestamp],
+        orderBy: 'startTime ASC',
+      );
+
+      return List.generate(maps.length, (i) {
+        return Mask.fromDbMap(maps[i]);
+      });
     }
   }
 

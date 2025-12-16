@@ -56,7 +56,7 @@ class EventsCache extends EventController {
   Future<void> _updateEvent(Event event) async {
     if (_provider == null) return;
 
-    final range = _provider!.controller.focusedRange;
+    final range = _provider!.rangeCntrl.focusedRange;
     final inTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
 
     if (inTimeRange) {
@@ -80,7 +80,7 @@ class EventsCache extends EventController {
     }
   }
 
-  Future<void> onRangeChange(DateTimeRange newRange) async {
+  Future<void> loadMasksForRange(DateTimeRange newRange) async {
     if (newRange == _rangeInCache) return;
 
     final eventsToBeRemoved = super

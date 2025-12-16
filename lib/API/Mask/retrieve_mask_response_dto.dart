@@ -19,14 +19,13 @@ class RetrieveMaskResponseDto {
 
   factory RetrieveMaskResponseDto.fromJson(Map<String, dynamic> json) {
     return RetrieveMaskResponseDto(
-      id: json['hash'] as String,
-      //profileId: json['profileId'] as String? ?? "",
-      eventId: json['eventId'] as String? ?? "",
-      title: json['title'] as String? ?? "",
-      // Conversion to local is done in the mask constructor
-      startTime: DateTime.parse(json['startTime'] as String).toUtc(),
-      endTime: DateTime.parse(json['endTime'] as String).toUtc(),
-      updatedAt: DateTime.parse(json['updatedAt'] as String).toUtc(),
-    );
+        id: json['id'] as String,
+        //profileId: json['profileId'] as String? ?? "",
+        eventId: json['eventId'] as String? ?? "",
+        title: json['title'] as String? ?? "",
+        // Conversion to local is done in the mask constructor
+        startTime: DateTime.parse(json['startTime'] as String).toUtc(),
+        endTime: DateTime.parse(json['endTime'] as String).toUtc(),
+        updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String).toUtc() : null);
   }
 }

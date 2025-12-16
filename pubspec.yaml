@@ -67,6 +67,7 @@ dependencies:
   exif: ^3.3.0
   datetime_picker_formfield_new: ^2.1.0
   sse_channel: ^0.2.2
+  kalender: ^0.14.2
 
 
 dev_dependencies:

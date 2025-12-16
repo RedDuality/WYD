@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/state/event/range_controller.dart';
+import 'package:wyd_front/state/event/event_range_controller.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/media/media_flag_cache.dart';
 import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
@@ -17,7 +17,7 @@ import 'package:wyd_front/view/events/event_tile.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/widget/header.dart';
-import 'package:wyd_front/view/widget/util/add_event_button.dart';
+import 'package:wyd_front/view/widget/util/add_button.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -27,14 +27,12 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
-  late RangeController _rangeController;
+
   late EventViewOrchestrator _viewOrchestrator;
 
   @override
   void initState() {
     super.initState();
-
-    _rangeController = RangeController(DateTime.now(), 7);
 
     final appEventsCache = context.read<EventsCache>();
     final profileEventsCache = context.read<DetailedProfileEventsCache>();
@@ -42,13 +40,15 @@ class _EventsPageState extends State<EventsPage> {
     final mfCache = context.read<MediaFlagCache>();
     final dpCache = context.read<DetailedProfileCache>();
 
+    final rangeController = EventRangeController(DateTime.now(), 7);
+
     _viewOrchestrator = EventViewOrchestrator(
       eventsCache: appEventsCache,
       dpCache: dpCache,
-      peCache: profileEventsCache,
+      profEventsCache: profileEventsCache,
       vsCache: vsCache,
       mfCache: mfCache,
-      rangeController: _rangeController,
+      rangeController: rangeController,
       confirmedView: true,
     );
 
@@ -60,7 +60,7 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   void dispose() {
-    _rangeController.dispose();
+    _viewOrchestrator.dispose();
     super.dispose();
   }
 
@@ -99,8 +99,7 @@ class _EventsPageState extends State<EventsPage> {
               title: orchestrator.confirmedView ? 'Agenda' : 'Eventi',
               actions: actions(orchestrator),
             ),
-            body: Consumer<EventsCache>(builder: (context, eventsController, _) {
-              return WeekView(
+            body:  WeekView(
                 eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
                   return EventTile(
                       confirmedView: _viewOrchestrator.confirmedView,
@@ -110,7 +109,7 @@ class _EventsPageState extends State<EventsPage> {
                       startDuration: startDuration,
                       endDuration: endDuration);
                 },
-                controller: eventsController,
+                controller: orchestrator.eventCntrl,
                 showLiveTimeLineInAllDays: false,
                 scrollOffset: 480.0,
                 onEventTap: (events, date) {
@@ -137,11 +136,11 @@ class _EventsPageState extends State<EventsPage> {
                 minuteSlotSize: MinuteSlotSize.minutes15,
                 keepScrollOffset: true,
                 onPageChange: (date, page) {
-                  _viewOrchestrator.controller.setRange(date, 7);
+                  _viewOrchestrator.rangeCntrl.setRange(date, 7);
                 },
-              );
-            }),
-            floatingActionButton: AddEventButton(),
+              ),
+            
+            floatingActionButton: AddButton(text: 'Aggiungi Evento', child: EventView()),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           );
         },

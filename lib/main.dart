@@ -7,7 +7,7 @@ import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wyd_front/state/community_storage.dart';
-import 'package:wyd_front/state/event/event_intervals_manager.dart';
+import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/event/event_details_cache.dart';
 import 'package:wyd_front/state/mask/mask_cache.dart';
@@ -71,8 +71,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => EventDetailsCache()),
         ChangeNotifierProvider(create: (_) => MaskCache()),
         ChangeNotifierProvider(create: (_) => MediaFlagCache()),
-        Provider<EventIntervalsManager>(
-          create: (_) => EventIntervalsManager(),
+        Provider<EventIntervalsCache>(
+          create: (_) => EventIntervalsCache(),
           dispose: (_, manager) => manager.dispose(),
         ),
       ],

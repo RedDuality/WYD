@@ -1,11 +1,10 @@
 import 'package:wyd_front/API/Mask/retrieve_mask_response_dto.dart';
 
-/// Your pure data model for SQFlite storage.
 class Mask {
   final String id;
   String? title;
   String? eventId;
-  DateTime startTime; // Stored in UTC (as per your comment)
+  DateTime startTime; // Stored in UTC
   DateTime endTime; // Stored in UTC
   DateTime? updatedAt;
 
@@ -19,7 +18,6 @@ class Mask {
     this.updatedAt,
   });
 
-  // Factory to create from a DTO (API response)
   factory Mask.fromDto(RetrieveMaskResponseDto dto) {
     return Mask(
       id: dto.id,
@@ -52,20 +50,17 @@ class Mask {
     );
   }
 
-  /// Converts the Dart Event object to a Map for SQLite.
   Map<String, dynamic> toDbMap() {
     return {
       'id': id,
       'title': title,
       'eventId': eventId,
-      // Store as milliseconds since epoch for database efficiency
       'startTime': startTime.toUtc().millisecondsSinceEpoch,
       'endTime': endTime.toUtc().millisecondsSinceEpoch,
       'updatedAt': updatedAt?.toUtc().millisecondsSinceEpoch,
     };
   }
 
-  // Helper for creating a copy (crucial for updating the CalendarMask)
   Mask copyWith({
     String? id,
     String? title,

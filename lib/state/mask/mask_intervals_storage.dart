@@ -7,16 +7,16 @@ import 'package:path/path.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
 import 'package:wyd_front/state/util/intervals_cache.dart';
 
-class EventIntervalsStorage implements IntervalStorage{
+class MaskIntervalsStorage implements IntervalStorage{
   static const _databaseName = 'appointment_cache.db';
   static const _tableName = 'cachedEventIntervals';
   static const _databaseVersion = 1;
 
   static Database? _database;
 
-  static final EventIntervalsStorage _instance = EventIntervalsStorage._internal();
-  factory EventIntervalsStorage() => _instance;
-  EventIntervalsStorage._internal();
+  static final MaskIntervalsStorage _instance = MaskIntervalsStorage._internal();
+  factory MaskIntervalsStorage() => _instance;
+  MaskIntervalsStorage._internal();
 
   final _clearAllChannel = StreamController<void>();
   @override

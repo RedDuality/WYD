@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
-import 'package:wyd_front/view/profiles/mask_view.dart';
+import 'package:wyd_front/view/profiles/mask_preview.dart';
 import 'package:wyd_front/view/profiles/tiles/detailed_profile_tile.dart';
 import 'package:wyd_front/view/settings/settings_page.dart';
 
@@ -38,7 +38,14 @@ class ProfilesPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                MaskView(),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                  child: SizedBox(
+                    height: 400,
+                    width: 800,
+                    child: MaskPreview(),
+                  ),
+                ),
                 Column(
                   children: [
                     const SizedBox(height: 10),
