@@ -5,6 +5,7 @@
       "name": "WYD (dev)",
       "request": "launch",
       "type": "dart",
+      "preLaunchTask": "adb reverse 5000",
       "toolArgs": [
         "--flavor", "dev",
         "--dart-define=ENV=dev",

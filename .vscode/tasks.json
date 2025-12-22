@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "adb reverse 5000",
+      "type": "shell",
+      "command": "adb reverse tcp:5000 tcp:5000",
+      "problemMatcher": []
+    }
+  ]
+}
