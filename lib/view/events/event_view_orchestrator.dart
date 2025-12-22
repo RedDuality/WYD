@@ -67,7 +67,7 @@ class EventViewOrchestrator with ChangeNotifier {
 
     debugPrint("retrieveEvents, $logger");
 
-    await _eventsCache.loadMasksForRange(rangeCntrl.focusedRange);
+    await _eventsCache.loadEventsForRange(rangeCntrl.focusedRange);
 
     await _profEventsCh.synchWithCachedEvents();
 

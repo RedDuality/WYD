@@ -40,11 +40,7 @@ class ProfilesPage extends StatelessWidget {
               children: [
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                  child: SizedBox(
-                    height: 400,
-                    width: 800,
-                    child: MaskPreview(),
-                  ),
+                  child: MaskPreview(),
                 ),
                 Column(
                   children: [

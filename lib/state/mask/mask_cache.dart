@@ -37,6 +37,7 @@ class MaskCache extends ChangeNotifier {
 
   void clearAll() {
     _masks.clear();
+    notifyListeners();
   }
 
   @override
@@ -54,6 +55,10 @@ class MaskCache extends ChangeNotifier {
 
     allMasks.removeAll(masksToBeRemoved);
 
+    unawaited(_retrieveMaskFromStorage(newRange));
+  }
+
+  Future<void> _retrieveMaskFromStorage(DateTimeRange<DateTime> newRange) async {
     final addedIntervals = _rangeInCache.getAddedIntervals(newRange);
 
     _rangeInCache = newRange;
@@ -65,5 +70,6 @@ class MaskCache extends ChangeNotifier {
     }
 
     allMasks.addAll(masksToBeAdded);
+    notifyListeners();
   }
 }

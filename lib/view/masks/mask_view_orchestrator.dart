@@ -7,10 +7,9 @@ import 'package:wyd_front/view/masks/mask_range_controller.dart';
 class MaskViewOrchestrator with ChangeNotifier {
   final MaskCache _maskCache;
   final MaskController _maskController;
-
   final MaskRangeController _rangeController;
 
-  bool _isLoading = true;
+  bool _isLoading = false;
 
   MaskViewOrchestrator({
     required MaskCache maskCache,
@@ -20,42 +19,51 @@ class MaskViewOrchestrator with ChangeNotifier {
         _maskController = maskController,
         _rangeController = rangeController;
 
-
   void initialize() {
-    _maskCache.addListener(notifyListeners);
+    _maskCache.addListener(_updateMaskController);
 
-    _rangeController.addListener(() {
-      _onRangeChange(logger: "fromRangeUpdate");
-    });
+    _rangeController.addListener(_handleRangeUpdate);
+
+    _rangeController.attach();
 
     _onRangeChange(logger: "InitialLoad");
+  }
+
+  void _handleRangeUpdate() {
+    _onRangeChange(logger: "fromRangeUpdate");
   }
 
   MaskController get maskCntrl => _maskController;
   MaskRangeController get rangeCntrl => _rangeController;
 
-
   Future<void> _onRangeChange({String logger = ""}) async {
-    _isLoading = true;
+    debugPrint("retrieveMasks, $logger");
+    if (_isLoading) {
+      debugPrint("isLoading, skip");
+      return;
+    }
 
-    debugPrint("loadMasks, $logger");
+    _isLoading = true;
 
     await _maskCache.loadMasksForRange(_rangeController.focusedRange);
 
-    // Update controller with loaded masks
-    _maskController.updateWithMasks(_maskCache.allMasks);
+    _updateMaskController();
 
     _isLoading = false;
-
     notifyListeners();
+  }
+
+  void _updateMaskController() {
+    debugPrint("updateWithMasks");
+    _maskController.updateWithMasks(_maskCache.allMasks);
   }
 
   bool get isLoading => _isLoading;
 
   @override
   void dispose() {
-    _rangeController.removeListener(_onRangeChange);
-    _maskCache.removeListener(notifyListeners);
+    _rangeController.removeListener(_handleRangeUpdate);
+    _maskCache.removeListener(_updateMaskController);
     _rangeController.dispose();
     super.dispose();
   }

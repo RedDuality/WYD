@@ -80,7 +80,7 @@ class EventsCache extends EventController {
     }
   }
 
-  Future<void> loadMasksForRange(DateTimeRange newRange) async {
+  Future<void> loadEventsForRange(DateTimeRange newRange) async {
     if (newRange == _rangeInCache) return;
 
     final eventsToBeRemoved = super

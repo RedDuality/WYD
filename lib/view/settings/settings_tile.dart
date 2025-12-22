@@ -10,7 +10,7 @@ class SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-        maxWidth: 350,
+        maxWidth: 550,
         minHeight: 40,
       ),
       padding: EdgeInsets.symmetric(horizontal: 10),

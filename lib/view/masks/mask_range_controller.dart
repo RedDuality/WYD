@@ -3,17 +3,23 @@ import 'package:kalender/kalender.dart';
 import 'package:wyd_front/state/util/range_calculator.dart';
 
 class MaskRangeController extends ChangeNotifier with RangeCalculator {
-  late final MultiDayViewController _viewController;
+  // Store the main calendar controller
+  final CalendarController<String> _calendarController;
 
-  MaskRangeController(this._viewController, {DateTime? initialDate, int numberOfDays = 7}) {
+  MaskRangeController(this._calendarController, {DateTime? initialDate, int numberOfDays = 7}) {
     final startDate = initialDate ?? DateTime.now();
-    calculateRanges(startDate, numberOfDays);
 
-    _viewController.visibleDateTimeRange.addListener(_onVisibleRangeChanged);
+    calculateRanges(startDate, numberOfDays);
+  }
+
+  void attach() {
+    _calendarController.visibleDateTimeRange.addListener(_onVisibleRangeChanged);
+
+    _onVisibleRangeChanged();
   }
 
   void _onVisibleRangeChanged() {
-    final newRange = _viewController.visibleDateTimeRange.value;
+    final newRange = _calendarController.visibleDateTimeRange.value;
 
     if (focusedRange.start != newRange.start || focusedRange.end != newRange.end) {
       calculateRanges(newRange.start, RangeCalculator.calculateNumberOfDays(newRange));
@@ -26,14 +32,17 @@ class MaskRangeController extends ChangeNotifier with RangeCalculator {
 
     if (focusedRange.start != newRange.start || focusedRange.end != newRange.end) {
       calculateRanges(newDate, visibleDays);
-      _viewController.animateToDate(newDate);
+
+      _calendarController.animateToDate(newDate);
       notifyListeners();
     }
   }
 
   @override
   void dispose() {
-    _viewController.visibleDateTimeRange.removeListener(_onVisibleRangeChanged);
+    try {
+      _calendarController.visibleDateTimeRange.removeListener(_onVisibleRangeChanged);
+    } catch (_) {}
     super.dispose();
   }
 }

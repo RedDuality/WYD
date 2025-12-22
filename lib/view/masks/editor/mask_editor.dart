@@ -123,7 +123,7 @@ class _MaskEditorState extends State<MaskEditor> {
                       ? null
                       :  () async {
                           await _create();
-                          if (mounted) {
+                          if (context.mounted) {
                             Navigator.of(context).pop();
                           }
                         },

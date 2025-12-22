@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Provides reusable range calculation logic.
-mixin RangeCalculator on ChangeNotifier {
+mixin RangeCalculator {
   late DateTimeRange totalRange;
   late DateTimeRange previousRange;
   late DateTimeRange focusedRange;

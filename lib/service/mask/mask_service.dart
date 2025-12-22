@@ -17,7 +17,7 @@ class MaskService {
 
   static Future<List<RetrieveMaskResponseDto>> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleMasksRequestDto(
-        profileHashes: UserCache().getProfileIds(),
+        profileIds: UserCache().getProfileIds(),
         startTime: retrieveInterval.start.toUtc(),
         endTime: retrieveInterval.end.toUtc());
 

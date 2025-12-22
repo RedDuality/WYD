@@ -26,6 +26,10 @@ class SettingsPage extends StatelessWidget {
               action: ElevatedButton(onPressed: () => {}, child: Text("Italiano")),
             ),
             SettingsTile(
+              title: "Time visualization",
+              action: ElevatedButton(onPressed: () => {}, child: Text("24:00")),
+            ),
+            SettingsTile(
               title: "Dark mode",
               action: ElevatedButton(onPressed: () => {}, child: Text("Light")),
             ),

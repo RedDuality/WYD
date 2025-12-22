@@ -467,11 +467,10 @@ packages:
   kalender:
     dependency: "direct main"
     description:
-      name: kalender
-      sha256: "6155fece40bf4b914e9a7ed9cc4e6e44d15fc62125447aa41c8620e476aaebfa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.14.2"
+      path: "F:\\Secondarie\\Repo\\kalender"
+      relative: false
+    source: path
+    version: "0.14.3"
   leak_tracker:
     dependency: transitive
     description:
@@ -496,6 +495,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  linked_pageview:
+    dependency: transitive
+    description:
+      name: linked_pageview
+      sha256: "795972b7d7c9b8cdf133c0328956ce32f068ebfdff7bb2012068df8fcd8a1664"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.5"
   lints:
     dependency: transitive
     description:

@@ -1,10 +1,10 @@
 class RetrieveMultipleMasksRequestDto {
-  Set<String> profileHashes;
+  Set<String> profileIds;
   DateTime startTime;
   DateTime? endTime;
 
   RetrieveMultipleMasksRequestDto({
-    required this.profileHashes,
+    required this.profileIds,
     required this.startTime,
     this.endTime,
   });
@@ -12,7 +12,7 @@ class RetrieveMultipleMasksRequestDto {
 
   Map<String, dynamic> toJson() {
     return {
-      'profileHashes': profileHashes.toList(),
+      'profileIds': profileIds.toList(),
       'startTime': startTime.toUtc().toIso8601String(),
       'endTime': endTime?.toUtc().toIso8601String(),
     };
