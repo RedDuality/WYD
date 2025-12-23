@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
@@ -19,9 +21,10 @@ class EventStorageService {
     await EventStorage().saveMultiple(events, dateRange);
   }
 
+  // Ensure that the detailed profile is updated, and that eventually the event will be saved
   static Future<Event> addEvent(RetrieveEventResponseDto dto) async {
     var event = await _deserializeEvent(dto);
-    await EventStorage().saveEvent(event);
+    unawaited(EventStorage().saveEvent(event));
 
     return event;
   }
@@ -38,7 +41,6 @@ class EventStorageService {
     return Event.fromDto(dto);
   }
 
-  //
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsManager().getMissingInterval(requestedInterval);
 
@@ -47,6 +49,7 @@ class EventStorageService {
     return EventStorage().getEventsInRange(requestedInterval);
   }
 
+  // for images retrieval
   static Future<List<Event>> retrieveEventsEndedIn(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsManager().getMissingInterval(requestedInterval);
 
