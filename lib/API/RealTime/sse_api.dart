@@ -3,7 +3,7 @@ import 'package:http_interceptor/http/intercepted_client.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 
-class SseApi {
+class SseAPI {
   String functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Communication/';
 
   static final InterceptedClient _client = InterceptedClient.build(interceptors: [

@@ -21,9 +21,10 @@ class EventStorageService {
     await EventStorage().saveMultiple(events, dateRange);
   }
 
+  // Ensure that the detailed profile is updated, and that eventually the event will be saved
   static Future<Event> addEvent(RetrieveEventResponseDto dto) async {
     var event = await _deserializeEvent(dto);
-    await EventStorage().saveEvent(event);
+    unawaited(EventStorage().saveEvent(event));
 
     return event;
   }
@@ -40,7 +41,6 @@ class EventStorageService {
     return Event.fromDto(dto);
   }
 
-  //
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsCache().getMissingInterval(requestedInterval);
 
@@ -49,7 +49,7 @@ class EventStorageService {
     return EventStorage().getEventsInRange(requestedInterval);
   }
 
-  // for auto media retrieval
+  // for images retrieval
   static Future<List<Event>> retrieveEventsEndedIn(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsCache().getMissingInterval(requestedInterval);
 

@@ -20,10 +20,12 @@ import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dar
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventActionsService {
-  static Future<String> create(CreateEventRequestDto createDto) async {
+  static Future<Event> create(CreateEventRequestDto createDto) async {
     var createdEventDto = await EventAPI().create(createDto);
-    EventStorageService.addEvent(createdEventDto);
-    return createdEventDto.id;
+    
+    // Do not rely on current cache, as it will take more time than the event returned
+    var event = await EventStorageService.addEvent(createdEventDto);
+    return event;
   }
 
   static Future<void> update(UpdateEventRequestDto updateDto) async {

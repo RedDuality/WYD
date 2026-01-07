@@ -15,12 +15,18 @@ class RangeEditor extends StatelessWidget {
   });
 
   Future<DateTime?> selectDate(BuildContext context, initialDate) async {
-    return await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
+
+    if (picked != null && picked != startTime) {
+      final start = DateTimeField.combine(picked, TimeOfDay.fromDateTime(startTime));
+      checkValues(start, endTime);
+    }
+    return picked;
   }
 
   Future<DateTime?> selectTime(BuildContext context, initialDate) async {
@@ -62,12 +68,6 @@ class RangeEditor extends StatelessWidget {
                 border: OutlineInputBorder(borderSide: BorderSide.none),
               ),
               format: constraints.maxWidth > 400 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM"),
-              onChanged: (DateTime? value) {
-                if (value != null) {
-                  value = DateTimeField.combine(value, TimeOfDay.fromDateTime(startTime));
-                  checkValues(value, endTime);
-                }
-              },
               onShowPicker: selectDate,
             ),
           ),
@@ -89,8 +89,8 @@ class RangeEditor extends StatelessWidget {
               format: DateFormat("HH:mm"),
               onChanged: (DateTime? value) {
                 if (value != null) {
-                  value = DateTimeField.combine(startTime, TimeOfDay.fromDateTime(value));
-                  checkValues(value, endTime);
+                  final start = DateTimeField.combine(startTime, TimeOfDay.fromDateTime(value));
+                  checkValues(start, endTime);
                 }
               },
               onShowPicker: selectTime,
@@ -112,8 +112,8 @@ class RangeEditor extends StatelessWidget {
               format: DateFormat("HH:mm"),
               onChanged: (DateTime? value) {
                 if (value != null) {
-                  value = DateTimeField.combine(endTime, TimeOfDay.fromDateTime(value));
-                  checkValues(startTime, value);
+                  final end = DateTimeField.combine(endTime, TimeOfDay.fromDateTime(value));
+                  checkValues(startTime, end);
                 }
               },
               onShowPicker: selectTime,
