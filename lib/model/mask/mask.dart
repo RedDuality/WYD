@@ -8,6 +8,16 @@ class Mask {
   DateTime endTime; // Stored in UTC
   DateTime? updatedAt;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Mask) return false;
+    return id == other.id && updatedAt == other.updatedAt;
+  }
+
+  @override
+  int get hashCode => Object.hash(id, updatedAt);
+
   Mask({
     required this.id,
     this.title,
@@ -36,9 +46,7 @@ class Mask {
     final startTime = DateTime.fromMillisecondsSinceEpoch(map['startTime'] as int).toUtc();
     final endTime = DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int).toUtc();
     final updatedAtMillsecs = map['updatedAt'] as int?;
-    final updatedAt = updatedAtMillsecs != null 
-        ? DateTime.fromMillisecondsSinceEpoch(updatedAtMillsecs).toUtc() 
-        : null;
+    final updatedAt = updatedAtMillsecs != null ? DateTime.fromMillisecondsSinceEpoch(updatedAtMillsecs).toUtc() : null;
 
     return Mask(
       id: map['id'] as String,

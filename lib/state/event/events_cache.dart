@@ -29,7 +29,7 @@ class EventsCache extends EventController {
       if (event.$2) {
         _delete(event.$1);
       } else {
-        _updateEvent(event.$1);
+        _addOrUpdate(event.$1);
       }
     });
 
@@ -53,7 +53,7 @@ class EventsCache extends EventController {
     }
   }
 
-  Future<void> _updateEvent(Event event) async {
+  Future<void> _addOrUpdate(Event event) async {
     if (_provider == null) return;
 
     final range = _provider!.rangeCntrl.focusedRange;
@@ -64,8 +64,10 @@ class EventsCache extends EventController {
 
       if (inMemoryEvent != event) {
         if (inMemoryEvent != null) {
+          // updated
           super.remove(inMemoryEvent);
         } else {
+          // added
           await _provider!.onSingleEventAdded(event.id);
         }
         super.add(event);

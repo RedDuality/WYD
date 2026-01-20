@@ -73,7 +73,7 @@ class _EventsPageState extends State<EventsPage> {
         unawaited(UriService.saveUri(""));
         if (eventId != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-            final event = await EventRetrieveService.retrieveAndAddByHash(eventId);
+            final event = await EventRetrieveService.retrieveAndCreateSharedEvent(eventId);
             if (context.mounted) {
               showCustomDialog(
                 context,

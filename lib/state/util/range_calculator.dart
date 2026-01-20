@@ -21,8 +21,8 @@ mixin RangeCalculator {
 
     var lastDay = mondayOfRange.add(Duration(days: visibleDays - 1));
     DateTime endOfRange = DateTime(lastDay.year, lastDay.month, lastDay.day)
-        .add(const Duration(days: 1))
-        .subtract(const Duration(milliseconds: 1));
+        .add(const Duration(days: 1));
+        //.subtract(const Duration(milliseconds: 1));
 
     return DateTimeRange(start: startOfFirstDay, end: endOfRange);
   }

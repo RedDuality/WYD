@@ -21,7 +21,7 @@ class MaskRangeController extends ChangeNotifier with RangeCalculator {
   void _onVisibleRangeChanged() {
     final newRange = _calendarController.visibleDateTimeRange.value;
 
-    if (focusedRange.start != newRange.start || focusedRange.end != newRange.end) {
+    if (newRange != null && (focusedRange.start != newRange.start || focusedRange.end != newRange.end)) {
       calculateRanges(newRange.start, RangeCalculator.calculateNumberOfDays(newRange));
       notifyListeners();
     }

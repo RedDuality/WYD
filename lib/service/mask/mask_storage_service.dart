@@ -39,7 +39,7 @@ class MaskStorageService {
   }
 
   static Future<void> _retrieveFromServer(DateTimeRange retrieveInterval) async {
-    var dtos = await MaskService.retrieveFromServer(retrieveInterval);
+    var dtos = await MaskService.retrieveProfileMasks(retrieveInterval);
     await _addMasks(dtos, retrieveInterval);
   }
 }

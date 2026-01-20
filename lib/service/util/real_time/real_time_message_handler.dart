@@ -11,23 +11,11 @@ class RealTimeMessageHandler {
     var updateType = _findUpdateType(data['type']);
     debugPrint('Handled');
     switch (updateType) {
-      /*
-      case UpdateType.createEvent:
-        EventRetrieveService.checkAndRetrieveEssentialByHash(data['id']);
-        break;
-      case UpdateType.shareEvent:
-        EventRetrieveService.retrieveSharedByHash(data['id']);
-        break;
-      */
       case UpdateType.updateEssentialsEvent:
         var updatedTime = DateTime.parse(data['time'] as String).toUtc();
         EventRetrieveService.checkAndRetrieveEssentialByHash(data['id'], updatedTime);
+
         break;
-      /*
-      case UpdateType.updateDetailsEvent:
-        EventService.retrieveDetailsByHash(data['id']);
-        break;
-      */
       case UpdateType.confirmEvent:
         if (data['id'] != null && data['profileId'] != null) {
           EventActionsService.localConfirm(data['id'], true, pHash: data['profileId']);

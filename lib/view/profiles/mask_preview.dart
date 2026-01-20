@@ -17,7 +17,7 @@ class MaskPreview extends StatefulWidget {
 
 class _MaskPreviewState extends State<MaskPreview> {
   late final MaskViewOrchestrator _viewOrchestrator;
-  late final CalendarController<String> _calendarController;
+  final CalendarController<String> _calendarController = CalendarController<String>();
   late final ViewConfiguration _viewConfiguration;
 
   bool _isOrchestratorInitialized = false;
@@ -25,10 +25,9 @@ class _MaskPreviewState extends State<MaskPreview> {
   @override
   void initState() {
     super.initState();
-    _calendarController = CalendarController<String>();
 
     _viewConfiguration = MultiDayViewConfiguration.week(
-      initialHeightPerMinute: 0.34, // Keep your compact height
+      initialHeightPerMinute: 0.34,
       initialTimeOfDay: const TimeOfDay(hour: 7, minute: 30),
     );
   }
@@ -43,6 +42,9 @@ class _MaskPreviewState extends State<MaskPreview> {
   }
 
   void _initializeOrchestrator() {
+
+    final maskCache = context.read<MaskCache>();
+
     final rangeController = MaskRangeController(
       _calendarController,
       initialDate: DateTime.now(),
@@ -50,8 +52,8 @@ class _MaskPreviewState extends State<MaskPreview> {
     );
 
     _viewOrchestrator = MaskViewOrchestrator(
-      maskCache: context.read<MaskCache>(),
-      maskController: MaskController(),
+      maskCache: maskCache,
+      maskController: MaskController(maskCache),
       rangeController: rangeController,
     );
 
@@ -105,12 +107,10 @@ class _MaskPreviewState extends State<MaskPreview> {
                                 callbacks: _getClickableCallbacks(context),
                                 header: CalendarHeader<String>(),
                                 body: CalendarBody<String>(
-                                  interaction: ValueNotifier(
-                                    CalendarInteraction(
-                                      allowResizing: false,
-                                      allowRescheduling: false,
-                                      allowEventCreation: false,
-                                    ),
+                                  interaction: CalendarInteraction(
+                                    allowResizing: false,
+                                    allowRescheduling: false,
+                                    allowEventCreation: false,
                                   ),
                                   multiDayTileComponents: TileComponents<String>(
                                     tileBuilder: (event, tileRange) {
@@ -170,12 +170,12 @@ class _MaskPreviewState extends State<MaskPreview> {
   }
 
   void _goToEditor(BuildContext context) {
-    final currentDate = _calendarController.visibleDateTimeRange.value.start;
+    final currentDate = _calendarController.visibleDateTimeRange.value;
 
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MaskPage(initialDate: currentDate),
+          builder: (context) => MaskPage(initialDate: currentDate?.start),
         ));
   }
 

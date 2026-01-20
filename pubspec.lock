@@ -467,9 +467,11 @@ packages:
   kalender:
     dependency: "direct main"
     description:
-      path: "F:\\Secondarie\\Repo\\kalender"
-      relative: false
-    source: path
+      path: "."
+      ref: main
+      resolved-ref: "851979a643bfe8040272ce7f2fecafd40efbad14"
+      url: "https://github.com/RedDuality/kalender.git"
+    source: git
     version: "0.14.3"
   leak_tracker:
     dependency: transitive

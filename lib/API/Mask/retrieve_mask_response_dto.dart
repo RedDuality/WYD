@@ -21,7 +21,7 @@ class RetrieveMaskResponseDto {
     return RetrieveMaskResponseDto(
         id: json['id'] as String,
         //profileId: json['profileId'] as String? ?? "",
-        eventId: json['eventId'] as String? ?? "",
+        eventId: json['eventId'] as String?,
         title: json['title'] as String? ?? "",
         // Conversion to local is done in the mask constructor
         startTime: DateTime.parse(json['startTime'] as String).toUtc(),

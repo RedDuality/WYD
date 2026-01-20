@@ -6,7 +6,7 @@ import 'package:workmanager/workmanager.dart';
 import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:wyd_front/state/community_storage.dart';
+import 'package:wyd_front/state/community/community_storage.dart';
 import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/event/event_details_cache.dart';

@@ -18,11 +18,11 @@ class MaskStorage {
 
   // StreamController notifies the listener that the underlying data in range has changed.
   final _rangeUpdateController = StreamController<DateTimeRange>();
-  final _eventUpdateController = StreamController<(Mask mask, bool deleted)>();
+  final _maskUpdateController = StreamController<(Mask mask, bool deleted)>();
   final _clearAllChannel = StreamController<void>();
 
   Stream<DateTimeRange> get rangesChannel => _rangeUpdateController.stream;
-  Stream<(Mask mask, bool deleted)> get updatesChannel => _eventUpdateController.stream;
+  Stream<(Mask mask, bool deleted)> get updatesChannel => _maskUpdateController.stream;
   Stream<void> get clearChannel => _clearAllChannel.stream;
 
   // In-memory cache for web/other environments where sqflite isn't used
@@ -50,7 +50,7 @@ class MaskStorage {
           CREATE TABLE $_tableName (
             id TEXT PRIMARY KEY,
             title TEXT,
-            eventId TEXT,
+            eventId TEXT UNIQUE,
             startTime INTEGER,
             endTime INTEGER, 
             updatedAt INTEGER,
@@ -88,7 +88,7 @@ class MaskStorage {
   /// Saves to storage and emits a change event.
   Future<void> saveMask(Mask mask) async {
     // Send a signal that data has been modified.
-    _eventUpdateController.sink.add((mask, false));
+    _maskUpdateController.sink.add((mask, false));
 
     if (!kIsWeb) {
       final db = await database;
@@ -134,6 +134,57 @@ class MaskStorage {
       return List.generate(maps.length, (i) {
         return Mask.fromDbMap(maps[i]);
       });
+    }
+  }
+
+  Future<void> deleteMask(Mask mask) async {
+    _maskUpdateController.sink.add((mask, true));
+
+    if (!kIsWeb) {
+      final db = await database;
+      if (db == null) return;
+
+      await db.delete(
+        _tableName,
+        where: 'id = ?',
+        whereArgs: [mask.id],
+      );
+    } else {
+      _inMemoryStorage.remove(mask.id);
+    }
+  }
+
+  /// Removes all masks associated with a specific eventId.
+  Future<void> deleteMaskByEventId(String eventId) async {
+    List<Mask> masksToDelete = [];
+
+    if (kIsWeb) {
+      masksToDelete = _inMemoryStorage.values.where((m) => m.eventId == eventId).toList();
+      for (var m in masksToDelete) {
+        _inMemoryStorage.remove(m.id);
+      }
+    } else {
+      final db = await database;
+      if (db == null) return;
+
+      // Fetch masks before deletion to send update events
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tableName,
+        where: 'eventId = ?',
+        whereArgs: [eventId],
+      );
+      masksToDelete = maps.map((m) => Mask.fromDbMap(m)).toList();
+
+      await db.delete(
+        _tableName,
+        where: 'eventId = ?',
+        whereArgs: [eventId],
+      );
+    }
+
+    // 2. Notify the controller for each deleted mask
+    for (final mask in masksToDelete) {
+      _maskUpdateController.sink.add((mask, true));
     }
   }
 

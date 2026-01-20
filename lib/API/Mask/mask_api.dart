@@ -5,6 +5,7 @@ import 'package:wyd_front/API/Mask/retrieve_mask_response_dto.dart';
 
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/API/Mask/retrieve_multiple_masks_request_dto.dart';
+import 'package:wyd_front/API/Mask/update_mask_request_dto.dart';
 
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
@@ -46,7 +47,33 @@ class MaskAPI {
       var dto = RetrieveMaskResponseDto.fromJson(jsonDecode(response.body));
       return dto;
     } else {
-      throw "Error while creating the event, please retry later";
+      throw "Error while creating the mask, please retry later";
+    }
+  }
+
+  Future<RetrieveMaskResponseDto> update(UpdateMaskRequestDto updateDto) async {
+    String url = '${functionUrl}Update';
+
+    var response = await client.post(Uri.parse(url), body: jsonEncode(updateDto));
+
+    if (response.statusCode == 200) {
+      var dto = RetrieveMaskResponseDto.fromJson(jsonDecode(response.body));
+      return dto;
+    } else {
+      throw "Error while updating the mask, please retry later";
+    }
+  }
+
+  Future<RetrieveMaskResponseDto> retrieveEventMask(String eventId) async {
+    String url = '${functionUrl}retrieveEventMask';
+
+    var response = await client.get(Uri.parse('$url/$eventId'));
+
+    if (response.statusCode == 200) {
+      var dto = RetrieveMaskResponseDto.fromJson(jsonDecode(response.body));
+      return dto;
+    } else {
+      throw "Error while retrieving the event's mask";
     }
   }
 }

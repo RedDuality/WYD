@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/state/mask/mask_cache.dart';
 import 'package:wyd_front/state/mask/mask_controller.dart';
@@ -26,6 +25,8 @@ class MaskViewOrchestrator with ChangeNotifier {
 
     _rangeController.attach();
 
+    _updateMaskController();
+
     _onRangeChange(logger: "InitialLoad");
   }
 
@@ -36,26 +37,22 @@ class MaskViewOrchestrator with ChangeNotifier {
   MaskController get maskCntrl => _maskController;
   MaskRangeController get rangeCntrl => _rangeController;
 
-  Future<void> _onRangeChange({String logger = ""}) async {
+  void _onRangeChange({String logger = ""}) {
     debugPrint("retrieveMasks, $logger");
-    if (_isLoading) {
-      debugPrint("isLoading, skip");
-      return;
-    }
+
+    if (_isLoading) return;
 
     _isLoading = true;
 
-    await _maskCache.loadMasksForRange(_rangeController.focusedRange);
-
-    _updateMaskController();
-
-    _isLoading = false;
-    notifyListeners();
+    _maskCache.loadMasksForRange(_rangeController.focusedRange).then((_) {
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   void _updateMaskController() {
-    debugPrint("updateWithMasks");
-    _maskController.updateWithMasks(_maskCache.allMasks);
+    _maskController.updateWithMasks();
+    notifyListeners();
   }
 
   bool get isLoading => _isLoading;

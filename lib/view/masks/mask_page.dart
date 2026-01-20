@@ -23,7 +23,7 @@ class MaskPage extends StatefulWidget {
 class _MaskPageState extends State<MaskPage> {
   late final MaskViewOrchestrator _viewOrchestrator;
 
-  late final CalendarController<String> _calendarController;
+  final CalendarController<String> _calendarController = CalendarController<String>();
   late final ViewConfiguration _viewConfiguration;
 
   bool _isOrchestratorInitialized = false;
@@ -32,26 +32,12 @@ class _MaskPageState extends State<MaskPage> {
   void initState() {
     super.initState();
 
-    _calendarController = CalendarController<String>();
-
     _viewConfiguration = MultiDayViewConfiguration.week(
       initialTimeOfDay: const TimeOfDay(hour: 7, minute: 0),
       displayRange: DateTimeRange(
-        start: DateTime(2024, 1, 1),
-        end: DateTime.now().add(Duration(days: 30 * 365)),
+        start: DateTime.now().subtract(Duration(days: 1 * 365)),
+        end: DateTime.now().add(Duration(days: 5 * 365)),
       ),
-    );
-
-    final rangeController = MaskRangeController(
-      _calendarController,
-      initialDate: widget.initialDate ?? DateTime.now(),
-      numberOfDays: 7,
-    );
-
-    _viewOrchestrator = MaskViewOrchestrator(
-      maskCache: context.read<MaskCache>(),
-      maskController: MaskController(),
-      rangeController: rangeController,
     );
   }
 
@@ -61,9 +47,27 @@ class _MaskPageState extends State<MaskPage> {
 
     if (!_isOrchestratorInitialized) {
       // This runs after initState but BEFORE the first build
-      _viewOrchestrator.initialize();
-      _isOrchestratorInitialized = true;
+      _initializeOrchestrator();
     }
+  }
+
+  void _initializeOrchestrator() {
+    final maskCache = context.read<MaskCache>();
+
+    final rangeController = MaskRangeController(
+      _calendarController,
+      initialDate: widget.initialDate ?? DateTime.now(),
+      numberOfDays: 7,
+    );
+
+    _viewOrchestrator = MaskViewOrchestrator(
+      maskCache: maskCache,
+      maskController: MaskController(maskCache),
+      rangeController: rangeController,
+    );
+
+    _viewOrchestrator.initialize();
+    _isOrchestratorInitialized = true;
   }
 
   @override

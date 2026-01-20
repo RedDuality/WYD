@@ -67,7 +67,7 @@ class EventViewOrchestrator with ChangeNotifier {
 
     debugPrint("retrieveEvents, $logger");
 
-    await _eventsCache.loadEventsForRange(rangeCntrl.focusedRange);
+    await _eventsCache.loadEventsForRange(rangeCntrl.focusedRange); //internally calls notifyListeners
 
     await _profEventsCh.synchWithCachedEvents();
 
@@ -81,11 +81,12 @@ class EventViewOrchestrator with ChangeNotifier {
     _isLoading = true;
     await _profEventsCh.loadCorrespondingProfileEvents(eventIds);
     _isLoading = false;
-    //notifyListeners();
+    //notifyListeners();  // already called from eventCache
   }
 
   Future<void> onSingleEventAdded(String eventId) async {
     await _profEventsCh.loadProfileEvents(eventId);
+    //notifyListeners();  // already called from eventCache
   }
 
   Set<String> currentEventsIds() {

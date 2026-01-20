@@ -12,6 +12,7 @@ import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/event/event_details_cache.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
@@ -40,6 +41,11 @@ class EventActionsService {
 
       if (await ProfileEventsStorageService.confirm(eventId, confirmed, profileHash)) {
         EventRetrieveService.retrieveEssentialByHash(eventId);
+        if(confirmed) {
+          MaskService.retrieveEventMask(eventId);
+        } else {
+          MaskService.deleteEventMask(eventId);
+        }
       }
     }
   }
