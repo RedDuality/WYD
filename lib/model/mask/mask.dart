@@ -6,17 +6,7 @@ class Mask {
   String? eventId;
   DateTime startTime; // Stored in UTC
   DateTime endTime; // Stored in UTC
-  DateTime? updatedAt;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! Mask) return false;
-    return id == other.id && updatedAt == other.updatedAt;
-  }
-
-  @override
-  int get hashCode => Object.hash(id, updatedAt);
+  DateTime updatedAt;
 
   Mask({
     required this.id,
@@ -25,7 +15,7 @@ class Mask {
     // in Utc time
     required this.startTime,
     required this.endTime,
-    this.updatedAt,
+    required this.updatedAt,
   });
 
   factory Mask.fromDto(RetrieveMaskResponseDto dto) {
@@ -36,7 +26,7 @@ class Mask {
       // Ensure times are treated as UTC if that's your standard
       startTime: dto.startTime.toUtc(),
       endTime: dto.endTime.toUtc(),
-      updatedAt: dto.updatedAt?.toUtc(),
+      updatedAt: dto.updatedAt.toUtc(),
     );
   }
 
@@ -45,8 +35,7 @@ class Mask {
     // Convert Unix timestamps (milliseconds since epoch) back to DateTime and force to UTC
     final startTime = DateTime.fromMillisecondsSinceEpoch(map['startTime'] as int).toUtc();
     final endTime = DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int).toUtc();
-    final updatedAtMillsecs = map['updatedAt'] as int?;
-    final updatedAt = updatedAtMillsecs != null ? DateTime.fromMillisecondsSinceEpoch(updatedAtMillsecs).toUtc() : null;
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toUtc();
 
     return Mask(
       id: map['id'] as String,
@@ -65,7 +54,7 @@ class Mask {
       'eventId': eventId,
       'startTime': startTime.toUtc().millisecondsSinceEpoch,
       'endTime': endTime.toUtc().millisecondsSinceEpoch,
-      'updatedAt': updatedAt?.toUtc().millisecondsSinceEpoch,
+      'updatedAt': updatedAt.toUtc().millisecondsSinceEpoch,
     };
   }
 

@@ -10,7 +10,7 @@ import 'package:wyd_front/state/mask/mask_cache.dart';
 /// Instead of storing Mask objects in CalendarEvent, we store only the mask ID
 class MaskController extends DefaultEventsController<String> {
   /// Maps mask.id (String) to calendar event id (int)
-  final Map<String, int> _maskIdToEventId = {};
+  final Map<String, int> _maskIdToEventIdMap = {};
 
   final MaskCache _maskCache;
 
@@ -18,39 +18,44 @@ class MaskController extends DefaultEventsController<String> {
 
   void updateWithMasks() {
     final masks = _maskCache.allMasks;
-    final maskIds = <String>{};
+    final incomingMaskIds = masks.map((m) => m.id).toSet();
+
+    _removeFromView(incomingMaskIds);
 
     for (final mask in masks) {
-      maskIds.add(mask.id);
-      final newEvent = _calndEventFromMask(mask);
-      final existingEventId = _maskIdToEventId[mask.id];
-
-      if (existingEventId != null) {
-        // update
-        final existingEvent = byId(existingEventId);
-
-        if (existingEvent != null) {
-          if (_hasChanged(existingEvent, newEvent)) {
-            // this also prevents infinite requests as updateEvent -> server -> maskcache -> updateWithMasks
-            updateEvent(event: existingEvent, updatedEvent: newEvent);
-          }
-        }
-      } else {
-        // New mask, create event for it (only stores the ID string)
-        final eventId = addEvent(newEvent);
-        _maskIdToEventId[mask.id] = eventId;
-      }
+      _addOrUpdate(mask);
     }
+    
+    notifyListeners();
+  }
 
-    // Remove events for masks that no longer exist
-    final toRemove = _maskIdToEventId.keys.where((id) => !maskIds.contains(id)).toList();
-    for (final maskId in toRemove) {
-      final eventId = _maskIdToEventId[maskId]!;
-      final event = byId(eventId);
-      if (event != null) {
-        removeEvent(event);
+  void _removeFromView(Set<String> incomingMaskIds) {
+    _maskIdToEventIdMap.removeWhere((maskId, eventId) {
+      final hasBeenDeleted = !incomingMaskIds.contains(maskId);
+      if (hasBeenDeleted) {
+        final event = byId(eventId);
+        if (event != null) dateMap.removeEvent(event); // remove from view
       }
-      _maskIdToEventId.remove(maskId);
+      return hasBeenDeleted; // remove from map
+    });
+  }
+
+  void _addOrUpdate(Mask mask) {
+    final newCalendarEvent = _calndEventFromMask(mask);
+    final oldCalendarEventId = _maskIdToEventIdMap[mask.id];
+
+    if (oldCalendarEventId != null) {
+      // currently in view
+
+      final existingEvent = byId(oldCalendarEventId);
+
+      if (existingEvent != null && _hasChanged(existingEvent, newCalendarEvent)) {
+        newCalendarEvent.id = existingEvent.id;
+        dateMap.updateEvent(existingEvent, newCalendarEvent);
+      }
+    } else {
+      final eventId = dateMap.addNewEvent(newCalendarEvent);
+      _maskIdToEventIdMap[mask.id] = eventId;
     }
   }
 
@@ -75,11 +80,10 @@ class MaskController extends DefaultEventsController<String> {
     required CalendarEvent<String> event,
     required CalendarEvent<String> updatedEvent,
   }) {
-    updatedEvent.id = event.id;
     var mask = _maskCache.findById(event.data!);
 
     if (mask.eventId != null && mask.eventId!.isNotEmpty) {
-      debugPrint( "Cannot modify a preview related to an Event");
+      debugPrint("Cannot modify a preview related to an Event");
       return;
     }
 
@@ -89,10 +93,8 @@ class MaskController extends DefaultEventsController<String> {
       startTime: updatedEvent.dateTimeRange.start,
       endTime: updatedEvent.dateTimeRange.end,
     );
-
-    dateMap.updateEvent(event, updatedEvent);
-    notifyListeners();
-
+    
+    //dateMap.updateEvent(event, updatedEvent);
     unawaited(MaskService.update(updateDto));
   }
 }

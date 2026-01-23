@@ -126,7 +126,7 @@ class EventStorage {
     }
   }
 
-  Future<Event?> getEventByHash(String id) async {
+  Future<Event?> getEventById(String id) async {
     if (kIsWeb) {
       return _inMemoryStorage[id];
     }

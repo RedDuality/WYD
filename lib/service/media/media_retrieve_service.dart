@@ -18,7 +18,7 @@ class MediaRetrieveService {
   }
 
   static Future<void> mockRetrieveShootedPhotos(String eventId, MediaCache provider) async {
-    var event = await EventStorage().getEventByHash(eventId);
+    var event = await EventStorage().getEventById(eventId);
     if (event != null) {
       var mockAssetEntities = List.generate(
         10,

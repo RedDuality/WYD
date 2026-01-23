@@ -9,7 +9,7 @@ class CommunityService {
     var communityDtos = await CommunityAPI().retrieveCommunities();
 
     var communities = communityDtos.map((c) => Community.fromDto(c)).toList();
-    CommunityStorage().setRange(communities);
+    CommunityStorage().set(communities);
   }
 
   Future<void> create(CreateCommunityRequestDto community) async {

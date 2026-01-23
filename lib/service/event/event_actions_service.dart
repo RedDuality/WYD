@@ -35,7 +35,7 @@ class EventActionsService {
   }
 
   static Future<void> localConfirm(String eventId, bool confirmed, {String? pHash}) async {
-    var event = await EventStorage().getEventByHash(eventId);
+    var event = await EventStorage().getEventById(eventId);
     if (event != null) {
       String profileHash = pHash ?? UserCache().getCurrentProfileId();
 
@@ -87,7 +87,7 @@ class EventActionsService {
   }
 
   static Future<void> delete(String eventId) async {
-    Event? event = await EventStorage().getEventByHash(eventId);
+    Event? event = await EventStorage().getEventById(eventId);
     if (event != null) {
       await EventAPI().delete(event.id);
       localDelete(event);

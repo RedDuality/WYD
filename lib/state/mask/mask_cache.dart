@@ -41,17 +41,13 @@ class MaskCache extends ChangeNotifier {
   }
 
   Set<Mask> get allMasks => _masks;
-  Mask findById(String maskId) => _masks.where((m) => m.id == maskId).first; 
+  Mask findById(String maskId) => _masks.where((m) => m.id == maskId).first;
 
   void _addOrUpdate(Mask mask) {
     final inTimeRange = _rangeInCache.overlapsWith(DateTimeRange(start: mask.startTime, end: mask.endTime));
 
     if (inTimeRange) {
-      Mask? inMemoryMask = _masks.where((m) => m.id == mask.id).firstOrNull;
-      if (inMemoryMask != null) {
-        _masks.remove(inMemoryMask);
-      }
-
+      _masks.removeWhere((m) => m.id == mask.id); // sets keep the old version
       _masks.add(mask);
       notifyListeners();
     }
@@ -63,37 +59,33 @@ class MaskCache extends ChangeNotifier {
     final overlap = _rangeInCache.getOverlap(updatedRange);
     if (overlap == null) return;
 
-    var events = await _storage.getMasksInRange(overlap);
+    var masks = await _storage.getMasksInRange(overlap);
 
-    if (events.isNotEmpty) {
-      _masks.addAll(events);
+    if (masks.isNotEmpty) {
+      _masks.addAll(masks);
       notifyListeners();
     }
   }
 
   Future<void> loadMasksForRange(DateTimeRange<DateTime> newRange) async {
-    if (newRange == _rangeInCache) {
-      //no need to load from the server
-      debugPrint("rangeSkip");
-      //make it load from cache
-      WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
-      return;
-    }
+    if (newRange == _rangeInCache) return;
 
+    _removeOutOfRangeMasks(newRange);
+
+    await _addInRangeMasks(newRange);
+  }
+
+  void _removeOutOfRangeMasks(DateTimeRange range) {
     final masksToBeRemoved =
-        allMasks.where((m) => (m.endTime.isBefore(newRange.start) || m.startTime.isAfter(newRange.end))).toList();
+        allMasks.where((m) => (m.endTime.isBefore(range.start) || m.startTime.isAfter(range.end))).toList();
 
     if (masksToBeRemoved.isNotEmpty) {
       allMasks.removeAll(masksToBeRemoved);
     }
-
-    unawaited(_retrieveMaskFromStorage(newRange));
   }
 
-  Future<void> _retrieveMaskFromStorage(DateTimeRange<DateTime> newRange) async {
-    final addedIntervals = _rangeInCache.getAddedIntervals(newRange);
-
-    _rangeInCache = newRange;
+  Future<void> _addInRangeMasks(DateTimeRange range) async {
+    final addedIntervals = _rangeInCache.getAddedIntervals(range);
 
     List<Mask> masksToBeAdded = [];
     for (final interval in addedIntervals) {
@@ -102,8 +94,8 @@ class MaskCache extends ChangeNotifier {
     }
 
     allMasks.addAll(masksToBeAdded);
-    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
-    debugPrint("notifyListeners");
+
+    _rangeInCache = range;
   }
 
   void _delete(Mask mask) {

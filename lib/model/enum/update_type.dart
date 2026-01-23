@@ -1,12 +1,15 @@
 enum UpdateType {
-  createEvent,
-  shareEvent,
   updateEssentialsEvent,
-  updateDetailsEvent,
   updatePhotos,
   confirmEvent,
   declineEvent,
   deleteEvent,
-  deleteForAll,
-  updateProfile
+  deleteEventForAll,
+
+  updateProfile,
+
+  createCommunity,
+
+  updateMask,
+  deleteMask
 }

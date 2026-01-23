@@ -37,6 +37,20 @@ class MaskService {
     return await MaskAPI().listMasks(retrieveDto);
   }
 
+
+  static Future _retrieveMask(String maskId) async {
+    var maskDto = await MaskAPI().retrieveMask(maskId);
+    _addOrUpdate(maskDto);
+  }
+
+  static Future<void> checkAndRetrieveUpdates(String maskId, DateTime updatedAt) async {
+    var inStorageMask = await MaskStorage().getMaskById(maskId);
+    // in case I was the one that updated the mask, it's not necessary to retrieve it
+    if (inStorageMask == null || updatedAt.isAfter(inStorageMask.updatedAt)) {
+      _retrieveMask(maskId);
+    }
+  }
+
   static Future retrieveEventMask(String eventId) async {
     var maskDto = await MaskAPI().retrieveEventMask(eventId);
     _addOrUpdate(maskDto);

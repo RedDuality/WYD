@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/state/util/range_calculator.dart';
 
-class EventRangeController extends ChangeNotifier with RangeCalculator {
-  EventRangeController(DateTime date, int numberOfDay) {
-    calculateRanges(date, numberOfDay);
+class EventRangeController extends ChangeNotifier with RangeController {
+  EventRangeController({DateTime? initialDate, int numberOfDays = 7}) {
+    final startDate = initialDate ?? DateTime.now();
+
+    init(startDate, numberOfDays);
   }
 
   void setRange(DateTime newDate, int visibleDays) {
-    final newRange = RangeCalculator.calculateRange(newDate, visibleDays);
+    final newRange = RangeController.calculateRange(newDate, visibleDays);
 
     if (focusedRange.start != newRange.start || focusedRange.end != newRange.end) {
       calculateRanges(newDate, visibleDays);

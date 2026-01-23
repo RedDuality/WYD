@@ -85,23 +85,33 @@ class EventsCache extends EventController {
   Future<void> loadEventsForRange(DateTimeRange newRange) async {
     if (newRange == _rangeInCache) return;
 
+    _removeOutOfRangeEvents(newRange);
+
+    await _addInRangeEvents(newRange);
+  }
+
+  void _removeOutOfRangeEvents(DateTimeRange range) {
     final eventsToBeRemoved = super
         .allEvents
         .whereType<Event>()
-        .where((e) => !(e.endTime!.isAfter(newRange.start) && e.startTime!.isBefore(newRange.end)))
+        .where((e) => !(e.endTime!.isAfter(range.start) && e.startTime!.isBefore(range.end)))
         .toList();
 
-    super.removeAll(eventsToBeRemoved);
+    if (eventsToBeRemoved.isNotEmpty) {
+      super.removeAll(eventsToBeRemoved);
+    }
+  }
 
-    final addedIntervals = _rangeInCache.getAddedIntervals(newRange);
-
-    _rangeInCache = newRange;
+  Future<void> _addInRangeEvents(DateTimeRange range) async {
+    final addedIntervals = _rangeInCache.getAddedIntervals(range);
 
     List<Event> eventsToBeAdded = [];
     for (final interval in addedIntervals) {
       var events = await EventStorageService.retrieveEventsInTimeRange(interval);
       eventsToBeAdded.addAll(events);
     }
+
+    _rangeInCache = range;
 
     super.addAll(eventsToBeAdded);
   }

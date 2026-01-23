@@ -5,7 +5,7 @@ class RetrieveMaskResponseDto {
   final String? title;
   final DateTime startTime;
   final DateTime endTime;
-  final DateTime? updatedAt;
+  final DateTime updatedAt;
 
   RetrieveMaskResponseDto({
     required this.id,
@@ -14,7 +14,7 @@ class RetrieveMaskResponseDto {
     this.title,
     required this.startTime,
     required this.endTime,
-    this.updatedAt,
+    required this.updatedAt,
   });
 
   factory RetrieveMaskResponseDto.fromJson(Map<String, dynamic> json) {
@@ -26,6 +26,6 @@ class RetrieveMaskResponseDto {
         // Conversion to local is done in the mask constructor
         startTime: DateTime.parse(json['startTime'] as String).toUtc(),
         endTime: DateTime.parse(json['endTime'] as String).toUtc(),
-        updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String).toUtc() : null);
+        updatedAt: DateTime.parse(json['updatedAt'] as String).toUtc());
   }
 }

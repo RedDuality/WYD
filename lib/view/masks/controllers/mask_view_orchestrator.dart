@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:wyd_front/state/mask/mask_cache.dart';
 import 'package:wyd_front/state/mask/mask_controller.dart';
-import 'package:wyd_front/view/masks/mask_range_controller.dart';
+import 'package:wyd_front/view/masks/controllers/mask_range_controller.dart';
 
 class MaskViewOrchestrator with ChangeNotifier {
   final MaskCache _maskCache;
@@ -23,10 +25,6 @@ class MaskViewOrchestrator with ChangeNotifier {
 
     _rangeController.addListener(_handleRangeUpdate);
 
-    _rangeController.attach();
-
-    _updateMaskController();
-
     _onRangeChange(logger: "InitialLoad");
   }
 
@@ -37,22 +35,26 @@ class MaskViewOrchestrator with ChangeNotifier {
   MaskController get maskCntrl => _maskController;
   MaskRangeController get rangeCntrl => _rangeController;
 
-  void _onRangeChange({String logger = ""}) {
+  Future<void> _onRangeChange({String logger = ""}) async {
     debugPrint("retrieveMasks, $logger");
 
     if (_isLoading) return;
 
     _isLoading = true;
 
-    _maskCache.loadMasksForRange(_rangeController.focusedRange).then((_) {
-      _isLoading = false;
-      notifyListeners();
-    });
+
+    unawaited(_maskCache.loadMasksForRange(_rangeController.focusedRange).then(
+      (_) {
+        _isLoading = false;
+        _updateMaskController();
+      },
+    ));
   }
 
   void _updateMaskController() {
+    debugPrint("updateMaskController called, this=$hashCode, MaskCache=${_maskCache.hashCode}");
     _maskController.updateWithMasks();
-    notifyListeners();
+    //notifyListeners();
   }
 
   bool get isLoading => _isLoading;

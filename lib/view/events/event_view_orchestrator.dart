@@ -23,7 +23,6 @@ class EventViewOrchestrator with ChangeNotifier {
   bool _confirmedView = true;
   bool _isLoading = true;
 
-
   EventViewOrchestrator({
     required EventsCache eventsCache,
     required DetailedProfileCache dpCache,
@@ -40,6 +39,8 @@ class EventViewOrchestrator with ChangeNotifier {
         _rangeController = rangeController,
         _confirmedView = confirmedView;
 
+  // this class notifyListeners updates the view with the events in cache(through getFilteredEvents)
+
   void initialize() {
     _profEventsCh.setViewProvider(this);
     _eventsCache.setViewProvider(this);
@@ -48,7 +49,7 @@ class EventViewOrchestrator with ChangeNotifier {
     _profEventsCh.addListener(notifyListeners);
     _viewSetsCh.addListener(notifyListeners);
     _mediaFlagCh.addListener(notifyListeners);
-    _eventsCache.addListener(notifyListeners); 
+    _eventsCache.addListener(notifyListeners);
 
     rangeCntrl.addListener(() {
       _onRangeChange(logger: "fromPageUpdate");
@@ -67,13 +68,17 @@ class EventViewOrchestrator with ChangeNotifier {
 
     debugPrint("retrieveEvents, $logger");
 
-    await _eventsCache.loadEventsForRange(rangeCntrl.focusedRange); //internally calls notifyListeners
+    // internally calls notifyListeners(moving to the new library, no internal notifyListeners should be needed-> refresh only afterProfEvents)
+    await _eventsCache.loadEventsForRange(rangeCntrl.focusedRange);
 
-    await _profEventsCh.synchWithCachedEvents();
+    unawaited(await _profEventsCh.synchWithCachedEvents().then(
+      (_) {
+        _isLoading = false;
 
-    _isLoading = false;
-
-    notifyListeners();
+        notifyListeners(); // -> profEvents modifies the eventview
+        return null; 
+      },
+    ));
   }
 
   // some events have been added to the storage

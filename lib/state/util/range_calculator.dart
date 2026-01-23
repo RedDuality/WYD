@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 
 /// Provides reusable range calculation logic.
-mixin RangeCalculator {
+mixin RangeController {
   late DateTimeRange totalRange;
   late DateTimeRange previousRange;
   late DateTimeRange focusedRange;
   late DateTimeRange futureRange;
+
+  void init(DateTime currentDay, int visibleDays) {
+    calculateRanges(currentDay, visibleDays);
+  }
+
+  void calculateRangesFromRange(DateTimeRange newRange) {
+    var visibleDays = _calculateNumberOfDays(newRange);
+
+    calculateRanges(newRange.start, visibleDays);
+  }
 
   void calculateRanges(DateTime currentDay, int visibleDays) {
     focusedRange = calculateRange(currentDay, visibleDays);
@@ -20,14 +30,13 @@ mixin RangeCalculator {
     DateTime startOfFirstDay = DateTime(mondayOfRange.year, mondayOfRange.month, mondayOfRange.day);
 
     var lastDay = mondayOfRange.add(Duration(days: visibleDays - 1));
-    DateTime endOfRange = DateTime(lastDay.year, lastDay.month, lastDay.day)
-        .add(const Duration(days: 1));
-        //.subtract(const Duration(milliseconds: 1));
+    DateTime endOfRange = DateTime(lastDay.year, lastDay.month, lastDay.day).add(const Duration(days: 1));
+    //.subtract(const Duration(milliseconds: 1));
 
     return DateTimeRange(start: startOfFirstDay, end: endOfRange);
   }
 
-  static int calculateNumberOfDays(DateTimeRange range) {
+  static int _calculateNumberOfDays(DateTimeRange range) {
     return range.end.difference(range.start).inDays + 1;
   }
 }

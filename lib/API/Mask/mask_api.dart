@@ -64,6 +64,19 @@ class MaskAPI {
     }
   }
 
+  Future<RetrieveMaskResponseDto> retrieveMask(String maskId) async {
+    String url = '${functionUrl}retrieveMask';
+
+    var response = await client.get(Uri.parse('$url/$maskId'));
+
+    if (response.statusCode == 200) {
+      var dto = RetrieveMaskResponseDto.fromJson(jsonDecode(response.body));
+      return dto;
+    } else {
+      throw "Error while retrieving the mask";
+    }
+  }
+
   Future<RetrieveMaskResponseDto> retrieveEventMask(String eventId) async {
     String url = '${functionUrl}retrieveEventMask';
 

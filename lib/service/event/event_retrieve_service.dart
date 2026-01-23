@@ -25,11 +25,12 @@ class EventRetrieveService {
   }
 
   static Future<void> checkAndRetrieveEssentialByHash(String eventId, DateTime updatedAt) async {
-    var event = await EventStorage().getEventByHash(eventId);
-    // in case I was the one that updated the event, it's not necessary to retrieve the event
+    var event = await EventStorage().getEventById(eventId);
+    // in case I was the one that updated the event, it's not necessary to retrieve it
     if (event == null || updatedAt.isAfter(event.updatedAt)) {
       retrieveEssentialByHash(eventId);
     }
+    // retrieve mask anyway
     MaskService.retrieveEventMask(eventId);
   }
 
@@ -53,7 +54,7 @@ class EventRetrieveService {
 
   //someone shared a link, have to also add on the backend
   static Future<Event> retrieveAndCreateSharedEvent(String eventId) async {
-    var event = await EventStorage().getEventByHash(eventId);
+    var event = await EventStorage().getEventById(eventId);
     if (event == null) {
       var sharedEvent = await EventAPI().sharedWithHash(eventId);
       return EventStorageService.addEvent(sharedEvent);

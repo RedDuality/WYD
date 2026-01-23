@@ -40,7 +40,7 @@ class _EventsPageState extends State<EventsPage> {
     final mfCache = context.read<MediaFlagCache>();
     final dpCache = context.read<DetailedProfileCache>();
 
-    final rangeController = EventRangeController(DateTime.now(), 7);
+    final rangeController = EventRangeController(initialDate:  DateTime.now(), numberOfDays: 7);
 
     _viewOrchestrator = EventViewOrchestrator(
       eventsCache: appEventsCache,

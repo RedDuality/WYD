@@ -21,7 +21,7 @@ class CommunityStorage extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setRange(List<Community> communities) {
+  void set(List<Community> communities) {
     _communities = communities;
     notifyListeners();
   }

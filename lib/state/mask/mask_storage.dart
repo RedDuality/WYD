@@ -103,6 +103,26 @@ class MaskStorage {
     }
   }
 
+  Future<Mask?> getMaskById(String id) async {
+    if (kIsWeb) {
+      return _inMemoryStorage[id];
+    }
+
+    final db = await database;
+    if (db == null) return null;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Mask.fromDbMap(maps.first);
+    }
+    return null;
+  }
+
   /// Given a period, this function returns masks that overlap it.
   /// Overlap logic: (M_end > R_start) AND (M_start < R_end)
   Future<List<Mask>> getMasksInRange(DateTimeRange range) async {
