@@ -56,7 +56,7 @@ class EventsCache extends EventController {
   Future<void> _addOrUpdate(Event event) async {
     if (_provider == null) return;
 
-    final range = _provider!.rangeCntrl.focusedRange;
+    final range = _provider!.rangeCntrl.currentRange;
     final inTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
 
     if (inTimeRange) {

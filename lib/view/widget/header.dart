@@ -32,9 +32,12 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
               MaterialPageRoute(builder: (context) => ProfilesPage()),
             );
           },
-          child: DetailedProfileTile(
-            profileId: UserCache().getCurrentProfileId(),
-            type: DetailedProfileTileType.header
+          child: Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: DetailedProfileTile(
+              profileId: UserCache().getCurrentProfileId(),
+              type: DetailedProfileTileType.header
+            ),
           ),
         ),
       ],

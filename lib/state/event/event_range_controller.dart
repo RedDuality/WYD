@@ -11,7 +11,7 @@ class EventRangeController extends ChangeNotifier with RangeController {
   void setRange(DateTime newDate, int visibleDays) {
     final newRange = RangeController.calculateRange(newDate, visibleDays);
 
-    if (focusedRange.start != newRange.start || focusedRange.end != newRange.end) {
+    if (currentRange.start != newRange.start || currentRange.end != newRange.end) {
       calculateRanges(newDate, visibleDays);
       notifyListeners();
     }

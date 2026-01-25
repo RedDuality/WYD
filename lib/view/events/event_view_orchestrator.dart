@@ -69,7 +69,7 @@ class EventViewOrchestrator with ChangeNotifier {
     debugPrint("retrieveEvents, $logger");
 
     // internally calls notifyListeners(moving to the new library, no internal notifyListeners should be needed-> refresh only afterProfEvents)
-    await _eventsCache.loadEventsForRange(rangeCntrl.focusedRange);
+    await _eventsCache.loadEventsForRange(rangeCntrl.currentRange);
 
     unawaited(await _profEventsCh.synchWithCachedEvents().then(
       (_) {
@@ -106,7 +106,7 @@ class EventViewOrchestrator with ChangeNotifier {
   // Method exposed to the EventsCache filter
   List<Event> getFilteredEvents(DateTime date, List<CalendarEventData> events) {
     if (_isLoading) return [];
-    if (rangeCntrl.focusedRange.end.isBefore(date) || rangeCntrl.focusedRange.start.isAfter(date)) return [];
+    if (rangeCntrl.currentRange.end.isBefore(date) || rangeCntrl.currentRange.start.isAfter(date)) return [];
 
     var todaysEvents = events.whereType<Event>().where((event) => event.occursOnDate(date.toLocal()));
     final todaysEventsIds = todaysEvents.map((event) => event.id).toSet();

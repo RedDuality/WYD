@@ -28,7 +28,7 @@ class _MaskPageState extends State<MaskPage> {
 
     _orchestrator = context.read<MaskViewOrchestrator>();
 
-    _calendarController = CalendarController<String>();
+    final initialRange = _orchestrator.rangeCntrl.currentRange;
 
     _viewConfiguration = MultiDayViewConfiguration.week(
       initialTimeOfDay: const TimeOfDay(hour: 7, minute: 0),
@@ -36,10 +36,22 @@ class _MaskPageState extends State<MaskPage> {
         start: DateTime.now().subtract(Duration(days: 1 * 365)),
         end: DateTime.now().add(Duration(days: 5 * 365)),
       ),
+      initialDateTime: initialRange.start,
     );
 
-    //_calendarController.visibleDateTimeRange.addListener(_handleUiRangeChange);
+    _calendarController = CalendarController<String>();
 
+    _calendarController.visibleDateTimeRange.addListener(_handleUiRangeChange);
+
+    /*
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      var displayedRange = _orchestrator.rangeCntrl.currentRange;
+      final now = DateTime.now();
+      if (displayedRange.start.isAfter(now) || displayedRange.end.isBefore(now)) {
+        debugPrint("jumpToDate");
+        _calendarController.jumpToDate(displayedRange.start);
+      }
+    });*/
   }
 
   void _handleUiRangeChange() {
@@ -91,9 +103,7 @@ class _MaskPageState extends State<MaskPage> {
           eventsController: orchestrator.maskCntrl,
           viewConfiguration: _viewConfiguration,
           components: _getCustomComponents(),
-          callbacks: CalendarCallbacks<String>(
-            onEventTapped: _handleEventTapped,
-          ),
+          callbacks: CalendarCallbacks<String>(onEventTapped: _handleEventTapped),
           header: CalendarHeader<String>(),
           body: CalendarBody<String>(
             multiDayTileComponents: TileComponents<String>(
@@ -101,10 +111,7 @@ class _MaskPageState extends State<MaskPage> {
                 return MaskTile(event: event);
               },
               tileWhenDraggingBuilder: (event) {
-                return MaskTile(
-                  event: event,
-                  opacity: 0.5,
-                );
+                return MaskTile(event: event, opacity: 0.5);
               },
               feedbackTileBuilder: (event, size) {
                 return MaskTile(event: event);

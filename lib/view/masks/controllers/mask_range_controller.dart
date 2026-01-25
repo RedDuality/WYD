@@ -11,7 +11,7 @@ class MaskRangeController extends ChangeNotifier with RangeController {
 
   void setRange(DateTimeRange newRange) {
 
-    if (focusedRange.start != newRange.start || focusedRange.end != newRange.end ) {
+    if (currentRange.start != newRange.start || currentRange.end != newRange.end ) {
       calculateRangesFromRange(newRange);
       notifyListeners();
     }

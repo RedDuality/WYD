@@ -43,7 +43,7 @@ class MaskViewOrchestrator with ChangeNotifier {
     _isLoading = true;
 
 
-    unawaited(_maskCache.loadMasksForRange(_rangeController.focusedRange).then(
+    unawaited(_maskCache.loadMasksForRange(_rangeController.currentRange).then(
       (_) {
         _isLoading = false;
         _updateMaskController();

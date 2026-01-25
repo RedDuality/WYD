@@ -2,6 +2,10 @@
 import 'package:flutter/material.dart';
 
 extension DateTimeInterval on DateTimeRange {
+  bool isSameAs(DateTimeRange other) {
+    return start == other.start && end == other.end;
+  }
+
   bool overlapsWith(DateTimeRange other) {
     return start.isBefore(other.end) && end.isAfter(other.start);
   }

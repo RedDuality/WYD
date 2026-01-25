@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kalender/kalender.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/model/util/date_time_interval.dart';
 import 'package:wyd_front/view/masks/mask_page.dart';
 import 'package:wyd_front/view/masks/tiles/mask_tile.dart';
 import 'package:wyd_front/view/masks/controllers/mask_view_orchestrator.dart';
@@ -21,14 +22,15 @@ class _MaskPreviewState extends State<MaskPreview> {
   @override
   void initState() {
     super.initState();
-    _orchestrator = context.read<MaskViewOrchestrator>();
 
-    _calendarController = CalendarController<String>();
+    _orchestrator = context.read<MaskViewOrchestrator>();
 
     _viewConfiguration = MultiDayViewConfiguration.week(
       initialHeightPerMinute: 0.34,
       initialTimeOfDay: const TimeOfDay(hour: 7, minute: 30),
     );
+
+    _calendarController = CalendarController<String>();
 
     // library-called date change(e.g. swipe)
     _calendarController.visibleDateTimeRange.addListener(_handleUiRangeChange);
@@ -88,11 +90,30 @@ class _MaskPreviewState extends State<MaskPreview> {
                           Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: CalendarView<String>(
+                              components: CalendarComponents<String>(
+                                multiDayComponents: MultiDayComponents(
+                                  headerComponents: MultiDayHeaderComponents(
+                                    weekNumberBuilder: (context, dateRange) {
+                                      return Center(
+                                        child: IconButton(
+                                          iconSize: 28,
+                                          splashRadius: 55,
+                                          icon: const Icon(Icons.today),
+                                          tooltip: 'Today',
+                                          onPressed: () {
+                                            _calendarController.animateToDate(DateTime.now());
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              header: CalendarHeader<String>(),
                               eventsController: orchestrator.maskCntrl,
                               calendarController: _calendarController,
                               viewConfiguration: _viewConfiguration,
                               callbacks: _getClickableCallbacks(context),
-                              header: CalendarHeader<String>(),
                               body: CalendarBody<String>(
                                 interaction: CalendarInteraction(
                                   allowResizing: false,
@@ -163,10 +184,17 @@ class _MaskPreviewState extends State<MaskPreview> {
       MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider.value(
           value: orchestrator,
-          child: const MaskPage(),
+          child: MaskPage(),
         ),
       ),
-    );
+    ).then((_) {
+      final orchestratorRange = _orchestrator.rangeCntrl.currentRange;
+      final calendarRange = _calendarController.visibleDateTimeRange.value;
+
+      if (calendarRange == null || !orchestratorRange.isSameAs(calendarRange)) {
+        _calendarController.jumpToDate(orchestratorRange.start);
+      }
+    });
   }
 
   CalendarCallbacks<String> _getClickableCallbacks(BuildContext context) {

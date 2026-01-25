@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 mixin RangeController {
   late DateTimeRange totalRange;
   late DateTimeRange previousRange;
-  late DateTimeRange focusedRange;
+  late DateTimeRange currentRange;
   late DateTimeRange futureRange;
 
   void init(DateTime currentDay, int visibleDays) {
@@ -18,11 +18,11 @@ mixin RangeController {
   }
 
   void calculateRanges(DateTime currentDay, int visibleDays) {
-    focusedRange = calculateRange(currentDay, visibleDays);
-    previousRange = calculateRange(currentDay.add(Duration(days: -visibleDays)), visibleDays);
-    futureRange = calculateRange(currentDay.add(Duration(days: visibleDays)), visibleDays);
+    currentRange = calculateRange(currentDay, visibleDays);
+    //previousRange = calculateRange(currentDay.add(Duration(days: -visibleDays)), visibleDays);
+    //futureRange = calculateRange(currentDay.add(Duration(days: visibleDays)), visibleDays);
 
-    totalRange = DateTimeRange(start: previousRange.start, end: futureRange.end);
+    //totalRange = DateTimeRange(start: previousRange.start, end: futureRange.end);
   }
 
   static DateTimeRange calculateRange(DateTime currentDay, int visibleDays) {
