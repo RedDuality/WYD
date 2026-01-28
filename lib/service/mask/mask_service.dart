@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Mask/create_mask_request_dto.dart';
 import 'package:wyd_front/API/Mask/mask_api.dart';
 import 'package:wyd_front/API/Mask/retrieve_mask_response_dto.dart';
-import 'package:wyd_front/API/Mask/retrieve_multiple_masks_request_dto.dart';
+import 'package:wyd_front/API/Mask/retrieve_profile_masks_request_dto.dart';
+import 'package:wyd_front/API/Mask/retrieve_user_masks_request_dto.dart';
 import 'package:wyd_front/API/Mask/update_mask_request_dto.dart';
 import 'package:wyd_front/model/mask/mask.dart';
 import 'package:wyd_front/state/mask/mask_storage.dart';
@@ -27,19 +28,33 @@ class MaskService {
     _addOrUpdate(updatedMaskDto);
   }
 
-  static Future<List<RetrieveMaskResponseDto>> retrieveProfileMasks(DateTimeRange retrieveInterval) async {
-    // TODO make this single profile only, and from function input
-    var retrieveDto = RetrieveMultipleMasksRequestDto(
-        profileIds: UserCache().getProfileIds(),
-        startTime: retrieveInterval.start.toUtc(),
-        endTime: retrieveInterval.end.toUtc());
+  static Future<List<RetrieveMaskResponseDto>> retrieveUserMasks(DateTimeRange retrieveInterval) async {
+    var retrieveDto = RetrieveUserMasksRequestDto(
+      profileIds: UserCache().getProfileIds(),
+      startTime: retrieveInterval.start.toUtc(),
+      endTime: retrieveInterval.end.toUtc(),
+    );
 
-    return await MaskAPI().listMasks(retrieveDto);
+    return await MaskAPI().retrieveUserMasks(retrieveDto);
   }
 
+  static Future<Set<Mask>> retrieveProfileMasks(
+    String profileId,
+    DateTimeRange retrieveInterval,
+  ) async {
+    var retrieveDto = RetrieveProfileMasksRequestDto(
+      profileId: profileId,
+      startTime: retrieveInterval.start.toUtc(),
+      endTime: retrieveInterval.end.toUtc(),
+    );
+
+    final viewDtos = await MaskAPI().retrieveProfileMasks(retrieveDto);
+
+    return viewDtos.map((viewDto) => Mask.fromViewDto(viewDto)).toSet();
+  }
 
   static Future _retrieveMask(String maskId) async {
-    var maskDto = await MaskAPI().retrieveMask(maskId);
+    var maskDto = await MaskAPI().retrieveSingleMask(maskId);
     _addOrUpdate(maskDto);
   }
 

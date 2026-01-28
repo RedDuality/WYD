@@ -1,9 +1,9 @@
-class RetrieveMultipleMasksRequestDto {
+class RetrieveUserMasksRequestDto {
   Set<String> profileIds;
   DateTime startTime;
   DateTime? endTime;
 
-  RetrieveMultipleMasksRequestDto({
+  RetrieveUserMasksRequestDto({
     required this.profileIds,
     required this.startTime,
     this.endTime,

@@ -4,7 +4,9 @@ import 'package:wyd_front/API/Mask/create_mask_request_dto.dart';
 import 'package:wyd_front/API/Mask/retrieve_mask_response_dto.dart';
 
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:wyd_front/API/Mask/retrieve_multiple_masks_request_dto.dart';
+import 'package:wyd_front/API/Mask/retrieve_profile_masks_request_dto.dart';
+import 'package:wyd_front/API/Mask/retrieve_user_masks_request_dto.dart';
+import 'package:wyd_front/API/Mask/retrieve_view_mask_response_dto.dart';
 import 'package:wyd_front/API/Mask/update_mask_request_dto.dart';
 
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
@@ -23,14 +25,28 @@ class MaskAPI {
           ProfileInterceptor(),
         ]);
 
-  Future<List<RetrieveMaskResponseDto>> listMasks(RetrieveMultipleMasksRequestDto retrieveMasksDto) async {
-    String url = '${functionUrl}ListByProfile';
+  Future<List<RetrieveMaskResponseDto>> retrieveUserMasks(RetrieveUserMasksRequestDto retrieveUserMasksDto) async {
+    String url = '${functionUrl}RetrieveUserMasks';
 
-    var response = await client.post(Uri.parse(url), body: jsonEncode(retrieveMasksDto));
+    var response = await client.post(Uri.parse(url), body: jsonEncode(retrieveUserMasksDto));
 
     if (response.statusCode == 200) {
       var dtos = List<RetrieveMaskResponseDto>.from(
           json.decode(response.body).map((dto) => RetrieveMaskResponseDto.fromJson(dto)));
+
+      return dtos;
+    }
+
+    throw "There was an error while fetching masks";
+  }
+
+  Future<List<RetrieveViewMaskResponseDto>> retrieveProfileMasks(RetrieveProfileMasksRequestDto retrieveProfileMasksDto) async {
+    String url = '${functionUrl}RetrieveProfileMasks';
+
+    var response = await client.post(Uri.parse(url), body: jsonEncode(retrieveProfileMasksDto));
+    if (response.statusCode == 200) {
+      var dtos = List<RetrieveViewMaskResponseDto>.from(
+          json.decode(response.body).map((dto) => RetrieveViewMaskResponseDto.fromJson(dto)));
 
       return dtos;
     }
@@ -64,7 +80,7 @@ class MaskAPI {
     }
   }
 
-  Future<RetrieveMaskResponseDto> retrieveMask(String maskId) async {
+  Future<RetrieveMaskResponseDto> retrieveSingleMask(String maskId) async {
     String url = '${functionUrl}retrieveMask';
 
     var response = await client.get(Uri.parse('$url/$maskId'));

@@ -1,15 +1,13 @@
-class RetrieveMaskResponseDto {
+class RetrieveViewMaskResponseDto {
   final String id;
-  final String profileId;
   final String? eventId;
   final String? title;
   final DateTime startTime;
   final DateTime endTime;
   final DateTime updatedAt;
 
-  RetrieveMaskResponseDto({
+  RetrieveViewMaskResponseDto({
     required this.id,
-    required this.profileId,
     this.eventId,
     this.title,
     required this.startTime,
@@ -17,10 +15,9 @@ class RetrieveMaskResponseDto {
     required this.updatedAt,
   });
 
-  factory RetrieveMaskResponseDto.fromJson(Map<String, dynamic> json) {
-    return RetrieveMaskResponseDto(
+  factory RetrieveViewMaskResponseDto.fromJson(Map<String, dynamic> json) {
+    return RetrieveViewMaskResponseDto(
         id: json['id'] as String,
-        profileId: json['profileId'] as String? ?? "",
         eventId: json['eventId'] as String?,
         title: json['title'] as String? ?? "",
         // Conversion to local is done in the mask constructor

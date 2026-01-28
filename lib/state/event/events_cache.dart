@@ -122,7 +122,11 @@ class EventsCache extends EventController {
     if (_provider != null) {
       super.updateFilter(newFilter: _provider!.getFilteredEvents);
     } else {
-      super.updateFilter(newFilter: (data, events) => <Event>[]);
+      // FIX: Wrap in a microtask to defer notifyListeners() until the
+      // framework is unlocked after the dispose phase.
+      Future.microtask(() {
+        super.updateFilter(newFilter: (data, events) => <Event>[]);
+      });
     }
   }
 

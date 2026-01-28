@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wyd_front/model/util/date_time_interval.dart';
 import 'package:wyd_front/state/util/range_calculator.dart';
 
 class EventRangeController extends ChangeNotifier with RangeController {
@@ -11,7 +12,7 @@ class EventRangeController extends ChangeNotifier with RangeController {
   void setRange(DateTime newDate, int visibleDays) {
     final newRange = RangeController.calculateRange(newDate, visibleDays);
 
-    if (currentRange.start != newRange.start || currentRange.end != newRange.end) {
+    if (!currentRange.isSameAs(newRange)) {
       calculateRanges(newDate, visibleDays);
       notifyListeners();
     }

@@ -130,7 +130,7 @@ class EventViewOrchestrator with ChangeNotifier {
     rangeCntrl.removeListener(_onRangeChange);
     _profEventsCh.removeListener(notifyListeners);
     _viewSetsCh.removeListener(notifyListeners);
-    //_eventsCache.removeListener(notifyListeners);
+    _eventsCache.removeListener(notifyListeners);
 
     _profEventsCh.setViewProvider(null);
     _eventsCache.setViewProvider(null);

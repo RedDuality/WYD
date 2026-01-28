@@ -4,21 +4,23 @@ import 'package:wyd_front/model/mask/mask.dart';
 import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/view/widget/util/range_editor.dart';
 
-class MaskEditor extends StatefulWidget {
+class MaskDetail extends StatefulWidget {
+  final bool edit;
   final Mask? originalMask;
   final DateTimeRange? initialDateRange;
 
-  const MaskEditor({
+  const MaskDetail({
     super.key,
+    this.edit = false,
     this.originalMask,
     this.initialDateRange,
   });
 
   @override
-  State<MaskEditor> createState() => _MaskEditorState();
+  State<MaskDetail> createState() => _MaskDetailState();
 }
 
-class _MaskEditorState extends State<MaskEditor> {
+class _MaskDetailState extends State<MaskDetail> {
   final _titleController = TextEditingController();
   late DateTime _startTime;
   late DateTime _endTime;

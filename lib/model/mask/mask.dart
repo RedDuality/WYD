@@ -1,7 +1,9 @@
 import 'package:wyd_front/API/Mask/retrieve_mask_response_dto.dart';
+import 'package:wyd_front/API/Mask/retrieve_view_mask_response_dto.dart';
 
 class Mask {
   final String id;
+  String? profileid;
   String? title;
   String? eventId;
   DateTime startTime; // Stored in UTC
@@ -10,6 +12,7 @@ class Mask {
 
   Mask({
     required this.id,
+    this.profileid,
     this.title,
     this.eventId,
     // in Utc time
@@ -18,9 +21,22 @@ class Mask {
     required this.updatedAt,
   });
 
+  factory Mask.fromViewDto(RetrieveViewMaskResponseDto viewDto) {
+    return Mask(
+      id: viewDto.id,
+      title: viewDto.title,
+      eventId: viewDto.eventId,
+      // Ensure times are treated as UTC if that's your standard
+      startTime: viewDto.startTime.toUtc(),
+      endTime: viewDto.endTime.toUtc(),
+      updatedAt: viewDto.updatedAt.toUtc(),
+    );
+  }
+
   factory Mask.fromDto(RetrieveMaskResponseDto dto) {
     return Mask(
       id: dto.id,
+      profileid: dto.profileId,
       title: dto.title,
       eventId: dto.eventId,
       // Ensure times are treated as UTC if that's your standard

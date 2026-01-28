@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
-import 'package:wyd_front/view/masks/mask_flow_scope.dart';
-import 'package:wyd_front/view/masks/mask_preview.dart';
+import 'package:wyd_front/view/masks/editor/mask_flow_scope.dart';
+import 'package:wyd_front/view/masks/editor/mask_preview.dart';
 import 'package:wyd_front/view/profiles/profiles_list.dart';
 import 'package:wyd_front/view/settings/settings_page.dart';
 

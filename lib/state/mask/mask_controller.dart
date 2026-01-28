@@ -12,12 +12,11 @@ class MaskController extends DefaultEventsController<String> {
   /// Maps mask.id (String) to calendar event id (int)
   final Map<String, int> _maskIdToEventIdMap = {};
 
-  final MaskCache _maskCache;
+  final MaskCache? _maskCache;
 
   MaskController(this._maskCache);
 
-  void updateWithMasks() {
-    final masks = _maskCache.allMasks;
+  void updateWithMasks(Set<Mask> masks) {
     final incomingMaskIds = masks.map((m) => m.id).toSet();
 
     _removeFromView(incomingMaskIds);
@@ -25,7 +24,7 @@ class MaskController extends DefaultEventsController<String> {
     for (final mask in masks) {
       _addOrUpdate(mask);
     }
-    
+
     notifyListeners();
   }
 
@@ -80,6 +79,8 @@ class MaskController extends DefaultEventsController<String> {
     required CalendarEvent<String> event,
     required CalendarEvent<String> updatedEvent,
   }) {
+    if (_maskCache == null) throw "You are trying to update events of another profile!";
+
     var mask = _maskCache.findById(event.data!);
 
     if (mask.eventId != null && mask.eventId!.isNotEmpty) {
@@ -93,7 +94,7 @@ class MaskController extends DefaultEventsController<String> {
       startTime: updatedEvent.dateTimeRange.start,
       endTime: updatedEvent.dateTimeRange.end,
     );
-    
+
     //dateMap.updateEvent(event, updatedEvent);
     unawaited(MaskService.update(updateDto));
   }

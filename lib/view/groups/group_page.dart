@@ -4,6 +4,7 @@ import 'package:wyd_front/model/community/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/state/community/community_storage.dart';
+import 'package:wyd_front/view/masks/gallery/mask_gallery.dart';
 import 'package:wyd_front/view/profiles/tiles/profile_tile.dart';
 import 'package:wyd_front/view/widget/header.dart';
 import 'package:wyd_front/view/groups/search_profile_page.dart';
@@ -24,16 +25,13 @@ class GroupPage extends StatelessWidget {
               Navigator.push(
                 context,
                 PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      const SearchProfilePage(),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
+                  pageBuilder: (context, animation, secondaryAnimation) => const SearchProfilePage(),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
                     const begin = Offset(1.0, 0.0); // Start from right
                     const end = Offset.zero;
                     const curve = Curves.easeInOut;
 
-                    var tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
+                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                     var offsetAnimation = animation.drive(tween);
 
                     return SlideTransition(
@@ -64,27 +62,45 @@ class GroupPage extends StatelessWidget {
   Widget _buildCommunityTile(BuildContext context, Community community) {
     switch (community.type) {
       case CommunityType.personal:
+        final profileId = community.getProfileHash();
         return ProfileTile(
-            profileId: community.getProfileHash(),
-            type: ProfileTileType.view);
+            profileId: profileId, type: ProfileTileType.view, trailing: _galleryButton(context, profileId));
       case CommunityType.singlegroup:
-        return avatarTile(title: community.name!);
+        return _groupTile(title: community.name!);
       case CommunityType.community:
-        return expansionAvatarTile(
-            title: community.name!, children: community.groups);
+        return _expansionCommunityTile(title: community.name!, children: community.groups);
     }
   }
 
-  Widget avatarTile({required String title, String? imageUrl}) {
+  Widget _groupTile({required String title, String? imageUrl}) {
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: ImageProviderService.getImageProvider(imageUrl: imageUrl),
       ),
       title: Text(title),
+      //trailing: _galleryButton(),
     );
   }
 
-  Widget expansionAvatarTile({
+  Widget _galleryButton(BuildContext context, String profileId) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      child: IconButton(
+        icon: const Icon(Icons.calendar_month),
+        tooltip: "view agenda",
+        onPressed: () => {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MaskGallery(profileId: profileId),
+            ),
+          ),
+        },
+      ),
+    );
+  }
+
+  Widget _expansionCommunityTile({
     required String title,
     required Iterable children,
     String? imageUrl,
@@ -95,9 +111,7 @@ class GroupPage extends StatelessWidget {
       ),
       title: Text(title),
       children: children.map((child) {
-        return Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: avatarTile(title: child.name));
+        return Padding(padding: const EdgeInsets.only(left: 16.0), child: _groupTile(title: child.name));
       }).toList(),
     );
   }

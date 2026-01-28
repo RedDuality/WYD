@@ -21,7 +21,40 @@ class MaskTile extends StatelessWidget {
     final maskId = event.data;
     final mask = maskCache.allMasks.firstWhereOrNull((m) => m.id == maskId);
 
-    if (mask == null) return const SizedBox.shrink();
+    if (mask == null) {
+      return Opacity(
+        opacity: opacity,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withAlpha(200),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: Colors.blue, width: 1),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          child: ClipRect(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: Text(
+                    '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                      color: Colors.white,
+                      height: 1.1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Opacity(
       opacity: opacity,

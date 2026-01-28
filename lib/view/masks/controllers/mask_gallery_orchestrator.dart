@@ -1,28 +1,26 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wyd_front/state/mask/mask_cache.dart';
+import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/state/mask/mask_controller.dart';
 import 'package:wyd_front/view/masks/controllers/mask_range_controller.dart';
 
-class MaskViewOrchestrator with ChangeNotifier {
-  final MaskCache _maskCache;
+class MaskGalleryOrchestrator with ChangeNotifier {
   final MaskController _maskController;
   final MaskRangeController _rangeController;
+  final String _profileId;
 
   bool _isLoading = false;
 
-  MaskViewOrchestrator({
-    required MaskCache maskCache,
+  MaskGalleryOrchestrator({
     required MaskController maskController,
     required MaskRangeController rangeController,
-  })  : _maskCache = maskCache,
-        _maskController = maskController,
-        _rangeController = rangeController;
+    required String profileId
+  })  : _maskController = maskController,
+        _rangeController = rangeController,
+        _profileId = profileId;
 
   void initialize() {
-    _maskCache.addListener(_updateMaskController);
-
     _rangeController.addListener(_handleRangeUpdate);
 
     _onRangeChange(logger: "InitialLoad");
@@ -42,18 +40,16 @@ class MaskViewOrchestrator with ChangeNotifier {
 
     _isLoading = true;
 
-
-    unawaited(_maskCache.loadMasksForRange(_rangeController.currentRange).then(
-      (_) {
-        _isLoading = false;
-        _updateMaskController();
-      },
-    ));
+    unawaited(_retrieveMasks());
   }
 
-  void _updateMaskController() {
-    _maskController.updateWithMasks(_maskCache.allMasks);
-    //notifyListeners();
+  Future<void> _retrieveMasks() async {
+    final range = _rangeController.currentRange;
+
+    final masks = await MaskService.retrieveProfileMasks(_profileId, range);
+
+    _isLoading = false;
+    _maskController.updateWithMasks(masks);
   }
 
   bool get isLoading => _isLoading;
@@ -61,7 +57,6 @@ class MaskViewOrchestrator with ChangeNotifier {
   @override
   void dispose() {
     _rangeController.removeListener(_handleRangeUpdate);
-    _maskCache.removeListener(_updateMaskController);
     _rangeController.dispose();
     super.dispose();
   }

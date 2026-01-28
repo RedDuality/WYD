@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kalender/kalender.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
-import 'package:wyd_front/view/masks/mask_page.dart';
+import 'package:wyd_front/view/masks/editor/mask_page.dart';
 import 'package:wyd_front/view/masks/tiles/mask_tile.dart';
 import 'package:wyd_front/view/masks/controllers/mask_view_orchestrator.dart';
 
@@ -16,7 +16,7 @@ class MaskPreview extends StatefulWidget {
 class _MaskPreviewState extends State<MaskPreview> {
   late final ViewConfiguration _viewConfiguration;
 
-  late final CalendarController<String> _calendarController;
+  final CalendarController<String> _calendarController = CalendarController<String>();
   late MaskViewOrchestrator _orchestrator;
 
   @override
@@ -29,8 +29,6 @@ class _MaskPreviewState extends State<MaskPreview> {
       initialHeightPerMinute: 0.34,
       initialTimeOfDay: const TimeOfDay(hour: 7, minute: 30),
     );
-
-    _calendarController = CalendarController<String>();
 
     // library-called date change(e.g. swipe)
     _calendarController.visibleDateTimeRange.addListener(_handleUiRangeChange);
@@ -52,10 +50,10 @@ class _MaskPreviewState extends State<MaskPreview> {
 
   @override
   Widget build(BuildContext context) {
-    final orchestrator = context.watch<MaskViewOrchestrator>();
-
     const double buttonSpace = 160;
     const double maxCardWidth = 800;
+
+    final orchestrator = context.watch<MaskViewOrchestrator>();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -90,30 +88,11 @@ class _MaskPreviewState extends State<MaskPreview> {
                           Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: CalendarView<String>(
-                              components: CalendarComponents<String>(
-                                multiDayComponents: MultiDayComponents(
-                                  headerComponents: MultiDayHeaderComponents(
-                                    weekNumberBuilder: (context, dateRange) {
-                                      return Center(
-                                        child: IconButton(
-                                          iconSize: 28,
-                                          splashRadius: 55,
-                                          icon: const Icon(Icons.today),
-                                          tooltip: 'Today',
-                                          onPressed: () {
-                                            _calendarController.animateToDate(DateTime.now());
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
+                              components: _getTodayButton(),
                               header: CalendarHeader<String>(),
                               eventsController: orchestrator.maskCntrl,
                               calendarController: _calendarController,
                               viewConfiguration: _viewConfiguration,
-                              callbacks: _getClickableCallbacks(context),
                               body: CalendarBody<String>(
                                 interaction: CalendarInteraction(
                                   allowResizing: false,
@@ -188,7 +167,7 @@ class _MaskPreviewState extends State<MaskPreview> {
         ),
       ),
     ).then((_) {
-      final orchestratorRange = _orchestrator.rangeCntrl.currentRange;
+      final orchestratorRange = orchestrator.rangeCntrl.currentRange;
       final calendarRange = _calendarController.visibleDateTimeRange.value;
 
       if (calendarRange == null || !orchestratorRange.isSameAs(calendarRange)) {
@@ -197,12 +176,25 @@ class _MaskPreviewState extends State<MaskPreview> {
     });
   }
 
-  CalendarCallbacks<String> _getClickableCallbacks(BuildContext context) {
-    void handleTap(dynamic _) => _goToEditor(context);
-    return CalendarCallbacks(
-      onTapped: handleTap,
-      onEventTapped: (e, r) => handleTap(e),
-      onLongPressed: handleTap,
+  CalendarComponents<String> _getTodayButton() {
+    return CalendarComponents<String>(
+      multiDayComponents: MultiDayComponents(
+        headerComponents: MultiDayHeaderComponents(
+          weekNumberBuilder: (context, dateRange) {
+            return Center(
+              child: IconButton(
+                iconSize: 28,
+                splashRadius: 55,
+                icon: const Icon(Icons.today),
+                tooltip: 'Today',
+                onPressed: () {
+                  _calendarController.animateToDate(DateTime.now());
+                },
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
