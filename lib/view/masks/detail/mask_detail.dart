@@ -5,15 +5,18 @@ import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/view/widget/util/range_editor.dart';
 
 class MaskDetail extends StatefulWidget {
-  final bool edit;
   final Mask? originalMask;
   final DateTimeRange? initialDateRange;
 
+  final bool edit;
+  final bool propose; // TODO
+
   const MaskDetail({
     super.key,
-    this.edit = false,
     this.originalMask,
     this.initialDateRange,
+    this.edit = false,
+    this.propose = false,
   });
 
   @override
@@ -22,6 +25,7 @@ class MaskDetail extends StatefulWidget {
 
 class _MaskDetailState extends State<MaskDetail> {
   final _titleController = TextEditingController();
+
   late DateTime _startTime;
   late DateTime _endTime;
   bool _isLoading = false;
@@ -30,20 +34,28 @@ class _MaskDetailState extends State<MaskDetail> {
   void initState() {
     super.initState();
 
-    if (widget.originalMask != null && widget.originalMask! .title != null) {
-      _titleController.text = widget. originalMask!.title!;
-    }
+    _initTitle();
 
+    _initDates();
+  }
+
+  void _initTitle() {
+    if (widget.originalMask != null && widget.originalMask!.title != null) {
+      _titleController.text = widget.originalMask!.title!;
+    }
+  }
+
+  void _initDates() {
     if (widget.originalMask != null) {
-      _startTime = widget.originalMask! .startTime;
-      _endTime = widget.originalMask! .endTime;
+      _startTime = widget.originalMask!.startTime;
+      _endTime = widget.originalMask!.endTime;
     } else if (widget.initialDateRange != null) {
-      _startTime = widget.initialDateRange!.start. toUtc();
+      _startTime = widget.initialDateRange!.start.toUtc();
       _endTime = widget.initialDateRange!.end.toUtc();
     } else {
       final now = DateTime.now().toUtc();
       _startTime = now;
-      _endTime = now. add(const Duration(hours: 1));
+      _endTime = now.add(const Duration(hours: 1));
     }
   }
 
@@ -62,7 +74,7 @@ class _MaskDetailState extends State<MaskDetail> {
     setState(() => _isLoading = true);
     try {
       var createDto = CreateMaskRequestDto(
-        title: _titleController.text. isEmpty ? null : _titleController.text,
+        title: _titleController.text.isEmpty ? null : _titleController.text,
         startTime: _startTime,
         endTime: _endTime,
       );
@@ -86,6 +98,20 @@ class _MaskDetailState extends State<MaskDetail> {
     }
   }
 
+  bool get _isUpdate => widget.originalMask != null;
+
+  Future<void> _handleSave() async {
+    // TODO create a shared event
+    if (_isUpdate) {
+      //TODO
+      // await _update(); // You'll need to implement this
+    } else {
+      await _create();
+    }
+
+    if (mounted) Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -98,15 +124,15 @@ class _MaskDetailState extends State<MaskDetail> {
             children: [
               const Text("Title"),
               Padding(
-                padding:  const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
-                  style:  const TextStyle(fontSize: 14),
+                  style: const TextStyle(fontSize: 14),
                   controller: _titleController,
-                  onChanged:  (value) => _checkChanges(),
+                  onChanged: (value) => _checkChanges(),
                   decoration: const InputDecoration(
                     hintText: 'No title',
                     contentPadding: EdgeInsets.symmetric(vertical: 4),
-                    isDense:  true,
+                    isDense: true,
                     border: OutlineInputBorder(borderSide: BorderSide.none),
                   ),
                 ),
@@ -114,51 +140,21 @@ class _MaskDetailState extends State<MaskDetail> {
               RangeEditor(
                 startTime: _startTime,
                 endTime: _endTime,
-                onDateChanged:  _setDates,
+                onDateChanged: _setDates,
               ),
-              const SizedBox(height:  5),
-              // Buttons
-              Align(
-                alignment: Alignment.bottomRight,
-                child: ElevatedButton(
-                  onPressed:  _isLoading
-                      ? null
-                      :  () async {
-                          await _create();
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size.zero,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (_isLoading)
-                        const SizedBox(
-                          width:  16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
-                        )
-                      else
-                        const Icon(Icons.save),
-                      const SizedBox(width: 8),
-                      if (MediaQuery.of(context).size.width > 400)
-                        Text(
-                          widget.originalMask != null ? 'Update' : 'Create',
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                    ],
+              const SizedBox(height: 5),
+              if (widget.edit)
+                // Buttons
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: FloatingActionButton.extended(
+                    onPressed: _isLoading ? null : _handleSave,
+                    label: Text(_isUpdate ? 'Update' : 'Create'),
+                    icon: _isLoading
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator())
+                        : const Icon(Icons.save),
                   ),
                 ),
-              ),
             ],
           ),
           Positioned(
@@ -177,7 +173,7 @@ class _MaskDetailState extends State<MaskDetail> {
         Navigator.of(context).pop();
       },
       style: TextButton.styleFrom(
-        foregroundColor:  Colors.grey,
+        foregroundColor: Colors.grey,
       ),
       child: const Icon(
         Icons.close,

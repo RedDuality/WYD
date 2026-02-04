@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:kalender/kalender.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/profiles/profile.dart';
-import 'package:wyd_front/state/mask/mask_cache.dart';
 import 'package:wyd_front/state/mask/mask_controller.dart';
 import 'package:wyd_front/state/profile/profiles_cache.dart';
+import 'package:wyd_front/view/masks/components/calendar_nav.dart';
 import 'package:wyd_front/view/masks/controllers/mask_gallery_orchestrator.dart';
 import 'package:wyd_front/view/masks/controllers/mask_range_controller.dart';
 import 'package:wyd_front/view/masks/detail/mask_detail.dart';
 import 'package:wyd_front/view/masks/tiles/mask_tile.dart';
+import 'package:wyd_front/view/widget/button/exit_button.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/widget/util/add_button.dart';
-import '../../../model/util/iterable_extension.dart';
 
 class MaskGallery extends StatefulWidget {
   final String profileId;
@@ -43,6 +43,13 @@ class _MaskGalleryState extends State<MaskGallery> {
     );
 
     _calendarController.visibleDateTimeRange.addListener(_handleUiRangeChange);
+  }
+
+  void _handleUiRangeChange() {
+    final range = _calendarController.visibleDateTimeRange.value;
+    if (range != null) {
+      _orchestrator.rangeCntrl.setRange(range);
+    }
   }
 
   @override
@@ -82,26 +89,33 @@ class _MaskGalleryState extends State<MaskGallery> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${profile!.name}\'s Agenda'),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: () => _calendarController.animateToPreviousPage(),
-            tooltip: 'Previous Week',
-          ),
-          IconButton(
-            icon: const Icon(Icons.today),
-            onPressed: () => _calendarController.jumpToDate(DateTime.now()),
-            tooltip: 'Today',
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: () => _calendarController.animateToNextPage(),
-            tooltip: 'Next Week',
-          ),
-          const SizedBox(width: 8),
-        ],
+        automaticallyImplyLeading: false,
+        titleSpacing: 20,
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    width: constraints.maxWidth * 0.33,
+                    child: Text(
+                      '${profile!.name}\'s Agenda',
+                      style: const TextStyle(fontSize: 20),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      softWrap: false,
+                    ),
+                  ),
+                ),
+                CalendarNav(controller: _calendarController),
+              ],
+            );
+          },
+        ),
+        actions: [const ExitButton()],
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -111,19 +125,43 @@ class _MaskGalleryState extends State<MaskGallery> {
           eventsController: _orchestrator.maskCntrl,
           viewConfiguration: _viewConfiguration,
           components: _getCustomComponents(),
-          callbacks: CalendarCallbacks<String>(onEventTapped: _handleEventTapped),
+          callbacks: _getCallbacks(),
           header: CalendarHeader<String>(),
           body: CalendarBody<String>(
+            interaction: CalendarInteraction(
+              allowResizing: false,
+              allowRescheduling: false,
+              allowEventCreation: true,
+              createEventGesture: null,
+              modifyEventGesture: null,
+            ),
             multiDayTileComponents: TileComponents<String>(
               tileBuilder: (event, tileRange) {
                 return MaskTile(event: event);
               },
+              tileWhenDraggingBuilder: (event) {
+                return MaskTile(event: event, opacity: 0.5);
+              },
+              /*
+              feedbackTileBuilder: (event, size) {
+                return MaskTile(event: event);
+              },*/
+              dropTargetTile: (event) => Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blue, width: 2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
             ),
           ),
         ),
       ),
-      // TODO
-      floatingActionButton: AddButton(text: 'Plan a visit!', child: MaskDetail()),
+      floatingActionButton: AddButton(
+          text: 'Plan a meeting!',
+          child: MaskDetail(
+            edit: true,
+            propose: true,
+          )),
     );
   } // build
 
@@ -141,22 +179,26 @@ class _MaskGalleryState extends State<MaskGallery> {
     );
   }
 
-  void _handleEventTapped(CalendarEvent<String> event, RenderBox renderBox) {
-    final maskCache = Provider.of<MaskCache>(context, listen: false);
-    final maskId = event.data;
-    final mask = maskCache.allMasks.firstWhereOrNull((m) => m.id == maskId);
-
-    if (mask != null) {
-      // TODO
-      showCustomDialog(context, MaskDetail(originalMask: mask));
-    }
+  CalendarCallbacks<String> _getCallbacks() {
+    return CalendarCallbacks<String>(
+      onEventCreated: _handleEventCreated,
+      onEventTapped: _handleEventTapped,
+    );
   }
 
-  void _handleUiRangeChange() {
-    final range = _calendarController.visibleDateTimeRange.value;
-    if (range != null) {
-      _orchestrator.rangeCntrl.setRange(range);
-    }
+  void _handleEventCreated(CalendarEvent<String> event) {
+    showCustomDialog(
+      context,
+      MaskDetail(
+        initialDateRange: event.dateTimeRange,
+        edit: true,
+        propose: true,
+      ),
+    );
+  }
+
+  void _handleEventTapped(CalendarEvent<String> event, RenderBox renderBox) {
+    showCustomDialog(context, MaskDetail(initialDateRange: event.dateTimeRange));
   }
 
   @override

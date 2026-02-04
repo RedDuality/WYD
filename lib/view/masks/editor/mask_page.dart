@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kalender/kalender.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/state/mask/mask_cache.dart';
+import 'package:wyd_front/view/masks/components/calendar_nav.dart';
 import 'package:wyd_front/view/masks/detail/mask_detail.dart';
 import 'package:wyd_front/view/masks/tiles/mask_tile.dart';
 import 'package:wyd_front/view/masks/controllers/mask_view_orchestrator.dart';
@@ -65,22 +66,7 @@ class _MaskPageState extends State<MaskPage> {
         title: const Text('Mask Editor'),
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: () => _calendarController.animateToPreviousPage(),
-            tooltip: 'Previous Week',
-          ),
-          IconButton(
-            icon: const Icon(Icons.today),
-            onPressed: () => _calendarController.jumpToDate(DateTime.now()),
-            tooltip: 'Today',
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: () => _calendarController.animateToNextPage(),
-            tooltip: 'Next Week',
-          ),
-          const SizedBox(width: 8), // Padding
+          CalendarNav(controller: _calendarController),
         ],
       ),
       body: Container(
@@ -91,7 +77,7 @@ class _MaskPageState extends State<MaskPage> {
           eventsController: orchestrator.maskCntrl,
           viewConfiguration: _viewConfiguration,
           components: _getCustomComponents(),
-          callbacks: CalendarCallbacks<String>(onEventTapped: _handleEventTapped),
+          callbacks: _getCallbacks(),
           header: CalendarHeader<String>(),
           body: CalendarBody<String>(
             multiDayTileComponents: TileComponents<String>(
@@ -116,7 +102,7 @@ class _MaskPageState extends State<MaskPage> {
       ),
       floatingActionButton: AddButton(text: 'Add Mask', child: MaskDetail()),
     );
-  } // build
+  }
 
   // --- Helper Methods ---
 
@@ -132,13 +118,34 @@ class _MaskPageState extends State<MaskPage> {
     );
   }
 
+  CalendarCallbacks<String> _getCallbacks() {
+    return CalendarCallbacks<String>(
+      onEventTapped: _handleEventTapped,
+      onEventCreated: (event) => _handleEventCreated,
+    );
+  }
+
+  void _handleEventCreated(CalendarEvent<String> event, RenderBox renderBox) {
+    showCustomDialog(
+        context,
+        MaskDetail(
+          initialDateRange: event.dateTimeRange,
+          edit: true,
+        ));
+  }
+
   void _handleEventTapped(CalendarEvent<String> event, RenderBox renderBox) {
     final maskCache = Provider.of<MaskCache>(context, listen: false);
     final maskId = event.data;
     final mask = maskCache.allMasks.firstWhereOrNull((m) => m.id == maskId);
 
     if (mask != null) {
-      showCustomDialog(context, MaskDetail(originalMask: mask));
+      showCustomDialog(
+          context,
+          MaskDetail(
+            originalMask: mask,
+            edit: true,
+          ));
     }
   }
 }
