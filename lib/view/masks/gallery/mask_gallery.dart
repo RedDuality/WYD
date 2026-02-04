@@ -160,7 +160,7 @@ class _MaskGalleryState extends State<MaskGallery> {
           text: 'Plan a meeting!',
           child: MaskDetail(
             edit: true,
-            propose: true,
+            profileIds: [widget.profileId],
           )),
     );
   } // build
@@ -191,8 +191,8 @@ class _MaskGalleryState extends State<MaskGallery> {
       context,
       MaskDetail(
         initialDateRange: event.dateTimeRange,
+        profileIds: [widget.profileId],
         edit: true,
-        propose: true,
       ),
     );
   }

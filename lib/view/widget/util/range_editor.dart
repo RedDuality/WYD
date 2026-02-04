@@ -4,19 +4,23 @@ import 'package:intl/intl.dart';
 
 class RangeEditor extends StatelessWidget {
   // TODO add a view-only bool option
-  
+
   final DateTime startTime;
   final DateTime endTime;
   final Function(DateTime, DateTime) onDateChanged;
+  final bool viewOnly;
 
   const RangeEditor({
     super.key,
     required this.startTime,
     required this.endTime,
     required this.onDateChanged,
+    this.viewOnly = false,
   });
 
-  Future<DateTime?> selectDate(BuildContext context, initialDate) async {
+  Future<DateTime?> selectDate(BuildContext context,initialDate) async {
+    if (viewOnly) return null;
+
     final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -32,11 +36,13 @@ class RangeEditor extends StatelessWidget {
   }
 
   Future<DateTime?> selectTime(BuildContext context, initialDate) async {
-    var initialTime = TimeOfDay.fromDateTime(initialDate);
+    if (viewOnly) return null;
+
+    var initialTime = TimeOfDay.fromDateTime(initialDate );
     final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTime);
 
     if (picked != null && picked != initialTime) {
-      return DateTimeField.combine(initialDate, picked);
+      return DateTimeField.combine(initialDate , picked);
     }
     return null;
   }
@@ -48,6 +54,25 @@ class RangeEditor extends StatelessWidget {
     onDateChanged(start, end);
   }
 
+// Helper to centralize the "disabled" decoration style
+  InputDecoration _getDecoration({required IconData? icon, bool showIcon = true}) {
+    return InputDecoration(
+      suffixIcon: const SizedBox.shrink(),
+      suffixIconConstraints: const BoxConstraints(minWidth: 4.0, minHeight: 0),
+      prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+      prefixIcon: showIcon && icon != null
+          ? Padding(
+              padding: const EdgeInsets.only(right: 4.0),
+              child: Icon(icon, size: 18),
+            )
+          : null,
+      isDense: true,
+      border: viewOnly ? InputBorder.none : const OutlineInputBorder(borderSide: BorderSide.none),
+      // Ensures the text doesn't look grayed out if you want it readable
+      enabled: !viewOnly,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -56,69 +81,46 @@ class RangeEditor extends StatelessWidget {
         children: [
           IntrinsicWidth(
             child: DateTimeField(
-              key: UniqueKey(),
+              enabled: !viewOnly,
               initialValue: startTime,
-              decoration: const InputDecoration(
-                suffixIcon: SizedBox.shrink(),
-                suffixIconConstraints: BoxConstraints(minWidth: 4.0, minHeight: 0),
-                prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-                prefixIcon: Padding(
-                  padding: EdgeInsets.zero,
-                  child: Icon(Icons.calendar_today),
-                ),
-                isDense: true,
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-              ),
+              decoration: _getDecoration(icon: Icons.calendar_today),
               format: constraints.maxWidth > 400 ? DateFormat("EEEE, dd MMMM yyyy") : DateFormat("dd/MM"),
-              onShowPicker: selectDate,
+              onShowPicker: viewOnly ? (context, currentValue) async => currentValue : selectDate,
             ),
           ),
           IntrinsicWidth(
             child: DateTimeField(
-              key: UniqueKey(),
+              enabled: !viewOnly,
               initialValue: startTime,
-              decoration: const InputDecoration(
-                suffixIcon: SizedBox.shrink(),
-                suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-                prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-                prefixIcon: Padding(
-                  padding: EdgeInsets.zero,
-                  child: Icon(Icons.access_time),
-                ),
-                isDense: true,
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-              ),
+              decoration: _getDecoration(icon: Icons.access_time),
               format: DateFormat("HH:mm"),
-              onChanged: (DateTime? value) {
-                if (value != null) {
-                  final start = DateTimeField.combine(startTime, TimeOfDay.fromDateTime(value));
-                  checkValues(start, endTime);
-                }
-              },
-              onShowPicker: selectTime,
+              onChanged: viewOnly
+                  ? null
+                  : (DateTime? value) {
+                      if (value != null) {
+                        final start = DateTimeField.combine(startTime, TimeOfDay.fromDateTime(value));
+                        checkValues(start, endTime);
+                      }
+                    },
+              onShowPicker: viewOnly ? (context, currentValue) async => currentValue : selectTime,
             ),
           ),
           const Text("- "),
           IntrinsicWidth(
             child: DateTimeField(
-              key: UniqueKey(),
+              enabled: !viewOnly,
               initialValue: endTime,
-              decoration: const InputDecoration(
-                suffixIcon: SizedBox.shrink(),
-                suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-                prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-                prefixIcon: SizedBox.shrink(),
-                isDense: true,
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-              ),
+              decoration: _getDecoration(icon: null, showIcon: false),
               format: DateFormat("HH:mm"),
-              onChanged: (DateTime? value) {
-                if (value != null) {
-                  final end = DateTimeField.combine(endTime, TimeOfDay.fromDateTime(value));
-                  checkValues(startTime, end);
-                }
-              },
-              onShowPicker: selectTime,
+              onChanged: viewOnly
+                  ? null
+                  : (DateTime? value) {
+                      if (value != null) {
+                        final end = DateTimeField.combine(endTime, TimeOfDay.fromDateTime(value));
+                        checkValues(startTime, end);
+                      }
+                    },
+              onShowPicker: viewOnly ? (context, currentValue) async => currentValue : selectTime,
             ),
           ),
         ],
