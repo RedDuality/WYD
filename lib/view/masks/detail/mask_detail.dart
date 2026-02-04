@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/API/Mask/create_mask_request_dto.dart';
 import 'package:wyd_front/model/mask/mask.dart';
 import 'package:wyd_front/service/mask/mask_service.dart';
+import 'package:wyd_front/view/widget/button/exit_button.dart';
 import 'package:wyd_front/view/widget/util/range_editor.dart';
 
 class MaskDetail extends StatefulWidget {
@@ -66,52 +69,6 @@ class _MaskDetailState extends State<MaskDetail> {
     });
   }
 
-  void _checkChanges() {
-    debugPrint("checkChanges");
-  }
-
-  Future<void> _create() async {
-    setState(() => _isLoading = true);
-    try {
-      var createDto = CreateMaskRequestDto(
-        title: _titleController.text.isEmpty ? null : _titleController.text,
-        startTime: _startTime,
-        endTime: _endTime,
-      );
-      await MaskService.create(createDto);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mask created successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error:  $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  bool get _isUpdate => widget.originalMask != null;
-
-  Future<void> _handleSave() async {
-    // TODO create a shared event
-    if (_isUpdate) {
-      //TODO
-      // await _update(); // You'll need to implement this
-    } else {
-      await _create();
-    }
-
-    if (mounted) Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -143,43 +100,141 @@ class _MaskDetailState extends State<MaskDetail> {
                 onDateChanged: _setDates,
               ),
               const SizedBox(height: 5),
-              if (widget.edit)
-                // Buttons
+              if (_canEdit)
                 Align(
                   alignment: Alignment.bottomRight,
-                  child: FloatingActionButton.extended(
-                    onPressed: _isLoading ? null : _handleSave,
-                    label: Text(_isUpdate ? 'Update' : 'Create'),
-                    icon: _isLoading
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator())
-                        : const Icon(Icons.save),
-                  ),
+                  child: _actionButton(),
                 ),
             ],
           ),
           Positioned(
             top: 0,
             right: 0,
-            child: _exitButton(),
+            child: ExitButton(),
           ),
         ],
       ),
     );
   }
 
-  Widget _exitButton() {
-    return TextButton(
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-      style: TextButton.styleFrom(
-        foregroundColor: Colors.grey,
-      ),
-      child: const Icon(
-        Icons.close,
-        size: 36,
-      ),
+  bool get _eventExists => widget.originalMask != null;
+
+  bool get _canEdit => widget.edit;
+
+  Widget _actionButton() {
+    return FloatingActionButton.extended(
+      onPressed: _isLoading ? null : _handleSave,
+      label: Text(_eventExists ? 'Update' : 'Create'),
+      icon: _isLoading
+          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator())
+          : const Icon(Icons.save),
     );
+  }
+
+/*
+ 1. Create
+ 2. create and Share
+ 3. nothing to update yet
+ 4. update
+ */ 
+  Future<void> _handleSave() async {
+    // TODO create a shared event
+    if (_eventExists) {
+      //TODO
+      await _update(); 
+    } else {
+      await _create();
+    }
+
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _create() async {
+    setState(() => _isLoading = true);
+    try {
+      var createDto = CreateMaskRequestDto(
+        title: _titleController.text.isEmpty ? null : _titleController.text,
+        startTime: _startTime,
+        endTime: _endTime,
+      );
+      await MaskService.create(createDto);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mask created successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error:  $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _checkChanges() {
+    debugPrint("checkChanges");
+  }
+
+  Future<void> _update() async {
+    setState(() => _isLoading = true);
+    try {
+      var createDto = CreateMaskRequestDto(
+        title: _titleController.text.isEmpty ? null : _titleController.text,
+        startTime: _startTime,
+        endTime: _endTime,
+      );
+      await MaskService.create(createDto);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mask created successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error:  $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _createAndShare() async {
+    setState(() => _isLoading = true);
+    try {
+      var createDto = CreateMaskRequestDto(
+        title: _titleController.text.isEmpty ? null : _titleController.text,
+        startTime: _startTime,
+        endTime: _endTime,
+      );
+      await MaskService.create(createDto);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mask created successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error:  $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
