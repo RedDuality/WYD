@@ -24,7 +24,6 @@ class EventActionsService {
   static Future<Event> create(CreateEventRequestDto createDto) async {
     var createdEventDto = await EventAPI().create(createDto);
     
-    // Do not rely on current cache, as it will take more time than the event returned
     var event = await EventStorageService.addEvent(createdEventDto);
     return event;
   }

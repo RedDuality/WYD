@@ -4,6 +4,7 @@ import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/service/event/profile_events_storage_service.dart';
 import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
@@ -18,20 +19,24 @@ class EventRetrieveService {
     return await EventAPI().listEvents(retrieveDto);
   }
 
-  //real time update, another device(of the same user) created a new event
-  static Future<void> retrieveEssentialByHash(String eventId) async {
+  static Future<Event> retrieveEssentialByHash(String eventId) async {
     var eventDto = await EventAPI().retrieveEssentialsFromHash(eventId);
-    EventStorageService.addEvent(eventDto);
+    return await EventStorageService.addEvent(eventDto);
   }
 
-  static Future<void> checkAndRetrieveEssentialByHash(String eventId, DateTime updatedAt) async {
+  //real time update
+  static Future<void> checkAndRetrieveEssentialByHash(String eventId, DateTime updatedAt, String? actorId) async {
     var event = await EventStorage().getEventById(eventId);
-    // in case I was the one that updated the event, it's not necessary to retrieve it
     if (event == null || updatedAt.isAfter(event.updatedAt)) {
-      retrieveEssentialByHash(eventId);
+      await retrieveEssentialByHash(eventId);
     }
-    // retrieve mask anyway
-    MaskService.retrieveEventMask(eventId);
+    //create or update
+    if (actorId != null && UserCache().getProfileIds().contains(actorId)) {
+      final confirmed = await ProfileEventsStorageService.hasProfileConfirmed(eventId, actorId);
+      if (confirmed) {
+        MaskService.retrieveEventMask(eventId);
+      }
+    }
   }
 
   // getDetails(open event details/ updateDetails)

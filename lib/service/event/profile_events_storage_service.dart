@@ -18,4 +18,10 @@ class ProfileEventsStorageService {
     DetailedProfileEventsStorage().update(pe);
     return true;
   }
+
+  static Future<bool> hasProfileConfirmed(String eventId, String profileId) async {
+    var pe = await DetailedProfileEventsStorage().getSingle(eventId, profileId);
+    if(pe == null) return false;
+    return pe.confirmed;
+  }
 }

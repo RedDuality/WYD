@@ -14,13 +14,8 @@ class RealTimeMessageHandler {
     switch (updateType) {
       case UpdateType.updateEssentialsEvent:
         var updatedTime = DateTime.parse(data['time'] as String).toUtc();
-        EventRetrieveService.checkAndRetrieveEssentialByHash(data['id'], updatedTime);
-        break;
-      case UpdateType.updatePhotos:
-        var event = await EventStorage().getEventById(data['id']);
-        if (event != null) {
-          MediaService.retrieveImageUpdatesByHash(event);
-        }
+        String? actorId = data['profileId'];
+        EventRetrieveService.checkAndRetrieveEssentialByHash(data['id'], updatedTime, actorId);
         break;
       case UpdateType.confirmEvent:
         if (data['id'] != null && data['profileId'] != null) {
@@ -36,6 +31,12 @@ class RealTimeMessageHandler {
         var event = await EventStorage().getEventById(data['id']);
         if (event != null && data['phash'] != null) {
           EventActionsService.localDelete(event, profileHash: data['phash']);
+        }
+        break;
+      case UpdateType.updatePhotos:
+        var event = await EventStorage().getEventById(data['id']);
+        if (event != null) {
+          MediaService.retrieveImageUpdatesByHash(event);
         }
         break;
       case UpdateType.updateProfile:

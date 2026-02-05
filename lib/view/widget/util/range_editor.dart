@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class RangeEditor extends StatelessWidget {
-  // TODO add a view-only bool option
-
   final DateTime startTime;
   final DateTime endTime;
   final Function(DateTime, DateTime) onDateChanged;

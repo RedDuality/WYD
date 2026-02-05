@@ -5,14 +5,14 @@ class CreateEventRequestDto {
   String? description;
   DateTime startTime;
   DateTime endTime;
-  List<String>? invitedProfileIds;
+  List<String> invitedProfileIds;
 
   CreateEventRequestDto({
     required this.title,
     this.description,
     required this.startTime,
     required this.endTime,
-    this.invitedProfileIds,
+    this.invitedProfileIds = const[],
   });
 
   factory CreateEventRequestDto.fromEvent(Event event, List<String> invitedProfileIds) {

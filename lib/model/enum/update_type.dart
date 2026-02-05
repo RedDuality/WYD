@@ -1,10 +1,12 @@
 enum UpdateType {
   updateEssentialsEvent,
-  updatePhotos,
+
   confirmEvent,
   declineEvent,
   deleteEvent,
   deleteEventForAll,
+
+  updatePhotos,
 
   updateProfile,
 
