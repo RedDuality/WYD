@@ -7,6 +7,7 @@ import 'package:wyd_front/model/mask/mask.dart';
 import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/view/widget/button/exit_button.dart';
+import 'package:wyd_front/view/widget/button/loading_elevated_button.dart';
 import 'package:wyd_front/view/widget/util/range_editor.dart';
 
 class MaskDetail extends StatefulWidget {
@@ -33,7 +34,6 @@ class _MaskDetailState extends State<MaskDetail> {
 
   late DateTime _startTime;
   late DateTime _endTime;
-  bool _isLoading = false;
   bool hasBeenChanged = false;
 
   @override
@@ -139,126 +139,86 @@ class _MaskDetailState extends State<MaskDetail> {
   }
 
   bool get _eventExists => widget.originalMask != null;
-
   bool get _canEdit => widget.edit;
   bool get _proposing => widget.communityIdentifierDto != null;
 
   Widget _saveButton() {
     if (!_eventExists && !_proposing) {
-      return _actionButton('Create', _create);
+      return LoadingElevatedButton(
+        text: 'Create',
+        icon: Icons.event,
+        action: _handleWrapper('Mask created successfully', _create),
+      );
     } else if (!_eventExists && _proposing) {
-      return _actionButton('Create and share', _proposeEvent);
+      return LoadingElevatedButton(
+        text: 'Create and share',
+        icon: Icons.event,
+        action: _handleWrapper('Event proposed successfully', _proposeEvent),
+      );
     } else if (_eventExists && hasBeenChanged) {
-      return _actionButton('Update', _update);
+      return LoadingElevatedButton(
+        text: 'Update',
+        icon: Icons.event,
+        action: _handleWrapper('Mask updated successfully', _update),
+      );
     }
 
     return SizedBox.shrink();
   }
 
-  Widget _actionButton(String text, VoidCallback handleFunction) {
-    return TextButton.icon(
-      onPressed: _isLoading ? null : handleFunction,
-      icon: _isLoading
-          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator())
-          : const Icon(Icons.event, size: 30, color: Colors.white),
-      label: Text(
-        text,
-        style: TextStyle(fontSize: 20, color: Colors.white),
-      ),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-      ),
-    );
+  Future<void> Function() _handleWrapper(String successText, Future<void> Function() action) {
+    return () async {
+      try {
+        await action();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(successText)),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error:  $e')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+    };
   }
 
   Future<void> _create() async {
-    setState(() => _isLoading = true);
-    try {
-      var createDto = CreateMaskRequestDto(
-        title: _titleController.text.isEmpty ? null : _titleController.text,
-        startTime: _startTime,
-        endTime: _endTime,
-      );
-      await MaskService.create(createDto);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mask created successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error:  $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        Navigator.of(context).pop();
-      }
-    }
+    var createDto = CreateMaskRequestDto(
+      title: _titleController.text.isEmpty ? null : _titleController.text,
+      startTime: _startTime,
+      endTime: _endTime,
+    );
+    await MaskService.create(createDto);
   }
 
   Future<void> _update() async {
-    setState(() => _isLoading = true);
-    try {
-      var updateDto = UpdateMaskRequestDto(
-        maskId: widget.originalMask!.id,
-        title: _titleController.text.isEmpty ? null : _titleController.text,
-        startTime: _startTime,
-        endTime: _endTime,
-      );
-      await MaskService.update(updateDto);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mask updated successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error:  $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    var updateDto = UpdateMaskRequestDto(
+      maskId: widget.originalMask!.id,
+      title: _titleController.text.isEmpty ? null : _titleController.text,
+      startTime: _startTime,
+      endTime: _endTime,
+    );
+    await MaskService.update(updateDto);
   }
 
   Future<void> _proposeEvent() async {
-    setState(() => _isLoading = true);
-    try {
-      var createDto = CreateEventRequestDto(
-        title: _titleController.text.isEmpty ? 'Proposed event' : _titleController.text,
-        startTime: _startTime,
-        endTime: _endTime,
-        shareDto: widget.communityIdentifierDto != null
-            ? ShareEventRequestDto(sharedGroups: {widget.communityIdentifierDto!})
-            : null,
-      );
-      await EventActionsService.create(createDto);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Event proposed successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error:  $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        Navigator.of(context).pop();
-      }
-    }
+    var createDto = CreateEventRequestDto(
+      title: _titleController.text.isEmpty ? 'Proposed event' : _titleController.text,
+      startTime: _startTime,
+      endTime: _endTime,
+      shareDto: widget.communityIdentifierDto != null
+          ? ShareEventRequestDto(sharedGroups: {widget.communityIdentifierDto!})
+          : null,
+    );
+    await EventActionsService.create(createDto);
   }
 
   @override

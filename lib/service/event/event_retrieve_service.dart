@@ -26,9 +26,7 @@ class EventRetrieveService {
 
   //real time update
   static Future<void> checkAndRetrieveEssentialByHash(String eventId, DateTime updatedAt, String? actorId) async {
-    debugPrint("eventId $eventId");
     var event = await EventStorage().getEventById(eventId);
-    debugPrint("event null: ${(event == null).toString()}");
     if (event == null || updatedAt.isAfter(event.updatedAt)) {
       await retrieveEssentialByHash(eventId);
     }
