@@ -17,7 +17,7 @@ class MaskService {
     await MaskStorage().saveMask(mask);
   }
 
-  static Future<String> create(CreateMaskRequestDto createDto) async {
+  static Future<String> createMask(CreateMaskRequestDto createDto) async {
     var createdMaskDto = await MaskAPI().create(createDto);
     unawaited(_addOrUpdate(createdMaskDto));
     return createdMaskDto.id;

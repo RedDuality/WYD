@@ -132,7 +132,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   Future<void> _createEvent() async {
     final createdEventDto = _getCreateDto();
-    final newEvent = await EventActionsService.create(createdEventDto);
+    final newEvent = await EventActionsService.createEvent(createdEventDto);
     event = newEvent; // don't wait for persistence
     widget.onEventCreated(newEvent.id); // will call parent's SetState, which triggers build
   }

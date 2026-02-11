@@ -196,7 +196,7 @@ class _MaskDetailState extends State<MaskDetail> {
       startTime: _startTime,
       endTime: _endTime,
     );
-    await MaskService.create(createDto);
+    await MaskService.createMask(createDto);
   }
 
   Future<void> _update() async {
@@ -218,7 +218,7 @@ class _MaskDetailState extends State<MaskDetail> {
           ? ShareEventRequestDto(sharedGroups: {widget.communityIdentifierDto!})
           : null,
     );
-    await EventActionsService.create(createDto);
+    await EventActionsService.createEvent(createDto);
   }
 
   @override

@@ -30,8 +30,7 @@ class EventRetrieveService {
     if (event == null || updatedAt.isAfter(event.updatedAt)) {
       await retrieveEssentialByHash(eventId);
     }
-    //create or update
-    // TODO check this
+    //create or update have actorId (no share)
     if (actorId != null && UserCache().getProfileIds().contains(actorId)) {
       final confirmed = await ProfileEventsStorageService.hasProfileConfirmed(eventId, actorId);
       if (confirmed) {

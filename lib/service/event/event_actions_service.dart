@@ -21,7 +21,7 @@ import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dar
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventActionsService {
-  static Future<Event> create(CreateEventRequestDto createDto) async {
+  static Future<Event> createEvent(CreateEventRequestDto createDto) async {
     var createdEventDto = await EventAPI().create(createDto);
     
     var event = await EventStorageService.addEvent(createdEventDto);

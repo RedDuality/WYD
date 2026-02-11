@@ -53,7 +53,7 @@ class MaskViewOrchestrator with ChangeNotifier {
 
   void _updateMaskController() {
     _maskController.updateWithMasks(_maskCache.allMasks);
-    //notifyListeners();
+    notifyListeners();
   }
 
   bool get isLoading => _isLoading;

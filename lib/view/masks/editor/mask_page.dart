@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kalender/kalender.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/API/Mask/create_mask_request_dto.dart';
+import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/state/mask/mask_cache.dart';
 import 'package:wyd_front/view/masks/components/calendar_nav.dart';
 import 'package:wyd_front/view/masks/detail/mask_detail.dart';
@@ -80,6 +83,13 @@ class _MaskPageState extends State<MaskPage> {
           callbacks: _getCallbacks(),
           header: CalendarHeader<String>(),
           body: CalendarBody<String>(
+            interaction: CalendarInteraction(
+              allowResizing: true,
+              allowRescheduling: true,
+              allowEventCreation: true,
+              createEventGesture: kIsWeb ? CreateEventGesture.tap : CreateEventGesture.longPress,
+              modifyEventGesture: null,
+            ),
             multiDayTileComponents: TileComponents<String>(
               tileBuilder: (event, tileRange) {
                 return MaskTile(event: event);
@@ -120,18 +130,18 @@ class _MaskPageState extends State<MaskPage> {
 
   CalendarCallbacks<String> _getCallbacks() {
     return CalendarCallbacks<String>(
+      onEventCreated: _handleEventCreated,
       onEventTapped: _handleEventTapped,
-      onEventCreated: (event) => _handleEventCreated,
     );
   }
 
-  void _handleEventCreated(CalendarEvent<String> event, RenderBox renderBox) {
-    showCustomDialog(
-        context,
-        MaskDetail(
-          initialDateRange: event.dateTimeRange,
-          edit: true,
-        ));
+  Future<void> _handleEventCreated(CalendarEvent<String> event) async {
+    if (event.start.add(const Duration(minutes: 11)).isAfter(event.end)) return;
+    var createDto = CreateMaskRequestDto(
+      startTime: event.start,
+      endTime: event.end,
+    );
+    await MaskService.createMask(createDto);
   }
 
   void _handleEventTapped(CalendarEvent<String> event, RenderBox renderBox) {
