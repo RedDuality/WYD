@@ -54,9 +54,7 @@ class EventsCache extends EventController {
   }
 
   Future<void> _addOrUpdate(Event event) async {
-    if (_provider == null) return;
-
-    final range = _provider!.rangeCntrl.currentRange;
+    final range = _provider?.rangeCntrl.currentRange ?? _rangeInCache;
     final inTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
 
     if (inTimeRange) {
@@ -68,7 +66,7 @@ class EventsCache extends EventController {
           super.remove(inMemoryEvent);
         } else {
           // added
-          await _provider!.onSingleEventAdded(event.id);
+          await _provider?.onSingleEventAdded(event.id);
         }
         super.add(event);
       }
