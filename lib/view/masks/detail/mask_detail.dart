@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Mask/create_mask_request_dto.dart';
 import 'package:wyd_front/API/Mask/update_mask_request_dto.dart';
@@ -11,7 +12,7 @@ import 'package:wyd_front/view/widget/util/range_editor.dart';
 class MaskDetail extends StatefulWidget {
   final Mask? originalMask;
   final DateTimeRange? initialDateRange;
-  final List<String>? profileIds;
+  final ShareGroupIdentifierDto? communityIdentifierDto;
 
   final bool edit;
 
@@ -19,7 +20,7 @@ class MaskDetail extends StatefulWidget {
     super.key,
     this.originalMask,
     this.initialDateRange,
-    this.profileIds,
+    this.communityIdentifierDto,
     this.edit = false,
   });
 
@@ -140,7 +141,7 @@ class _MaskDetailState extends State<MaskDetail> {
   bool get _eventExists => widget.originalMask != null;
 
   bool get _canEdit => widget.edit;
-  bool get _proposing => widget.profileIds != null && widget.profileIds!.isNotEmpty;
+  bool get _proposing => widget.communityIdentifierDto != null;
 
   Widget _saveButton() {
     if (!_eventExists && !_proposing) {
@@ -235,7 +236,9 @@ class _MaskDetailState extends State<MaskDetail> {
         title: _titleController.text.isEmpty ? 'Proposed event' : _titleController.text,
         startTime: _startTime,
         endTime: _endTime,
-        invitedProfileIds: widget.profileIds!,
+        shareDto: widget.communityIdentifierDto != null
+            ? ShareEventRequestDto(sharedGroups: {widget.communityIdentifierDto!})
+            : null,
       );
       await EventActionsService.create(createDto);
 

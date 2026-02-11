@@ -104,6 +104,7 @@ class EventStorage {
     } else {
       _inMemoryStorage[event.id] = event;
     }
+    debugPrint("event added ${event.id}");
   }
 
   /// Removes an event by its hash and signals a range update.

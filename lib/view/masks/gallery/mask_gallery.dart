@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kalender/kalender.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/API/Community/share_event_request_dto.dart';
+import 'package:wyd_front/model/community/community.dart';
+import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/model/profiles/profile.dart';
 import 'package:wyd_front/state/mask/mask_controller.dart';
 import 'package:wyd_front/state/profile/profiles_cache.dart';
@@ -14,16 +17,18 @@ import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/widget/util/add_button.dart';
 
 class MaskGallery extends StatefulWidget {
-  final String profileId;
-  const MaskGallery({super.key, required this.profileId});
+  final Community community;
+  final String groupId;
+
+  const MaskGallery({super.key, required this.community, required this.groupId});
 
   @override
   State<MaskGallery> createState() => _MaskGalleryState();
 }
 
 class _MaskGalleryState extends State<MaskGallery> {
-  late final Profile? profile;
   late final ViewConfiguration _viewConfiguration;
+  late final Profile profile;
 
   final CalendarController<String> _calendarController = CalendarController<String>();
   late MaskGalleryOrchestrator _orchestrator;
@@ -71,7 +76,7 @@ class _MaskGalleryState extends State<MaskGallery> {
     _orchestrator = MaskGalleryOrchestrator(
       maskController: MaskController(null),
       rangeController: rangeController,
-      profileId: widget.profileId,
+      profileId: widget.community.getProfileId(),
     );
 
     _orchestrator.initialize();
@@ -80,11 +85,15 @@ class _MaskGalleryState extends State<MaskGallery> {
 
   @override
   Widget build(BuildContext context) {
-    profile = context.read<ProfileCache>().get(widget.profileId);
-    if (profile == null) {
-      return Center(
-        child: Text("There was an error while retrieving profile data"),
-      );
+    if (widget.community.type == CommunityType.personal) {
+      var p = context.read<ProfileCache>().get(widget.community.getProfileId());
+      if (p == null) {
+        return Center(
+          child: Text("There was an error while retrieving profile data"),
+        );
+      }
+
+      profile = p;
     }
 
     return Scaffold(
@@ -102,7 +111,7 @@ class _MaskGalleryState extends State<MaskGallery> {
                   child: SizedBox(
                     width: constraints.maxWidth * 0.33,
                     child: Text(
-                      '${profile!.name}\'s Agenda',
+                      _getTitle(),
                       style: const TextStyle(fontSize: 20),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -159,13 +168,27 @@ class _MaskGalleryState extends State<MaskGallery> {
       floatingActionButton: AddButton(
           text: 'Plan a meeting!',
           child: MaskDetail(
+            communityIdentifierDto: ShareGroupIdentifierDto(
+              communityId: widget.community.id,
+              groupId: widget.groupId,
+            ),
             edit: true,
-            profileIds: [widget.profileId],
           )),
     );
   } // build
 
   // --- Helper Methods ---
+  String _getTitle() {
+    final c = widget.community;
+    switch (c.type) {
+      case CommunityType.community:
+        return '${c.name}\'s Agenda';
+      case CommunityType.singlegroup:
+        return '${c.name}\'s Agenda';
+      case CommunityType.personal:
+        return '${profile.name}\'s Agenda';
+    }
+  }
 
   CalendarComponents<String> _getCustomComponents() {
     return CalendarComponents(
@@ -191,7 +214,10 @@ class _MaskGalleryState extends State<MaskGallery> {
       context,
       MaskDetail(
         initialDateRange: event.dateTimeRange,
-        profileIds: [widget.profileId],
+        communityIdentifierDto: ShareGroupIdentifierDto(
+          communityId: widget.community.id,
+          groupId: widget.groupId,
+        ),
         edit: true,
       ),
     );

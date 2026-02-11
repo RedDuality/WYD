@@ -61,8 +61,9 @@ class EventActionsService {
     localConfirm(eventId, false);
   }
 
-  static Future<void> shareToGroups(String eventId, Set<ShareEventRequestDto> groupsIds) async {
-    var eventDto = await EventAPI().shareToProfiles(eventId, groupsIds);
+  static Future<void> shareToGroups(String eventId, Set<ShareGroupIdentifierDto> groupsIds) async {
+    var shareDto = ShareEventRequestDto(sharedGroups: groupsIds);
+    var eventDto = await EventAPI().shareToProfiles(eventId, shareDto);
     EventStorageService.addEvent(eventDto);
   }
 

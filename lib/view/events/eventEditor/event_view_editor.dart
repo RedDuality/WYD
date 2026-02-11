@@ -143,6 +143,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
       description: _descriptionController.text.trim(),
       startTime: startTime,
       endTime: endTime,
+      shareDto: null,
     );
   }
 

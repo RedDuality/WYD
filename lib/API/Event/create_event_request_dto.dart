@@ -1,29 +1,19 @@
-import 'package:wyd_front/model/events/event.dart';
+import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 
 class CreateEventRequestDto {
   String title;
   String? description;
   DateTime startTime;
   DateTime endTime;
-  List<String> invitedProfileIds;
+  ShareEventRequestDto? shareDto;
 
   CreateEventRequestDto({
     required this.title,
     this.description,
     required this.startTime,
     required this.endTime,
-    this.invitedProfileIds = const[],
+    this.shareDto,
   });
-
-  factory CreateEventRequestDto.fromEvent(Event event, List<String> invitedProfileIds) {
-    return CreateEventRequestDto(
-      title: event.title,
-      description: event.description,
-      startTime: event.startTime!,
-      endTime: event.endTime!,
-      invitedProfileIds: invitedProfileIds, 
-    );
-  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -31,7 +21,7 @@ class CreateEventRequestDto {
       'description': description,
       'startTime': startTime.toUtc().toIso8601String(),
       'endTime': endTime.toUtc().toIso8601String(),
-      'invitedProfileIds': invitedProfileIds, 
+      'shareDto': shareDto,
     };
   }
 }

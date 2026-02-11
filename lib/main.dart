@@ -6,7 +6,7 @@ import 'package:workmanager/workmanager.dart';
 import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:wyd_front/state/community/community_storage.dart';
+import 'package:wyd_front/state/community/community_cache.dart';
 import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/event/event_details_cache.dart';
@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DetailedProfileCache()),
         ChangeNotifierProvider(create: (_) => ViewSettingsCache()),
         ChangeNotifierProvider(create: (_) => DetailedProfileEventsCache()),
-        ChangeNotifierProvider(create: (_) => CommunityStorage()),
+        ChangeNotifierProvider(create: (_) => CommunityCache()),
         ChangeNotifierProvider(create: (_) => EventsCache()),
         ChangeNotifierProvider(create: (_) => EventDetailsCache()),
         ChangeNotifierProvider(create: (_) => MaskCache()),

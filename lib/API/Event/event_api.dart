@@ -185,10 +185,10 @@ class EventAPI {
   }
 */
 
-  Future<RetrieveEventResponseDto> shareToProfiles(String eventId, Set<ShareEventRequestDto> dtos) async {
+  Future<RetrieveEventResponseDto> shareToProfiles(String eventId, ShareEventRequestDto shareDto) async {
     String url = '${functionUrl}Share';
 
-    var response = await client.post(Uri.parse('$url/$eventId'), body: json.encode(dtos.toList()));
+    var response = await client.post(Uri.parse('$url/$eventId'), body: json.encode(shareDto));
     if (response.statusCode == 200) {
       RetrieveEventResponseDto event = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
       return event;

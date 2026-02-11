@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/community/community.dart';
 
-class CommunityStorage extends ChangeNotifier {
+class CommunityCache extends ChangeNotifier {
   List<Community> _communities = [];
 
-  static final CommunityStorage _instance = CommunityStorage._internal();
-  factory CommunityStorage() => _instance;
-  CommunityStorage._internal() {
+  static final CommunityCache _instance = CommunityCache._internal();
+  factory CommunityCache() => _instance;
+  CommunityCache._internal() {
     _communities = [];
   }
 

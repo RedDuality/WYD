@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wyd_front/model/community/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/community/community_storage.dart';
+import 'package:wyd_front/state/community/community_cache.dart';
 import 'package:wyd_front/view/masks/gallery/mask_gallery.dart';
 import 'package:wyd_front/view/profiles/tiles/profile_tile.dart';
 import 'package:wyd_front/view/widget/header.dart';
@@ -45,7 +45,7 @@ class GroupPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<CommunityStorage>(
+      body: Consumer<CommunityCache>(
         builder: (context, communityProvider, child) {
           return ListView.builder(
             itemCount: communityProvider.communities.length,
@@ -62,9 +62,11 @@ class GroupPage extends StatelessWidget {
   Widget _buildCommunityTile(BuildContext context, Community community) {
     switch (community.type) {
       case CommunityType.personal:
-        final profileId = community.getProfileHash();
+        final profileId = community.getProfileId();
         return ProfileTile(
-            profileId: profileId, type: ProfileTileType.view, trailing: _galleryButton(context, profileId));
+            profileId: profileId,
+            type: ProfileTileType.view,
+            trailing: _galleryButton(context, community, community.groups.first.id));
       case CommunityType.singlegroup:
         return _groupTile(title: community.name!);
       case CommunityType.community:
@@ -82,7 +84,7 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  Widget _galleryButton(BuildContext context, String profileId) {
+  Widget _galleryButton(BuildContext context, Community community, String groupId) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10),
       child: IconButton(
@@ -92,7 +94,10 @@ class GroupPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MaskGallery(profileId: profileId),
+              builder: (context) => MaskGallery(
+                community: community,
+                groupId: groupId,
+              ),
             ),
           ),
         },

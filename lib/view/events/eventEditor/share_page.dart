@@ -5,7 +5,7 @@ import 'package:wyd_front/model/community/community.dart';
 import 'package:wyd_front/model/enum/community_type.dart';
 import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/community/community_storage.dart';
+import 'package:wyd_front/state/community/community_cache.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/view/profiles/tiles/profile_tile.dart';
 
@@ -20,7 +20,7 @@ class SharePage extends StatefulWidget {
 }
 
 class _SharePageState extends State<SharePage> {
-  Set<ShareEventRequestDto> selectedGroups = {};
+  Set<ShareGroupIdentifierDto> selectedGroups = {};
   String currentProfileHash = UserCache().getCurrentProfileId();
 
   @override
@@ -54,7 +54,7 @@ class _SharePageState extends State<SharePage> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              child: Consumer<CommunityStorage>(
+              child: Consumer<CommunityCache>(
                 builder: (context, communityProvider, child) {
                   return Column(
                     children: communityProvider.communities
@@ -134,7 +134,7 @@ class _SharePageState extends State<SharePage> {
   }
 
   Widget _groupCheckBox(String groupId, String communityId) {
-    var addDto = ShareEventRequestDto(communityId: communityId, groupId: groupId);
+    var addDto = ShareGroupIdentifierDto(communityId: communityId, groupId: groupId);
     return Checkbox(
       value: selectedGroups.contains(addDto),
       onChanged: (bool? value) {

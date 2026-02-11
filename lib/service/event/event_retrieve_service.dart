@@ -26,11 +26,14 @@ class EventRetrieveService {
 
   //real time update
   static Future<void> checkAndRetrieveEssentialByHash(String eventId, DateTime updatedAt, String? actorId) async {
+    debugPrint("eventId $eventId");
     var event = await EventStorage().getEventById(eventId);
+    debugPrint((event == null).toString());
     if (event == null || updatedAt.isAfter(event.updatedAt)) {
       await retrieveEssentialByHash(eventId);
     }
     //create or update
+    // TODO check this
     if (actorId != null && UserCache().getProfileIds().contains(actorId)) {
       final confirmed = await ProfileEventsStorageService.hasProfileConfirmed(eventId, actorId);
       if (confirmed) {
