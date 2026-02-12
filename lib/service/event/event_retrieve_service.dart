@@ -31,7 +31,7 @@ class EventRetrieveService {
       await retrieveEssentialByHash(eventId);
     }
     //create or update have actorId (no share)
-    if (actorId != null && UserCache().getProfileIds().contains(actorId)) {
+    if (actorId != null && UserCache().containsProfile(actorId)) {
       final confirmed = await ProfileEventsStorageService.hasProfileConfirmed(eventId, actorId);
       if (confirmed) {
         MaskService.retrieveEventMask(eventId);

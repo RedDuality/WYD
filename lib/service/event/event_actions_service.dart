@@ -23,7 +23,7 @@ import 'package:wyd_front/state/user/user_cache.dart';
 class EventActionsService {
   static Future<Event> createEvent(CreateEventRequestDto createDto) async {
     var createdEventDto = await EventAPI().create(createDto);
-    
+
     var event = await EventStorageService.addEvent(createdEventDto);
     return event;
   }
@@ -36,14 +36,17 @@ class EventActionsService {
   static Future<void> localConfirm(String eventId, bool confirmed, {String? pHash}) async {
     var event = await EventStorage().getEventById(eventId);
     if (event != null) {
-      String profileHash = pHash ?? UserCache().getCurrentProfileId();
+      String profileId = pHash ?? UserCache().getCurrentProfileId();
 
-      if (await ProfileEventsStorageService.confirm(eventId, confirmed, profileHash)) {
+      if (await ProfileEventsStorageService.confirm(eventId, confirmed, profileId)) {
         EventRetrieveService.retrieveEssentialByHash(eventId);
-        if(confirmed) {
-          MaskService.retrieveEventMask(eventId);
-        } else {
-          MaskService.deleteEventMask(eventId);
+
+        if (UserCache().containsProfile(profileId)) {
+          if (confirmed) {
+            MaskService.retrieveEventMask(eventId);
+          } else {
+            MaskService.deleteEventMask(eventId);
+          }
         }
       }
     }
