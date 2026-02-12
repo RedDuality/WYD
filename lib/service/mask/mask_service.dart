@@ -9,7 +9,6 @@ import 'package:wyd_front/API/Mask/retrieve_user_masks_request_dto.dart';
 import 'package:wyd_front/API/Mask/update_mask_request_dto.dart';
 import 'package:wyd_front/model/mask/mask.dart';
 import 'package:wyd_front/state/mask/mask_storage.dart';
-import 'package:wyd_front/state/user/user_cache.dart';
 
 class MaskService {
   static Future _addOrUpdate(RetrieveMaskResponseDto maskDto) async {
@@ -30,7 +29,6 @@ class MaskService {
 
   static Future<List<RetrieveMaskResponseDto>> retrieveUserMasks(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveUserMasksRequestDto(
-      profileIds: UserCache().getProfileIds(),
       startTime: retrieveInterval.start.toUtc(),
       endTime: retrieveInterval.end.toUtc(),
     );
