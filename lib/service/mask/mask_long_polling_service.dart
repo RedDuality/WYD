@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wyd_front/service/event/event_retrieve_service.dart';
+import 'package:wyd_front/service/mask/mask_service.dart';
 
-class EventLongPollingService {
+class MaskLongPollingService {
   // singleton cos static
   static Timer? _pollingTimer;
   static bool _ongoingCheck = false;
@@ -23,7 +23,7 @@ class EventLongPollingService {
     final delay = nextDue.isAfter(now) ? nextDue.difference(now) : Duration.zero;
 
     _pollingTimer = Timer(delay, () async {
-      await checkForUpdatedEvent(now);
+      await checkForUpdatedMask(now);
       _scheduleNextCheck();
     });
 
@@ -34,15 +34,15 @@ class EventLongPollingService {
   static void pausePolling() {
     if (_pollingTimer?.isActive == true) {
       _pollingTimer!.cancel();
-      // debugPrint('EventLongPollingService paused.');
+      // debugPrint('MaskLongPollingService paused.');
     }
     _pollingTimer = null;
   }
 
-  static Future<void> checkForUpdatedEvent(DateTime now) async {
+  static Future<void> checkForUpdatedMask(DateTime now) async {
     // Ensure only one check process is running at a time, if the request is taking longer then _pollingInterval
     if (_ongoingCheck) {
-      // debugPrint('checkForPhotos is already running. Skipping this poll.');
+      // debugPrint('already running. Skipping this poll.');
       return;
     }
 
@@ -51,12 +51,12 @@ class EventLongPollingService {
     try {
       final lastCheckedTime = await _loadLastCheckedTime();
 
-      await EventRetrieveService.checkEventUpdatesAfter(lastCheckedTime);
+      await MaskService.checkMasksUpdatesAfter(lastCheckedTime);
 
       // Only save the current time if the retrieval was successful
       await _saveLastCheckedTime(now);
     } catch (e) {
-      debugPrint("Error during Event Long Polling check: $e");
+      debugPrint("Error during mask Long Polling check: $e");
     } finally {
       _ongoingCheck = false;
     }
@@ -65,18 +65,18 @@ class EventLongPollingService {
   /// Save DateTime to SharedPreferences
   static Future<void> _saveLastCheckedTime(DateTime time) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('eventLongPollingLastTime', (time.toUtc().toIso8601String()));
+    await prefs.setString('maskLongPollingLastTime', (time.toUtc().toIso8601String()));
   }
 
   /// Load DateTime from SharedPreferences
   static Future<DateTime> _loadLastCheckedTime() async {
     final prefs = await SharedPreferences.getInstance();
-    final dateTimeString = prefs.getString('eventLongPollingLastTime');
+    final dateTimeString = prefs.getString('maskLongPollingLastTime');
     if (dateTimeString != null) {
       try {
         return DateTime.parse(dateTimeString).toUtc();
       } catch (e) {
-        debugPrint("Error while converting last event long polled time value: $e");
+        debugPrint("Error while converting last mask long polled time value: $e");
       }
     }
     return DateTime.now().toUtc();

@@ -40,7 +40,23 @@ class MaskAPI {
     throw "There was an error while fetching masks";
   }
 
-  Future<List<RetrieveViewMaskResponseDto>> retrieveProfileMasks(RetrieveProfileMasksRequestDto retrieveProfileMasksDto) async {
+  Future<List<RetrieveMaskResponseDto>> retrieveUpdatedAfter(RetrieveUserMasksRequestDto retrieveMasksDto) async {
+    String url = '${functionUrl}RetrieveUpdated';
+
+    var response = await client.post(Uri.parse(url), body: jsonEncode(retrieveMasksDto));
+
+    if (response.statusCode == 200) {
+      var dtos = List<RetrieveMaskResponseDto>.from(
+          json.decode(response.body).map((dto) => RetrieveMaskResponseDto.fromJson(dto)));
+
+      return dtos;
+    }
+
+    throw "There was an error while fetching updated events";
+  }
+
+  Future<List<RetrieveViewMaskResponseDto>> retrieveProfileMasks(
+      RetrieveProfileMasksRequestDto retrieveProfileMasksDto) async {
     String url = '${functionUrl}RetrieveProfileMasks';
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(retrieveProfileMasksDto));

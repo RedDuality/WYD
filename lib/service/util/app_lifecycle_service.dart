@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/service/community/community_service.dart';
 import 'package:wyd_front/service/event/event_long_polling_service.dart';
+import 'package:wyd_front/service/mask/mask_long_polling_service.dart';
 import 'package:wyd_front/service/media/media_auto_select_service.dart';
 import 'package:wyd_front/service/user/user_service.dart';
 import 'package:wyd_front/service/util/notification_service.dart';
@@ -46,6 +47,7 @@ class AppLifecycleService with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       RealTimeUpdateService().initialize();
       EventLongPollingService.resumePolling();
+      MaskLongPollingService.resumePolling();
 
       if (!kIsWeb) {
         DevicePermissionService.requestPermissions().then((value) {
@@ -63,12 +65,14 @@ class AppLifecycleService with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       EventLongPollingService.resumePolling();
+      MaskLongPollingService.resumePolling();
 
       if (!kIsWeb) MediaAutoSelectService.checkEventsForPhotos();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.detached) {
       EventLongPollingService.pausePolling();
+      MaskLongPollingService.pausePolling();
     }
   }
 
@@ -80,5 +84,6 @@ class AppLifecycleService with WidgetsBindingObserver {
 
     // Stop polling when detached
     EventLongPollingService.pausePolling();
+    MaskLongPollingService.pausePolling();
   }
 }

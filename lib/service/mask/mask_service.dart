@@ -8,6 +8,7 @@ import 'package:wyd_front/API/Mask/retrieve_profile_masks_request_dto.dart';
 import 'package:wyd_front/API/Mask/retrieve_user_masks_request_dto.dart';
 import 'package:wyd_front/API/Mask/update_mask_request_dto.dart';
 import 'package:wyd_front/model/mask/mask.dart';
+import 'package:wyd_front/service/mask/mask_storage_service.dart';
 import 'package:wyd_front/state/mask/mask_storage.dart';
 
 class MaskService {
@@ -54,6 +55,17 @@ class MaskService {
   static Future _retrieveMask(String maskId) async {
     var maskDto = await MaskAPI().retrieveSingleMask(maskId);
     _addOrUpdate(maskDto);
+  }
+
+  static Future<void> checkMasksUpdatesAfter(DateTime lastCheckedTime) async {
+    var retrieveDto = RetrieveUserMasksRequestDto(
+      startTime: lastCheckedTime,
+    );
+
+    var updatedEvents = await MaskAPI().retrieveUpdatedAfter(retrieveDto);
+    for (var eventDto in updatedEvents) {
+      MaskStorageService.addMask(eventDto);
+    }
   }
 
   static Future<void> checkAndRetrieveUpdates(String maskId, DateTime updatedAt) async {
