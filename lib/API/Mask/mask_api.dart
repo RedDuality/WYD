@@ -52,7 +52,7 @@ class MaskAPI {
       return dtos;
     }
 
-    throw "There was an error while fetching updated events";
+    throw "There was an error while fetching updated masks";
   }
 
   Future<List<RetrieveViewMaskResponseDto>> retrieveProfileMasks(
