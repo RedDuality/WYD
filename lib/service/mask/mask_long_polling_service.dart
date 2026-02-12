@@ -8,7 +8,7 @@ class MaskLongPollingService {
   static Timer? _pollingTimer;
   static bool _ongoingCheck = false;
 
-  static const Duration _pollingInterval = Duration(minutes: 1);
+  static const Duration _pollingInterval = Duration(minutes: 15);
 
   static void resumePolling() {
     if (_pollingTimer?.isActive == true) return;
