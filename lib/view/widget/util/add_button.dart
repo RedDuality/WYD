@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
-import 'package:wyd_front/view/events/eventEditor/event_view.dart';
 
-class AddEventButton extends StatelessWidget {
+class AddButton extends StatelessWidget {
+  final String text;
+  final Widget child;
 
-  const AddEventButton({super.key});
+  const AddButton({
+    super.key,
+    required this.text,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: () {
-        showCustomDialog(context, EventView());
+        showCustomDialog(context, child);
       },
-      label: const Text('Aggiungi Evento'),
+      label: Text(text),
       icon: const Icon(Icons.add),
     );
   }
 }
+

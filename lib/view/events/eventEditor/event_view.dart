@@ -5,6 +5,7 @@ import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart'
 import 'package:wyd_front/view/events/eventEditor/event_view_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/gallery_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/title_editor.dart';
+import 'package:wyd_front/view/widget/button/exit_button.dart';
 
 class EventView extends StatefulWidget {
   final String? eventId;
@@ -61,7 +62,7 @@ class EventViewState extends State<EventView> {
             floating: false,
             pinned: true,
             leading: Container(padding: EdgeInsets.zero),
-            actions: [_exitButton()],
+            actions: [ExitButton()],
             flexibleSpace: _titleManager(),
             backgroundColor: Colors.blue,
           ),
@@ -84,21 +85,6 @@ class EventViewState extends State<EventView> {
                     )
                   : Container()),
         ],
-      ),
-    );
-  }
-
-  Widget _exitButton() {
-    return TextButton(
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-      style: TextButton.styleFrom(
-        foregroundColor: Colors.grey,
-      ),
-      child: const Icon(
-        Icons.close,
-        size: 36,
       ),
     );
   }

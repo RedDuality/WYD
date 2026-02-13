@@ -40,40 +40,46 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            Container(
-              constraints: const BoxConstraints(maxWidth: 500),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
-                child: TextField(
-                  onChanged: (text) {
-                    _mail = text;
-                  },
-                  autofillHints: const [AutofillHints.email],
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Email',
-                      hintText: 'abc@mail.com',
-                      helperText: ' '),
-                ),
-              ),
-            ),
-            Container(
-              constraints: const BoxConstraints(maxWidth: 500),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
-                child: TextField(
-                  onChanged: (text) {
-                    _password = text;
-                  },
-                  obscureText: true,
-                  autofillHints: const [AutofillHints.password],
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Password',
-                      hintText: 'Enter secure password',
-                      helperText: ' '),
-                ),
+            AutofillGroup(
+              child: Column(
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+                      child: TextField(
+                        onChanged: (text) {
+                          _mail = text;
+                        },
+                        autofillHints: const [AutofillHints.email],
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Email',
+                            hintText: 'abc@mail.com',
+                            helperText: ' '),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+                      child: TextField(
+                        onChanged: (text) {
+                          _password = text;
+                        },
+                        obscureText: true,
+                        autofillHints: const [AutofillHints.password],
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Password',
+                            hintText: 'Enter secure password',
+                            helperText: ' '),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(

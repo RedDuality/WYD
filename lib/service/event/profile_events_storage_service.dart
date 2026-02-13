@@ -7,6 +7,7 @@ class ProfileEventsStorageService {
     return await EventAPI().retriveProfileEvents(eventId);
   }
 
+  // returns if change was needed 
   static Future<bool> confirm(String eventId, bool confirmed, String profileHash) async {
     var pe = await DetailedProfileEventsStorage().getSingle(eventId, profileHash);
 
@@ -16,5 +17,11 @@ class ProfileEventsStorageService {
     pe.confirmed = confirmed;
     DetailedProfileEventsStorage().update(pe);
     return true;
+  }
+
+  static Future<bool> hasProfileConfirmed(String eventId, String profileId) async {
+    var pe = await DetailedProfileEventsStorage().getSingle(eventId, profileId);
+    if(pe == null) return false;
+    return pe.confirmed;
   }
 }

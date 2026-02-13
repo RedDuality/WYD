@@ -29,7 +29,7 @@ class EventsCache extends EventController {
       if (event.$2) {
         _delete(event.$1);
       } else {
-        _updateEvent(event.$1);
+        _addOrUpdate(event.$1);
       }
     });
 
@@ -53,10 +53,8 @@ class EventsCache extends EventController {
     }
   }
 
-  Future<void> _updateEvent(Event event) async {
-    if (_provider == null) return;
-
-    final range = _provider!.controller.focusedRange;
+  Future<void> _addOrUpdate(Event event) async {
+    final range = _provider?.rangeCntrl.currentRange ?? _rangeInCache;
     final inTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
 
     if (inTimeRange) {
@@ -64,9 +62,11 @@ class EventsCache extends EventController {
 
       if (inMemoryEvent != event) {
         if (inMemoryEvent != null) {
+          // updated
           super.remove(inMemoryEvent);
         } else {
-          await _provider!.onSingleEventAdded(event.id);
+          // added
+          await _provider?.onSingleEventAdded(event.id);
         }
         super.add(event);
       }
@@ -80,26 +80,36 @@ class EventsCache extends EventController {
     }
   }
 
-  Future<void> onRangeChange(DateTimeRange newRange) async {
+  Future<void> loadEventsForRange(DateTimeRange newRange) async {
     if (newRange == _rangeInCache) return;
 
+    _removeOutOfRangeEvents(newRange);
+
+    await _addInRangeEvents(newRange);
+  }
+
+  void _removeOutOfRangeEvents(DateTimeRange range) {
     final eventsToBeRemoved = super
         .allEvents
         .whereType<Event>()
-        .where((e) => !(e.endTime!.isAfter(newRange.start) && e.startTime!.isBefore(newRange.end)))
+        .where((e) => !(e.endTime!.isAfter(range.start) && e.startTime!.isBefore(range.end)))
         .toList();
 
-    super.removeAll(eventsToBeRemoved);
+    if (eventsToBeRemoved.isNotEmpty) {
+      super.removeAll(eventsToBeRemoved);
+    }
+  }
 
-    final addedIntervals = _rangeInCache.getAddedIntervals(newRange);
-
-    _rangeInCache = newRange;
+  Future<void> _addInRangeEvents(DateTimeRange range) async {
+    final addedIntervals = _rangeInCache.getAddedIntervals(range);
 
     List<Event> eventsToBeAdded = [];
     for (final interval in addedIntervals) {
       var events = await EventStorageService.retrieveEventsInTimeRange(interval);
       eventsToBeAdded.addAll(events);
     }
+
+    _rangeInCache = range;
 
     super.addAll(eventsToBeAdded);
   }
@@ -110,7 +120,11 @@ class EventsCache extends EventController {
     if (_provider != null) {
       super.updateFilter(newFilter: _provider!.getFilteredEvents);
     } else {
-      super.updateFilter(newFilter: (data, events) => <Event>[]);
+      // FIX: Wrap in a microtask to defer notifyListeners() until the
+      // framework is unlocked after the dispose phase.
+      Future.microtask(() {
+        super.updateFilter(newFilter: (data, events) => <Event>[]);
+      });
     }
   }
 

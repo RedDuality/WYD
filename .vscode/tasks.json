@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { // forwards the local server port if a device is connected
+      "label": "adb reverse 5000",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-Command",
+        "if ((adb devices | Select-String 'device$')) { adb reverse tcp:5000 tcp:5000 } else { Write-Host 'No Android device found, skipping adb reverse.' }"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

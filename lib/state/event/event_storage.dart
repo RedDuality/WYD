@@ -104,6 +104,7 @@ class EventStorage {
     } else {
       _inMemoryStorage[event.id] = event;
     }
+    debugPrint("event added ${event.id}");
   }
 
   /// Removes an event by its hash and signals a range update.
@@ -126,7 +127,7 @@ class EventStorage {
     }
   }
 
-  Future<Event?> getEventByHash(String id) async {
+  Future<Event?> getEventById(String id) async {
     if (kIsWeb) {
       return _inMemoryStorage[id];
     }

@@ -4,30 +4,38 @@ import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/service/event/profile_events_storage_service.dart';
+import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventRetrieveService {
   static Future<List<RetrieveEventResponseDto>> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
-        profileHashes: UserCache().getProfileIds(),
+        profileIds: UserCache().getProfileIds(),
         startTime: retrieveInterval.start.toUtc(),
         endTime: retrieveInterval.end.toUtc());
 
     return await EventAPI().listEvents(retrieveDto);
   }
 
-  //real time update, another device(of the same user) created a new event
-  static Future<void> retrieveEssentialByHash(String eventId) async {
+  static Future<Event> retrieveEssentialByHash(String eventId) async {
     var eventDto = await EventAPI().retrieveEssentialsFromHash(eventId);
-    EventStorageService.addEvent(eventDto);
+    return await EventStorageService.addEvent(eventDto);
   }
 
-  static Future<void> checkAndRetrieveEssentialByHash(String eventId, DateTime updatedAt) async {
-    var event = await EventStorage().getEventByHash(eventId);
-    // in case I was the one that updated the event, it's not necessary to retrieve the event
+  //real time update
+  static Future<void> checkAndRetrieveEssentialByHash(String eventId, DateTime updatedAt, String? actorId) async {
+    var event = await EventStorage().getEventById(eventId);
     if (event == null || updatedAt.isAfter(event.updatedAt)) {
-      retrieveEssentialByHash(eventId);
+      await retrieveEssentialByHash(eventId);
+    }
+    //create or update have actorId (no share)
+    if (actorId != null && UserCache().containsProfile(actorId)) {
+      final confirmed = await ProfileEventsStorageService.hasProfileConfirmed(eventId, actorId);
+      if (confirmed) {
+        MaskService.retrieveEventMask(eventId);
+      }
     }
   }
 
@@ -39,11 +47,10 @@ class EventRetrieveService {
 
   static Future<void> checkEventUpdatesAfter(DateTime lastCheckedTime) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
-      profileHashes: UserCache().getProfileIds(),
+      profileIds: UserCache().getProfileIds(),
       startTime: lastCheckedTime,
     );
 
-    
     var updatedEvents = await EventAPI().retrieveUpdatedAfter(retrieveDto);
     for (var eventDto in updatedEvents) {
       EventStorageService.addEvent(eventDto);
@@ -51,8 +58,8 @@ class EventRetrieveService {
   }
 
   //someone shared a link, have to also add on the backend
-  static Future<Event> retrieveAndAddByHash(String eventId) async {
-    var event = await EventStorage().getEventByHash(eventId);
+  static Future<Event> retrieveAndCreateSharedEvent(String eventId) async {
+    var event = await EventStorage().getEventById(eventId);
     if (event == null) {
       var sharedEvent = await EventAPI().sharedWithHash(eventId);
       return EventStorageService.addEvent(sharedEvent);

@@ -1,7 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:wyd_front/API/RealTime/fcm_api.dart';
 import 'package:wyd_front/API/User/store_fcm_token_request_dto.dart';
-import 'package:wyd_front/API/User/user_api.dart';
 import 'package:wyd_front/firebase_options.dart';
 import 'package:wyd_front/service/util/real_time/real_time_message_handler.dart';
 import 'package:wyd_front/service/util/real_time/real_time_service.dart';
@@ -50,7 +50,7 @@ class FcmService implements RealTimeService{
           fcmToken: fcmToken,
         );
 
-        await UserAPI().storeFCMToken(requestDto);
+        await FcmAPI().storeFCMToken(requestDto);
       }
     } catch (e) {
       debugPrint('User did not gave permission for notifications');
@@ -88,7 +88,7 @@ class FcmService implements RealTimeService{
         platform: DefaultFirebaseOptions.currentPlatform.toString(),
         fcmToken: fcmToken,
       );
-      await UserAPI().storeFCMToken(requestDto);
+      await FcmAPI().storeFCMToken(requestDto);
       debugPrint("FCM Token refreshed and stored: $fcmToken");
     }).onError((err) {
       throw ("Error monitoring token refresh: $err");
@@ -115,7 +115,7 @@ class FcmService implements RealTimeService{
       final fcmToken = await FirebaseMessaging.instance.getToken();
 
       if (fcmToken != null) {
-        await UserAPI().deleteFCMToken(fcmToken);
+        await FcmAPI().deleteFCMToken(fcmToken);
         debugPrint('FCM Token successfully deleted from backend.');
       }
 

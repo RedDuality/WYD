@@ -1,10 +1,11 @@
 {
-  "version": "0.2.1",
+  "version": "0.3.1",
   "configurations": [
     {
       "name": "WYD (dev)",
       "request": "launch",
       "type": "dart",
+      "preLaunchTask": "adb reverse 5000",
       "toolArgs": [
         "--flavor", "dev",
         "--dart-define=ENV=dev",

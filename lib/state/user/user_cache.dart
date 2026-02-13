@@ -30,6 +30,10 @@ class UserCache extends ChangeNotifier {
     return profiles.where((id) => id != currentId).toSet();
   }
 
+  bool containsProfile(String profileId){
+    return _user!.profileIds.contains(profileId);
+  }
+
   void updateUser(User? user) {
     _user = user;
     // notifyListeners();

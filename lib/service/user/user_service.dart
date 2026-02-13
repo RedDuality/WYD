@@ -7,8 +7,9 @@ import 'package:wyd_front/model/users/view_settings.dart';
 import 'package:wyd_front/model/users/user.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
 import 'package:wyd_front/service/util/real_time/real_time_update_service.dart';
-import 'package:wyd_front/state/event/event_intervals_manager.dart';
+import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
+import 'package:wyd_front/state/mask/mask_storage.dart';
 import 'package:wyd_front/state/media/media_flag_storage.dart';
 import 'package:wyd_front/state/media/media_storage.dart';
 import 'package:wyd_front/state/profile/detailed_profile_storage.dart';
@@ -70,8 +71,10 @@ class UserService {
 
     // storages
     EventStorage().clearAll();
-    EventIntervalsManager().clearAll();
+    EventIntervalsCache().clearAll();
 
+    MaskStorage().clearAll();
+    
     DetailedProfileEventsStorage().clearAll();
 
     MediaFlagStorage().clearAll();

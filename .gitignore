@@ -31,6 +31,8 @@ release.bat
 .pub-cache/
 .pub/
 /build
+pubspec_overrides.yaml
+
 
 # Symbolication related
 app.*.symbols
