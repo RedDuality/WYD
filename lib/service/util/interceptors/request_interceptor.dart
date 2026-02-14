@@ -9,7 +9,7 @@ class RequestInterceptor extends InterceptorContract {
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
 
     try {
-      request.headers[HttpHeaders.accessControlAllowOriginHeader] = '*';
+      //request.headers[HttpHeaders.accessControlAllowOriginHeader] = '*';
       request.headers[HttpHeaders.contentTypeHeader] = 'application/json; charset=UTF-8';
     } catch (e) {
       debugPrint("request interceptor $e");
