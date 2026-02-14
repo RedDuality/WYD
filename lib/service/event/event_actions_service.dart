@@ -12,6 +12,7 @@ import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/service/mask/mask_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/event/event_details_cache.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
@@ -20,10 +21,11 @@ import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dar
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventActionsService {
-  static Future<String> create(CreateEventRequestDto createDto) async {
+  static Future<Event> createEvent(CreateEventRequestDto createDto) async {
     var createdEventDto = await EventAPI().create(createDto);
-    EventStorageService.addEvent(createdEventDto);
-    return createdEventDto.id;
+
+    var event = await EventStorageService.addEvent(createdEventDto);
+    return event;
   }
 
   static Future<void> update(UpdateEventRequestDto updateDto) async {
@@ -32,12 +34,20 @@ class EventActionsService {
   }
 
   static Future<void> localConfirm(String eventId, bool confirmed, {String? pHash}) async {
-    var event = await EventStorage().getEventByHash(eventId);
+    var event = await EventStorage().getEventById(eventId);
     if (event != null) {
-      String profileHash = pHash ?? UserCache().getCurrentProfileId();
+      String profileId = pHash ?? UserCache().getCurrentProfileId();
 
-      if (await ProfileEventsStorageService.confirm(eventId, confirmed, profileHash)) {
+      if (await ProfileEventsStorageService.confirm(eventId, confirmed, profileId)) {
         EventRetrieveService.retrieveEssentialByHash(eventId);
+
+        if (UserCache().containsProfile(profileId)) {
+          if (confirmed) {
+            MaskService.retrieveEventMask(eventId);
+          } else {
+            MaskService.deleteEventMask(eventId);
+          }
+        }
       }
     }
   }
@@ -54,8 +64,9 @@ class EventActionsService {
     localConfirm(eventId, false);
   }
 
-  static Future<void> shareToGroups(String eventId, Set<ShareEventRequestDto> groupsIds) async {
-    var eventDto = await EventAPI().shareToProfiles(eventId, groupsIds);
+  static Future<void> shareToGroups(String eventId, Set<ShareGroupIdentifierDto> groupsIds) async {
+    var shareDto = ShareEventRequestDto(sharedGroups: groupsIds);
+    var eventDto = await EventAPI().shareToProfiles(eventId, shareDto);
     EventStorageService.addEvent(eventDto);
   }
 
@@ -79,7 +90,7 @@ class EventActionsService {
   }
 
   static Future<void> delete(String eventId) async {
-    Event? event = await EventStorage().getEventByHash(eventId);
+    Event? event = await EventStorage().getEventById(eventId);
     if (event != null) {
       await EventAPI().delete(event.id);
       localDelete(event);

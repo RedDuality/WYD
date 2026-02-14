@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:wyd_front/API/Sse/sse_api.dart';
+import 'package:wyd_front/API/RealTime/sse_api.dart';
 import 'package:wyd_front/service/util/real_time/real_time_message_handler.dart';
 import 'package:wyd_front/service/util/real_time/real_time_service.dart';
 import 'package:sse_channel/sse_channel.dart';
@@ -12,7 +12,7 @@ class SseService implements RealTimeService {
   SseChannel? _channel;
   bool _isConnecting = false;
 
-  final SseApi _sseApi = SseApi();
+  final SseAPI _sseApi = SseAPI();
 
   @override
   Future<void> initialize() async {
@@ -82,7 +82,11 @@ class SseService implements RealTimeService {
     await _subscription?.cancel();
     _subscription = null;
 
-    await _channel?.sink.close();
+    final sink = _channel?.sink;
+    if (sink != null) {
+      await sink.close();
+    }
+
     _channel = null;
   }
 }

@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
+import 'package:wyd_front/state/util/intervals_cache.dart';
 
-class EventIntervalsStorage {
+class EventIntervalsStorage implements IntervalStorage{
   static const _databaseName = 'appointment_cache.db';
   static const _tableName = 'cachedEventIntervals';
   static const _databaseVersion = 1;
@@ -18,6 +19,7 @@ class EventIntervalsStorage {
   EventIntervalsStorage._internal();
 
   final _clearAllChannel = StreamController<void>();
+  @override
   Stream<void> get clearChannel => _clearAllChannel.stream;
 
   Future<Database?> get database async {
@@ -45,6 +47,7 @@ class EventIntervalsStorage {
     );
   }
 
+  @override
   Future<List<Map<String, dynamic>>> loadIntervals() async {
     final db = await database;
     if (db == null) return [];
@@ -52,6 +55,7 @@ class EventIntervalsStorage {
     return await db.query(_tableName, orderBy: 'start_timestamp ASC');
   }
 
+  @override
   Future<void> addInterval(DateTimeRange newInterval, List<DateTimeRange<DateTime>> overWrittenIntervals) async {
     final db = await database;
     if (db == null) return;

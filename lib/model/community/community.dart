@@ -18,15 +18,22 @@ class Community {
     required this.type,
     required this.updatedAt,
     this.otherProfileId,
-    List<Group>? groups,
-  }) : groups = groups ?? [];
+    required this.groups,
+  }) ;
 
 
-  String getProfileHash(){
+  String getProfileId(){
     if(type != CommunityType.personal){
       throw "Personal profile looked for in a non-personal community";
     }
     return otherProfileId!;
+  }
+
+  String getGroupId(){
+    if(type != CommunityType.singlegroup){
+      throw "Group looked for is in a non single-group community";
+    }
+    return groups.first.id;
   }
 
   factory Community.fromDto(RetrieveCommunityResponseDto dto){

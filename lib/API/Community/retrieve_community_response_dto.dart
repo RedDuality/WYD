@@ -25,10 +25,9 @@ class RetrieveCommunityResponseDto {
       type: CommunityType.values[json['type'] ?? 0],
       updatedAt: DateTime.parse(json['updatedAt'] as String).toUtc(),
       otherProfileId: json['otherProfileId'] as String?,
-      groups: (json['groups'] as List<dynamic>?)
-              ?.map((g) => RetrieveGroupResponseDto.fromJson(g as Map<String, dynamic>))
-              .toList() ??
-          <RetrieveGroupResponseDto>[],
+      groups: (json['groups'] as List<dynamic>)
+          .map((g) => RetrieveGroupResponseDto.fromJson(g as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

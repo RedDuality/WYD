@@ -34,6 +34,8 @@ release.bat
 .pub/
 build/*
 !build/web/
+pubspec_overrides.yaml
+
 
 # Symbolication related
 app.*.symbols

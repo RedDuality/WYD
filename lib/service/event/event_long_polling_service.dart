@@ -76,9 +76,9 @@ class EventLongPollingService {
       try {
         return DateTime.parse(dateTimeString).toUtc();
       } catch (e) {
-        debugPrint("Error while converting last long polled time value: $e");
+        debugPrint("Error while converting last event long polled time value: $e");
       }
     }
-    return DateTime.now().toUtc(); // events are being retrieved by the eventRetrieveService
+    return DateTime.now().toUtc();
   }
 }
