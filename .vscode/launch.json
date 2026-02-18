@@ -2,44 +2,71 @@
   "version": "0.3.1",
   "configurations": [
     {
-      "name": "WYD (dev)",
+      "name": "WYD (debug dev)",
       "request": "launch",
       "type": "dart",
+      "flutterMode": "debug",
       "preLaunchTask": "adb reverse 5000",
       "toolArgs": [
-        "--flavor", "dev",
+        "--flavor",
+        "dev",
         "--dart-define=ENV=dev",
-        "-Penv=dev"
+        "-Penv=dev",
+        "--web-port",
+        "42069"
       ]
     },
     {
-      "name": "WYD (prod)",
+      "name": "WYD (performance dev)",
       "request": "launch",
       "type": "dart",
+      "flutterMode": "profile",
+      "preLaunchTask": "adb reverse 5000",
       "toolArgs": [
-        "--flavor", "prod",
-        "--dart-define=ENV=prod",
-        "-Penv=prod"
+        "--flavor",
+        "dev",
+        "--dart-define=ENV=dev",
+        "-Penv=dev",
+        "--web-port",
+        "42069"
       ]
     },
     {
-      "name": "WYD (profile mode prod)",
+      "name": "WYD (debug prod)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "toolArgs": [
+        "--flavor",
+        "prod",
+        "--dart-define=ENV=prod",
+        "-Penv=prod",
+        "--web-port",
+        "42069"
+      ]
+    },
+    {
+      "name": "WYD (performance prod)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
       "toolArgs": [
-        "--flavor", "prod",
+        "--flavor",
+        "prod",
         "--dart-define=ENV=prod",
-        "-Penv=prod"
+        "-Penv=prod",
+        "--web-port",
+        "42069"
       ]
     },
     {
-      "name": "WYD (release mode prod)",
+      "name": "WYD (detached prod)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
       "toolArgs": [
-        "--flavor", "prod",
+        "--flavor",
+        "prod",
         "--dart-define=ENV=prod",
         "-Penv=prod"
       ]

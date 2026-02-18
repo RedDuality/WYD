@@ -10,6 +10,6 @@
         "if ((adb devices | Select-String 'device$')) { adb reverse tcp:5000 tcp:5000 } else { Write-Host 'No Android device found, skipping adb reverse.' }"
       ],
       "problemMatcher": []
-    }
+    },
   ]
 }
