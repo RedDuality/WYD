@@ -12,7 +12,20 @@
           "package_name": "com.example.wyd_front"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "757643281393-preae5v1jp8nfi34mgt1co94ff0jfk00.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.wyd_front",
+            "certificate_hash": "401953af810074520e18379c805af898bc7976ab"
+          }
+        },
+        {
+          "client_id": "757643281393-qbd7btvsgf8pi8fg4vj5dpo3vrvd09ns.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBu1pE_u4oXjEnJVE0D0x0d4eafcIUCQs0"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "757643281393-qbd7btvsgf8pi8fg4vj5dpo3vrvd09ns.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "757643281393-q206plfh11s0im27634p23g4dh6e764r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.wydFront"
+              }
+            }
+          ]
         }
       }
     }

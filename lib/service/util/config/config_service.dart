@@ -18,7 +18,7 @@ class ConfigService {
   late String siteUrl;
 
   List<SignInPlatform> supportedAuthPlatforms = [SignInPlatform.google];
-  late String? googleClientId;
+  String? googleClientId;
 
   Future<void> initialize() async {
     const env = String.fromEnvironment('ENV', defaultValue: 'dev');
@@ -47,7 +47,7 @@ class ConfigService {
             ))
         .toList();
 
-    if (kIsWeb) _applyWebConfig(dotenv.env);
+    _applyWebConfig(dotenv.env);
   }
 
 /*
@@ -66,7 +66,7 @@ class ConfigService {
             ))
         .toList();
 
-    if (kIsWeb) _applyWebConfig(remoteConfig);
+    _applyWebConfig(remoteConfig);
   }
 */
   void _applyWebConfig(Map<String, dynamic> variables) {
@@ -74,7 +74,9 @@ class ConfigService {
       switch (platform) {
         case SignInPlatform.google:
           googleClientId = variables['GOOGLE_CLIENT_ID']!;
-          applyWebConfigImpl('google-signin-client_id', supportedAuthPlatforms, googleClientId);
+          if (kIsWeb) {
+            applyWebConfigImpl('google-signin-client_id', supportedAuthPlatforms, googleClientId);
+          }
           return;
       }
     }
