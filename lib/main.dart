@@ -1,11 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:wyd_front/service/util/config/config_service.dart';
 import 'package:wyd_front/state/community/community_cache.dart';
 import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
@@ -19,9 +18,6 @@ import 'package:wyd_front/state/user/authentication_provider.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/state/user/view_settings_cache.dart';
 import 'package:wyd_front/view/widget/loading_page.dart';
-
-import 'firebase_options_dev.dart' as dev;
-import 'firebase_options_prod.dart' as prod;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -38,13 +34,7 @@ Future main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  const env = String.fromEnvironment('ENV', defaultValue: 'dev');
-  await dotenv.load(fileName: '.env.$env');
-
-  final firebaseOptions =
-      env == 'prod' ? prod.DefaultFirebaseOptions.currentPlatform : dev.DefaultFirebaseOptions.currentPlatform;
-
-  await Firebase.initializeApp(options: firebaseOptions);
+  await ConfigService().initialize();
 
   if (!kIsWeb) {
     Workmanager().initialize(callbackDispatcher);

@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http/intercepted_client.dart';
 import 'package:wyd_front/API/User/store_fcm_token_request_dto.dart';
+import 'package:wyd_front/service/util/config/config_service.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class FcmAPI {
-  String functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Communication/';
+  String functionUrl = '${ConfigService().backUrl}/wyd/api/Communication/';
 
   static final InterceptedClient _client = InterceptedClient.build(interceptors: [
     AuthInterceptor(),

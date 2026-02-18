@@ -73,6 +73,9 @@ dependencies:
     git:
       url: https://github.com/RedDuality/kalender.git
       ref: main
+  google_sign_in: ^7.2.0
+  google_sign_in_web: ^1.1.0
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:

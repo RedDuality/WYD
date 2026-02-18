@@ -1,16 +1,16 @@
 import 'dart:convert';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/API/Profile/retrieve_detailed_profile_response_dto.dart';
 import 'package:wyd_front/API/Profile/retrieve_profile_response_dto.dart';
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
+import 'package:wyd_front/service/util/config/config_service.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class ProfileAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Profile/';
+  String? functionUrl = '${ConfigService().backUrl}/wyd/api/Profile/';
 
   final InterceptedClient client;
 

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wyd_front/API/Mask/create_mask_request_dto.dart';
 import 'package:wyd_front/API/Mask/retrieve_mask_response_dto.dart';
 
@@ -8,13 +7,14 @@ import 'package:wyd_front/API/Mask/retrieve_profile_masks_request_dto.dart';
 import 'package:wyd_front/API/Mask/retrieve_user_masks_request_dto.dart';
 import 'package:wyd_front/API/Mask/retrieve_view_mask_response_dto.dart';
 import 'package:wyd_front/API/Mask/update_mask_request_dto.dart';
+import 'package:wyd_front/service/util/config/config_service.dart';
 
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class MaskAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Mask/';
+  String? functionUrl = '${ConfigService().backUrl}/wyd/api/Mask/';
 
   final InterceptedClient client;
 

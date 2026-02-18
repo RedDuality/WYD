@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
@@ -7,12 +6,13 @@ import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/profiles/profile_event.dart';
+import 'package:wyd_front/service/util/config/config_service.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class EventAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Event/';
+  String? functionUrl = '${ConfigService().backUrl}/wyd/api/Event/';
 
   final InterceptedClient client;
 

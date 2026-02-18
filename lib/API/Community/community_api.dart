@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/API/Community/create_community_request_dto.dart';
 import 'package:wyd_front/API/Community/retrieve_community_response_dto.dart';
+import 'package:wyd_front/service/util/config/config_service.dart';
 import 'package:wyd_front/service/util/interceptors/auth_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/profile_interceptor.dart';
 import 'package:wyd_front/service/util/interceptors/request_interceptor.dart';
 
 class CommunityAPI {
-  String? functionUrl = '${dotenv.env['BACK_URL']}/wyd/api/Community/';
+  String? functionUrl = '${ConfigService().backUrl}/wyd/api/Community/';
 
   final InterceptedClient client;
 
