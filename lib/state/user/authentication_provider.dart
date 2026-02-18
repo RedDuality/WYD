@@ -9,14 +9,12 @@ class AuthenticationProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isLoading = true;
-  bool _firstTimeLogging = false;
 
   static final AuthenticationProvider _instance = AuthenticationProvider._internal();
   factory AuthenticationProvider() => _instance;
 
   User? get user => _auth.currentUser;
   bool get isLoading => _isLoading;
-  bool get isFirstTimeLogging => _firstTimeLogging;
 
   AuthenticationProvider._internal() {
     _assureUserIsLoaded();
@@ -41,7 +39,6 @@ class AuthenticationProvider with ChangeNotifier {
 
     // if, for any reason(e.g. logout), the user is no more, it returns to the login page
     if (user == null) {
-      _firstTimeLogging = false;
       notifyListeners();
     }
   }
@@ -72,7 +69,6 @@ class AuthenticationProvider with ChangeNotifier {
       await _auth.currentUser?.delete();
       throw "Unexpected error, please try later";
     }
-    _firstTimeLogging = true;
     notifyListeners(); // now UserService.isLoggedIn should be true
   }
 
@@ -96,7 +92,6 @@ class AuthenticationProvider with ChangeNotifier {
       await _auth.currentUser?.delete();
       throw "Unexpected error, please try later";
     }
-    _firstTimeLogging = true;
     notifyListeners(); // now UserService.isLoggedIn should be true
   }
 

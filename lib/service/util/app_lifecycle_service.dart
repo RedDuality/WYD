@@ -4,11 +4,9 @@ import 'package:wyd_front/service/community/community_service.dart';
 import 'package:wyd_front/service/event/event_long_polling_service.dart';
 import 'package:wyd_front/service/mask/mask_long_polling_service.dart';
 import 'package:wyd_front/service/media/media_auto_select_service.dart';
-import 'package:wyd_front/service/user/user_service.dart';
 import 'package:wyd_front/service/util/notification_service.dart';
 import 'package:wyd_front/service/util/device_permission_service.dart';
 import 'package:wyd_front/service/util/real_time/real_time_update_service.dart';
-import 'package:wyd_front/state/user/authentication_provider.dart';
 
 class AppLifecycleService with WidgetsBindingObserver {
   static final AppLifecycleService _instance = AppLifecycleService._internal();
@@ -27,17 +25,9 @@ class AppLifecycleService with WidgetsBindingObserver {
   }
 
   static void _retrieveData() {
-    if (kIsWeb || AuthenticationProvider().isFirstTimeLogging) {
-      _initializeCollections();
-    } else {
-      _retrieveUpdates();
-    }
+    _initializeCollections();
   }
 
-  static void _retrieveUpdates() {
-    UserService.retrieveUser();
-    CommunityService().retrieveCommunities();
-  }
 
   static Future<void> _initializeCollections() async {
     CommunityService().retrieveCommunities();

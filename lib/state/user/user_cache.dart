@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wyd_front/model/users/user.dart';
+import 'package:wyd_front/service/user/user_service.dart';
 import 'package:wyd_front/state/user/user_storage.dart';
 
 class UserCache extends ChangeNotifier {
@@ -12,7 +13,16 @@ class UserCache extends ChangeNotifier {
   UserCache._internal();
 
   Future<void> initialize() async {
-    _user = (await UserStorage.getUser())!;
+    if (kIsWeb) {
+      await UserService.retrieveUser(); // will call updateUser
+    } else {
+      var user = await UserStorage.getUser();
+      if (user != null) {
+        _user = user;
+      } else {
+        await UserService.retrieveUser();
+      }
+    }
   }
 
   User? get user => _user;
@@ -30,7 +40,7 @@ class UserCache extends ChangeNotifier {
     return profiles.where((id) => id != currentId).toSet();
   }
 
-  bool containsProfile(String profileId){
+  bool containsProfile(String profileId) {
     return _user!.profileIds.contains(profileId);
   }
 

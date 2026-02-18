@@ -13,7 +13,7 @@ class UserStorage {
 
   Future<void> saveUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
-    // Convert to JSON string
+
     await prefs.setString('user', jsonEncode(user.toJson()));
     UserCache().updateUser(user);
   }
@@ -31,7 +31,7 @@ class UserStorage {
   Future<void> clearAll() async {
     UserCache().updateUser(null);
     final prefs = await SharedPreferences.getInstance();
-    // Convert to JSON string
+
     await prefs.setString('user', "");
   }
 }

@@ -36,7 +36,7 @@ class UserService {
       final userDto = await UserAPI().register();
       await _updateUser(userDto);
     } catch (e) {
-      logOut();
+      unawaited(logOut());
       throw e.toString();
     }
   }
@@ -74,7 +74,7 @@ class UserService {
     EventIntervalsCache().clearAll();
 
     MaskStorage().clearAll();
-    
+
     DetailedProfileEventsStorage().clearAll();
 
     MediaFlagStorage().clearAll();
@@ -86,7 +86,7 @@ class UserService {
     UserClaimStorage().clearAll();
 
     UserStorage().clearAll();
-    
+
     AuthenticationProvider().signOut();
   }
 }
