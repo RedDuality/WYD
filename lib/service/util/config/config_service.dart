@@ -7,7 +7,7 @@ import 'package:wyd_front/service/util/authentication/sign_in_platform.dart';
 import '/firebase_options_dev.dart' as dev;
 import '/firebase_options_prod.dart' as prod;
 
-import 'signin_web_config_helper_stub.dart' if (dart.library.js_util) 'google_web_config_helper_web.dart';
+import 'signin_web_config_helper_stub.dart' if (dart.library.js_util) 'signin_web_config_helper_web.dart';
 
 class ConfigService {
   static final ConfigService _instance = ConfigService._internal();
@@ -18,7 +18,7 @@ class ConfigService {
   late String siteUrl;
 
   List<SignInPlatform> supportedAuthPlatforms = [SignInPlatform.google];
-  String? googleClientId;
+  late String googleClientId;
 
   Future<void> initialize() async {
     const env = String.fromEnvironment('ENV', defaultValue: 'dev');

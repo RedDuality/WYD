@@ -6,8 +6,8 @@ import 'package:wyd_front/service/util/information_service.dart';
 
 import 'google_signin_web_stub.dart' if (dart.library.js_util) 'google_signin_web_imp.dart';
 
-class GoogleSignin extends StatelessWidget {
-  const GoogleSignin({super.key});
+class GoogleSigninButton extends StatelessWidget {
+  const GoogleSigninButton({super.key});
 
   @override
   Widget build(BuildContext context) {

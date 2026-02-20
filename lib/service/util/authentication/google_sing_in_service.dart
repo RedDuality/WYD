@@ -14,10 +14,11 @@ class GoogleSignInService with ChangeNotifier {
     try {
       await GoogleSignIn.instance.initialize(
         clientId: ConfigService().googleClientId,
-        serverClientId: ConfigService().googleClientId,
+        serverClientId: kIsWeb ? null : ConfigService().googleClientId,
       );
+
       if (kIsWeb) {
-        // 2. Listen to sign-in events. This is triggered by the 'renderButton' in the UI.
+        // Listen to sign-in events. This is triggered by the 'renderButton' in the UI.
         GoogleSignIn.instance.authenticationEvents.listen(
           (event) async {
             switch (event) {

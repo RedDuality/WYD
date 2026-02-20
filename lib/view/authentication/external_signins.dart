@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wyd_front/service/util/authentication/google_sing_in_service.dart';
 import 'package:wyd_front/service/util/authentication/sign_in_platform.dart';
 import 'package:wyd_front/service/util/config/config_service.dart';
-import 'package:wyd_front/view/authentication/google/google_signin.dart';
+import 'package:wyd_front/view/authentication/google/google_signin_button.dart';
 
 class ExternalSignins extends StatelessWidget {
   const ExternalSignins({super.key});
@@ -14,7 +14,7 @@ class ExternalSignins extends StatelessWidget {
     return Column(
       children: [
         if (supportedAuthPlatforms.contains(SignInPlatform.google) && GoogleSignInService.isGoogleSignInInitialized)
-          GoogleSignin(),
+          GoogleSigninButton(),
         // Divider
         if (supportedAuthPlatforms.isNotEmpty)
           Container(

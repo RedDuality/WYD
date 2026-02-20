@@ -67,6 +67,7 @@ class UserService {
 
   static Future<void> logOut() async {
     debugPrint("logout");
+
     RealTimeUpdateService().dispose();
 
     // storages
