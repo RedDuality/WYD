@@ -13,7 +13,7 @@ class GoogleSigninButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Google Sign-In button - only show if initialized and supported
+        // Android/ios
         if (GoogleSignIn.instance.supportsAuthenticate())
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
