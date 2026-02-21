@@ -11,15 +11,21 @@ class UserStorage {
   UserStorage._internal();
   // --------------------------------
 
+  Future<SharedPreferences>? _prefsFuture;
+
+  Future<SharedPreferences> get _prefs {
+    return _prefsFuture ??= SharedPreferences.getInstance();
+  }
+
   Future<void> saveUser(User user) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs;
 
     await prefs.setString('user', jsonEncode(user.toJson()));
     UserCache().updateUser(user);
   }
 
-  static Future<User?> getUser() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<User?> getUser() async {
+    final prefs = await _prefs;
     final jsonString = prefs.getString('user');
 
     if (jsonString == null) return null;
@@ -29,9 +35,8 @@ class UserStorage {
   }
 
   Future<void> clearAll() async {
-    UserCache().updateUser(null);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs;
 
-    await prefs.setString('user', "");
+    await prefs.remove('user');
   }
 }

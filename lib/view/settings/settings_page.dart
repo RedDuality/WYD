@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Test/test_api.dart';
 import 'package:wyd_front/view/settings/settings_tile.dart';
-import 'package:wyd_front/view/settings/user_button.dart';
+import 'package:wyd_front/view/settings/user/user_page.dart';
 import 'package:wyd_front/view/widget/util/version_detail.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -13,7 +13,18 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Settings'),
         actions: [
-          UserButton(),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserPage()),
+              );
+            },
+            icon: const Icon(
+              Icons.person,
+              size: 35.0,
+            ),
+          ),
           SizedBox(width: 10),
         ],
       ),

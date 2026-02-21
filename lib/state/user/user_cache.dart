@@ -16,7 +16,7 @@ class UserCache extends ChangeNotifier {
     if (kIsWeb) {
       await UserService.retrieveUser(); // will call updateUser
     } else {
-      var user = await UserStorage.getUser();
+      var user = await UserStorage().getUser();
       if (user != null) {
         _user = user;
       } else {

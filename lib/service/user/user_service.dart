@@ -6,6 +6,7 @@ import 'package:wyd_front/model/users/user_claim.dart';
 import 'package:wyd_front/model/users/view_settings.dart';
 import 'package:wyd_front/model/users/user.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
+import 'package:wyd_front/service/user/account_service.dart';
 import 'package:wyd_front/service/util/real_time/real_time_update_service.dart';
 import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
@@ -15,7 +16,9 @@ import 'package:wyd_front/state/media/media_storage.dart';
 import 'package:wyd_front/state/profile/detailed_profile_storage.dart';
 import 'package:wyd_front/state/profile/profile_storage.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
+import 'package:wyd_front/state/user/account_storage.dart';
 import 'package:wyd_front/state/user/authentication_provider.dart';
+import 'package:wyd_front/state/user/user_cache.dart';
 import 'package:wyd_front/state/user/user_claims_storage.dart';
 import 'package:wyd_front/state/user/user_storage.dart';
 import 'package:wyd_front/state/user/view_settings_storage.dart';
@@ -46,6 +49,7 @@ class UserService {
     await UserStorage().saveUser(user);
 
     DetailedProfileStorageService.addMultiple(userDto.profiles);
+    AccountService.saveAccounts(userDto.accounts);
 
     var settingsList = userDto.profiles
         .expand((profile) {
@@ -69,6 +73,7 @@ class UserService {
     debugPrint("logout");
 
     RealTimeUpdateService().dispose();
+    await AuthenticationProvider().signOut();
 
     // storages
     EventStorage().clearAll();
@@ -83,11 +88,11 @@ class UserService {
 
     ProfileStorage().clearAll();
     DetailedProfileStorage().clearAll();
+    AccountStorage().clearAll();
     ViewSettingsStorage().clearAll();
     UserClaimStorage().clearAll();
 
+    UserCache().updateUser(null);
     UserStorage().clearAll();
-
-    AuthenticationProvider().signOut();
   }
 }
