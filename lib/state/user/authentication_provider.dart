@@ -20,9 +20,8 @@ class AuthenticationProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   AuthenticationProvider._internal() {
-    _auth.authStateChanges().listen((User? user) => _onUserChange(user));
-
     _initializeExternalServices().then((_) {
+      _auth.authStateChanges().listen((User? user) => _onUserChange(user));
       _assureUserIsLoaded();
     });
   }
