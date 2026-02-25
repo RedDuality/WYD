@@ -25,7 +25,7 @@ class GoogleSigninButton extends StatelessWidget {
                   icon: Image.asset('assets/images/google_logo.png', height: 24),
                   label: const Text('Sign in with Google'),
                   onPressed: () {
-                    GoogleSignInService().signInWithGoogle().catchError((error) {
+                    GoogleSignInService.signInWithGoogle().catchError((error) {
                       if (context.mounted) {
                         InformationService().showErrorSnackBar(context, error.toString());
                       }

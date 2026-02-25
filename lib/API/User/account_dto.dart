@@ -1,17 +1,20 @@
 class AccountDto {
-  String mail = "";
-  String signInType = "";
+  final String email;
+  final String signInType;
+  final String? importedBy;
   
 
   AccountDto({
-    required this.mail,
+    required this.email,
     required this.signInType,
+    this.importedBy,
   });
 
   factory AccountDto.fromJson(Map<String, dynamic> json) {
     return AccountDto(
-      mail: json['mail'] as String,
+      email: json['email'] as String,
       signInType: json['signInType'] as String,
+      importedBy: json['importedBy'] as String?,
     );
   }
 }

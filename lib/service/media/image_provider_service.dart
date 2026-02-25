@@ -1,32 +1,13 @@
 import 'package:flutter/material.dart';
-
-enum ImageSize { mini, midi, big }
+import 'package:wyd_front/model/enum/image_size.dart';
+import 'package:wyd_front/service/media/logo_service.dart';
 
 class ImageProviderService {
-
   static ImageProvider? getProfileImage(String profileHash, String blobHash, {ImageSize size = ImageSize.big}) {
-    return wydLogoImageProvider(size);
+    return LogoService.wydLogoImageProvider(size);
   }
 
   static ImageProvider getImageProvider({String? imageUrl, ImageSize size = ImageSize.big}) {
-    return wydLogoImageProvider(size);
-  }
-  static Image getImage({ImageSize size = ImageSize.mini}){
-    return Image(image: wydLogoImageProvider(size));
-  }
-
-  static ImageProvider wydLogoImageProvider(ImageSize size) {
-    String path;
-    switch (size) {
-      case ImageSize.mini:
-        path = 'assets/images/logoimage_mini.png';
-        break;
-      case ImageSize.big:
-      default:
-        path = 'assets/images/logoimage.png';
-        break;
-    }
-
-    return AssetImage(path);
+    return LogoService.wydLogoImageProvider(size);
   }
 }

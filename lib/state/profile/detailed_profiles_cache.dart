@@ -40,6 +40,11 @@ class DetailedProfileCache extends ChangeNotifier {
     return result;
   }
 
+  Set<DetailedProfile> getAll() {
+
+    return _profiles.values.toSet();
+  }
+
   Future<void> _checkStorage(String profileId) async {
     var profile = await DetailedProfileStorageService.retrieve(profileId);
     if (profile != null) {

@@ -76,4 +76,16 @@ class ProfileAPI {
 
     throw "Error while updating the profile";
   }
+
+  Future<void> importEventsFromPlatform(String accessToken) async {
+    String url = '${functionUrl}Import';
+
+    var response = await client.post(Uri.parse(url), body: accessToken);
+
+    if (response.statusCode == 200) {
+      return;
+    }
+
+    throw "Error while importing events";
+  }
 }

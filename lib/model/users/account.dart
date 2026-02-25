@@ -2,40 +2,37 @@ import 'package:wyd_front/API/User/account_dto.dart';
 import 'package:wyd_front/service/util/authentication/sign_in_platform.dart';
 
 class Account {
-  String mail = "";
-  SignInPlatform? platform;
+  String email = "";
+  SignInPlatform platform;
+  String? importedBy;
 
   Account({
-    required this.mail,
+    required this.email,
     required this.platform,
+    this.importedBy,
   });
 
-  Account.fromDto(AccountDto dto) {
-    mail = dto.mail;
-    platform = _mapStringToPlatform(dto.signInType);
-  }
-
-  static SignInPlatform? _mapStringToPlatform(String type) {
-    switch (type.toLowerCase()) {
-      case 'google':
-        return SignInPlatform.google;
-      case 'email':
-      default:
-        return null;
-    }
+  factory Account.fromDto(AccountDto dto) {
+    return Account(
+      email: dto.email,
+      platform: SignInPlatform.fromString(dto.signInType),
+      importedBy: dto.importedBy,
+    );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'mail': mail,
+      'mail': email,
       'platform': platform.toString(),
+      'importedBy': importedBy,
     };
   }
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
-      mail: json['mail'] as String,
-      platform: _mapStringToPlatform(json['platform']),
+      email: json['mail'] as String,
+      platform: SignInPlatform.fromString(json['platform']),
+      importedBy: json['importedBy'] as String?,
     );
   }
 }

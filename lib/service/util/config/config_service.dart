@@ -77,7 +77,8 @@ class ConfigService {
           if (kIsWeb) {
             applyWebConfigImpl('google-signin-client_id', supportedAuthPlatforms, googleClientId);
           }
-          return;
+        case SignInPlatform.email:
+          break;
       }
     }
   }

@@ -23,6 +23,7 @@ class DetailedProfileStorageService {
     _localUpdate(dto);
   }
 
+  // no imports or claims involved
   static Future<void> updateProfile(UpdateProfileRequestDto updateDto) async {
     var responseDto = await ProfileAPI().updateProfile(updateDto);
     _localUpdate(responseDto);

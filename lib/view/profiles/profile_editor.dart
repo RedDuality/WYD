@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wyd_front/API/Profile/update_profile_request_dto.dart';
+import 'package:wyd_front/model/enum/image_size.dart';
 import 'package:wyd_front/model/users/detailed_profile.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
 import 'package:wyd_front/service/profile/detailed_profile_storage_service.dart';
@@ -15,7 +16,7 @@ class ProfileEditor extends StatefulWidget {
 
 class ProfileEditorState extends State<ProfileEditor> {
   late Color _selectedColor;
-  late Image profileImage;
+  late ImageProvider profileImage;
   late TextEditingController nameController;
   late TextEditingController tagController;
   final _formKey = GlobalKey<FormState>();
@@ -28,7 +29,7 @@ class ProfileEditorState extends State<ProfileEditor> {
   void initState() {
     super.initState();
     _selectedColor = widget.profile.color ?? Colors.green;
-    profileImage = ImageProviderService.getImage(size: ImageSize.big);
+    profileImage = ImageProviderService.getImageProvider(size: ImageSize.big);
     nameController = TextEditingController(text: widget.profile.name);
     tagController = TextEditingController(text: widget.profile.tag);
   }
@@ -81,7 +82,11 @@ class ProfileEditorState extends State<ProfileEditor> {
                           width: 3.5,
                         ),
                       ),
-                      child: SizedBox(width: size, height: size, child: profileImage),
+                      child: SizedBox(
+                        width: size,
+                        height: size,
+                        child: Image(image: profileImage),
+                      ),
                     ),
                   ),
                 ),
@@ -152,6 +157,7 @@ class ProfileEditorState extends State<ProfileEditor> {
                     });
                   },
                 ),
+                // TODO add imports details
                 SizedBox(height: 15),
                 SizedBox(
                   height: 50,

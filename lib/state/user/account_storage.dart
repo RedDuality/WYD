@@ -19,7 +19,7 @@ class AccountStorage {
   Set<Account> accounts = {};
 
   Future<void> saveAccounts(Set<Account> accounts) async {
-    accounts = accounts;
+    this.accounts = accounts;
 
     final prefs = await _prefs;
     final List<Map<String, dynamic>> jsonList = accounts.map((a) => a.toJson()).toList();

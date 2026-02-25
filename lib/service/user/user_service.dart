@@ -75,6 +75,7 @@ class UserService {
     RealTimeUpdateService().dispose();
     await AuthenticationProvider().signOut();
 
+    
     // storages
     EventStorage().clearAll();
     EventIntervalsCache().clearAll();

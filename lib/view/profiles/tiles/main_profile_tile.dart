@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:wyd_front/model/enum/image_size.dart';
+import 'package:wyd_front/model/profiles/external_imports.dart';
 import 'package:wyd_front/model/users/detailed_profile.dart';
 import 'package:wyd_front/service/media/image_provider_service.dart';
-import 'package:wyd_front/state/user/user_cache.dart';
+import 'package:wyd_front/service/media/logo_service.dart';
+import 'package:wyd_front/service/util/authentication/sign_in_platform.dart';
 import 'package:wyd_front/view/profiles/profile_editor.dart';
+import 'package:wyd_front/view/profiles/tiles/main_tile_options.dart';
 import 'package:wyd_front/view/widget/view/custom_page.dart';
 
 class MainProfileTile extends StatelessWidget {
@@ -22,6 +26,7 @@ class MainProfileTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var exists = profile != null;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
       child: Align(
@@ -62,8 +67,11 @@ class MainProfileTile extends StatelessWidget {
                       SizedBox(width: 10),
                       Expanded(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (exists && profile!.imports != null && profile!.imports!.isNotEmpty)
+                              _buildImportedLogos(profile!.imports!),
                             Text(
                               exists ? profile!.name : "Loading...",
                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -82,7 +90,7 @@ class MainProfileTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              if (exists) actions(profile!.id),
+              if (exists) MainTileOptions(profile: profile!),
             ],
           ),
         ),
@@ -90,17 +98,26 @@ class MainProfileTile extends StatelessWidget {
     );
   }
 
-  Widget actions(String profileHash) {
+  Widget _buildImportedLogos(List<ExternalImports> imports) {
+    final filteredImports = imports.where((i) => i.importType != SignInPlatform.email).toList();
+
+    if (filteredImports.isEmpty) return const SizedBox.shrink();
+
     return Row(
-      children: [
-        if (profileHash != UserCache().getCurrentProfileId())
-          Row(
-            children: [
-              const SizedBox(width: 10),
-              ElevatedButton(onPressed: () => {}, child: Text("Switch")),
-            ],
-          )
-      ],
+      mainAxisSize: MainAxisSize.min,
+      children: filteredImports.map((import) {
+        if (import.importType == SignInPlatform.google) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 6.0),
+            child: Image(
+              image: LogoService.importProviderLogo(SignInPlatform.google, ImageSize.mini),
+              width: 18,
+              height: 18,
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      }).toList(),
     );
   }
 }

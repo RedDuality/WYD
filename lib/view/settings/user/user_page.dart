@@ -16,14 +16,27 @@ class UserPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Accounts"),
-              AccountList(),
-              const SizedBox(width: 10),
-              IconButton(
-                onPressed: () => UserService.logOut(),
-                icon: const Icon(Icons.logout),
-                tooltip: 'Log out',
+              const Text(
+                "Accounts",
+                style: TextStyle(fontSize: 20),
               ),
+              const SizedBox(width: 40),
+              AccountList(),
+              const SizedBox(width: 40),
+              Tooltip(
+                message: 'Log out',
+                child: ElevatedButton.icon(
+                  onPressed: () => UserService.logOut(),
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Log out'),
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: const Size(155,
+                        55), /*
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,*/
+                  ),
+                ),
+              )
             ],
           ),
         ),

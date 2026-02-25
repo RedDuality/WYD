@@ -28,10 +28,10 @@ class AuthenticationProvider with ChangeNotifier {
 
   Future<void> _initializeExternalServices() async {
     for (final platform in ConfigService().supportedAuthPlatforms) {
-      switch (platform) {
-        case SignInPlatform.google:
-          await GoogleSignInService().initialize();
-      }
+      await switch (platform) {
+        SignInPlatform.google => GoogleSignInService().initialize(),
+        SignInPlatform.email => Future.value(),
+      };
     }
   }
 
@@ -59,6 +59,7 @@ class AuthenticationProvider with ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    if(GoogleSignInService.isGoogleSignInInitialized) GoogleSignInService.signOut();
     await _auth.signOut();
   }
 
