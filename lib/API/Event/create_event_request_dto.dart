@@ -5,6 +5,7 @@ class CreateEventRequestDto {
   String? description;
   DateTime startTime;
   DateTime endTime;
+  bool isAllDay;
   ShareEventRequestDto? shareDto;
 
   CreateEventRequestDto({
@@ -12,6 +13,7 @@ class CreateEventRequestDto {
     this.description,
     required this.startTime,
     required this.endTime,
+    this.isAllDay = false,
     this.shareDto,
   });
 
@@ -21,7 +23,8 @@ class CreateEventRequestDto {
       'description': description,
       'startTime': startTime.toUtc().toIso8601String(),
       'endTime': endTime.toUtc().toIso8601String(),
-      'shareDto': shareDto,
+      'isAllDay': isAllDay,
+      'shareDto': shareDto?.toJson(),
     };
   }
 }

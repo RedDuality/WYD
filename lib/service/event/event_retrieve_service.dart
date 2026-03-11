@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
+import 'package:wyd_front/API/Event/retrieve_updated_events_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
@@ -46,9 +47,9 @@ class EventRetrieveService {
   }
 
   static Future<void> checkEventUpdatesAfter(DateTime lastCheckedTime) async {
-    var retrieveDto = RetrieveMultipleEventsRequestDto(
+    var retrieveDto = RetrieveUpdatedEventsRequestDto(
       profileIds: UserCache().getProfileIds(),
-      startTime: lastCheckedTime,
+      updatedAfterTime: lastCheckedTime,
     );
 
     var updatedEvents = await EventAPI().retrieveUpdatedAfter(retrieveDto);

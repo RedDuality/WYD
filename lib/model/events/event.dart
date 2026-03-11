@@ -9,6 +9,10 @@ class Event extends CalendarEventData {
   int totalConfirmed;
   int totalProfiles;
 
+  String? recurrencyInstanceId;
+
+  String? importedAccountId;
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

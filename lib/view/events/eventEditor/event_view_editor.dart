@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
+import 'package:wyd_front/model/util/recurrency_config.dart';
 import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
@@ -17,6 +18,7 @@ import 'package:wyd_front/view/widget/dialog/custom_dialog.dart';
 import 'package:wyd_front/view/widget/util/range_editor.dart';
 import 'package:wyd_front/view/events/eventEditor/share_page.dart';
 import 'package:wyd_front/view/widget/button/overlay_list_button.dart';
+import 'package:wyd_front/view/widget/util/recurrence_editor.dart';
 
 class EventViewEditor extends StatefulWidget {
   final String? eventId;
@@ -53,6 +55,9 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   String initialDescription = '';
 
+  RecurrenceConfig? _recurrenceConfig;
+  RecurrenceConfig? _initialRecurrenceConfig;
+
   var isBeingChanged = false;
 
   bool get exists => widget.eventId != null;
@@ -69,6 +74,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
       var details = EventDetailsCache().get(widget.eventId!);
       if (details != null) {
         initialDescription = details.description;
+        _initialRecurrenceConfig = RecurrenceConfig.fromRRule(details.recurrenceRule);
       }
     }
 
@@ -80,6 +86,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
     shared = totalProfiles > 1;
 
     _descriptionController.text = initialDescription;
+    _recurrenceConfig = _initialRecurrenceConfig;
 
     _titleListener = () {
       _checkChanges();
@@ -107,6 +114,11 @@ class _EventViewEditorState extends State<EventViewEditor> {
     _checkChanges();
   }
 
+  void _onRecurrenceChanged(RecurrenceConfig? config) {
+    setState(() => _recurrenceConfig = config);
+    _checkChanges();
+  }
+
   void _checkChanges() {
     if (event == null) return;
 
@@ -114,8 +126,10 @@ class _EventViewEditorState extends State<EventViewEditor> {
     final descriptionChanged = initialDescription.trim() != _descriptionController.text.trim();
     final startTimeChanged = event!.startTime != startTime;
     final endTimeChanged = event!.endTime != endTime;
+    final recurrenceChanged =  _initialRecurrenceConfig?.toRRule() != _recurrenceConfig?.toRRule();
 
-    final changed = startTimeChanged || endTimeChanged || titleChanged || descriptionChanged;
+
+    final changed = startTimeChanged || endTimeChanged || titleChanged || descriptionChanged || recurrenceChanged;
     if (changed != isBeingChanged) {
       setState(() {
         isBeingChanged = changed;
@@ -213,6 +227,10 @@ class _EventViewEditorState extends State<EventViewEditor> {
               onDateChanged: _setDates,
             ),
 
+            RecurrenceEditor(
+              initialConfig: _recurrenceConfig,
+              onChanged: _onRecurrenceChanged,
+            ),
             const Text("Dettagli"),
             Padding(
               padding: const EdgeInsets.all(8.0),

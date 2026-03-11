@@ -4,6 +4,7 @@ import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
+import 'package:wyd_front/API/Event/retrieve_updated_events_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/profiles/profile_event.dart';
 import 'package:wyd_front/service/util/config/config_service.dart';
@@ -38,7 +39,7 @@ class EventAPI {
     throw "There was an error while fetching events";
   }
 
-  Future<List<RetrieveEventResponseDto>> retrieveUpdatedAfter(RetrieveMultipleEventsRequestDto retrieveEventsDto) async {
+  Future<List<RetrieveEventResponseDto>> retrieveUpdatedAfter(RetrieveUpdatedEventsRequestDto retrieveEventsDto) async {
     String url = '${functionUrl}UpdateByProfile';
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(retrieveEventsDto));

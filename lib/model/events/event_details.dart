@@ -4,6 +4,9 @@ class EventDetails {
   String hash = "";
   String description = "";
   int totalImages = 0;
+
+  String? recurrenceRule;
+
   DateTime? updatedAt;
   DateTime? validUntil;
 
@@ -14,6 +17,7 @@ class EventDetails {
     required this.description,
     required this.totalImages,
     this.updatedAt,
+    this.recurrenceRule,
   });
 
   // Factory constructor to create a Profile from JSON
@@ -23,6 +27,7 @@ class EventDetails {
       description: json['description'] as String? ?? '',
       totalImages: json['totalImages'] as int,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      recurrenceRule: json['recurrenceRule'] as String?,
     );
   }
 
@@ -31,6 +36,7 @@ class EventDetails {
       'hash': hash,
       'description': description,
       'totalImages': totalImages,
+      'recurrenceRule': recurrenceRule,
     };
   }
 }

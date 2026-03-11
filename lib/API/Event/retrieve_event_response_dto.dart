@@ -28,7 +28,8 @@ class RetrieveEventResponseDto {
     return RetrieveEventResponseDto(
       id: json['hash'] as String,
       title: json['title'] as String? ?? "",
-      startTime: DateTime.parse(json['startTime'] as String).toUtc(), // Conversion to local is done in the event constructor
+      startTime:
+          DateTime.parse(json['startTime'] as String).toUtc(), // Conversion to local is done in the event constructor
       endTime: DateTime.parse(json['endTime'] as String).toUtc(),
       updatedAt: DateTime.parse(json['updatedAt'] as String).toUtc(),
       totalConfirmed: json['totalConfirmed'] as int? ?? 1,
