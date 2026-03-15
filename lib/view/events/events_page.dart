@@ -115,8 +115,10 @@ class _EventsPageState extends State<EventsPage> {
                 Event selectedEvent = events.whereType<Event>().toList().first;
 
                 if (selectedEvent.masterEventId != null && selectedEvent.detachedInstance == false) {
-                  unawaited(EventRetrieveService.retrieveRecurrentDetailsByMasterId(
-                      selectedEvent.id, selectedEvent.masterEventId!, selectedEvent.recurrencyInstanceId!));
+                  unawaited(EventRetrieveService.retrieveGeneratedDetailsByMasterId(
+                    selectedEvent.masterEventId!,
+                    selectedEvent.recurrencyInstanceId!,
+                  ));
                 } else {
                   unawaited(EventRetrieveService.retrieveDetailsByHash(selectedEvent.id));
                 }

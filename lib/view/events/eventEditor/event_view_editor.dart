@@ -70,11 +70,13 @@ class _EventViewEditorState extends State<EventViewEditor> {
     super.initState();
 
     if (exists) {
-      // Use read here, not select/watch
+      // Use read here
       final provider = context.read<EventsCache>();
       event = provider.get(widget.eventId!);
 
-      var details = EventDetailsCache().get(widget.eventId!);
+      var details = (event != null && event!.masterEventId != null && event!.detachedInstance == false)
+          ? EventDetailsCache().get(event!.masterEventId!)
+          : EventDetailsCache().get(widget.eventId!);
       if (details != null) {
         initialDescription = details.description;
         _initialRecurrenceConfig = RecurrenceConfig.fromRRule(details.recurrenceRule);
@@ -217,14 +219,11 @@ class _EventViewEditorState extends State<EventViewEditor> {
   @override
   Widget build(BuildContext context) {
     if (widget.eventId != null) {
-      final isGeneratedInstance =
-          event?.masterEventId != null && event?.detachedInstance == false;
+      final isGeneratedInstance = event?.masterEventId != null && event?.detachedInstance == false;
 
       final cachedEvent = context.select<EventsCache, Event?>((provider) {
-
         if (isGeneratedInstance) {
-          final replacement = provider.getByRecurrenceInstance(
-              event!.masterEventId!, event!.recurrencyInstanceId!);
+          final replacement = provider.getByRecurrenceInstance(event!.masterEventId!, event!.recurrencyInstanceId!);
           if (replacement != null) return replacement;
         }
 
@@ -233,13 +232,12 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
       if (cachedEvent != null) {
         if (cachedEvent.id != widget.eventId) {
-          // retrieved the updated generated instance
+          // generated instance was promoted to detached instance
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) widget.onEventChange(cachedEvent.id);
           });
-        } else {
-          event = cachedEvent;
         }
+        event = cachedEvent;
       }
     }
 
@@ -270,7 +268,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
               initialConfig: _recurrenceConfig,
               onChanged: _onRecurrenceChanged,
             ),
-            
+
             const Text("Dettagli"),
             Padding(
               padding: const EdgeInsets.all(8.0),

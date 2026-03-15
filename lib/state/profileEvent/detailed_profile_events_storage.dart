@@ -257,7 +257,7 @@ class DetailedProfileEventsStorage {
   }
 
   /// Remove all ProfileEvents for an event
-  Future<void> removeAll(String eventId) async {
+  Future<void> removeAllByEventId(String eventId) async {
     _deleteAllChannel.sink.add(eventId);
 
     if (!kIsWeb) {

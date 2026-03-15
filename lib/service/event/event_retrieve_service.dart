@@ -47,11 +47,21 @@ class EventRetrieveService {
     EventStorageService.addEvent(event);
   }
 
-  static Future<void> retrieveRecurrentDetailsByMasterId(String eventId, String masterEventId, String recurrencyInstanceId) async {
+  static Future<void> retrieveGeneratedDetailsByMasterId(String masterEventId, String recurrencyInstanceId) async {
     var retrieveDto = RetrieveRecurrentInstanceDetailsRequestDto(
         masterEventId: masterEventId, recurrencyInstanceId: recurrencyInstanceId);
     var event = await EventAPI().retrieveRecurrentDetailsFromMasterId(retrieveDto);
+
     EventStorageService.addEvent(event);
+
+    if (event.detachedInstance) // generated Instance became a detached one
+    {
+      ProfileEventsStorageService.deleteAllByEventId('${masterEventId}_$recurrencyInstanceId');
+
+      // should also check if of all childs are detached and none is generated anymore.
+      // In that case, should remove the eventual stale EventDetails for the master Event.
+      // but given they are saved just in cache, it's more the querying then the effective memory saved.
+    }
   }
 
   static Future<void> checkEventUpdatesAfter(DateTime lastCheckedTime) async {

@@ -118,7 +118,7 @@ class EventActionsService {
     var profilesOfEvent = await DetailedProfileEventsStorage().countMatchingProfiles(event.id, myProfileIds);
 
     if (profilesOfEvent == 0) {
-      DetailedProfileEventsStorage().removeAll(event.id);
+      DetailedProfileEventsStorage().removeAllByEventId(event.id);
       EventDetailsCache().remove(event.id);
       EventStorage().remove(event);
     }

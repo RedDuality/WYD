@@ -64,14 +64,13 @@ class EventsCache extends EventController {
         // update
         if (inMemoryEvent != event) {
           super.remove(inMemoryEvent);
-          if(_wasGeneratedButNowIsDetached(event, inMemoryEvent)){
-            //id changed
-            // TODO remove details and ProfileEvents
+          if(_wasGeneratedButIsNowDetached(event, inMemoryEvent)){
+            // id changed
             await _provider?.onSingleEventAdded(event.id); 
           }
           super.add(event);
         }
-        // do nothing, as the update was just a sync, but with no changes
+        // do nothing, as the update was just a sync and with no changes happening
       } else {
         // add
         await _provider?.onSingleEventAdded(event.id); // loadProfileEvents in cache
@@ -92,7 +91,7 @@ class EventsCache extends EventController {
     return allEvents.whereType<Event>().where((ev) => ev.id == event.id).firstOrNull;
   }
 
-  bool _wasGeneratedButNowIsDetached(Event newEvent, Event old) {
+  bool _wasGeneratedButIsNowDetached(Event newEvent, Event old) {
     return old.id == '${newEvent.masterEventId}_${newEvent.recurrencyInstanceId}';
   }
 

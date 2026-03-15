@@ -7,6 +7,7 @@ import 'package:wyd_front/state/user/view_settings_storage.dart';
 
 class ViewSettingsCache extends ChangeNotifier {
   final ViewSettingsStorage _storage = ViewSettingsStorage();
+  
   late final StreamSubscription<ViewSettings> _settingsChannel;
   late final StreamSubscription<void> _clearAllChannel;
 

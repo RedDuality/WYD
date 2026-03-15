@@ -20,13 +20,9 @@ class EventStorageService {
     return events;
   }
 
-  // Ensure that the detailed profile is updated, and that eventually the event will be saved
+  // Assures that the detailed profile is updated, and that eventually the event will be saved
   static Future<Event> addEvent(RetrieveEventResponseDto dto) async {
 
-    // if dto is generatedEvent -> check if needed to update -> if needed to update -> remove the old one
-    // -> if not needed to updated -> check if details differs -> if details differs -> remove the old one
-    // if dto is detachedInstance -> if the already existing one is generated -> remove the old one
-    // 
     var event = await _deserializeEvent(dto);
     unawaited(EventStorage().saveEvent(event));
 

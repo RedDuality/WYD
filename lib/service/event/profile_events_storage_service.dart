@@ -24,4 +24,8 @@ class ProfileEventsStorageService {
     if(pe == null) return false;
     return pe.confirmed;
   }
+
+  static Future deleteAllByEventId(String eventId) async {
+    await DetailedProfileEventsStorage().removeAllByEventId(eventId);
+  }
 }
