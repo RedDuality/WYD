@@ -27,7 +27,6 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
-
   late EventViewOrchestrator _viewOrchestrator;
 
   @override
@@ -40,7 +39,7 @@ class _EventsPageState extends State<EventsPage> {
     final mfCache = context.read<MediaFlagCache>();
     final dpCache = context.read<DetailedProfileCache>();
 
-    final rangeController = EventRangeController(initialDate:  DateTime.now(), numberOfDays: 7);
+    final rangeController = EventRangeController(initialDate: DateTime.now(), numberOfDays: 7);
 
     _viewOrchestrator = EventViewOrchestrator(
       eventsCache: appEventsCache,
@@ -99,47 +98,50 @@ class _EventsPageState extends State<EventsPage> {
               title: orchestrator.confirmedView ? 'Agenda' : 'Eventi',
               actions: actions(orchestrator),
             ),
-            body:  WeekView(
-                eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
-                  return EventTile(
-                      confirmedView: _viewOrchestrator.confirmedView,
-                      date: date,
-                      events: events.whereType<Event>().toList(),
-                      boundary: boundary,
-                      startDuration: startDuration,
-                      endDuration: endDuration);
-                },
-                controller: orchestrator.eventCntrl,
-                showLiveTimeLineInAllDays: false,
-                scrollOffset: 480.0,
-                onEventTap: (events, date) {
-                  Event selectedEvent = events.whereType<Event>().toList().first;
+            body: WeekView(
+              eventTileBuilder: (date, events, boundary, startDuration, endDuration) {
+                return EventTile(
+                    confirmedView: _viewOrchestrator.confirmedView,
+                    date: date,
+                    events: events.whereType<Event>().toList(),
+                    boundary: boundary,
+                    startDuration: startDuration,
+                    endDuration: endDuration);
+              },
+              controller: orchestrator.eventCntrl,
+              showLiveTimeLineInAllDays: false,
+              scrollOffset: 480.0,
+              onEventTap: (events, date) {
+                Event selectedEvent = events.whereType<Event>().toList().first;
 
+                if (selectedEvent.masterEventId != null && selectedEvent.detachedInstance == false) {
+                  unawaited(EventRetrieveService.retrieveRecurrentDetailsByMasterId(
+                      selectedEvent.id, selectedEvent.masterEventId!, selectedEvent.recurrencyInstanceId!));
+                } else {
                   unawaited(EventRetrieveService.retrieveDetailsByHash(selectedEvent.id));
-
-                  showCustomDialog(
-                    context,
-                    EventView(
-                      eventId: selectedEvent.id,
-                    ),
-                  );
-                },
-                onDateLongPress: (date) {
-                  showCustomDialog(
-                    context,
-                    EventView(
-                      date: date,
-                    ),
-                  );
-                },
-                startDay: WeekDays.monday,
-                minuteSlotSize: MinuteSlotSize.minutes15,
-                keepScrollOffset: true,
-                onPageChange: (date, page) {
-                  _viewOrchestrator.rangeCntrl.setRange(date, 7);
-                },
-              ),
-            
+                }
+                showCustomDialog(
+                  context,
+                  EventView(
+                    eventId: selectedEvent.id,
+                  ),
+                );
+              },
+              onDateLongPress: (date) {
+                showCustomDialog(
+                  context,
+                  EventView(
+                    date: date,
+                  ),
+                );
+              },
+              startDay: WeekDays.monday,
+              minuteSlotSize: MinuteSlotSize.minutes15,
+              keepScrollOffset: true,
+              onPageChange: (date, page) {
+                _viewOrchestrator.rangeCntrl.setRange(date, 7);
+              },
+            ),
             floatingActionButton: AddButton(text: 'Aggiungi Evento', child: EventView()),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           );

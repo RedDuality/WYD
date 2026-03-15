@@ -55,22 +55,45 @@ class EventsCache extends EventController {
 
   Future<void> _addOrUpdate(Event event) async {
     final range = _provider?.rangeCntrl.currentRange ?? _rangeInCache;
-    final inTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
+    final inCacheTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
 
-    if (inTimeRange) {
-      Event? inMemoryEvent = allEvents.whereType<Event>().where((ev) => ev.id == event.id).firstOrNull;
+    final inMemoryEvent = _getOldEvent(event);
 
-      if (inMemoryEvent != event) {
-        if (inMemoryEvent != null) {
-          // updated
+    if (inCacheTimeRange) {
+      if (inMemoryEvent != null) {
+        // update
+        if (inMemoryEvent != event) {
           super.remove(inMemoryEvent);
-        } else {
-          // added
-          await _provider?.onSingleEventAdded(event.id);
+          if(_wasGeneratedButNowIsDetached(event, inMemoryEvent)){
+            //id changed
+            // TODO remove details and ProfileEvents
+            await _provider?.onSingleEventAdded(event.id); 
+          }
+          super.add(event);
         }
+        // do nothing, as the update was just a sync, but with no changes
+      } else {
+        // add
+        await _provider?.onSingleEventAdded(event.id); // loadProfileEvents in cache
         super.add(event);
       }
     }
+  }
+
+  Event? _getOldEvent(Event event) {
+    if (event.detachedInstance) {
+      return allEvents
+          .whereType<Event>()
+          .where(
+              (ev) => ev.masterEventId == event.masterEventId && ev.recurrencyInstanceId == event.recurrencyInstanceId)
+          .firstOrNull;
+    }
+
+    return allEvents.whereType<Event>().where((ev) => ev.id == event.id).firstOrNull;
+  }
+
+  bool _wasGeneratedButNowIsDetached(Event newEvent, Event old) {
+    return old.id == '${newEvent.masterEventId}_${newEvent.recurrencyInstanceId}';
   }
 
   void _delete(Event event) {
@@ -131,6 +154,16 @@ class EventsCache extends EventController {
   Event? get(String eventId) {
     for (final event in allEvents.whereType<Event>()) {
       if (event.id == eventId) return event;
+    }
+    return null;
+  }
+
+  /// Returns any event in cache currently occupying the given recurrence slot.
+  Event? getByRecurrenceInstance(String masterEventId, String instanceId) {
+    for (final event in allEvents.whereType<Event>()) {
+      if (event.masterEventId == masterEventId && event.recurrencyInstanceId == instanceId) {
+        return event;
+      }
     }
     return null;
   }

@@ -54,11 +54,17 @@ class EventStorage {
             endTime INTEGER,      -- Storing as Unix timestamp (milliseconds)
             updatedAt INTEGER,    -- Storing as Unix timestamp
             totalConfirmed INTEGER,
-            totalProfiles INTEGER
+            totalProfiles INTEGER,
+            masterEventId TEXT,
+            recurrencyInstanceId TEXT,
+            detachedIntance BOOL,
+            UNIQUE(masterEventId, recurrencyInstanceId) ON CONFLICT REPLACE
           )
         ''');
         await db.execute('CREATE INDEX idx_events_start_end ON $_tableName(startTime, endTime)');
         await db.execute('CREATE INDEX idx_events_endTime ON $_tableName(endTime)');
+        // Queried together when resolving a recurrence slot replacement.
+        await db.execute('CREATE INDEX idx_events_recurrence_slot ON $_tableName(masterEventId, recurrencyInstanceId)');
       },
     );
   }
@@ -125,6 +131,51 @@ class EventStorage {
       // Remove the event from the in-memory cache
       _inMemoryStorage.remove(event.id);
     }
+  }
+
+  /// Removes an event by id and emits a delete event to the stream,
+  /// letting EventsCache handle the EventController eviction reactively.
+  Future<void> removeById(String id) async {
+    if (kIsWeb) {
+      final event = _inMemoryStorage.remove(id);
+      if (event != null) _eventUpdateController.sink.add((event, true));
+    } else {
+      final db = await database;
+      if (db == null) return;
+      // Fetch first so we can emit the full Event object on the stream,
+      // which _delete needs to identify the right EventController entry.
+      final maps = await db.query(_tableName, where: 'id = ?', whereArgs: [id], limit: 1);
+      if (maps.isEmpty) return;
+      final event = Event.fromDbMap(maps.first);
+      await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
+      _eventUpdateController.sink.add((event, true));
+    }
+  }
+
+  /// Returns the id of the event currently occupying a recurrence slot, or null.
+  /// Uses the (masterEventId, recurrencyInstanceId) index for an efficient lookup.
+  Future<Event?> getIdByRecurrencySlot(String masterEventId, String instanceId) async {
+    if (kIsWeb) {
+      return _inMemoryStorage.values
+          .where((e) => e.masterEventId == masterEventId && e.recurrencyInstanceId == instanceId)
+          .firstOrNull;
+    }
+
+    final db = await database;
+    if (db == null) return null;
+
+    final maps = await db.query(
+      _tableName,
+      columns: ['id'],
+      where: 'masterEventId = ? AND recurrencyInstanceId = ?',
+      whereArgs: [masterEventId, instanceId],
+      limit: 1,
+    );
+
+    if (maps.isNotEmpty) {
+      return Event.fromDbMap(maps.first);
+    }
+    return null;
   }
 
   Future<Event?> getEventById(String id) async {

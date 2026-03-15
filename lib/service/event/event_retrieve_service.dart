@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
+import 'package:wyd_front/API/Event/retrieve_recurrent_instance_details_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_updated_events_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
@@ -42,7 +43,14 @@ class EventRetrieveService {
 
   // getDetails(open event details/ updateDetails)
   static Future<void> retrieveDetailsByHash(String eventId) async {
-    var event = await EventAPI().retrieveDetailsFromHash(eventId);
+    var event = await EventAPI().retrieveDetailsFromId(eventId);
+    EventStorageService.addEvent(event);
+  }
+
+  static Future<void> retrieveRecurrentDetailsByMasterId(String eventId, String masterEventId, String recurrencyInstanceId) async {
+    var retrieveDto = RetrieveRecurrentInstanceDetailsRequestDto(
+        masterEventId: masterEventId, recurrencyInstanceId: recurrencyInstanceId);
+    var event = await EventAPI().retrieveRecurrentDetailsFromMasterId(retrieveDto);
     EventStorageService.addEvent(event);
   }
 

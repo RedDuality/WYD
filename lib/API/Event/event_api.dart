@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
+import 'package:wyd_front/API/Event/create_recurrent_event_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
+import 'package:wyd_front/API/Event/retrieve_recurrent_instance_details_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_updated_events_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/profiles/profile_event.dart';
@@ -54,7 +56,7 @@ class EventAPI {
     throw "There was an error while fetching updated events";
   }
 
-  // ev + pe
+  // event + profileEvents
   Future<RetrieveEventResponseDto> retrieveEssentialsFromHash(String eventId) async {
     String url = '${functionUrl}RetrieveEssentials';
 
@@ -69,7 +71,7 @@ class EventAPI {
   }
 
   // ev + details
-  Future<RetrieveEventResponseDto> retrieveDetailsFromHash(String eventId) async {
+  Future<RetrieveEventResponseDto> retrieveDetailsFromId(String eventId) async {
     String url = '${functionUrl}RetrieveDetails';
 
     var response = await client.get(Uri.parse('$url/$eventId'));
@@ -81,6 +83,22 @@ class EventAPI {
 
     throw "Error while fetching the event with its details";
   }
+
+
+  // ev + details
+  Future<RetrieveEventResponseDto> retrieveRecurrentDetailsFromMasterId(RetrieveRecurrentInstanceDetailsRequestDto requestDto) async {
+    String url = '${functionUrl}Recurrent/RetrieveDetails';
+
+    var response = await client.post(Uri.parse(url), body: jsonEncode(requestDto));
+
+    if (response.statusCode == 200) {
+     var dto = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
+      return dto;
+    }
+
+    throw "Error while fetching the event with its details";
+  }
+
 
   //automatically add the event
   Future<RetrieveEventResponseDto> sharedWithHash(String eventId) async {
@@ -123,7 +141,22 @@ class EventAPI {
     }
   }
 
-    Future<RetrieveEventResponseDto> propose(CreateEventRequestDto proposeDto) async {
+  Future<List<RetrieveEventResponseDto>> createRecurrent(CreateRecurrentEventRequestDto createDto) async {
+    String url = '${functionUrl}Recurrent/Create';
+
+    var response = await client.post(Uri.parse(url), body: jsonEncode(createDto));
+
+    if (response.statusCode == 200) {
+      var dtos = List<RetrieveEventResponseDto>.from(
+          json.decode(response.body).map((dto) => RetrieveEventResponseDto.fromJson(dto)));
+
+      return dtos;
+    } else {
+      throw "Error while creating the event, please retry later";
+    }
+  }
+
+  Future<RetrieveEventResponseDto> propose(CreateEventRequestDto proposeDto) async {
     String url = '${functionUrl}Propose';
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(proposeDto));

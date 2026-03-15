@@ -4,11 +4,15 @@ import 'package:wyd_front/model/util/recurrency_config.dart';
 class RecurrenceEditor extends StatefulWidget {
   final RecurrenceConfig? initialConfig;
   final ValueChanged<RecurrenceConfig?> onChanged;
+  final bool viewOnly;
+  final double widthThreshold;
 
   const RecurrenceEditor({
     super.key,
     this.initialConfig,
     required this.onChanged,
+    this.viewOnly = false,
+    this.widthThreshold = 450,
   });
 
   @override
@@ -54,31 +58,103 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    if (widget.viewOnly) {
+      if (widget.initialConfig == null) {
+        return const SizedBox.shrink(); // Show nothing if no recurrence
+      }
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
           children: [
-            const Text("Recurrence", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Icon(Icons.repeat, size: 16, color: Colors.grey),
             const SizedBox(width: 8),
-            Switch(
-              value: _enabled,
-              onChanged: _toggleEnabled,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            Expanded(
+              child: Text(
+                widget.initialConfig!.toHumanReadable(),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ],
         ),
-        if (_enabled) ...[
-          const SizedBox(height: 6),
-          _buildFrequencyRow(),
-          if (_frequency == RecurrenceFrequency.weekly) ...[
-            const SizedBox(height: 6),
-            _buildWeekDaySelector(),
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isWide = constraints.maxWidth >= widget.widthThreshold;
+
+        // Common toggle widget
+        Widget toggleSection = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 120,
+              child: Text(
+                "Does repeat",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Transform.scale(
+              scale: 0.63,
+              child: Switch(
+                value: _enabled,
+                onChanged: _toggleEnabled,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
           ],
-          const SizedBox(height: 6),
-          _buildUntilRow(),
-        ],
-      ],
+        );
+
+        if (!_enabled) return toggleSection;
+
+        if (isWide) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Row 1: Repeat | Every
+              Row(
+                children: [
+                  toggleSection,
+                  const SizedBox(width: 35),
+                  _buildFrequencyRow(),
+                ],
+              ),
+              // Row 2: Until | Weekdays
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Sized to match the toggleSection width (100 + switch width)
+                  // to ensure vertical alignment of the second column
+                  SizedBox(width: 180, child: _buildUntilRow()),
+                  const SizedBox(width: 20),
+                  if (_frequency == RecurrenceFrequency.weekly) _buildWeekDaySelector() else const SizedBox.shrink(),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+          );
+        } else {
+          // --- NARROW LAYOUT: Vertical Stack ---
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              toggleSection,
+              _buildFrequencyRow(),
+              if (_frequency == RecurrenceFrequency.weekly) ...[
+                const SizedBox(height: 10),
+                _buildWeekDaySelector(),
+              ],
+              const SizedBox(height: 10),
+              _buildUntilRow(),
+              const SizedBox(height: 10),
+            ],
+          );
+        }
+      },
     );
   }
 
@@ -169,7 +245,16 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
   Widget _buildUntilRow() {
     return Row(
       children: [
-        const Text("Until: "),
+        Text("Ends: "),
+        _buildUntilPicker(),
+      ],
+    );
+  }
+
+  Widget _buildUntilPicker() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(
@@ -179,14 +264,14 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
               lastDate: DateTime(2100),
             );
             if (picked != null) {
-              setState(() => _until = picked);
+              setState(() => _until = picked.toUtc());
               _notify();
             }
           },
           child: Text(
             _until != null
                 ? "${_until!.day.toString().padLeft(2, '0')}/${_until!.month.toString().padLeft(2, '0')}/${_until!.year}"
-                : "No end date",
+                : "Never",
             style: TextStyle(
               color: _until != null ? Colors.black87 : Colors.grey,
               decoration: TextDecoration.underline,

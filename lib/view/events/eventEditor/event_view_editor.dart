@@ -4,12 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
+import 'package:wyd_front/API/Event/create_recurrent_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/model/util/recurrency_config.dart';
 import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
+import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/event/event_details_cache.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
@@ -24,14 +27,14 @@ class EventViewEditor extends StatefulWidget {
   final String? eventId;
   final DateTime? date;
   final TextEditingController titleController;
-  final Function(String) onEventCreated;
+  final Function(String) onEventChange;
 
   const EventViewEditor({
     super.key,
     required this.eventId,
     this.date,
     required this.titleController,
-    required this.onEventCreated,
+    required this.onEventChange,
   });
 
   @override
@@ -126,8 +129,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
     final descriptionChanged = initialDescription.trim() != _descriptionController.text.trim();
     final startTimeChanged = event!.startTime != startTime;
     final endTimeChanged = event!.endTime != endTime;
-    final recurrenceChanged =  _initialRecurrenceConfig?.toRRule() != _recurrenceConfig?.toRRule();
-
+    final recurrenceChanged = _initialRecurrenceConfig?.toRRule() != _recurrenceConfig?.toRRule();
 
     final changed = startTimeChanged || endTimeChanged || titleChanged || descriptionChanged || recurrenceChanged;
     if (changed != isBeingChanged) {
@@ -145,10 +147,17 @@ class _EventViewEditorState extends State<EventViewEditor> {
   }
 
   Future<void> _createEvent() async {
-    final createdEventDto = _getCreateDto();
-    final newEvent = await EventActionsService.createEvent(createdEventDto);
-    event = newEvent; // don't wait for persistence
-    widget.onEventCreated(newEvent.id); // will call parent's SetState, which triggers build
+    late final Event newEvent;
+
+    if (_recurrenceConfig == null) {
+      final dto = _getCreateDto();
+      newEvent = await EventActionsService.createEvent(dto);
+    } else {
+      final dto = _getCreateRecurrentDto();
+      newEvent = await EventActionsService.createRecurrentEvent(dto);
+    }
+    event = newEvent;
+    widget.onEventChange(newEvent.id); //will rebuild the view
   }
 
   CreateEventRequestDto _getCreateDto() {
@@ -158,6 +167,19 @@ class _EventViewEditorState extends State<EventViewEditor> {
       startTime: startTime,
       endTime: endTime,
       shareDto: null,
+    );
+  }
+
+  CreateRecurrentEventRequestDto _getCreateRecurrentDto() {
+    return CreateRecurrentEventRequestDto(
+      title: widget.titleController.text.trim(),
+      description: _descriptionController.text.trim(),
+      startTime: startTime,
+      endTime: endTime,
+      recurrenceRule: _recurrenceConfig!.toRRule(),
+      timeZoneId: tz.local.name,
+      cacheIntervalStart: EventIntervalsCache().getAbsoluteStart(),
+      cacheIntervalEnd: EventIntervalsCache().getAbsoluteEnd(),
     );
   }
 
@@ -194,13 +216,30 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   @override
   Widget build(BuildContext context) {
-    // Select only the specific event from provider
     if (widget.eventId != null) {
-      final cachedEvent = context.select<EventsCache, Event?>(
-        (provider) => provider.get(widget.eventId!),
-      );
+      final isGeneratedInstance =
+          event?.masterEventId != null && event?.detachedInstance == false;
+
+      final cachedEvent = context.select<EventsCache, Event?>((provider) {
+
+        if (isGeneratedInstance) {
+          final replacement = provider.getByRecurrenceInstance(
+              event!.masterEventId!, event!.recurrencyInstanceId!);
+          if (replacement != null) return replacement;
+        }
+
+        return provider.get(widget.eventId!);
+      });
+
       if (cachedEvent != null) {
-        event = cachedEvent;
+        if (cachedEvent.id != widget.eventId) {
+          // retrieved the updated generated instance
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) widget.onEventChange(cachedEvent.id);
+          });
+        } else {
+          event = cachedEvent;
+        }
       }
     }
 
@@ -231,6 +270,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
               initialConfig: _recurrenceConfig,
               onChanged: _onRecurrenceChanged,
             ),
+            
             const Text("Dettagli"),
             Padding(
               padding: const EdgeInsets.all(8.0),

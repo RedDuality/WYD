@@ -93,4 +93,39 @@ class RecurrenceConfig {
       return null;
     }
   }
+
+  // Add this method inside the RecurrenceConfig class
+  String toHumanReadable() {
+    final freqLabels = {
+      RecurrenceFrequency.daily: 'day',
+      RecurrenceFrequency.weekly: 'week',
+      RecurrenceFrequency.monthly: 'month',
+      RecurrenceFrequency.yearly: 'year',
+    };
+
+    String description = "";
+
+    // 1. Handle Interval and Frequency
+    if (interval == 1) {
+      description = "${frequency.name[0].toUpperCase()}${frequency.name.substring(1)}";
+    } else {
+      description = "Every $interval ${freqLabels[frequency]}s";
+    }
+
+    // 2. Handle Weekdays (for Weekly)
+    if (frequency == RecurrenceFrequency.weekly && byWeekDay.isNotEmpty) {
+      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      final selectedDays = byWeekDay.map((d) => dayNames[d]).join(', ');
+      description += " on $selectedDays";
+    }
+
+    // 3. Handle End Date
+    if (until != null) {
+      final dateStr =
+          "${until!.day.toString().padLeft(2, '0')}/${until!.month.toString().padLeft(2, '0')}/${until!.year}";
+      description += " until $dateStr";
+    }
+
+    return description;
+  }
 }

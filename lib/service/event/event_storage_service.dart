@@ -10,19 +10,23 @@ import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 
 class EventStorageService {
-  static Future<void> _addEvents(
-    List<RetrieveEventResponseDto> dtos,
-    DateTimeRange dateRange,
-  ) async {
+  static Future<List<Event>> addEvents(List<RetrieveEventResponseDto> dtos, DateTimeRange dateRange,
+      {bool updateIntervals = true}) async {
     final events = await Future.wait(dtos.map(_deserializeEvent));
 
-    await EventIntervalsCache().addInterval(dateRange);
+    if (updateIntervals) await EventIntervalsCache().addInterval(dateRange);
 
     await EventStorage().saveMultiple(events, dateRange);
+    return events;
   }
 
   // Ensure that the detailed profile is updated, and that eventually the event will be saved
   static Future<Event> addEvent(RetrieveEventResponseDto dto) async {
+
+    // if dto is generatedEvent -> check if needed to update -> if needed to update -> remove the old one
+    // -> if not needed to updated -> check if details differs -> if details differs -> remove the old one
+    // if dto is detachedInstance -> if the already existing one is generated -> remove the old one
+    // 
     var event = await _deserializeEvent(dto);
     unawaited(EventStorage().saveEvent(event));
 
@@ -60,6 +64,6 @@ class EventStorageService {
 
   static Future<void> _retrieveFromServer(DateTimeRange retrieveInterval) async {
     var dtos = await EventRetrieveService.retrieveFromServer(retrieveInterval);
-    await _addEvents(dtos, retrieveInterval);
+    await addEvents(dtos, retrieveInterval);
   }
 }

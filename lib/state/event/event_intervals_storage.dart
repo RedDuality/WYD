@@ -8,7 +8,7 @@ import 'package:wyd_front/model/util/date_time_interval.dart';
 import 'package:wyd_front/state/util/intervals_cache.dart';
 
 class EventIntervalsStorage implements IntervalStorage{
-  static const _databaseName = 'appointment_cache.db';
+  static const _databaseName = 'events_interval.db';
   static const _tableName = 'cachedEventIntervals';
   static const _databaseVersion = 1;
 

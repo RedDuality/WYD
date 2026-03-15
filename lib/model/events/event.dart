@@ -9,7 +9,9 @@ class Event extends CalendarEventData {
   int totalConfirmed;
   int totalProfiles;
 
+  String? masterEventId;
   String? recurrencyInstanceId;
+  bool detachedInstance;
 
   String? importedAccountId;
 
@@ -33,6 +35,11 @@ class Event extends CalendarEventData {
     // in Utc time
     required DateTime startTime,
     required DateTime endTime,
+
+    this.masterEventId,
+    this.recurrencyInstanceId,
+    this.detachedInstance = false,
+
     DateTime? endDate,
     required super.title,
     super.description,
@@ -59,6 +66,10 @@ class Event extends CalendarEventData {
       endTime: dto.endTime,
       totalProfiles: dto.totalProfiles,
       totalConfirmed: dto.totalConfirmed,
+
+      masterEventId: dto.masterEventId,
+      recurrencyInstanceId: dto.recurrencyInstanceId,
+      detachedInstance: dto.detachedInstance,
     );
   }
 
@@ -78,6 +89,9 @@ class Event extends CalendarEventData {
       endDate: endTime,
       totalProfiles: map['totalProfiles'] as int,
       totalConfirmed: map['totalConfirmed'] as int,
+      masterEventId: map['masterEventId'],
+      recurrencyInstanceId: map['recurrencyInstanceId'],
+      detachedInstance: map['detachedInstance'] as bool,
     );
   }
 
@@ -91,6 +105,9 @@ class Event extends CalendarEventData {
       'updatedAt': updatedAt.millisecondsSinceEpoch,
       'totalConfirmed': totalConfirmed,
       'totalProfiles': totalProfiles,
+      'masterEventId': masterEventId,
+      'recurrencyInstanceId': recurrencyInstanceId,
+      'detachedInstance': detachedInstance,
     };
   }
 

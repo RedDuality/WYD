@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 import 'package:wyd_front/router.dart';
 import 'package:wyd_front/service/util/background_service.dart';
@@ -31,6 +32,8 @@ void callbackDispatcher() {
 
 Future main() async {
   //await initializeDateFormatting('it', 'IT');
+
+  tz.initializeTimeZones();
 
   WidgetsFlutterBinding.ensureInitialized();
 

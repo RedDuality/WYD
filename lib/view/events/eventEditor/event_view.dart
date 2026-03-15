@@ -43,7 +43,7 @@ class EventViewState extends State<EventView> {
     super.dispose();
   }
 
-  void onEventCreated(String eventId) {
+  void onEventChange(String eventId) { //will rebuild the view
     setState(() {
       this.eventId = eventId;
     });
@@ -73,7 +73,7 @@ class EventViewState extends State<EventView> {
                 eventId: eventId,
                 date: widget.date,
                 titleController: _titleController,
-                onEventCreated: onEventCreated,
+                onEventChange: onEventChange,
               ),
             ),
           ),

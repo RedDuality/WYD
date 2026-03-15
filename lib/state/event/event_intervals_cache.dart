@@ -5,4 +5,7 @@ class EventIntervalsCache extends IntervalsCache<EventIntervalsStorage> {
   static final EventIntervalsCache _instance = EventIntervalsCache._internal(EventIntervalsStorage());
   factory EventIntervalsCache() => _instance;
   EventIntervalsCache._internal(super.storage);
+
+
+  // please note: extends IntervalsCache
 }

@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wyd_front/API/Community/share_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
+import 'package:wyd_front/API/Event/create_recurrent_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/API/Event/event_api.dart';
@@ -26,6 +27,18 @@ class EventActionsService {
 
     var event = await EventStorageService.addEvent(createdEventDto);
     return event;
+  }
+
+  static Future<Event> createRecurrentEvent(CreateRecurrentEventRequestDto createDto) async {
+    var createdEventsDto = await EventAPI().createRecurrent(createDto);
+
+    DateTime firstStartTime =
+        createdEventsDto.map((e) => e.startTime).reduce((current, next) => current.isBefore(next) ? current : next);
+
+    var events = await EventStorageService.addEvents(
+        createdEventsDto, DateTimeRange(start: firstStartTime, end: createDto.cacheIntervalEnd));
+
+    return events.where((e) => e.startTime == createDto.startTime).first;
   }
 
   static Future<void> update(UpdateEventRequestDto updateDto) async {

@@ -86,12 +86,12 @@ class EventViewOrchestrator with ChangeNotifier {
     _isLoading = true;
     await _profEventsCh.loadCorrespondingProfileEvents(eventIds);
     _isLoading = false;
-    //notifyListeners();  // already called from eventCache
+    //notifyListeners();  // already called from eventCache, not sure about this
   }
 
   Future<void> onSingleEventAdded(String eventId) async {
     await _profEventsCh.loadProfileEvents(eventId);
-    //notifyListeners();  // already called from eventCache
+    //notifyListeners();  
   }
 
   Set<String> currentEventsIds() {

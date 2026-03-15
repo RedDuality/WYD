@@ -17,7 +17,7 @@ class IntervalsCache<T extends IntervalStorage> {
   late final StreamSubscription<void> _clearAllChannel;
 
   IntervalsCache(this._storage) {
-    if (kIsWeb) {
+    if (!kIsWeb) {
       _loadIntervals();
       _clearAllChannel = _storage.clearChannel.listen((_) => clearAll());
     }
@@ -70,6 +70,14 @@ class IntervalsCache<T extends IntervalStorage> {
     );
 
     return missingStart.isBefore(missingEnd) ? DateTimeRange(start: missingStart, end: missingEnd) : null;
+  }
+
+  DateTime getAbsoluteStart() {
+    return _intervals.first.start;
+  }
+
+  DateTime getAbsoluteEnd() {
+    return _intervals.last.start;
   }
 
   void clearAll() => _intervals.clear();
