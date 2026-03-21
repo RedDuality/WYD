@@ -14,6 +14,9 @@ class IntervalsCache<T extends IntervalStorage> {
   final List<DateTimeRange> _intervals = [];
   final T _storage;
 
+  final _rangeUpdateController = StreamController<DateTimeRange>();
+  Stream<DateTimeRange> get rangesChannel => _rangeUpdateController.stream;
+
   late final StreamSubscription<void> _clearAllChannel;
 
   IntervalsCache(this._storage) {
@@ -41,6 +44,8 @@ class IntervalsCache<T extends IntervalStorage> {
 
     _intervals.add(mergedInterval);
     _intervals.sort((a, b) => a.start.compareTo(b.start));
+
+    _rangeUpdateController.sink.add(newInterval);
 
     unawaited(_storage.addInterval(mergedInterval, overlapping));
   }

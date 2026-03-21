@@ -9,7 +9,7 @@ class Event extends CalendarEventData {
   int totalConfirmed;
   int totalProfiles;
 
-  String? masterEventId;
+  String masterEventId;
   String? recurrencyInstanceId;
   bool detachedInstance;
 
@@ -36,7 +36,7 @@ class Event extends CalendarEventData {
     required DateTime startTime,
     required DateTime endTime,
 
-    this.masterEventId,
+    required this.masterEventId,
     this.recurrencyInstanceId,
     this.detachedInstance = false,
 
@@ -89,8 +89,8 @@ class Event extends CalendarEventData {
       endDate: endTime,
       totalProfiles: map['totalProfiles'] as int,
       totalConfirmed: map['totalConfirmed'] as int,
-      masterEventId: map['masterEventId'],
-      recurrencyInstanceId: map['recurrencyInstanceId'],
+      masterEventId: map['masterEventId'] as String,
+      recurrencyInstanceId: map['recurrencyInstanceId'] as String?,
       detachedInstance: map['detachedInstance'] as bool,
     );
   }
@@ -115,6 +115,7 @@ class Event extends CalendarEventData {
     return totalProfiles > 1 ? "($totalConfirmed/$totalProfiles) " : "";
   }
 
+  // for automatic image retrieval
   bool hasEventFinished() {
     return DateTime.now().isAfter(endTime!);
   }

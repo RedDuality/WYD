@@ -1,7 +1,7 @@
 import 'package:wyd_front/model/media/media.dart';
 
 class EventDetails {
-  String hash = "";
+  String detailsId = "";
   String description = "";
   int totalImages = 0;
 
@@ -13,7 +13,7 @@ class EventDetails {
   Set<Media> media = {};
 
   EventDetails({
-    required this.hash,
+    required this.detailsId,
     required this.description,
     required this.totalImages,
     this.updatedAt,
@@ -23,7 +23,7 @@ class EventDetails {
   // Factory constructor to create a Profile from JSON
   factory EventDetails.fromJson(Map<String, dynamic> json) {
     return EventDetails(
-      hash: json['hash'] as String,
+      detailsId: json['hash'] as String,
       description: json['description'] as String? ?? '',
       totalImages: json['totalImages'] as int,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -33,7 +33,7 @@ class EventDetails {
 
   Map<String, dynamic> toJson() {
     return {
-      'hash': hash,
+      'hash': detailsId,
       'description': description,
       'totalImages': totalImages,
       'recurrenceRule': recurrenceRule,

@@ -10,6 +10,7 @@ import 'package:wyd_front/service/user/account_service.dart';
 import 'package:wyd_front/service/util/real_time/real_time_update_service.dart';
 import 'package:wyd_front/state/event/event_intervals_storage.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
+import 'package:wyd_front/state/event/recurrent_event_storage.dart';
 import 'package:wyd_front/state/mask/mask_storage.dart';
 import 'package:wyd_front/state/media/media_flag_storage.dart';
 import 'package:wyd_front/state/media/media_storage.dart';
@@ -75,9 +76,9 @@ class UserService {
     RealTimeUpdateService().dispose();
     await AuthenticationProvider().signOut();
 
-    
     // storages
     EventStorage().clearAll();
+    RecurrentEventStorage().clearAll();
     EventIntervalsStorage().clearAll();
 
     MaskStorage().clearAll();

@@ -4,7 +4,7 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
-import 'package:wyd_front/state/event/event_range_controller.dart';
+import 'package:wyd_front/state/event/event_current_range_controller.dart';
 import 'package:wyd_front/state/media/media_flag_cache.dart';
 import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
@@ -18,7 +18,7 @@ class EventViewOrchestrator with ChangeNotifier {
   final MediaFlagCache _mediaFlagCh;
   final EventsCache _eventsCache;
 
-  final EventRangeController _rangeController;
+  final EventCurrentRangeController _rangeController;
 
   bool _confirmedView = true;
   bool _isLoading = true;
@@ -29,7 +29,7 @@ class EventViewOrchestrator with ChangeNotifier {
     required DetailedProfileEventsCache profEventsCache,
     required ViewSettingsCache vsCache,
     required MediaFlagCache mfCache,
-    required EventRangeController rangeController,
+    required EventCurrentRangeController rangeController,
     required bool confirmedView,
   })  : _detProfCh = dpCache,
         _eventsCache = eventsCache,
@@ -59,7 +59,7 @@ class EventViewOrchestrator with ChangeNotifier {
   }
 
   EventsCache get eventCntrl => _eventsCache;
-  EventRangeController get rangeCntrl => _rangeController;
+  EventCurrentRangeController get rangeCntrl => _rangeController;
 
   bool get confirmedView => _confirmedView;
 

@@ -36,7 +36,10 @@ class EventActionsService {
         createdEventsDto.map((e) => e.startTime).reduce((current, next) => current.isBefore(next) ? current : next);
 
     var events = await EventStorageService.addEvents(
-        createdEventsDto, DateTimeRange(start: firstStartTime, end: createDto.cacheIntervalEnd));
+      createdEventsDto,
+      [],
+      DateTimeRange(start: firstStartTime, end: createDto.cacheIntervalEnd),
+    );
 
     return events.where((e) => e.startTime == createDto.startTime).first;
   }

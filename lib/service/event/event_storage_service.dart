@@ -2,27 +2,34 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
+import 'package:wyd_front/API/Event/retrieve_recurrent_event_response_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
+import 'package:wyd_front/model/events/recurrent_event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
 import 'package:wyd_front/state/event/event_details_cache.dart';
 import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
+import 'package:wyd_front/state/event/recurrent_event_storage.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 
 class EventStorageService {
-  static Future<List<Event>> addEvents(List<RetrieveEventResponseDto> dtos, DateTimeRange dateRange,
-      {bool updateIntervals = true}) async {
-    final events = await Future.wait(dtos.map(_deserializeEvent));
+  static Future<List<Event>> addEvents(
+    List<RetrieveEventResponseDto> instanceDtos,
+    List<RetrieveRecurrentEventResponseDto> masterDtos,
+    DateTimeRange dateRange,
+  ) async {
+    final masters = await Future.wait(masterDtos.map(_deserializeRecurrentEvent));
+    final events = await Future.wait(instanceDtos.map(_deserializeEvent));
 
-    if (updateIntervals) await EventIntervalsCache().addInterval(dateRange);
+    await EventStorage().saveMultiple(events);
+    await RecurrentEventStorage().saveMultiple(masters);
 
-    await EventStorage().saveMultiple(events, dateRange);
+    await EventIntervalsCache().addInterval(dateRange);
     return events;
   }
 
   // Assures that the detailed profile is updated, and that eventually the event will be saved
   static Future<Event> addEvent(RetrieveEventResponseDto dto) async {
-
     var event = await _deserializeEvent(dto);
     unawaited(EventStorage().saveEvent(event));
 
@@ -35,10 +42,26 @@ class EventStorageService {
     }
 
     if (dto.details != null) {
-      EventDetailsCache().update(dto.id, dto.details!);
+      if (dto.masterEventId.isNotEmpty && dto.detachedInstance == false) {
+        EventDetailsCache().update(dto.masterEventId, dto.details!);
+      } else {
+        EventDetailsCache().update(dto.id, dto.details!);
+      }
     }
 
     return Event.fromDto(dto);
+  }
+
+  static Future<RecurrentEvent> _deserializeRecurrentEvent(RetrieveRecurrentEventResponseDto dto) async {
+    if (dto.sharedWith != null) {
+      await DetailedProfileEventsStorage().saveMultipleProfileEvents(dto.id, dto.sharedWith!);
+    }
+
+    if (dto.details != null) {
+      EventDetailsCache().update(dto.id, dto.details!);
+    }
+
+    return RecurrentEvent.fromDto(dto);
   }
 
   static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
@@ -59,7 +82,7 @@ class EventStorageService {
   }
 
   static Future<void> _retrieveFromServer(DateTimeRange retrieveInterval) async {
-    var dtos = await EventRetrieveService.retrieveFromServer(retrieveInterval);
-    await addEvents(dtos, retrieveInterval);
+    var responseDto = await EventRetrieveService.retrieveFromServer(retrieveInterval);
+    await addEvents(responseDto.events, responseDto.masters, retrieveInterval);
   }
 }

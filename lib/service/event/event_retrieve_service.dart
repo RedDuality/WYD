@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
+import 'package:wyd_front/API/Event/retrieve_multiple_events_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_recurrent_instance_details_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_updated_events_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
@@ -12,9 +12,8 @@ import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class EventRetrieveService {
-  static Future<List<RetrieveEventResponseDto>> retrieveFromServer(DateTimeRange retrieveInterval) async {
+  static Future<RetrieveMultipleEventsResponseDto> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
-        profileIds: UserCache().getProfileIds(),
         startTime: retrieveInterval.start.toUtc(),
         endTime: retrieveInterval.end.toUtc());
 

@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/events/event.dart';
+import 'package:wyd_front/model/events/recurrent_event.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
 import 'package:wyd_front/view/events/event_view_orchestrator.dart';
 
@@ -12,16 +14,20 @@ class EventsCache extends EventController {
   EventViewOrchestrator? _provider;
 
   final EventStorage _storage = EventStorage();
+  final EventIntervalsCache _intervals = EventIntervalsCache();
 
   late final StreamSubscription<DateTimeRange> _rangesChannel;
+
   late final StreamSubscription<(Event event, bool deleted)> _eventChannel;
+  late final StreamSubscription<(RecurrentEvent event, bool deleted)> _recurrentEventChannel;
+  
   late final StreamSubscription<void> _clearAllChannel;
 
   DateTimeRange _rangeInCache =
       DateTimeRange(start: DateTime.fromMicrosecondsSinceEpoch(0), end: DateTime.fromMillisecondsSinceEpoch(1));
 
   EventsCache() {
-    _rangesChannel = _storage.rangesChannel.listen((updatedRange) {
+    _rangesChannel = _intervals.rangesChannel.listen((updatedRange) {
       _synchWithStorage(updatedRange);
     });
 
@@ -64,9 +70,9 @@ class EventsCache extends EventController {
         // update
         if (inMemoryEvent != event) {
           super.remove(inMemoryEvent);
-          if(_wasGeneratedButIsNowDetached(event, inMemoryEvent)){
+          if (_wasGeneratedButIsNowDetached(event, inMemoryEvent)) {
             // id changed
-            await _provider?.onSingleEventAdded(event.id); 
+            await _provider?.onSingleEventAdded(event.id);
           }
           super.add(event);
         }

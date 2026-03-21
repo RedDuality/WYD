@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum RecurrenceFrequency { daily, weekly, monthly, yearly }
 
 class RecurrenceConfig {
@@ -41,11 +43,18 @@ class RecurrenceConfig {
 
   static RecurrenceConfig? fromRRule(String? rrule) {
     if (rrule == null || rrule.isEmpty) return null;
+
     try {
+      // 1. Clean the string: Remove "RRULE:" prefix and trim whitespace
+      String cleanRrule = rrule.replaceFirst('RRULE:', '').trim();
+      
       final parts = <String, String>{};
-      for (final part in rrule.split(';')) {
+      for (final part in cleanRrule.split(';')) {
         final kv = part.split('=');
-        if (kv.length == 2) parts[kv[0]] = kv[1];
+        if (kv.length == 2) {
+          // Trim both key and value to handle accidental spaces
+          parts[kv[0].trim().toUpperCase()] = kv[1].trim();
+        }
       }
 
       final freqStr = parts['FREQ'];
@@ -67,20 +76,35 @@ class RecurrenceConfig {
       if (parts['BYDAY'] != null) {
         const dayNames = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
         for (final d in parts['BYDAY']!.split(',')) {
-          final idx = dayNames.indexOf(d);
+          // Handle cases like "1TH" or "-1SU" by taking the last two chars
+          final dayOnly = d.length > 2 ? d.substring(d.length - 2) : d;
+          final idx = dayNames.indexOf(dayOnly.toUpperCase());
           if (idx >= 0) byWeekDay.add(idx);
         }
       }
 
       DateTime? until;
-      if (parts['UNTIL'] != null) {
+      final rawUntil = parts['UNTIL'];
+      if (rawUntil != null) {
         try {
-          final raw = parts['UNTIL']!;
-          // Parse YYYYMMDDTHHMMSSZ
-          final formatted =
-              '${raw.substring(0, 4)}-${raw.substring(4, 6)}-${raw.substring(6, 8)}T${raw.substring(9, 11)}:${raw.substring(11, 13)}:${raw.substring(13, 15)}Z';
-          until = DateTime.parse(formatted);
-        } catch (_) {}
+          // More robust date parsing
+          if (rawUntil.length >= 8) {
+            final year = rawUntil.substring(0, 4);
+            final month = rawUntil.substring(4, 6);
+            final day = rawUntil.substring(6, 8);
+            
+            if (rawUntil.contains('T')) {
+              final hour = rawUntil.substring(9, 11);
+              final min = rawUntil.substring(11, 13);
+              final sec = rawUntil.substring(13, 15);
+              until = DateTime.parse('$year-$month-${day}T$hour:$min:${sec}Z');
+            } else {
+              until = DateTime.parse('$year-$month-$day');
+            }
+          }
+        } catch (e) {
+          debugPrint("Error parsing UNTIL: $e");
+        }
       }
 
       return RecurrenceConfig(
@@ -89,7 +113,8 @@ class RecurrenceConfig {
         byWeekDay: byWeekDay,
         until: until,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint("General RRule parsing error: $e");
       return null;
     }
   }

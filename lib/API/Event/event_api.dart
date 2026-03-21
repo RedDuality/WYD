@@ -5,6 +5,7 @@ import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_recurrent_event_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
+import 'package:wyd_front/API/Event/retrieve_multiple_events_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_recurrent_instance_details_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_updated_events_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
@@ -26,16 +27,15 @@ class EventAPI {
           ProfileInterceptor(),
         ]);
 
-  Future<List<RetrieveEventResponseDto>> listEvents(RetrieveMultipleEventsRequestDto retrieveEventsDto) async {
+  Future<RetrieveMultipleEventsResponseDto> listEvents(RetrieveMultipleEventsRequestDto retrieveEventsDto) async {
     String url = '${functionUrl}ListByProfile';
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(retrieveEventsDto));
 
     if (response.statusCode == 200) {
-      var dtos = List<RetrieveEventResponseDto>.from(
-          json.decode(response.body).map((dto) => RetrieveEventResponseDto.fromJson(dto)));
+      var dto = RetrieveMultipleEventsResponseDto.fromJson(json.decode(response.body));
 
-      return dtos;
+      return dto;
     }
 
     throw "There was an error while fetching events";
@@ -84,21 +84,20 @@ class EventAPI {
     throw "Error while fetching the event with its details";
   }
 
-
   // ev + details
-  Future<RetrieveEventResponseDto> retrieveRecurrentDetailsFromMasterId(RetrieveRecurrentInstanceDetailsRequestDto requestDto) async {
+  Future<RetrieveEventResponseDto> retrieveRecurrentDetailsFromMasterId(
+      RetrieveRecurrentInstanceDetailsRequestDto requestDto) async {
     String url = '${functionUrl}Recurrent/RetrieveDetails';
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(requestDto));
 
     if (response.statusCode == 200) {
-     var dto = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
+      var dto = RetrieveEventResponseDto.fromJson(jsonDecode(response.body));
       return dto;
     }
 
     throw "Error while fetching the event with its details";
   }
-
 
   //automatically add the event
   Future<RetrieveEventResponseDto> sharedWithHash(String eventId) async {

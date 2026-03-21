@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/service/event/event_retrieve_service.dart';
-import 'package:wyd_front/state/event/event_range_controller.dart';
+import 'package:wyd_front/state/event/event_current_range_controller.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/media/media_flag_cache.dart';
 import 'package:wyd_front/state/profile/detailed_profiles_cache.dart';
@@ -39,7 +39,7 @@ class _EventsPageState extends State<EventsPage> {
     final mfCache = context.read<MediaFlagCache>();
     final dpCache = context.read<DetailedProfileCache>();
 
-    final rangeController = EventRangeController(initialDate: DateTime.now(), numberOfDays: 7);
+    final rangeController = EventCurrentRangeController(initialDate: DateTime.now(), numberOfDays: 7);
 
     _viewOrchestrator = EventViewOrchestrator(
       eventsCache: appEventsCache,
@@ -114,9 +114,9 @@ class _EventsPageState extends State<EventsPage> {
               onEventTap: (events, date) {
                 Event selectedEvent = events.whereType<Event>().toList().first;
 
-                if (selectedEvent.masterEventId != null && selectedEvent.detachedInstance == false) {
+                if (selectedEvent.masterEventId.isNotEmpty && selectedEvent.detachedInstance == false) {
                   unawaited(EventRetrieveService.retrieveGeneratedDetailsByMasterId(
-                    selectedEvent.masterEventId!,
+                    selectedEvent.masterEventId,
                     selectedEvent.recurrencyInstanceId!,
                   ));
                 } else {
