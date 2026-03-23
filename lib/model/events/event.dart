@@ -25,6 +25,8 @@ class Event extends CalendarEventData {
   @override
   int get hashCode => Object.hash(id, updatedAt);
 
+  bool get isGeneratedInstance => masterEventId.isNotEmpty && !detachedInstance;
+  
   Event({
     this.id = "",
     // in Utc time
@@ -75,8 +77,8 @@ class Event extends CalendarEventData {
 
   factory Event.fromDbMap(Map<String, dynamic> map) {
     // Convert Unix timestamps (milliseconds since epoch) back to DateTime
-    final startTime = DateTime.fromMillisecondsSinceEpoch(map['startTime'] as int).toUtc();
-    final endTime = DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int).toUtc();
+    final startTime = DateTime.fromMillisecondsSinceEpoch(map['sTime'] as int).toUtc();
+    final endTime = DateTime.fromMillisecondsSinceEpoch(map['eTime'] as int).toUtc();
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toUtc();
 
     return Event(
@@ -100,8 +102,8 @@ class Event extends CalendarEventData {
     return {
       'id': id,
       'title': title,
-      'startTime': startTime!.toUtc().millisecondsSinceEpoch,
-      'endTime': endTime!.toUtc().millisecondsSinceEpoch,
+      'sTime': startTime!.toUtc().millisecondsSinceEpoch,
+      'eTime': endTime!.toUtc().millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
       'totalConfirmed': totalConfirmed,
       'totalProfiles': totalProfiles,

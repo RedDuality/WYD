@@ -6,28 +6,37 @@ import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/model/events/recurrent_event.dart';
 import 'package:wyd_front/model/util/date_time_interval.dart';
 import 'package:wyd_front/service/event/event_storage_service.dart';
+import 'package:wyd_front/service/event/recurrent_event_storage_service.dart';
 import 'package:wyd_front/state/event/event_intervals_cache.dart';
 import 'package:wyd_front/state/event/event_storage.dart';
+import 'package:wyd_front/state/event/recurrent_event_storage.dart';
 import 'package:wyd_front/view/events/event_view_orchestrator.dart';
+
+// storageEventIntervals
+// _rangeInCache
+//
 
 class EventsCache extends EventController {
   EventViewOrchestrator? _provider;
 
-  final EventStorage _storage = EventStorage();
   final EventIntervalsCache _intervals = EventIntervalsCache();
 
-  late final StreamSubscription<DateTimeRange> _rangesChannel;
+  final EventStorage _storage = EventStorage();
+  final RecurrentEventStorage _recurrentEventStorage = RecurrentEventStorage();
+
+  late final StreamSubscription<DateTimeRange> _storageEventMassUpdate;
 
   late final StreamSubscription<(Event event, bool deleted)> _eventChannel;
   late final StreamSubscription<(RecurrentEvent event, bool deleted)> _recurrentEventChannel;
-  
+
   late final StreamSubscription<void> _clearAllChannel;
+  late final StreamSubscription<void> _clearAllRecurrentChannel;
 
   DateTimeRange _rangeInCache =
       DateTimeRange(start: DateTime.fromMicrosecondsSinceEpoch(0), end: DateTime.fromMillisecondsSinceEpoch(1));
 
   EventsCache() {
-    _rangesChannel = _intervals.rangesChannel.listen((updatedRange) {
+    _storageEventMassUpdate = _intervals.rangesChannel.listen((updatedRange) {
       _synchWithStorage(updatedRange);
     });
 
@@ -39,27 +48,49 @@ class EventsCache extends EventController {
       }
     });
 
+    _recurrentEventChannel = _recurrentEventStorage.updatesChannel.listen((event) {
+      if (event.$2) {
+        _deleteRecurrent(event.$1);
+      } else {
+        _addOrUpdateRecurrent(event.$1);
+      }
+    });
+
     _clearAllChannel = _storage.clearChannel.listen((_) {
+      clearAll();
+    });
+
+    _clearAllRecurrentChannel = _recurrentEventStorage.clearChannel.listen((_) {
       clearAll();
     });
   }
 
-  Future<void> _synchWithStorage(DateTimeRange updatedRange) async {
-    if (!_rangeInCache.overlapsWith(updatedRange)) return;
-
+  Future _synchWithStorage(DateTimeRange updatedRange) async {
     final overlap = _rangeInCache.getOverlap(updatedRange);
     if (overlap == null) return;
 
-    var events = await _storage.getEventsInRange(overlap);
+    var events = await _retrieveEventsFromStorage(overlap);
 
-    if (events.isNotEmpty) {
-      final eventIds = events.map((e) => e.id).toSet();
-      await _provider!.onMultipleEventsAdded(eventIds);
-      super.addAll(events);
-    }
+    final instanceIds = events.$1.map((ev) => ev.id).toSet();
+    final masterIds = events.$2.map((ev) => ev.masterEventId).toSet();
+
+    await _provider!.onMultipleEventsAdded(instanceIds.union(masterIds));
+
+    super.addAll(events.$1 + events.$2);
   }
 
-  Future<void> _addOrUpdate(Event event) async {
+  Future<(List<Event> instances, List<Event> generated)> _retrieveEventsFromStorage(DateTimeRange range) async {
+    var events = await _storage.getEventsInRange(range);
+    final detachedInstancesIds =
+        events.where((e) => e.detachedInstance).map((e) => '${e.masterEventId}_${e.recurrencyInstanceId}').toSet();
+
+    var generatedFromMasters = await RecurrentEventStorageService.generateEventsInTimeRange(range);
+    generatedFromMasters.removeWhere((e) => detachedInstancesIds.contains(e.id));
+
+    return (events, generatedFromMasters);
+  }
+
+  Future _addOrUpdate(Event event) async {
     final range = _provider?.rangeCntrl.currentRange ?? _rangeInCache;
     final inCacheTimeRange = range.overlapsWith(DateTimeRange(start: event.startTime!, end: event.endTime!));
 
@@ -108,6 +139,47 @@ class EventsCache extends EventController {
     }
   }
 
+  Future<void> _addOrUpdateRecurrent(RecurrentEvent master) async {
+    final cacheRangeStart = _intervals.getAbsoluteStart();
+    final cacheRangeEnd = _intervals.getAbsoluteEnd();
+
+    // 1. Get all instances from the RRule within the cache range
+    final occurrences = master.recurrenceRule.getInstances(
+      start: master.startTime!.toUtc(),
+      after: cacheRangeStart,
+      before: cacheRangeEnd,
+    );
+
+    // 2. Identify all events currently in the controller linked to this master
+    final relatedEvents = allEvents.whereType<Event>().where((e) => e.masterEventId == master.id).toList();
+
+    // 3. Separate: Find detached IDs (to skip) and generated events (to remove)
+    final detachedInstanceIds =
+        relatedEvents.where((e) => e.detachedInstance).map((e) => e.recurrencyInstanceId).toSet();
+
+    // 4. Remove ONLY the generated instances
+    final eventsToRemove = relatedEvents.where((e) => !e.detachedInstance).toList();
+    if (eventsToRemove.isNotEmpty) {
+      super.removeAll(eventsToRemove);
+    }
+
+    if (occurrences.isEmpty) return;
+
+    // 5. Generate new instances, removing those that have a detached version
+    final newInstances = master.expandOccurrences(occurrences);
+
+    newInstances.removeWhere((i) => detachedInstanceIds.contains(i.recurrencyInstanceId));
+
+    // 6. Batch add the new instances
+    if (newInstances.isNotEmpty) {
+      super.addAll(newInstances);
+    }
+  }
+
+  void _deleteRecurrent(RecurrentEvent master) {
+    super.removeAll(allEvents.whereType<Event>().where((e) => e.masterEventId == master.id).toList());
+  }
+
   Future<void> loadEventsForRange(DateTimeRange newRange) async {
     if (newRange == _rangeInCache) return;
 
@@ -123,23 +195,29 @@ class EventsCache extends EventController {
         .where((e) => !(e.endTime!.isAfter(range.start) && e.startTime!.isBefore(range.end)))
         .toList();
 
-    if (eventsToBeRemoved.isNotEmpty) {
-      super.removeAll(eventsToBeRemoved);
-    }
+    if (eventsToBeRemoved.isNotEmpty) super.removeAll(eventsToBeRemoved);
   }
 
   Future<void> _addInRangeEvents(DateTimeRange range) async {
-    final addedIntervals = _rangeInCache.getAddedIntervals(range);
+    final timeIntervalsNotYetInCache = _rangeInCache.getAddedIntervals(range);
 
     List<Event> eventsToBeAdded = [];
-    for (final interval in addedIntervals) {
-      var events = await EventStorageService.retrieveEventsInTimeRange(interval);
-      eventsToBeAdded.addAll(events);
+    for (final interval in timeIntervalsNotYetInCache) {
+      _updateStorageFromServerIfNotCoveredYet(interval);
+
+      var events = await _retrieveEventsFromStorage(interval);
+      eventsToBeAdded.addAll(events.$1 + events.$2);
     }
 
     _rangeInCache = range;
 
     super.addAll(eventsToBeAdded);
+  }
+
+  void _updateStorageFromServerIfNotCoveredYet(DateTimeRange requestedInterval) {
+    // if storage doesn't cover the full new interval, retrieve from server
+    var rangeNotInStorage = EventIntervalsCache().getMissingInterval(requestedInterval);
+    if (rangeNotInStorage != null) unawaited(EventStorageService.retrieveFromServer(rangeNotInStorage));
   }
 
   void setViewProvider(EventViewOrchestrator? provider) {
@@ -181,8 +259,10 @@ class EventsCache extends EventController {
   void dispose() {
     // super.allEvents.clear();
     _clearAllChannel.cancel();
-    _rangesChannel.cancel();
+    _clearAllRecurrentChannel.cancel();
+    _storageEventMassUpdate.cancel();
     _eventChannel.cancel();
+    _recurrentEventChannel.cancel();
     super.dispose();
   }
 }

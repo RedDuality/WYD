@@ -49,8 +49,8 @@ class EventStorage {
           CREATE TABLE $_tableName (
             id TEXT PRIMARY KEY,
             title TEXT,
-            startTime INTEGER,    -- Storing as Unix timestamp (milliseconds)
-            endTime INTEGER,      -- Storing as Unix timestamp (milliseconds)
+            sTime INTEGER,    -- Storing as Unix timestamp (milliseconds)
+            eTime INTEGER,      -- Storing as Unix timestamp (milliseconds)
             updatedAt INTEGER,    -- Storing as Unix timestamp
             totalConfirmed INTEGER,
             totalProfiles INTEGER,
@@ -219,9 +219,9 @@ class EventStorage {
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: 'endTime > ? AND startTime < ?',
+        where: 'eTime > ? AND sTime < ?',
         whereArgs: [startTimestamp, endTimestamp],
-        orderBy: 'startTime ASC',
+        orderBy: 'sTime ASC',
       );
 
       return List.generate(maps.length, (i) {
@@ -231,6 +231,7 @@ class EventStorage {
   }
 
   /// Returns events whose endTime falls inside the given range.
+  /// for image retrieval
   Future<List<Event>> getEventsEndingInRange(DateTimeRange range) async {
     if (kIsWeb) {
       final periodStartMs = range.start.toUtc().millisecondsSinceEpoch;
@@ -252,9 +253,9 @@ class EventStorage {
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: 'endTime >= ? AND endTime <= ?',
+        where: 'eTime >= ? AND eTime <= ?',
         whereArgs: [startTimestamp, endTimestamp],
-        orderBy: 'endTime ASC',
+        orderBy: 'eTime ASC',
       );
 
       return List.generate(maps.length, (i) {

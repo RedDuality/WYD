@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wyd_front/model/enum/event_role.dart';
+import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/model/profiles/profile_event.dart';
-import 'package:wyd_front/view/events/event_view_orchestrator.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_storage.dart';
 import 'package:wyd_front/state/user/user_cache.dart';
 
 class DetailedProfileEventsCache extends ChangeNotifier {
-  EventViewOrchestrator? _provider;
-
   final DetailedProfileEventsStorage _storage = DetailedProfileEventsStorage();
 
   late final StreamSubscription<(String eventId, Set<ProfileEvent> pes)> _addChannel;
@@ -21,9 +19,10 @@ class DetailedProfileEventsCache extends ChangeNotifier {
 
   DetailedProfileEventsCache() {
     _updateChannel = _storage.updatesChannel.listen((pe) {
-      // only for updates, the insertions are handled by currentEventsProvider
+      // only for updates, the insertions are handled by Orchestator
       _update(pe);
     });
+
     _deleteChannel = _storage.deleteChannel.listen((data) {
       _removeSingle(data.$1, data.$2);
     });
@@ -34,10 +33,6 @@ class DetailedProfileEventsCache extends ChangeNotifier {
     _clearAllChannel = _storage.clearChannel.listen((_) {
       clearAll();
     });
-  }
-
-  void setViewProvider(EventViewOrchestrator? provider) {
-    _provider = provider;
   }
 
   Set<ProfileEvent> get(String eventId) {
@@ -56,30 +51,19 @@ class DetailedProfileEventsCache extends ChangeNotifier {
     }
   }
 
-  Future<void> synchWithCachedEvents() async {
-    if (_provider == null) return;
-    final currentEventsIds = _provider!.currentEventsIds();
-    _profileEvents.removeWhere((id, _) => !currentEventsIds.contains(id));
+  Future<void> alignWithEvents(Set<String> eventIds) async {
+    _profileEvents.removeWhere((id, _) => !eventIds.contains(id));
 
-    final missingIds = currentEventsIds.difference(_profileEvents.keys.toSet());
+    final missingEventIds = eventIds.difference(_profileEvents.keys.toSet());
 
-    if (missingIds.isNotEmpty) {
-      final fetched = await _storage.getAllForEvents(missingIds.toList());
-
-      fetched.forEach((eventId, setOfEvents) {
-        _profileEvents[eventId] = setOfEvents;
-      });
-    }
+    retrieveAndSetProfileEvents(missingEventIds);
   }
 
-  Future<void> loadCorrespondingProfileEvents(Set<String> eventIds) async {
+  Future<void> retrieveAndSetProfileEvents(Set<String> eventIds) async {
     final fetched = await _storage.getAllForEvents(eventIds.toList());
-    fetched.forEach((eventId, events) {
-      if (_profileEvents.containsKey(eventId)) {
-        _profileEvents[eventId]!.addAll(events);
-      } else {
-        _profileEvents[eventId] = events;
-      }
+
+    fetched.forEach((eventId, setOfPEvents) {
+      _profileEvents[eventId] = setOfPEvents;
     });
   }
 
@@ -113,19 +97,10 @@ class DetailedProfileEventsCache extends ChangeNotifier {
     super.dispose();
   }
 
-  Set<String> eventsWithProfilesConfirmed(Set<String> eventIds,
-      {Set<String> profileIds = const {}, bool confirmed = true}) {
-    final Set<String> matchingEvents = {};
-    for (final eventId in eventIds) {
-      if (atLeastOneConfirmed(eventId, profileIds: profileIds, confirmed: confirmed)) {
-        matchingEvents.add(eventId);
-      }
-    }
-    return matchingEvents;
-  }
-
-  bool atLeastOneConfirmed(String eventId, {Set<String> profileIds = const {}, bool confirmed = true}) {
+  bool atLeastOneConfirmed(Event ev, {Set<String> profileIds = const {}, bool confirmed = true}) {
     if (profileIds.isEmpty) profileIds = UserCache().getProfileIds();
+
+    final eventId = ev.isGeneratedInstance ? ev.masterEventId : ev.id;
     final profiles = _profileEvents[eventId] ?? {};
     return profiles.any(
       (pe) => profileIds.contains(pe.profileId) && pe.confirmed == confirmed,
@@ -134,7 +109,7 @@ class DetailedProfileEventsCache extends ChangeNotifier {
 
   Set<String> relatedProfiles(String eventId, bool confirmed) {
     var myProfileIds = UserCache().getProfileIds();
-    
+
     final eventProfiles = _profileEvents[eventId] ?? {};
     return eventProfiles
         .where((pe) => pe.confirmed == confirmed && myProfileIds.contains(pe.profileId))

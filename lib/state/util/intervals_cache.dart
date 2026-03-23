@@ -10,7 +10,7 @@ abstract class IntervalStorage {
   Future<void> addInterval(DateTimeRange merged, List<DateTimeRange> overlapping);
 }
 
-class IntervalsCache<T extends IntervalStorage> {
+class StorageIntervalsCache<T extends IntervalStorage> {
   final List<DateTimeRange> _intervals = [];
   final T _storage;
 
@@ -19,7 +19,7 @@ class IntervalsCache<T extends IntervalStorage> {
 
   late final StreamSubscription<void> _clearAllChannel;
 
-  IntervalsCache(this._storage) {
+  StorageIntervalsCache(this._storage) {
     if (!kIsWeb) {
       _loadIntervals();
       _clearAllChannel = _storage.clearChannel.listen((_) => clearAll());

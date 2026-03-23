@@ -27,6 +27,8 @@ class MediaAutoSelectService {
     final confirmedEventIds =
         await DetailedProfileEventsStorage().eventsWithProfilesConfirmed(eventsNotChecked.map((event) => event.id).toSet());
 
+    // TODO generated recurrent Instances
+    
     return eventsNotChecked.where((event) => confirmedEventIds.contains(event.id)).toSet();
   }
 

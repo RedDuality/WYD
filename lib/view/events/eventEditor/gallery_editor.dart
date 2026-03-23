@@ -36,11 +36,11 @@ class GalleryEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final eventsCache = Provider.of<EventsCache>(context, listen: false);
+    final event = Provider.of<EventsCache>(context, listen: false).get(eventId)!;
     final profileEventCache = Provider.of<DetailedProfileEventsCache>(context, listen: false);
 
-    final hasEventFinished = eventsCache.get(eventId)!.hasEventFinished();
-    final atLeastOneConfirmed = profileEventCache.atLeastOneConfirmed(eventId);
+    final hasEventFinished = event.hasEventFinished();
+    final atLeastOneConfirmed = profileEventCache.atLeastOneConfirmed(event);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),

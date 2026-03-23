@@ -1,6 +1,8 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:rrule/rrule.dart';
 import 'package:wyd_front/API/Event/retrieve_recurrent_event_response_dto.dart';
+import 'package:wyd_front/model/events/event.dart';
 
 // ignore: must_be_immutable
 class RecurrentEvent extends CalendarEventData {
@@ -8,7 +10,7 @@ class RecurrentEvent extends CalendarEventData {
   DateTime updatedAt;
 
   final DateTime? recurrenceEnd;
-  final String recurrenceRule;
+  final RecurrenceRule recurrenceRule;
 
   @override
   bool operator ==(Object other) {
@@ -49,14 +51,13 @@ class RecurrentEvent extends CalendarEventData {
 
   factory RecurrentEvent.fromDto(RetrieveRecurrentEventResponseDto dto) {
     return RecurrentEvent(
-      id: dto.id,
-      updatedAt: dto.updatedAt,
-      title: dto.title,
-      startTime: dto.startTime,
-      endTime: dto.endTime,
-      recurrenceEnd: dto.recurrenceEnd,
-      recurrenceRule: dto.recurrenceRule
-    );
+        id: dto.id,
+        updatedAt: dto.updatedAt,
+        title: dto.title,
+        startTime: dto.startTime,
+        endTime: dto.endTime,
+        recurrenceEnd: dto.recurrenceEnd,
+        recurrenceRule: RecurrenceRule.fromString(dto.recurrenceRule));
   }
 
   factory RecurrentEvent.fromDbMap(Map<String, dynamic> map) {
@@ -64,7 +65,7 @@ class RecurrentEvent extends CalendarEventData {
     final startTime = DateTime.fromMillisecondsSinceEpoch(map['sTime'] as int).toUtc();
     final endTime = DateTime.fromMillisecondsSinceEpoch(map['eTime'] as int).toUtc();
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toUtc();
-    final recurrenceEnd = map['rEnd'] != null ?  DateTime.fromMillisecondsSinceEpoch(map['rEnd'] as int) : null;
+    final recurrenceEnd = map['rEnd'] != null ? DateTime.fromMillisecondsSinceEpoch(map['rEnd'] as int) : null;
 
     return RecurrentEvent(
       id: map['id'] as String,
@@ -74,9 +75,8 @@ class RecurrentEvent extends CalendarEventData {
       startTime: startTime,
       endTime: endTime,
       endDate: endTime,
-
       recurrenceEnd: recurrenceEnd,
-      recurrenceRule: map['rRule'] as String,
+      recurrenceRule: RecurrenceRule.fromString(map['rRule'] as String),
     );
   }
 
@@ -88,11 +88,55 @@ class RecurrentEvent extends CalendarEventData {
       'eTime': endTime!.toUtc().millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
       'rEnd': recurrenceEnd?.millisecondsSinceEpoch,
-      'rRule': recurrenceRule,
+      'rRule': recurrenceRule.toString(),
     };
   }
 
   bool hasEventFinished() {
     return DateTime.now().isAfter(endTime!);
+  }
+
+  List<Event> generateOccurrences(DateTimeRange interval) {
+    final occurrences = recurrenceRule.getInstances(
+      start: startTime!.toUtc(),
+      after: interval.start,
+      before: interval.end,
+    );
+
+    return expandOccurrences(occurrences);
+  }
+
+  List<Event> expandOccurrences(Iterable<DateTime> occurrences) {
+    final List<Event> newInstances = [];
+    final duration = endTime!.difference(startTime!);
+
+    for (final date in occurrences) {
+      final utcDate = date.toUtc();
+      // Generate the standard instance ID format: yyyyMMddTHHmmssZ
+      final instanceId = _formatRecurrenceId(utcDate);
+
+      newInstances.add(
+        Event(
+          id: "${id}_$instanceId",
+          masterEventId: id,
+          recurrencyInstanceId: instanceId,
+          updatedAt: updatedAt,
+          title: title,
+          description: description,
+          startTime: utcDate,
+          endTime: utcDate.add(duration),
+          totalConfirmed: 1,
+          totalProfiles: 1,
+          detachedInstance: false,
+          color: color,
+        ),
+      );
+    }
+    return newInstances;
+  }
+
+  /// Helper to format the instance ID consistently
+  String _formatRecurrenceId(DateTime date) {
+    return "${date.toIso8601String().replaceAll(RegExp(r'[:\-]'), '').split('.').first}Z";
   }
 }

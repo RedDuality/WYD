@@ -42,7 +42,6 @@ class EventViewOrchestrator with ChangeNotifier {
   // this class notifyListeners updates the view with the events in cache(through getFilteredEvents)
 
   void initialize() {
-    _profEventsCh.setViewProvider(this);
     _eventsCache.setViewProvider(this);
 
     _detProfCh.addListener(notifyListeners); // for color changes
@@ -71,12 +70,17 @@ class EventViewOrchestrator with ChangeNotifier {
     // internally calls notifyListeners(moving to the new library, no internal notifyListeners should be needed-> refresh only afterProfEvents)
     await _eventsCache.loadEventsForRange(rangeCntrl.currentRange);
 
-    unawaited(await _profEventsCh.synchWithCachedEvents().then(
+    unawaited(await _profEventsCh
+        .alignWithEvents(_eventsCache.allEvents
+            .whereType<Event>()
+            .map((e) => e.isGeneratedInstance ? e.masterEventId : e.id)
+            .toSet())
+        .then(
       (_) {
         _isLoading = false;
 
         notifyListeners(); // -> profEvents modifies the eventview
-        return null; 
+        return null;
       },
     ));
   }
@@ -84,18 +88,14 @@ class EventViewOrchestrator with ChangeNotifier {
   // some events have been added to the storage
   Future<void> onMultipleEventsAdded(Set<String> eventIds) async {
     _isLoading = true;
-    await _profEventsCh.loadCorrespondingProfileEvents(eventIds);
+    await _profEventsCh.retrieveAndSetProfileEvents(eventIds);
     _isLoading = false;
     //notifyListeners();  // already called from eventCache, not sure about this
   }
 
   Future<void> onSingleEventAdded(String eventId) async {
     await _profEventsCh.loadProfileEvents(eventId);
-    //notifyListeners();  
-  }
-
-  Set<String> currentEventsIds() {
-    return _eventsCache.allEvents.whereType<Event>().map((e) => e.id).toSet();
+    //notifyListeners();
   }
 
   void changeMode(bool privateMode) {
@@ -108,21 +108,14 @@ class EventViewOrchestrator with ChangeNotifier {
     if (_isLoading) return [];
     if (rangeCntrl.currentRange.end.isBefore(date) || rangeCntrl.currentRange.start.isAfter(date)) return [];
 
-    var todaysEvents = events.whereType<Event>().where((event) => event.occursOnDate(date.toLocal()));
-    final todaysEventsIds = todaysEvents.map((event) => event.id).toSet();
-    //debugPrint("todays total: ${todaysEventsIds.length}");
-
     final viewingProfileIds = _viewSetsCh.getProfiles(_confirmedView);
-    //debugPrint("profiles total: ${viewingProfileIds.length}");
 
-    final eventIdsWhereConfirmed = _profEventsCh.eventsWithProfilesConfirmed(
-      todaysEventsIds,
-      profileIds: viewingProfileIds,
-      confirmed: _confirmedView,
-    );
-    //debugPrint("confirmed total: ${eventIdsWhereConfirmed.length}");
-
-    return events.whereType<Event>().where((event) => eventIdsWhereConfirmed.contains(event.id)).toList();
+    return events
+        .whereType<Event>()
+        .where((e) =>
+            e.occursOnDate(date.toLocal()) &&
+            _profEventsCh.atLeastOneConfirmed(e, profileIds: viewingProfileIds, confirmed: _confirmedView))
+        .toList();
   }
 
   @override
@@ -131,8 +124,6 @@ class EventViewOrchestrator with ChangeNotifier {
     _profEventsCh.removeListener(notifyListeners);
     _viewSetsCh.removeListener(notifyListeners);
     _eventsCache.removeListener(notifyListeners);
-
-    _profEventsCh.setViewProvider(null);
     _eventsCache.setViewProvider(null);
     super.dispose();
   }

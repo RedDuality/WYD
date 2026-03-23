@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wyd_front/model/events/event.dart';
 import 'package:wyd_front/state/event/events_cache.dart';
 import 'package:wyd_front/state/profileEvent/detailed_profile_events_cache.dart';
 import 'package:wyd_front/view/events/eventEditor/event_view_editor.dart';
@@ -9,6 +10,7 @@ import 'package:wyd_front/view/widget/button/exit_button.dart';
 
 class EventView extends StatefulWidget {
   final String? eventId;
+
   final DateTime? date;
 
   const EventView({
@@ -24,6 +26,7 @@ class EventView extends StatefulWidget {
 class EventViewState extends State<EventView> {
   final _titleController = TextEditingController();
   String? eventId;
+  Event? event;
 
   @override
   void initState() {
@@ -31,7 +34,7 @@ class EventViewState extends State<EventView> {
 
     eventId = widget.eventId;
 
-    final event = eventId != null ? context.read<EventsCache>().get(eventId!) : null;
+    event = eventId != null ? context.read<EventsCache>().get(eventId!) : null;
 
     final newTitle = event?.title ?? "Evento senza nome";
     _titleController.text = newTitle;
@@ -52,7 +55,7 @@ class EventViewState extends State<EventView> {
   @override
   Widget build(BuildContext context) {
     final profileEventCache = Provider.of<DetailedProfileEventsCache>(context, listen: false);
-    final showImages = eventId != null && profileEventCache.atLeastOneConfirmed(eventId!);
+    final showImages = event != null && profileEventCache.atLeastOneConfirmed(event!);
 
     return Scaffold(
       body: CustomScrollView(

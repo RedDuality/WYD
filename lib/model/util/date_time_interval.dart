@@ -11,9 +11,16 @@ extension DateTimeInterval on DateTimeRange {
   }
 
   DateTimeRange? getOverlap(DateTimeRange other) {
+    // 1. Check if an overlap exists at all
+    if (start.isAtSameMomentAs(other.end) || end.isAtSameMomentAs(other.start) || !overlapsWith(other)) {
+      return null;
+    }
+
+    // 2. Calculate the intersection
     final overlapStart = start.isAfter(other.start) ? start : other.start;
     final overlapEnd = end.isBefore(other.end) ? end : other.end;
-    return !overlapStart.isBefore(overlapEnd) ? null : DateTimeRange(start: overlapStart, end: overlapEnd);
+
+    return DateTimeRange(start: overlapStart, end: overlapEnd);
   }
 
   /// Merges this range with another, assuming they overlap.

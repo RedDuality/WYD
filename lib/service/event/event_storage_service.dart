@@ -64,24 +64,16 @@ class EventStorageService {
     return RecurrentEvent.fromDto(dto);
   }
 
-  static Future<List<Event>> retrieveEventsInTimeRange(DateTimeRange requestedInterval) async {
-    var missingInterval = EventIntervalsCache().getMissingInterval(requestedInterval);
-
-    if (missingInterval != null) unawaited(_retrieveFromServer(missingInterval));
-
-    return EventStorage().getEventsInRange(requestedInterval);
-  }
-
   // for images retrieval
   static Future<List<Event>> retrieveEventsEndedIn(DateTimeRange requestedInterval) async {
     var missingInterval = EventIntervalsCache().getMissingInterval(requestedInterval);
 
-    if (missingInterval != null) await _retrieveFromServer(missingInterval); // in this case we wait
+    if (missingInterval != null) await retrieveFromServer(missingInterval); // in this case we wait
 
     return EventStorage().getEventsEndingInRange(requestedInterval);
   }
 
-  static Future<void> _retrieveFromServer(DateTimeRange retrieveInterval) async {
+  static Future<void> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var responseDto = await EventRetrieveService.retrieveFromServer(retrieveInterval);
     await addEvents(responseDto.events, responseDto.masters, retrieveInterval);
   }

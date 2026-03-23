@@ -20,7 +20,6 @@ class RecurrentEventStorage {
   final _eventUpdateController = StreamController<(RecurrentEvent event, bool deleted)>();
   final _clearAllChannel = StreamController<void>();
 
-
   Stream<(RecurrentEvent event, bool deleted)> get updatesChannel => _eventUpdateController.stream;
   Stream<void> get clearChannel => _clearAllChannel.stream;
 
@@ -56,8 +55,10 @@ class RecurrentEventStorage {
             rRule TEXT
           )
         ''');
-        await db.execute('CREATE INDEX idx_events_start_end ON $_tableName(sTime, eTime)');
-        await db.execute('CREATE INDEX idx_events_endTime ON $_tableName(eTime)');
+        // sTime: filters masters whose first occurrence starts before range end.
+        // rEnd: filters masters whose recurrence ends after range start (NULLs = infinite, also indexed).
+        await db.execute('CREATE INDEX idx_recurrent_sTime ON $_tableName(sTime)');
+        await db.execute('CREATE INDEX idx_recurrent_rEnd ON $_tableName(rEnd)');
       },
     );
   }
@@ -136,9 +137,11 @@ class RecurrentEventStorage {
       // which _delete needs to identify the right EventController entry.
       final maps = await db.query(_tableName, where: 'id = ?', whereArgs: [id], limit: 1);
       if (maps.isEmpty) return;
+
       final event = RecurrentEvent.fromDbMap(maps.first);
-      await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
       _eventUpdateController.sink.add((event, true));
+
+      await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
     }
   }
 
@@ -162,20 +165,19 @@ class RecurrentEventStorage {
     return null;
   }
 
-  /// Given a period, this function returns events that overlaps it.
-  /// Overlap logic: (E_end > R_start) AND (E_start < R_end)
-  Future<List<RecurrentEvent>> getEventsInRange(DateTimeRange range) async {
+  /// Returns master [RecurrentEvent]s that could have occurrences overlapping [range].
+  /// Overlap condition: sTime < rangeEnd AND (rEnd IS NULL OR rEnd > rangeStart).
+  /// Called by [RecurrentEventStorageService]
+  Future<List<RecurrentEvent>> getMastersInRange(DateTimeRange range) async {
     if (kIsWeb) {
+      final periodStartMs = range.start.toUtc().millisecondsSinceEpoch;
+      final periodEndMs = range.end.toUtc().millisecondsSinceEpoch;
+
       return _inMemoryStorage.values.where((event) {
-        final eventEndTime = event.endTime?.toUtc().millisecondsSinceEpoch;
-        final eventStartTime = event.startTime?.toUtc().millisecondsSinceEpoch;
-
-        final periodStartMs = range.start.toUtc().millisecondsSinceEpoch;
-        final periodEndMs = range.end.toUtc().millisecondsSinceEpoch;
-
-        if (eventEndTime == null || eventStartTime == null) return false;
-
-        return eventEndTime > periodStartMs && eventStartTime < periodEndMs;
+        final sTime = event.startTime?.toUtc().millisecondsSinceEpoch;
+        final rEnd = event.recurrenceEnd?.toUtc().millisecondsSinceEpoch;
+        if (sTime == null) return false;
+        return sTime < periodEndMs && (rEnd == null || rEnd > periodStartMs);
       }).toList()
         ..sort((a, b) => a.startTime!.compareTo(b.startTime!));
     } else {
@@ -187,47 +189,12 @@ class RecurrentEventStorage {
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: 'endTime > ? AND startTime < ?',
-        whereArgs: [startTimestamp, endTimestamp],
-        orderBy: 'startTime ASC',
+        where: 'sTime < ? AND (rEnd IS NULL OR rEnd > ?)',
+        whereArgs: [endTimestamp, startTimestamp],
+        orderBy: 'sTime ASC',
       );
 
-      return List.generate(maps.length, (i) {
-        return RecurrentEvent.fromDbMap(maps[i]);
-      });
-    }
-  }
-
-  /// Returns events whose endTime falls inside the given range.
-  Future<List<RecurrentEvent>> getEventsEndingInRange(DateTimeRange range) async {
-    if (kIsWeb) {
-      final periodStartMs = range.start.toUtc().millisecondsSinceEpoch;
-      final periodEndMs = range.end.toUtc().millisecondsSinceEpoch;
-
-      return _inMemoryStorage.values.where((event) {
-        final eventEndTime = event.endTime?.toUtc().millisecondsSinceEpoch;
-        if (eventEndTime == null) return false;
-
-        return eventEndTime >= periodStartMs && eventEndTime <= periodEndMs;
-      }).toList()
-        ..sort((a, b) => a.endTime!.compareTo(b.endTime!));
-    } else {
-      final db = await database;
-      if (db == null) return [];
-
-      final int startTimestamp = range.start.toUtc().millisecondsSinceEpoch;
-      final int endTimestamp = range.end.toUtc().millisecondsSinceEpoch;
-
-      final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
-        where: 'endTime >= ? AND endTime <= ?',
-        whereArgs: [startTimestamp, endTimestamp],
-        orderBy: 'endTime ASC',
-      );
-
-      return List.generate(maps.length, (i) {
-        return RecurrentEvent.fromDbMap(maps[i]);
-      });
+      return List.generate(maps.length, (i) => RecurrentEvent.fromDbMap(maps[i]));
     }
   }
 
