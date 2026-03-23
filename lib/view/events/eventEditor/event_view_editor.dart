@@ -74,7 +74,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
       final provider = context.read<EventsCache>();
       event = provider.get(widget.eventId!);
 
-      var details = (event != null && event!.masterEventId.isNotEmpty && event!.detachedInstance == false)
+      var details = (event != null && event!.isGeneratedInstance)
           ? EventDetailsCache().get(event!.masterEventId)
           : EventDetailsCache().get(widget.eventId!);
       if (details != null) {
@@ -219,10 +219,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
   @override
   Widget build(BuildContext context) {
     if (widget.eventId != null) {
-      final isGeneratedInstance =  exists && event!.masterEventId.isNotEmpty && event!.detachedInstance == false;
-
       final cachedEvent = context.select<EventsCache, Event?>((provider) {
-        if (isGeneratedInstance) {
+        if (exists && event!.isGeneratedInstance) {
           final replacement = provider.getByRecurrenceInstance(event!.masterEventId, event!.recurrencyInstanceId!);
           if (replacement != null) return replacement;
         }

@@ -43,6 +43,7 @@ class EventStorageService {
 
     if (dto.details != null) {
       if (dto.masterEventId.isNotEmpty && dto.detachedInstance == false) {
+        //generated, save the details on the masterId
         EventDetailsCache().update(dto.masterEventId, dto.details!);
       } else {
         EventDetailsCache().update(dto.id, dto.details!);

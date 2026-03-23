@@ -114,7 +114,7 @@ class _EventsPageState extends State<EventsPage> {
               onEventTap: (events, date) {
                 Event selectedEvent = events.whereType<Event>().toList().first;
 
-                if (selectedEvent.masterEventId.isNotEmpty && selectedEvent.detachedInstance == false) {
+                if (selectedEvent.isGeneratedInstance) {
                   unawaited(EventRetrieveService.retrieveGeneratedDetailsByMasterId(
                     selectedEvent.masterEventId,
                     selectedEvent.recurrencyInstanceId!,
