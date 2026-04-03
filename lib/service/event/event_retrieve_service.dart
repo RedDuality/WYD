@@ -14,8 +14,7 @@ import 'package:wyd_front/state/user/user_cache.dart';
 class EventRetrieveService {
   static Future<RetrieveMultipleEventsResponseDto> retrieveFromServer(DateTimeRange retrieveInterval) async {
     var retrieveDto = RetrieveMultipleEventsRequestDto(
-        startTime: retrieveInterval.start.toUtc(),
-        endTime: retrieveInterval.end.toUtc());
+        startTime: retrieveInterval.start.toUtc(), endTime: retrieveInterval.end.toUtc());
 
     return await EventAPI().listEvents(retrieveDto);
   }
@@ -51,7 +50,9 @@ class EventRetrieveService {
         masterEventId: masterEventId, recurrencyInstanceId: recurrencyInstanceId);
     var event = await EventAPI().retrieveRecurrentDetailsFromMasterId(retrieveDto);
 
+    // if its generated, it updates the old one, if it became and instance, it overrides it
     EventStorageService.addEvent(event);
+
 
     if (event.detachedInstance) // generated Instance became a detached one
     {

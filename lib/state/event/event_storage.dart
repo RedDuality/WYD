@@ -20,7 +20,6 @@ class EventStorage {
   final _eventUpdateController = StreamController<(Event event, bool deleted)>();
   final _clearAllChannel = StreamController<void>();
 
-
   Stream<(Event event, bool deleted)> get updatesChannel => _eventUpdateController.stream;
   Stream<void> get clearChannel => _clearAllChannel.stream;
 
@@ -57,6 +56,7 @@ class EventStorage {
             masterEventId TEXT,
             recurrencyInstanceId TEXT,
             detachedIntance BOOL,
+            rRule TEXT,
             UNIQUE(masterEventId, recurrencyInstanceId) ON CONFLICT REPLACE
           )
         ''');

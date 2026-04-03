@@ -36,6 +36,14 @@ class EventStorageService {
     return event;
   }
 
+  static Future<RecurrentEvent> addRecurrentEvent(RetrieveRecurrentEventResponseDto dto) async {
+    var recurrentEvent = await _deserializeRecurrentEvent(dto);
+    unawaited(RecurrentEventStorage().saveEvent(recurrentEvent));
+
+    return recurrentEvent;
+  }
+
+
   static Future<Event> _deserializeEvent(RetrieveEventResponseDto dto) async {
     if (dto.sharedWith != null) {
       await DetailedProfileEventsStorage().saveMultipleProfileEvents(dto.id, dto.sharedWith!);

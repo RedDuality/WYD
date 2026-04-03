@@ -6,6 +6,7 @@ import 'package:wyd_front/API/Event/create_recurrent_event_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_multiple_events_response_dto.dart';
+import 'package:wyd_front/API/Event/retrieve_recurrent_event_response_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_recurrent_instance_details_request_dto.dart';
 import 'package:wyd_front/API/Event/retrieve_updated_events_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
@@ -140,14 +141,13 @@ class EventAPI {
     }
   }
 
-  Future<List<RetrieveEventResponseDto>> createRecurrent(CreateRecurrentEventRequestDto createDto) async {
+  Future<RetrieveRecurrentEventResponseDto> createRecurrent(CreateRecurrentEventRequestDto createDto) async {
     String url = '${functionUrl}Recurrent/Create';
 
     var response = await client.post(Uri.parse(url), body: jsonEncode(createDto));
 
     if (response.statusCode == 200) {
-      var dtos = List<RetrieveEventResponseDto>.from(
-          json.decode(response.body).map((dto) => RetrieveEventResponseDto.fromJson(dto)));
+      var dtos =RetrieveRecurrentEventResponseDto.fromJson(          json.decode(response.body));
 
       return dtos;
     } else {

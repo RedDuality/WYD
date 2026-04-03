@@ -50,6 +50,8 @@ class RecurrentEvent extends CalendarEventData {
         );
 
   factory RecurrentEvent.fromDto(RetrieveRecurrentEventResponseDto dto) {
+    final rruleString = dto.recurrenceRule.startsWith('RRULE:') ? dto.recurrenceRule : 'RRULE:${dto.recurrenceRule}';
+
     return RecurrentEvent(
         id: dto.id,
         updatedAt: dto.updatedAt,
@@ -57,7 +59,7 @@ class RecurrentEvent extends CalendarEventData {
         startTime: dto.startTime,
         endTime: dto.endTime,
         recurrenceEnd: dto.recurrenceEnd,
-        recurrenceRule: RecurrenceRule.fromString(dto.recurrenceRule));
+        recurrenceRule: RecurrenceRule.fromString(rruleString));
   }
 
   factory RecurrentEvent.fromDbMap(Map<String, dynamic> map) {
@@ -66,6 +68,9 @@ class RecurrentEvent extends CalendarEventData {
     final endTime = DateTime.fromMillisecondsSinceEpoch(map['eTime'] as int).toUtc();
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toUtc();
     final recurrenceEnd = map['rEnd'] != null ? DateTime.fromMillisecondsSinceEpoch(map['rEnd'] as int) : null;
+
+    final rawRrule = map['rRule'] as String;
+    final rruleString = rawRrule.startsWith('RRULE:') ? rawRrule : 'RRULE:$rawRrule';
 
     return RecurrentEvent(
       id: map['id'] as String,
@@ -76,7 +81,7 @@ class RecurrentEvent extends CalendarEventData {
       endTime: endTime,
       endDate: endTime,
       recurrenceEnd: recurrenceEnd,
-      recurrenceRule: RecurrenceRule.fromString(map['rRule'] as String),
+      recurrenceRule: RecurrenceRule.fromString(rruleString),
     );
   }
 
@@ -96,11 +101,40 @@ class RecurrentEvent extends CalendarEventData {
     return DateTime.now().isAfter(endTime!);
   }
 
+  Event _getInstanceFromMaster(DateTime startTime, Duration duration) {
+    final utcDate = startTime.toUtc();
+    final instanceId = _formatRecurrenceId(utcDate);
+
+    return Event(
+      id: "${id}_$instanceId",
+      masterEventId: id,
+      recurrencyInstanceId: instanceId,
+      updatedAt: updatedAt,
+      title: title,
+      description: description,
+      startTime: utcDate,
+      endTime: utcDate.add(duration),
+      totalConfirmed: 1,
+      totalProfiles: 1,
+      detachedInstance: false,
+      recurrenceRule: recurrenceRule,
+      color: color,
+    );
+  }
+
   List<Event> generateOccurrences(DateTimeRange interval) {
+    final masterStart = startTime!.toUtc().copyWith(millisecond: 0, microsecond: 0);
+    final intervalStart = interval.start.toUtc().copyWith(millisecond: 0, microsecond: 0);
+
+    // If the interval starts before the event's first occurrence,
+    // start searching from the event's first occurrence instead.
+    final effectiveAfter = intervalStart.isBefore(masterStart) ? masterStart : intervalStart;
+
     final occurrences = recurrenceRule.getInstances(
-      start: startTime!.toUtc(),
-      after: interval.start,
-      before: interval.end,
+      start: masterStart,
+      after: effectiveAfter,
+      includeAfter: true,
+      before: interval.end.toUtc().copyWith(millisecond: 0, microsecond: 0),
     );
 
     return expandOccurrences(occurrences);
@@ -108,31 +142,43 @@ class RecurrentEvent extends CalendarEventData {
 
   List<Event> expandOccurrences(Iterable<DateTime> occurrences) {
     final List<Event> newInstances = [];
-    final duration = endTime!.difference(startTime!);
+    final dur = endTime!.difference(startTime!);
 
-    for (final date in occurrences) {
-      final utcDate = date.toUtc();
-      // Generate the standard instance ID format: yyyyMMddTHHmmssZ
-      final instanceId = _formatRecurrenceId(utcDate);
-
-      newInstances.add(
-        Event(
-          id: "${id}_$instanceId",
-          masterEventId: id,
-          recurrencyInstanceId: instanceId,
-          updatedAt: updatedAt,
-          title: title,
-          description: description,
-          startTime: utcDate,
-          endTime: utcDate.add(duration),
-          totalConfirmed: 1,
-          totalProfiles: 1,
-          detachedInstance: false,
-          color: color,
-        ),
-      );
+    for (final sTime in occurrences) {
+      newInstances.add(_getInstanceFromMaster(sTime, dur));
     }
     return newInstances;
+  }
+
+  Event generateCurrentOccurence(DateTime startsAt) {
+    final utcStart = startsAt.toUtc().copyWith(millisecond: 0, microsecond: 0);
+
+    if (!_isValidOccurrence(utcStart)) {
+      throw ArgumentError("The provided startTime is not a valid recurrence instance.");
+    }
+
+    final duration = endTime!.difference(startTime!);
+
+    return _getInstanceFromMaster(startsAt, duration);
+  }
+
+  bool _isValidOccurrence(DateTime startsAt) {
+    final masterStart = startTime!.toUtc().copyWith(millisecond: 0, microsecond: 0);
+
+
+    final searchAfter = startsAt.subtract(const Duration(seconds: 1));
+    // Ensure we don't look "after" a date that is before the "start"
+    final effectiveAfter = searchAfter.isBefore(masterStart) ? masterStart : searchAfter;
+
+    // We check occurrences in a 1-second window around the target
+    final occurrences = recurrenceRule.getInstances(
+      start: masterStart,
+      after: effectiveAfter,
+      includeAfter: true,
+      before: startsAt.add(const Duration(seconds: 1)),
+    );
+
+    return occurrences.any((d) => d.toUtc().isAtSameMomentAs(startsAt));
   }
 
   /// Helper to format the instance ID consistently

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:rrule/rrule.dart';
 import 'package:wyd_front/model/util/recurrency_config.dart';
 
 class RecurrenceEditor extends StatefulWidget {
-  final RecurrenceConfig? initialConfig;
-  final ValueChanged<RecurrenceConfig?> onChanged;
+  final RecurrenceRule? initialRule;
+  final ValueChanged<RecurrenceRule?> onChanged;
   final bool viewOnly;
   final double widthThreshold;
 
   const RecurrenceEditor({
     super.key,
-    this.initialConfig,
+    this.initialRule,
     required this.onChanged,
     this.viewOnly = false,
     this.widthThreshold = 450,
@@ -21,7 +22,7 @@ class RecurrenceEditor extends StatefulWidget {
 
 class _RecurrenceEditorState extends State<RecurrenceEditor> {
   bool _enabled = false;
-  RecurrenceFrequency _frequency = RecurrenceFrequency.weekly;
+  Frequency _frequency = Frequency.weekly;
   int _interval = 1;
   List<int> _byWeekDay = [];
   DateTime? _until;
@@ -29,27 +30,30 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialConfig != null) {
+    final rule = widget.initialRule;
+    if (rule != null) {
       _enabled = true;
-      _frequency = widget.initialConfig!.frequency;
-      _interval = widget.initialConfig!.interval;
-      _byWeekDay = List.from(widget.initialConfig!.byWeekDay);
-      _until = widget.initialConfig!.until;
+      _frequency = rule.frequency;
+      _interval = rule.interval ?? 1;
+      final days = rule.byWeekDays.map((e) => e.day - 1).toList();
+      days.sort();
+      _byWeekDay = days;
+      _until = rule.until;
     }
   }
 
-  void _notify() {
-    if (!_enabled) {
-      widget.onChanged(null);
-      return;
-    }
-    widget.onChanged(RecurrenceConfig(
+  RecurrenceRule _buildRule() {
+    return RecurrenceRule(
       frequency: _frequency,
-      interval: _interval,
-      byWeekDay: _byWeekDay,
+      interval: _interval > 1 ? _interval : null,
+      byWeekDays: _frequency == Frequency.weekly && _byWeekDay.isNotEmpty
+          ? _byWeekDay.map((d) => ByWeekDayEntry(d + 1)).toList()
+          : [],
       until: _until,
-    ));
+    );
   }
+
+  void _notify() => widget.onChanged(_enabled ? _buildRule() : null);
 
   void _toggleEnabled(bool value) {
     setState(() => _enabled = value);
@@ -59,18 +63,18 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
   @override
   Widget build(BuildContext context) {
     if (widget.viewOnly) {
-      if (widget.initialConfig == null) {
+      if (widget.initialRule == null) {
         return const SizedBox.shrink(); // Show nothing if no recurrence
       }
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: Row(
           children: [
             const Icon(Icons.repeat, size: 16, color: Colors.grey),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                widget.initialConfig!.toHumanReadable(),
+                widget.initialRule!.toHumanReadable(),
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black87,
@@ -131,7 +135,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
                   // to ensure vertical alignment of the second column
                   SizedBox(width: 180, child: _buildUntilRow()),
                   const SizedBox(width: 20),
-                  if (_frequency == RecurrenceFrequency.weekly) _buildWeekDaySelector() else const SizedBox.shrink(),
+                  if (_frequency == Frequency.weekly) _buildWeekDaySelector() else const SizedBox.shrink(),
                 ],
               ),
               const SizedBox(height: 10),
@@ -144,7 +148,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
             children: [
               toggleSection,
               _buildFrequencyRow(),
-              if (_frequency == RecurrenceFrequency.weekly) ...[
+              if (_frequency == Frequency.weekly) ...[
                 const SizedBox(height: 10),
                 _buildWeekDaySelector(),
               ],
@@ -182,20 +186,20 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
           ),
         ),
         const SizedBox(width: 8),
-        DropdownButton<RecurrenceFrequency>(
+        DropdownButton<Frequency>(
           value: _frequency,
           isDense: true,
           items: const [
-            DropdownMenuItem(value: RecurrenceFrequency.daily, child: Text("Day(s)")),
-            DropdownMenuItem(value: RecurrenceFrequency.weekly, child: Text("Week(s)")),
-            DropdownMenuItem(value: RecurrenceFrequency.monthly, child: Text("Month(s)")),
-            DropdownMenuItem(value: RecurrenceFrequency.yearly, child: Text("Year(s)")),
+            DropdownMenuItem(value: Frequency.daily, child: Text("Day(s)")),
+            DropdownMenuItem(value: Frequency.weekly, child: Text("Week(s)")),
+            DropdownMenuItem(value: Frequency.monthly, child: Text("Month(s)")),
+            DropdownMenuItem(value: Frequency.yearly, child: Text("Year(s)")),
           ],
           onChanged: (val) {
             if (val != null) {
               setState(() {
                 _frequency = val;
-                if (val != RecurrenceFrequency.weekly) _byWeekDay = [];
+                if (val != Frequency.weekly) _byWeekDay = [];
               });
               _notify();
             }
@@ -269,7 +273,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
             }
           },
           child: Text(
-            _until != null
+            (_until != null && _until!.isBefore(DateTime(9999, 1, 1)))
                 ? "${_until!.day.toString().padLeft(2, '0')}/${_until!.month.toString().padLeft(2, '0')}/${_until!.year}"
                 : "Never",
             style: TextStyle(

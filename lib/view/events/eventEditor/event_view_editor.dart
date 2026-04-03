@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:rrule/rrule.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wyd_front/API/Event/create_event_request_dto.dart';
 import 'package:wyd_front/API/Event/create_recurrent_event_request_dto.dart';
 import 'package:wyd_front/API/Event/update_event_request_dto.dart';
 import 'package:wyd_front/model/events/event.dart';
-import 'package:wyd_front/model/util/recurrency_config.dart';
 import 'package:wyd_front/service/event/event_actions_service.dart';
 import 'package:wyd_front/service/util/information_service.dart';
 import 'package:wyd_front/state/event/event_intervals_cache.dart';
@@ -58,8 +58,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
 
   String initialDescription = '';
 
-  RecurrenceConfig? _recurrenceConfig;
-  RecurrenceConfig? _initialRecurrenceConfig;
+  RecurrenceRule? _recurrenceRule;
+  RecurrenceRule? _initialRecurrenceRule;
 
   var isBeingChanged = false;
 
@@ -77,9 +77,13 @@ class _EventViewEditorState extends State<EventViewEditor> {
       var details = (event != null && event!.isGeneratedInstance)
           ? EventDetailsCache().get(event!.masterEventId)
           : EventDetailsCache().get(widget.eventId!);
+
+      if (event!.recurrenceRule != null) {
+        _initialRecurrenceRule = event!.recurrenceRule!;
+      }
+
       if (details != null) {
         initialDescription = details.description;
-        _initialRecurrenceConfig = RecurrenceConfig.fromRRule(details.recurrenceRule);
       }
     }
 
@@ -91,7 +95,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
     shared = totalProfiles > 1;
 
     _descriptionController.text = initialDescription;
-    _recurrenceConfig = _initialRecurrenceConfig;
+    _recurrenceRule = _initialRecurrenceRule;
 
     _titleListener = () {
       _checkChanges();
@@ -119,8 +123,8 @@ class _EventViewEditorState extends State<EventViewEditor> {
     _checkChanges();
   }
 
-  void _onRecurrenceChanged(RecurrenceConfig? config) {
-    setState(() => _recurrenceConfig = config);
+  void _onRecurrenceChanged(RecurrenceRule? rRule) {
+    setState(() => _recurrenceRule = rRule);
     _checkChanges();
   }
 
@@ -131,7 +135,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
     final descriptionChanged = initialDescription.trim() != _descriptionController.text.trim();
     final startTimeChanged = event!.startTime != startTime;
     final endTimeChanged = event!.endTime != endTime;
-    final recurrenceChanged = _initialRecurrenceConfig?.toRRule() != _recurrenceConfig?.toRRule();
+    final recurrenceChanged = _initialRecurrenceRule?.toString() != _recurrenceRule?.toString();
 
     final changed = startTimeChanged || endTimeChanged || titleChanged || descriptionChanged || recurrenceChanged;
     if (changed != isBeingChanged) {
@@ -151,7 +155,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
   Future<void> _createEvent() async {
     late final Event newEvent;
 
-    if (_recurrenceConfig == null) {
+    if (_recurrenceRule == null) {
       final dto = _getCreateDto();
       newEvent = await EventActionsService.createEvent(dto);
     } else {
@@ -178,7 +182,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
       description: _descriptionController.text.trim(),
       startTime: startTime,
       endTime: endTime,
-      recurrenceRule: _recurrenceConfig!.toRRule(),
+      recurrenceRule: _recurrenceRule!.toString(),
       timeZoneId: tz.local.name,
       cacheIntervalStart: EventIntervalsCache().getAbsoluteStart(),
       cacheIntervalEnd: EventIntervalsCache().getAbsoluteEnd(),
@@ -263,7 +267,7 @@ class _EventViewEditorState extends State<EventViewEditor> {
             ),
 
             RecurrenceEditor(
-              initialConfig: _recurrenceConfig,
+              initialRule: _recurrenceRule,
               onChanged: _onRecurrenceChanged,
             ),
 

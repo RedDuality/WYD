@@ -1,5 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:rrule/rrule.dart';
 import 'package:wyd_front/API/Event/retrieve_event_response_dto.dart';
 
 // ignore: must_be_immutable
@@ -9,9 +10,10 @@ class Event extends CalendarEventData {
   int totalConfirmed;
   int totalProfiles;
 
-  String masterEventId;
+  String masterEventId; //empty if normal instance
   String? recurrencyInstanceId;
   bool detachedInstance;
+  RecurrenceRule? recurrenceRule;
 
   String? importedAccountId;
 
@@ -41,6 +43,7 @@ class Event extends CalendarEventData {
     required this.masterEventId,
     this.recurrencyInstanceId,
     this.detachedInstance = false,
+    this.recurrenceRule,
 
     DateTime? endDate,
     required super.title,
@@ -80,6 +83,8 @@ class Event extends CalendarEventData {
     final startTime = DateTime.fromMillisecondsSinceEpoch(map['sTime'] as int).toUtc();
     final endTime = DateTime.fromMillisecondsSinceEpoch(map['eTime'] as int).toUtc();
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int).toUtc();
+    final rawRrule = map['rRule'] as String?;
+    final rruleString = rawRrule!= null ? (rawRrule.startsWith('RRULE:') ? rawRrule : 'RRULE:$rawRrule') : null;
 
     return Event(
       id: map['id'] as String,
@@ -94,6 +99,7 @@ class Event extends CalendarEventData {
       masterEventId: map['masterEventId'] as String,
       recurrencyInstanceId: map['recurrencyInstanceId'] as String?,
       detachedInstance: map['detachedInstance'] as bool,
+      recurrenceRule: rruleString!= null ? RecurrenceRule.fromString(rruleString) : null,
     );
   }
 
@@ -110,6 +116,7 @@ class Event extends CalendarEventData {
       'masterEventId': masterEventId,
       'recurrencyInstanceId': recurrencyInstanceId,
       'detachedInstance': detachedInstance,
+      'rRule': recurrenceRule.toString(),
     };
   }
 

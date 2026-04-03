@@ -30,18 +30,11 @@ class EventActionsService {
   }
 
   static Future<Event> createRecurrentEvent(CreateRecurrentEventRequestDto createDto) async {
-    var createdEventsDto = await EventAPI().createRecurrent(createDto);
+    var createdEventDto = await EventAPI().createRecurrent(createDto);
 
-    DateTime firstStartTime =
-        createdEventsDto.map((e) => e.startTime).reduce((current, next) => current.isBefore(next) ? current : next);
-
-    var events = await EventStorageService.addEvents(
-      createdEventsDto,
-      [],
-      DateTimeRange(start: firstStartTime, end: createDto.cacheIntervalEnd),
-    );
-
-    return events.where((e) => e.startTime == createDto.startTime).first;
+    var event = await EventStorageService.addRecurrentEvent(createdEventDto);
+    
+    return event.generateCurrentOccurence(createDto.startTime);
   }
 
   static Future<void> update(UpdateEventRequestDto updateDto) async {
