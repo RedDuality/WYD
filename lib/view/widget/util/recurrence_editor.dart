@@ -39,6 +39,9 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
       days.sort();
       _byWeekDay = days;
       _until = rule.until;
+    } else {
+      final int currentDayIndex = DateTime.now().weekday - 1;
+      _byWeekDay = [currentDayIndex];
     }
   }
 
