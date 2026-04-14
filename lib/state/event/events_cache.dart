@@ -83,7 +83,8 @@ class EventsCache extends EventController {
     var events = await _storage.getEventsInRange(range);
     final detachedInstancesIds =
         events.where((e) => e.detachedInstance).map((e) => '${e.masterEventId}_${e.recurrencyInstanceId}').toSet();
-
+        
+    // TODO set recurrenceRule to detachedInstances
     var generatedFromMasters = await RecurrentEventStorageService.generateEventsInTimeRange(range);
     generatedFromMasters.removeWhere((e) => detachedInstancesIds.contains(e.id));
 
